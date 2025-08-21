@@ -28,7 +28,15 @@ const Hero = () => {
                 </a>
               </Button>
               
-              <Button variant="outline" size="lg">
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => {
+                  document.getElementById('services')?.scrollIntoView({ 
+                    behavior: 'smooth' 
+                  });
+                }}
+              >
                 Browse Services
               </Button>
             </div>
