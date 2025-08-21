@@ -16,7 +16,7 @@ const Footer = () => {
     company: [
       { name: "About", href: "#about" },
       { name: "Blog", href: "#blog" },
-      { name: "Contact", href: "https://calendly.com/jean-kaluza/meeting" },
+      { name: "Contact", href: "https://calendly.com/jean-kaluza/media-buyer-op" },
     ],
     resources: [
       { name: "Medium Blog", href: "https://medium.com/@product_shift" },

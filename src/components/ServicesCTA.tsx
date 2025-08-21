@@ -12,7 +12,7 @@ const ServicesCTA = () => {
             className="bg-gradient-hero hover:shadow-elegant transition-all duration-300 text-lg px-8 py-4"
           >
             <a 
-              href="https://calendly.com/jean-kaluza/meeting" 
+              href="https://calendly.com/jean-kaluza/media-buyer-op" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center"

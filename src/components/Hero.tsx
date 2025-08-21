@@ -22,7 +22,7 @@ const Hero = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up">
               <Button size="lg" asChild className="bg-gradient-hero hover:shadow-glow transition-all duration-300">
-                <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                <a href="https://calendly.com/jean-kaluza/media-buyer-op" target="_blank" rel="noopener noreferrer" className="flex items-center">
                   Book Free Consultation
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>

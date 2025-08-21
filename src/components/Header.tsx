@@ -47,7 +47,7 @@ const Header = () => {
               className="bg-gradient-hero hover:shadow-glow transition-all duration-300"
             >
               <a 
-                href="https://calendly.com/jean-kaluza/meeting" 
+                href="https://calendly.com/jean-kaluza/media-buyer-op"
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -89,7 +89,7 @@ const Header = () => {
                   className="w-full bg-gradient-hero"
                 >
                   <a 
-                    href="https://calendly.com/jean-kaluza/meeting" 
+                    href="https://calendly.com/jean-kaluza/media-buyer-op" 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
