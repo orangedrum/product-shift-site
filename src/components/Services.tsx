@@ -18,6 +18,12 @@ import {
 const Services = () => {
   const services = [
     {
+      icon: Megaphone,
+      title: "Media Buying",
+      description: "Strategic advertising campaigns that convert based on user research insights",
+      features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"]
+    },
+    {
       icon: Search,
       title: "UX Research",
       description: "Deep user insights through ethnographic research, usability testing, and user interviews",
@@ -46,12 +52,6 @@ const Services = () => {
       title: "A/B Testing",
       description: "Optimize conversion rates through systematic experimentation and data analysis",
       features: ["Conversion Testing", "Statistical Analysis", "Performance Metrics", "Optimization"]
-    },
-    {
-      icon: Megaphone,
-      title: "Media Buying",
-      description: "Strategic advertising campaigns that convert based on user research insights",
-      features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"]
     }
   ];
 
