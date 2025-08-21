@@ -61,7 +61,15 @@ const Hero = () => {
 
           {/* Right Image */}
           <div className="relative animate-float">
-            <img src={heroImage} alt="Product Shift UX Research Team" className="w-full h-auto rounded-2xl shadow-elegant" />
+            <div className="relative rounded-2xl overflow-hidden shadow-elegant">
+              <img src="/lovable-uploads/bc784c47-6a25-401f-a03b-9ddbfb2a30a5.png" alt="Product Shift UX Research Team" className="w-full h-auto" />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
+            </div>
+            <div className="text-center mt-4">
+              <a href="https://www.orangedrum.com/casestudy_sms.html" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors story-link">
+                our research build Disney's Omnichannel Platform
+              </a>
+            </div>
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-hero rounded-full opacity-20 animate-pulse"></div>
             <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-accent rounded-full opacity-30 animate-pulse delay-1000"></div>
           </div>
