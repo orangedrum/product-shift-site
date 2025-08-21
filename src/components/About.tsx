@@ -42,7 +42,7 @@ const About = () => {
               Thought Leadership in Growth & Strategy
             </h2>
             <div className="flex items-start gap-6 mb-6">
-              <Avatar className="w-48 h-48 flex-shrink-0">
+              <Avatar className="w-48 h-48 flex-shrink-0 border-2 border-primary p-1.5">
                 <AvatarImage src="/lovable-uploads/b52c1472-b6c4-49cb-b252-69a31081206e.png" alt="Jean, Product Shift Lead" />
                 <AvatarFallback>JS</AvatarFallback>
               </Avatar>
