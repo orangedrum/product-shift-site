@@ -50,8 +50,7 @@ const Footer = () => {
                 <span className="text-xl font-bold text-foreground">Product Shift</span>
               </div>
               <p className="text-muted-foreground mb-6 text-sm">
-                AI-powered UX research and product strategy that delivers real data 
-                for higher ROIs and successful launches.
+                Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond
               </p>
               <div className="space-y-2">
                 <Badge variant="outline" className="mr-2">Enterprise Experience</Badge>
