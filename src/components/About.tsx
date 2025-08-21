@@ -48,13 +48,13 @@ const About = () => {
               </Avatar>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  I'm Jean, and I lead Product Shift in delivering cutting-edge UX Design & Product Management solutions. Our team has proven expertise working with industry leaders like Disney Parks & Resorts, Pluralsight, and innovative startups across Silicon Valley, Dallas, and beyond.
+                  I'm Jean, and I lead Product Shift in delivering data driven marketing strategy & product solutions. Our team has proven expertise in product & marketing strategy, media buying, and UX research methodologies that have transformed product & marketing strategies into the stratospheres of success. We're at the forefront of AI UX experience, helping companies leverage GenAI for unprecedented user insights and business growth.
                 </p>
                 <p>
-                  Our critical research and analysis has proven time and time again necessary for successful UX in digital products. We pride ourselves on Product Shift's methods and strategies in developing comprehensive product processes that transform organizations into data-driven powerhouses.
+                  Our extensive research expertise means you'll know your future customers better than they know themselves, converting them from hook, through conversion, and returning customers. We encourage our client's & partners to extend our insights across both marketing & product silos for the best results.
                 </p>
                 <p>
-                  With deep experience from leading platforms like JEMA and Dovetail, we're at the forefront of AI-powered UX research, helping companies leverage GenAI for unprecedented user insights and business growth.
+                  Our goal is to build customized flywheels based metrics & real-world data that generates automated growth & success for years un-end.
                 </p>
               </div>
             </div>
