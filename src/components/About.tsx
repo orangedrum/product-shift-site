@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Building, Award, Users, Zap } from "lucide-react";
-import { aboutContent } from "@/content/about";
 
 const About = () => {
   const achievements = [
@@ -60,7 +59,7 @@ const About = () => {
               About Product Shift
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              {aboutContent.title}
+              Thought Leadership in Growth & Strategy
             </h2>
             <div className="flex items-start gap-6 mb-6">
               <Avatar className="w-48 h-48 flex-shrink-0">
@@ -68,11 +67,15 @@ const About = () => {
                 <AvatarFallback>JS</AvatarFallback>
               </Avatar>
               <div className="space-y-4 text-muted-foreground">
-                {aboutContent.paragraphs.map((paragraph, index) => (
-                  <p key={index}>
-                    {paragraph}
-                  </p>
-                ))}
+                <p>
+                  I'm Jean, and I lead Product Shift in delivering cutting-edge UX Design & Product Management solutions. Our team has proven expertise working with industry leaders like Disney Parks & Resorts, Pluralsight, and innovative startups across Silicon Valley, Dallas, and beyond.
+                </p>
+                <p>
+                  Our critical research and analysis has proven time and time again necessary for successful UX in digital products. We pride ourselves on Product Shift's methods and strategies in developing comprehensive product processes that transform organizations into data-driven powerhouses.
+                </p>
+                <p>
+                  With deep experience from leading platforms like JEMA and Dovetail, we're at the forefront of AI-powered UX research, helping companies leverage GenAI for unprecedented user insights and business growth.
+                </p>
               </div>
             </div>
           </div>
