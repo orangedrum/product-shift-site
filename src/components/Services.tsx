@@ -36,16 +36,16 @@ const Services = () => {
       features: ["GenAI UX Design", "Conversation Theory (Chatbots)", "Automated Research", "ML-Driven Insights"]
     },
     {
-      icon: Zap,
-      title: "Design Sprints",
-      description: "Rapid prototyping and validation to accelerate your product development cycle",
-      features: ["5-Day Sprints", "Rapid Prototyping", "User Validation", "Concept Testing"]
-    },
-    {
       icon: Target,
       title: "Market Strategy",
       description: "Data-driven market positioning and go-to-market strategies for successful launches",
       features: ["Market Research", "Positioning Strategy", "Competitor Analysis", "Launch Planning"]
+    },
+    {
+      icon: Zap,
+      title: "Design Sprints",
+      description: "Rapid prototyping and validation to accelerate your product development cycle",
+      features: ["5-Day Sprints", "Rapid Prototyping", "User Validation", "Concept Testing"]
     },
     {
       icon: TestTube,
