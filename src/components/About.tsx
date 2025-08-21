@@ -58,7 +58,7 @@ const About = () => {
               About Product Shift
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Applications Designed Smarter
+              Thought Leadership in Growth & Strategy
             </h2>
             <div className="space-y-4 text-muted-foreground">
               <p>
