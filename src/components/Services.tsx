@@ -110,8 +110,8 @@ const Services = () => {
                 Perfect Partner for Agencies
               </h3>
               <p className="text-muted-foreground mb-6">
-                Enhance your agency's offerings with our specialized UX research and AI expertise. 
-                We seamlessly integrate with your existing client relationships to deliver exceptional results.
+                Empower your agency's offerings or marketing strategy with our AI UX, research & strategy expertise. 
+                We seamlessly integrate with your existing flows or client relationships to deliver exceptional results.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Badge variant="secondary">White-label Services</Badge>
