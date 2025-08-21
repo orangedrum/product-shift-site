@@ -2,55 +2,35 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Building, Award, Users, Zap } from "lucide-react";
-
 const About = () => {
-  const achievements = [
-    {
-      icon: Building,
-      title: "Enterprise Experience",
-      description: "Delivered solutions for Disney Parks & Resorts, Pluralsight, and leading SaaS companies"
-    },
-    {
-      icon: Award,
-      title: "AI UX Expertise",
-      description: (
-        <>
+  const achievements = [{
+    icon: Building,
+    title: "Enterprise Experience",
+    description: "Delivered solutions for Disney Parks & Resorts, Pluralsight, and leading SaaS companies"
+  }, {
+    icon: Award,
+    title: "AI UX Expertise",
+    description: <>
           Pioneer in the UX of AI as a consultant for{" "}
-          <a 
-            href="https://www.jema.ai/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
+          <a href="https://www.jema.ai/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
             JEMA
           </a>{" "}
           and{" "}
-          <a 
-            href="https://dovetail.com/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
+          <a href="https://dovetail.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
             Dovetail
           </a>{" "}
           platforms.
         </>
-      )
-    },
-    {
-      icon: Users,
-      title: "Startup Success",
-      description: "Helped 50+ startups across Silicon Valley and Dallas achieve successful product launches"
-    },
-    {
-      icon: Zap,
-      title: "Data-Driven Results",
-      description: "Our critical research and analysis consistently delivers 300% average ROI improvements"
-    }
-  ];
-
-  return (
-    <section id="about" className="py-20 bg-gradient-subtle">
+  }, {
+    icon: Users,
+    title: "Startup Success",
+    description: "Helped 50+ startups across Silicon Valley and Dallas achieve successful product launches"
+  }, {
+    icon: Zap,
+    title: "Data-Driven Results",
+    description: "Our critical research and analysis consistently delivers 300% average ROI improvements"
+  }];
+  return <section id="about" className="py-20 bg-gradient-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Content */}
@@ -82,8 +62,7 @@ const About = () => {
 
           {/* Right Grid */}
           <div className="grid gap-6">
-            {achievements.map((achievement, index) => (
-              <Card key={achievement.title} className="group hover:shadow-subtle transition-all duration-300">
+            {achievements.map((achievement, index) => <Card key={achievement.title} className="group hover:shadow-subtle transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="w-10 h-10 bg-gradient-hero rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
@@ -99,8 +78,7 @@ const About = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
 
@@ -115,7 +93,7 @@ const About = () => {
             <div className="text-sm text-muted-foreground">Projects Completed</div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-foreground mb-2">300%</div>
+            <div className="text-3xl font-bold text-foreground mb-2">70%</div>
             <div className="text-sm text-muted-foreground">Avg ROI Increase</div>
           </div>
           <div>
@@ -124,8 +102,6 @@ const About = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default About;

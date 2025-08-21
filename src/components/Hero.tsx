@@ -38,7 +38,7 @@ const Hero = () => {
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
                   <TrendingUp className="h-5 w-5 text-primary mr-2" />
-                  <span className="text-2xl font-bold text-foreground">300%</span>
+                  <span className="text-2xl font-bold text-foreground">70%</span>
                 </div>
                 <p className="text-sm text-muted-foreground">Avg ROI Increase</p>
               </div>
@@ -67,7 +67,7 @@ const Hero = () => {
             </div>
             <div className="text-center mt-4">
               <a href="https://www.orangedrum.com/casestudy_sms.html" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors story-link">
-                our research built Disney's Omnichannel Platform
+                our research build Disney's Omnichannel Platform
               </a>
             </div>
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-hero rounded-full opacity-20 animate-pulse"></div>
