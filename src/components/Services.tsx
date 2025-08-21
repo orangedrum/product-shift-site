@@ -25,7 +25,7 @@ const Services = () => {
     },
     {
       icon: Brain,
-      title: "AI-Powered UX",
+      title: "Expert in AI UX",
       description: "Cutting-edge GenAI integration for enhanced user experiences and data-driven insights",
       features: ["GenAI UX Design", "AI User Testing", "Automated Research", "ML-Driven Insights"]
     },
