@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Building, Award, Users, Zap } from "lucide-react";
 
 const About = () => {
@@ -60,22 +61,28 @@ const About = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
               Thought Leadership in Growth & Strategy
             </h2>
-            <div className="space-y-4 text-muted-foreground">
-              <p>
-                I'm Jean, and I lead Product Shift in delivering cutting-edge UX Design & Product Management 
-                solutions. Our team has proven expertise working with industry leaders like Disney Parks & Resorts, 
-                Pluralsight, and innovative startups across Silicon Valley, Dallas, and beyond.
-              </p>
-              <p>
-                Our critical research and analysis has proven time and time again necessary for successful UX 
-                in digital products. We pride ourselves on Product Shift's methods and strategies in developing 
-                comprehensive product processes that transform organizations into data-driven powerhouses.
-              </p>
-              <p>
-                With deep experience from leading platforms like JEMA and Dovetail, we're at the forefront of 
-                AI-powered UX research, helping companies leverage GenAI for unprecedented user insights and 
-                business growth.
-              </p>
+            <div className="flex items-start gap-6 mb-6">
+              <Avatar className="w-24 h-24 flex-shrink-0">
+                <AvatarImage src="/lovable-uploads/b52c1472-b6c4-49cb-b252-69a31081206e.png" alt="Jean, Product Shift Lead" />
+                <AvatarFallback>JS</AvatarFallback>
+              </Avatar>
+              <div className="space-y-4 text-muted-foreground">
+                <p>
+                  I'm Jean, and I lead Product Shift in delivering cutting-edge UX Design & Product Management 
+                  solutions. Our team has proven expertise working with industry leaders like Disney Parks & Resorts, 
+                  Pluralsight, and innovative startups across Silicon Valley, Dallas, and beyond.
+                </p>
+                <p>
+                  Our critical research and analysis has proven time and time again necessary for successful UX 
+                  in digital products. We pride ourselves on Product Shift's methods and strategies in developing 
+                  comprehensive product processes that transform organizations into data-driven powerhouses.
+                </p>
+                <p>
+                  With deep experience from leading platforms like JEMA and Dovetail, we're at the forefront of 
+                  AI-powered UX research, helping companies leverage GenAI for unprecedented user insights and 
+                  business growth.
+                </p>
+              </div>
             </div>
           </div>
 
