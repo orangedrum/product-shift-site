@@ -127,17 +127,30 @@ const Blog = () => {
             <p className="text-muted-foreground mb-6">
               Follow our Medium publication for the latest in UX research and AI-powered design.
             </p>
-            <Button asChild variant="outline">
-              <a 
-                href="https://medium.com/@product_shift" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center"
-              >
-                Visit Our Medium
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild variant="outline">
+                <a 
+                  href="https://medium.com/@product_shift" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center"
+                >
+                  Visit Our Medium
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+              <Button asChild>
+                <a 
+                  href="https://dovetail.com/reviewers/jean-kaluza/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center"
+                >
+                  Dovetail Consultant
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
