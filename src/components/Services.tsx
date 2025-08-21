@@ -41,8 +41,8 @@ const Services = () => {
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Complete Growth & Strategy Solutions</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            From initial research to successful launch, we provide end-to-end UX services that drive results. 
-            Perfect for agencies looking to expand their capabilities.
+            From initial research to successful launch, we provide end-to-end growth strategies that drive results. 
+            Perfect for agencies looking to expand their offerings or marketing teams hungry for scientific approaches.
           </p>
         </div>
 
