@@ -117,46 +117,6 @@ const Blog = () => {
           </div>
         </div>
 
-        {/* Regular Articles */}
-        <div>
-          <h3 className="text-2xl font-bold text-foreground mb-8">More Insights</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {regularArticles.map((article, index) => (
-              <Card key={article.title} className="group hover:shadow-subtle transition-all duration-300 hover:-translate-y-1">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                      <article.icon className="h-4 w-4" />
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {article.category}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {article.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground">
-                    {article.excerpt}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {new Date(article.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric' 
-                      })}
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-xs">
-                      Read More
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
 
         {/* CTA Section */}
         <div className="mt-16 text-center">
