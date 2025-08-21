@@ -42,7 +42,11 @@ const Footer = () => {
             {/* Company Info */}
             <div className="lg:col-span-1">
               <div className="flex items-center space-x-2 mb-6">
-                <div className="w-8 h-8 bg-gradient-hero rounded-lg"></div>
+                <img 
+                  src="/lovable-uploads/61ae62e9-22ad-4576-bc45-8ba397e73792.png" 
+                  alt="Product Shift Logo" 
+                  className="w-8 h-8 object-contain"
+                />
                 <span className="text-xl font-bold text-foreground">Product Shift</span>
               </div>
               <p className="text-muted-foreground mb-6 text-sm">
