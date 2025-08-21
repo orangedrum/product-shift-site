@@ -2,10 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Brain, TrendingUp, Users } from "lucide-react";
 import heroImage from "@/assets/hero-illustration.png";
-
 const Hero = () => {
-  return (
-    <section className="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-subtle">
+  return <section className="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -20,23 +18,11 @@ const Hero = () => {
               <span className="bg-gradient-hero bg-clip-text text-transparent"> Higher ROIs</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">
-              Partner with Product Shift to leverage proven UX research and market strategy that delivers real data for successful launches. 
-              Trusted by startups and SaaS companies for our expertise from JEMA and Dovetail.
-            </p>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond</p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up">
-              <Button 
-                size="lg" 
-                asChild
-                className="bg-gradient-hero hover:shadow-glow transition-all duration-300"
-              >
-                <a 
-                  href="https://calendly.com/jean-kaluza/meeting" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center"
-                >
+              <Button size="lg" asChild className="bg-gradient-hero hover:shadow-glow transition-all duration-300">
+                <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noopener noreferrer" className="flex items-center">
                   Book Free Consultation
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
@@ -75,18 +61,12 @@ const Hero = () => {
 
           {/* Right Image */}
           <div className="relative animate-float">
-            <img 
-              src={heroImage} 
-              alt="Product Shift UX Research Team" 
-              className="w-full h-auto rounded-2xl shadow-elegant"
-            />
+            <img src={heroImage} alt="Product Shift UX Research Team" className="w-full h-auto rounded-2xl shadow-elegant" />
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-hero rounded-full opacity-20 animate-pulse"></div>
             <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-accent rounded-full opacity-30 animate-pulse delay-1000"></div>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
