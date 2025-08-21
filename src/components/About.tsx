@@ -106,7 +106,7 @@ const About = () => {
         {/* Bottom Stats */}
         <div className="mt-20 grid md:grid-cols-4 gap-8 text-center">
           <div>
-            <div className="text-3xl font-bold text-foreground mb-2">5+</div>
+            <div className="text-3xl font-bold text-foreground mb-2">15+</div>
             <div className="text-sm text-muted-foreground">Years Experience</div>
           </div>
           <div>
