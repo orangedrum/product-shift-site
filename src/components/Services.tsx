@@ -27,7 +27,7 @@ const Services = () => {
       icon: Brain,
       title: "Expert in AI UX",
       description: "Cutting-edge GenAI integration for enhanced user experiences and data-driven insights",
-      features: ["GenAI UX Design", "AI User Testing", "Automated Research", "ML-Driven Insights"]
+      features: ["GenAI UX Design", "Conversation Theory (Chatbots)", "Automated Research", "ML-Driven Insights"]
     },
     {
       icon: Zap,
