@@ -1,12 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Brain, TrendingUp, Users } from "lucide-react";
-import heroImage from "@/assets/hero-illustration.png";
+import { ArrowRight, Brain, TrendingUp, Users, ExternalLink } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-subtle">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section 
+      className="relative pt-24 pb-12 md:pt-32 md:pb-20 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(/lovable-uploads/745dd2a9-5ef0-4587-9203-d83e8c9273d8.png)` }}
+    >
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/60"></div>
+      
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="text-center lg:text-left">
@@ -16,13 +21,13 @@ const Hero = () => {
             </Badge>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 animate-fade-in">
-              Turn UX Research Into
-              <span className="bg-gradient-hero bg-clip-text text-transparent"> Higher ROIs</span>
+              From Broken Demo to
+              <span className="bg-gradient-hero bg-clip-text text-transparent"> Disney's Omnichannel Platform</span>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">
-              Partner with Product Shift to leverage proven UX research and market strategy that delivers real data for successful launches. 
-              Trusted by startups and SaaS companies for our expertise from JEMA and Dovetail.
+              Learn how my research at Disney led to a company-wide communication revolution. 
+              See the proven methodologies that turn user insights into transformative business outcomes.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up">
@@ -30,6 +35,20 @@ const Hero = () => {
                 size="lg" 
                 asChild
                 className="bg-gradient-hero hover:shadow-glow transition-all duration-300"
+              >
+                <a 
+                  href="#" 
+                  className="flex items-center"
+                >
+                  View Disney Case Study
+                  <ExternalLink className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="lg"
+                asChild
               >
                 <a 
                   href="https://calendly.com/jean-kaluza/meeting" 
@@ -41,47 +60,38 @@ const Hero = () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
               </Button>
-              
-              <Button variant="outline" size="lg">
-                Browse Services
-              </Button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border animate-fade-in">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="h-5 w-5 text-primary mr-2" />
-                  <span className="text-2xl font-bold text-foreground">300%</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Avg ROI Increase</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Users className="h-5 w-5 text-primary mr-2" />
-                  <span className="text-2xl font-bold text-foreground">50+</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Successful Launches</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Brain className="h-5 w-5 text-primary mr-2" />
-                  <span className="text-2xl font-bold text-foreground">AI</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Powered Research</p>
-              </div>
-            </div>
           </div>
 
-          {/* Right Image */}
+          {/* Right Content - Stats moved here */}
           <div className="relative animate-float">
-            <img 
-              src={heroImage} 
-              alt="Product Shift UX Research Team" 
-              className="w-full h-auto rounded-2xl shadow-elegant"
-            />
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-hero rounded-full opacity-20 animate-pulse"></div>
-            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-accent rounded-full opacity-30 animate-pulse delay-1000"></div>
+            <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-8 shadow-elegant border border-border/50">
+              <h3 className="text-2xl font-bold text-foreground mb-6">Impact & Results</h3>
+              <div className="space-y-6">
+                <div className="flex items-center">
+                  <TrendingUp className="h-8 w-8 text-primary mr-4" />
+                  <div>
+                    <span className="text-3xl font-bold text-foreground">300%</span>
+                    <p className="text-muted-foreground">Average ROI Increase</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Users className="h-8 w-8 text-primary mr-4" />
+                  <div>
+                    <span className="text-3xl font-bold text-foreground">50+</span>
+                    <p className="text-muted-foreground">Successful Launches</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Brain className="h-8 w-8 text-primary mr-4" />
+                  <div>
+                    <span className="text-3xl font-bold text-foreground">AI</span>
+                    <p className="text-muted-foreground">Powered Research</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
