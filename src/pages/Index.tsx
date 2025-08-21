@@ -17,7 +17,6 @@ const Index = () => {
         <ServicesCTA />
         <About />
         <Blog />
-        <Blog />
         <CTA />
       </main>
       <Footer />
