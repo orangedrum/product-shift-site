@@ -18,16 +18,16 @@ import {
 const Services = () => {
   const services = [
     {
-      icon: Search,
-      title: "UX Research",
-      description: "Deep user insights through ethnographic research, usability testing, and user interviews",
-      features: ["User Interviews", "Usability Testing", "Ethnographic Research", "Surveys & Analytics"]
-    },
-    {
       icon: Brain,
       title: "Expert in AI UX",
       description: "Cutting-edge GenAI integration for enhanced user experiences and data-driven insights",
       features: ["GenAI UX Design", "Conversation Theory (Chatbots)", "Automated Research", "ML-Driven Insights"]
+    },
+    {
+      icon: Search,
+      title: "UX Research",
+      description: "Deep user insights through ethnographic research, usability testing, and user interviews",
+      features: ["User Interviews", "Usability Testing", "Ethnographic Research", "Surveys & Analytics"]
     },
     {
       icon: Zap,
