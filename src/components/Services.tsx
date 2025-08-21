@@ -3,6 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Users, BarChart3, Zap, Target, TrendingUp, Brain, TestTube, MessageSquare, PieChart, Lightbulb, Megaphone } from "lucide-react";
 const Services = () => {
   const services = [{
+    icon: Megaphone,
+    title: "Media Buying",
+    description: "Strategic advertising campaigns that convert based on user research insights",
+    features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"]
+  }, {
     icon: Search,
     title: "UX Research",
     description: "Deep user insights through ethnographic research, usability testing, and user interviews",
@@ -27,13 +32,9 @@ const Services = () => {
     title: "A/B Testing",
     description: "Optimize conversion rates through systematic experimentation and data analysis",
     features: ["Conversion Testing", "Statistical Analysis", "Performance Metrics", "Optimization"]
-  }, {
-    icon: Megaphone,
-    title: "Media Buying",
-    description: "Strategic advertising campaigns that convert based on user research insights",
-    features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"]
   }];
-  return <section id="services" className="py-20 bg-background">
+  return <a href="https://www.fiverr.com/s/GzbZ3Bd" target="_blank" rel="noopener noreferrer" className="block">
+    <section id="services" className="py-20 bg-background hover:bg-muted/20 transition-colors duration-300 cursor-pointer">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">
@@ -91,6 +92,7 @@ const Services = () => {
           </Card>
         </div>
       </div>
-    </section>;
+    </section>
+  </a>;
 };
 export default Services;
