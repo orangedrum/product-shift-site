@@ -12,7 +12,29 @@ const About = () => {
     {
       icon: Award,
       title: "AI UX Expertise",
-      description: "Pioneering AI-powered UX research with experience from JEMA and Dovetail platforms"
+      description: (
+        <>
+          Pioneer in the UX of AI as a consultant for{" "}
+          <a 
+            href="https://www.jema.ai/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            JEMA
+          </a>{" "}
+          and{" "}
+          <a 
+            href="https://dovetail.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Dovetail
+          </a>{" "}
+          platforms.
+        </>
+      )
     },
     {
       icon: Users,
@@ -70,9 +92,9 @@ const About = () => {
                       <h3 className="font-semibold text-foreground mb-2">
                         {achievement.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {achievement.description}
-                      </p>
+                       <p className="text-sm text-muted-foreground">
+                         {achievement.description}
+                       </p>
                     </div>
                   </div>
                 </CardContent>
