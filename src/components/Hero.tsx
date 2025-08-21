@@ -18,7 +18,7 @@ const Hero = () => {
               <span className="bg-gradient-hero bg-clip-text text-transparent"> Higher ROIs</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond</p>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond</p>. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond</p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up">
               <Button size="lg" asChild className="bg-gradient-hero hover:shadow-glow transition-all duration-300">
