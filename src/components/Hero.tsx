@@ -10,7 +10,7 @@ const Hero = () => {
           <div className="text-center lg:text-left">
             <Badge variant="secondary" className="mb-6 inline-flex items-center space-x-2">
               <Brain className="h-4 w-4" />
-              <span>Data-driven AI UX & Strategy Expert</span>
+              <span>Growth, AI UX, & Marketing Strategy Expert</span>
             </Badge>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 animate-fade-in">
