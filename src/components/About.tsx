@@ -41,8 +41,8 @@ const About = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
               Thought Leadership in Growth & Strategy
             </h2>
-            <div className="flex items-start gap-6 mb-6">
-              <Avatar className="w-48 h-48 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
+              <Avatar className="w-48 h-48 flex-shrink-0 mx-auto sm:mx-0">
                 <AvatarImage src="/lovable-uploads/b52c1472-b6c4-49cb-b252-69a31081206e.png" alt="Jean, Product Shift Lead" />
                 <AvatarFallback>JS</AvatarFallback>
               </Avatar>
