@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Instagram } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -142,7 +143,16 @@ const Footer = () => {
           <p className="text-sm text-muted-foreground">
             © {currentYear} Product Shift. All rights reserved.
           </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
+          <div className="flex items-center space-x-6 mt-4 md:mt-0">
+            <a 
+              href="https://www.instagram.com/theproductshift/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Instagram size={16} />
+              <span>@theproductshift</span>
+            </a>
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Privacy Policy
             </a>
