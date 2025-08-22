@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Brain, TrendingUp, Users } from "lucide-react";
 import heroImage from "@/assets/hero-illustration.png";
+
 const Hero = () => {
-  return <section className="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-subtle">
+  return (
+    <section className="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -18,7 +20,7 @@ const Hero = () => {
               <span className="bg-gradient-hero bg-clip-text text-transparent"> Higher ROIs</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond</p>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond</p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up">
               <Button size="lg" asChild className="bg-gradient-hero hover:shadow-glow transition-all duration-300">
@@ -81,6 +83,8 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default Hero;
