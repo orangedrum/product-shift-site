@@ -1,14 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Quote, PlayCircle, ExternalLink } from "lucide-react";
-
 const Speaker = () => {
   const handleVideoPlay = () => {
     window.open('https://vimeo.com/203961200?fl=pl&fe=sh', '_blank', 'noopener,noreferrer');
   };
-
-  return (
-    <section className="py-20 bg-background">
+  return <section className="py-20 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -16,23 +13,14 @@ const Speaker = () => {
             <span className="bg-gradient-hero bg-clip-text text-transparent"> Tech Speaker</span>
           </h2>
           
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Enhance your event with product & UX insights from a world-class speaker and subject matter expert. Virtual events, AMAs, live conferences or workshops are all available.
-          </p>
+          
         </div>
 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left - Video */}
           <div className="relative animate-float">
-            <div 
-              className="relative rounded-2xl overflow-hidden shadow-elegant cursor-pointer group"
-              onClick={handleVideoPlay}
-            >
-              <img 
-                src="/lovable-uploads/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" 
-                alt="Jean speaking at conference" 
-                className="w-full h-auto transition-transform duration-300 group-hover:scale-105" 
-              />
+            <div className="relative rounded-2xl overflow-hidden shadow-elegant cursor-pointer group" onClick={handleVideoPlay}>
+              <img src="/lovable-uploads/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" alt="Jean speaking at conference" className="w-full h-auto transition-transform duration-300 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
               
               {/* Play Button Overlay */}
@@ -72,12 +60,7 @@ const Speaker = () => {
             </div>
 
             <Button size="lg" asChild className="bg-gradient-hero hover:shadow-glow transition-all duration-300">
-              <a 
-                href="https://www.theproductshift.com/talks/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center"
-              >
+              <a href="https://www.theproductshift.com/talks/" target="_blank" rel="noopener noreferrer" className="flex items-center">
                 View Speaking Engagements
                 <ExternalLink className="ml-2 h-5 w-5" />
               </a>
@@ -85,8 +68,6 @@ const Speaker = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Speaker;
