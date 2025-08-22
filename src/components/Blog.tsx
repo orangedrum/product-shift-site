@@ -146,7 +146,7 @@ const Blog = () => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center"
                 >
-                  Dovetail Consultant
+                  Dovetail Consultant Work
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
