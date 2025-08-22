@@ -14,7 +14,7 @@ const Services = () => {
     features: ["User Interviews", "Usability Testing", "Ethnographic Research", "Surveys & Analytics"]
   }, {
     icon: Brain,
-    title: "AI-Powered UX",
+    title: "GenAI Expertise",
     description: "Cutting-edge GenAI integration for enhanced user experiences and data-driven insights",
     features: ["GenAI UX Design", "AI User Testing", "Automated Research", "ML-Driven Insights"]
   }, {
