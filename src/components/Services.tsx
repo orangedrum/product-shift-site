@@ -7,7 +7,7 @@ const Services = () => {
     title: "Media Buying",
     description: "Strategic advertising campaigns that convert based on user research insights",
     features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"],
-    url: "https://www.fiverr.com/s/jjW7aXa"
+    url: "https://www.fiverr.com/s/EgxKZwY"
   }, {
     icon: Search,
     title: "UX Research",
