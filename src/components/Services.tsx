@@ -6,7 +6,8 @@ const Services = () => {
     icon: Megaphone,
     title: "Media Buying",
     description: "Strategic advertising campaigns that convert based on user research insights",
-    features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"]
+    features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"],
+    url: "https://www.fiverr.com/s/jjW7aXa"
   }, {
     icon: Search,
     title: "UX Research",
@@ -24,17 +25,18 @@ const Services = () => {
     features: ["5-Day Sprints", "Rapid Prototyping", "User Validation", "Concept Testing"]
   }, {
     icon: Target,
-    title: "Market Strategy",
+    title: "Customer Personas",
     description: "Data-driven market positioning and go-to-market strategies for successful launches",
-    features: ["Market Research", "Positioning Strategy", "Competitor Analysis", "Launch Planning"]
+    features: ["Market Research", "Positioning Strategy", "Competitor Analysis", "Launch Planning"],
+    url: "https://www.fiverr.com/s/jjW7aXa"
   }, {
     icon: TestTube,
     title: "A/B Testing",
     description: "Optimize conversion rates through systematic experimentation and data analysis",
     features: ["Conversion Testing", "Statistical Analysis", "Performance Metrics", "Optimization"]
   }];
-  return <a href="https://www.fiverr.com/s/GzbZ3Bd" target="_blank" rel="noopener noreferrer" className="block">
-    <section id="services" className="py-20 bg-background hover:bg-muted/20 transition-colors duration-300 cursor-pointer">
+  return (
+    <section id="services" className="py-20 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">
@@ -48,27 +50,47 @@ const Services = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => <Card key={service.title} className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 bg-gradient-card border-border/50">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-hero rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <service.icon className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <CardTitle className="text-xl font-semibold text-foreground">
-                  {service.title}
-                </CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  {service.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {service.features.map(feature => <li key={feature} className="flex items-center text-sm text-muted-foreground">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></div>
-                      {feature}
-                    </li>)}
-                </ul>
-              </CardContent>
-            </Card>)}
+          {services.map((service, index) => {
+            const ServiceCard = (
+              <Card key={service.title} className="group hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 bg-gradient-card border-border/50">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-gradient-hero rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <service.icon className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <CardTitle className="text-xl font-semibold text-foreground">
+                    {service.title}
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    {service.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {service.features.map(feature => <li key={feature} className="flex items-center text-sm text-muted-foreground">
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></div>
+                        {feature}
+                      </li>)}
+                  </ul>
+                </CardContent>
+              </Card>
+            );
+
+            if (service.url) {
+              return (
+                <a 
+                  key={service.title} 
+                  href={service.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  {ServiceCard}
+                </a>
+              );
+            }
+
+            return ServiceCard;
+          })}
         </div>
 
         {/* Agency Partnership Section */}
@@ -93,6 +115,6 @@ const Services = () => {
         </div>
       </div>
     </section>
-  </a>;
+  );
 };
 export default Services;
