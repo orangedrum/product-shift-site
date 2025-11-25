@@ -22,7 +22,7 @@ const Hero = () => {
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl animate-fade-in">Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond</p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up justify-center lg:justify-center">
               <Button size="lg" asChild className="bg-gradient-hero hover:shadow-glow transition-all duration-300">
                 <a href="https://calendly.com/jean-kaluza/media-buyer-op" target="_blank" rel="noopener noreferrer" className="flex items-center">
                   Book Free Consultation
