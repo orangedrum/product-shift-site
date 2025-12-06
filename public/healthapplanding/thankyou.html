@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UX for Health & Neuro Apps | The Product Shift</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="video-container">
+                <video controls id="full-video">
+                    <source src="images/freebrain_HeyGen1-VEED.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="images/logo_wht.png" alt="The Product Shift Logo" class="logo-img">
+                <span class="logo-text desktop-only">theproductshift.com</span>
+            </div>
+            <nav>
+                <a href="#assessment" class="cta-link-nav gradient-bg-btn">Request UX Teardown</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="video-background">
+            <video autoplay muted loop playsinline poster="poster.jpg">
+                <source src="images/freebrain_HeyGen1-VEED.mp4" type="video/mp4">
+            </video>
+            <div class="video-overlay"></div>
+        </div>
+
+        <div class="container hero-content">
+            <h1 class="hero-headline gradient-text">UX for Health & Neuro Apps That Need Patient-Friendly Adoption</h1>
+            <p class="subtext">Is patient engagement low? Are users getting confused? Watch how users actually struggle with standard health app interfaces.</p>
+            
+            <div class="cta-group">
+                <button id="open-video-btn" class="cta secondary-cta text-white-override mobile-bottom-fix">
+                    &#9658; Watch Full User Testing Session
+                </button>
+                <a href="#value-prop" class="cta primary-cta gradient-bg-btn">Get Free Checklist</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- preserving initial classes for big messed up cta
+        class="cta primary-cta gradient-bg-btn"
+    -->
+
+    <section id="value-prop" class="value-prop section-dark">
+        <div class="container">
+            <h2 class="gradient-text-light">Success! Our free ebook will send to email provided.</h2>
+            <div class="value-box">
+                <p class="value-pitch">
+                    You'll soon learn the 5 UX mistakes that kill health apps before they launch and start designing with the brain in mind.
+                </p>
+                
+                <!-- JotForm Solution -->
+                
+                <!-- end JotForm Solution -->
+
+            </div>
+        </div>
+    </section>
+
+    <section class="credibility section-light">
+        <div class="container">
+            <div class="about-grid">
+                <div class="photo-placeholder">
+                    <div class="photo-circle">
+                        <img src="images/jeankaluza.jpg" alt="Jean Kaluza" class="profile-photo-img">
+                    </div>
+                </div>
+                <div class="about-content">
+                    <h2>Meet Your Medical Tech UX Expert</h2>
+                    <p>
+                        Hi, I'm Jean Kaluza. With over a decade of experience as a UX Researcher & Strategist for health & movement products. I specialize in the critical intersection of human-centered design and complex health/neuro-tech applications. I’ve helped shape products for <b>Disney Parks & Resorts Technology</b>, multi-disciplinary UX, fast-growing startups (including one acquired for <b>$36 million</b>), movement + habit-forming digital products, healthcare-related research, behavior change, and accessibility.</p>
+
+                        <h4 class="gradient-text">Human-centered design + Habit Psychology + Behavior Coaching</h4><!--My work focuses on translating clinical complexity into simple, habit-forming digital experiences for patients with chronic and neurological conditions (Parkinson’s, Dystonia, Alzheimer’s, etc.).-->
+                    </p>
+                    <p class="quote-source">
+                         "She helped us improve our design process using this fancy thing called "science." Taking an evidence-based approach Jean helped us ensure we were creating happier customers with every improvement we made to the product."<br>
+                        — Gregg Pollack
+                    </p>
+                    
+                    <div class="consultation-block">
+                        <p>🗣️ Let's talk! From pitch-ready UX checks to lightweight ongoing support, I'm at your service.</p>
+                        <!--<p>🗣️  Founder UX Triage Call</p>-->
+                        <a href="https://calendly.com/jean-kaluza/app-idea-day-1-facilitation-clone" class="cta primary-cta gradient-bg-btn">Schedule Your Free Consultation</a>
+                        <br>
+                        <a href="https://www.linkedin.com/in/jeankaluza/" target="_blank" class="text-link gradient-text-link">Connect with me on LinkedIn &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="offer section-white">
+        <div class="container">
+            <h2 class="gradient-text">Ready for a Patient-First Digital Product?</h2>
+            <p class="section-subhead">Choose the engagement level that fits your startup stage.</p>
+            <p class="disclaimer"><i>Limited availability - Now accepting the next 10 clients for Q4 2025 - Q2 2026</i></p>
+            
+            <div class="pricing-grid">
+                
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <p class="price">$299</p>
+                    <h5 class="card-desc">Quick UX teardown</h5>
+                    <hr>
+                    <ul>
+                        <li>1 core flow analyzed</li>
+                        <li>Expert Heuristic Evaluation</li>
+                        <li>5–10 friction points</li>
+                        <li>Top 3 fixes</li>
+                        <li>Loom video + short doc</li>
+                    </ul>
+                    <p>Designed for bootstrapped and pre‑revenue teams; spend once to stop the worst leaks before pilots.</p>
+                    <a href="#assessment" class="cta secondary-cta full-width">Select Starter</a>
+                </div>
+
+                <div class="pricing-card best-value">
+                    <div class="badge gradient-bg-btn">Best Value</div>
+                    <h3>Standard</h3>
+                    <p class="price">$999</p>
+                    <h5 class="card-desc">Synthetic User Testing + Audit</h5>
+                    <hr>
+                    <p>Everything in Starter, plus:</p>
+                    <ul>
+                        <li>Synthetic User Testing Sessions</li>
+                        <li>Video Analysis of User Flows</li>
+                        <li>Prioritized 30–60 day roadmap</li>
+                    </ul>
+                    <p>For funded teams who need activation, retention, and pilot readiness to move now.</p>
+                    <a href="[Link-To-Buy-Standard]" class="cta primary-cta gradient-bg-btn full-width">Select Standard</a>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>Sprint Package</h3>
+                    <p class="price">$3,250</p>
+                    <h5 class="card-desc">2-Week Full Engagement</h5>
+                    <hr>
+                    <p>Everything in Standard plus:</p>
+                    <ul>
+                        <li>Design sprint facilitation</li>
+                        <li>Sprint Moderation</li>
+                        <li>Live User Testing & Recruitment</li>
+                        <li>Hi-Fi Prototypes & Full Report</li>
+                    </ul>
+                    <p>For teams preparing for a major launch, payer/pharma pitch, or high‑stakes pilot.</p>
+                    <a href="[Link-To-Buy-Sprint]" class="cta secondary-cta full-width">Apply for Sprint</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- section after synthetic user testing-->
+    <section class="credibility section-light">
+        <div class="container">
+            <div class="about-grid">
+                <div class="photo-placeholder">
+                    <div class="photo-circle">
+                        <img src="images/services.jpg" alt="Jean Kaluza" class="profile-photo-img">
+                    </div>
+                </div>
+                <div class="about-content">
+                    <h2 class="on-your-side">Get Clear ROI With Conservative Budgets In Mind</h2>
+                    <h5 class="on-your-side">When you hire us, we focus on:</h5>
+                    <ul class="objective-handling">
+                        <li>Improving user activation &amp; retention</li>
+                        <li>Supporting payer/pharma conversations</li>
+                        <li>Helping with tricky pilot conversions</li>
+                        <li>Powerful insights for stakeholders and investors</li>
+                        <li>Available add-ons like investor slides & triage</li>
+                    </ul>
+                    <p class="quote-source">Product Shift is on a mission to improve UX in healthcare. All services rendered with your company's unique feasibility, budget, & goals in mind.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="assessment" class="assessment section-dark">
+        <div class="container">
+            <h2 class="gradient-text-light">Send me your app for a quick UX teardown</h2>
+            <p class="assessment-pitch">
+                Send me your Test app build or Figma prototype. A low cost & it only takes <b>5 minutes</b> to tell us about your app. We'll get back to you with our findings within <b>3 business days</b>!
+            </p>
+            
+            <!-- Commenting out provided form for typeform
+            <form action="https://formspree.io/f/INSERT_YOUR_FORMSPREE_ID" method="POST" class="form-style">
+                <label for="app-name">1. What is your healthcare app called?</label>
+                <input type="text" name="app-name" required>
+
+                <label for="problem">2. What is the primary problem?</label>
+                <textarea name="problem" rows="4" required></textarea>
+
+                <label for="access">3. Credentials & Access URL</label>
+                <textarea name="access" rows="6" placeholder="URL, Username, Password..."></textarea>
+                
+                <input type="hidden" name="_subject" value="New Teardown Request">
+
+                <button type="submit" class="cta primary-cta large-cta gradient-bg-btn">Submit for Free UX Teardown</button> 
+            </form> -->
+
+            <!-- TYPEFORM FORM -->
+                <div data-tf-live="01KB0K6VX9YA1HAVM832AQY8YZ"></div><script src="//embed.typeform.com/next/embed.js"></script>
+                <!-- TYPEFORM FORM END-->
+
+             <p class="disclaimer">*Note: Not all apps qualify for the teardown. We will respond within 72 business hours to confirm eligibility and next steps to the email provided.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 The Product Shift. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
