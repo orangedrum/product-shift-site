@@ -6,18 +6,37 @@ const AiPoweredUxHealthtech = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [report, setReport] = useState(null); // Will hold the report later
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
 
     setIsLoading(true);
-    console.log(`Starting test for: ${url}`);
+    setReport(null); // Clear previous report
 
-    // Placeholder for the real backend API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('http://localhost:3001/run-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        // If the server response is not 2xx, handle it as an error
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'An unknown error occurred');
+      }
+
+      const data = await response.json();
+      console.log('Response from backend:', data);
+      setReport(data); // Set the report state with the results
+    } catch (error) {
+      console.error('Failed to connect to the backend:', error);
+      setReport({ error: error.message }); // Set the report state with the error message
+    } finally {
       setIsLoading(false);
-      // In the future, we'll set the report here with data from the backend
-    }, 5000); // Simulate a 5-second test
+    }
   };
 
   return (
@@ -57,7 +76,20 @@ const AiPoweredUxHealthtech = () => {
           </form>
         </div>
 
-        {/* The report display area will be built here */}
+        {/* Report Display Area */}
+        {report && (
+          <div className="mt-12 max-w-xl mx-auto">
+            <div className="p-6 border bg-white rounded-lg shadow-sm">
+              <h2 className="text-2xl font-bold mb-4">{report.error ? 'Error' : 'Test Result'}</h2>
+              {report.error ? (
+                <p className="text-red-600"><span className="font-semibold">Details:</span> {report.error}</p>
+              ) : (
+                <><p className="text-gray-600"><span className="font-semibold">Status:</span> {report.message}</p><p className="text-gray-600"><span className="font-semibold">Page Title:</span> {report.title}</p></>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
