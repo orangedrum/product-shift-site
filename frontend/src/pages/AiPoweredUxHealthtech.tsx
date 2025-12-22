@@ -14,7 +14,9 @@ const AiPoweredUxHealthtech = () => {
     setReport(null); // Clear previous report
 
     try {
-      const response = await fetch('http://localhost:3001/run-test', {
+      // Use a relative path for the API call.
+      // This works in development and production on Vercel.
+      const response = await fetch('/api/run-test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
