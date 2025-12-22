@@ -17,6 +17,10 @@
       "dest": "/backend/src/index.ts"
     },
     {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    },
+    {
       "handle": "filesystem"
     },
     {
