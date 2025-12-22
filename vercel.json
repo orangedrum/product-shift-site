@@ -4,7 +4,7 @@
     {
       "src": "backend/src/index.ts",
       "use": "@vercel/node"
-    },
+    }
   ],
   "rewrites": [
     {
