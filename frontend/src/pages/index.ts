@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { chromium as playwright } from 'playwright-core';
-import chromium from '@sparticuz/chromium';
+import { chromium } from 'playwright';
 
 const app = express();
 
@@ -14,7 +13,7 @@ app.get('/api', (req, res) => {
   res.send('AI UX Agent Backend is running!');
 });
 
-app.post('/api/run-test', async (req, res) => {
+const runTestHandler = async (req: express.Request, res: express.Response) => {
   const { url } = req.body;
 
   if (!url) {
@@ -24,14 +23,8 @@ app.post('/api/run-test', async (req, res) => {
   let browser;
   try {
     console.log('Launching browser...');
-    // Configure for Vercel/Serverless environment
-    browser = await playwright.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
-
+    // Use chromium for best Vercel compatibility
+    browser = await chromium.launch();
     const page = await browser.newPage();
 
     console.log(`Navigating to ${url}...`);
@@ -46,7 +39,11 @@ app.post('/api/run-test', async (req, res) => {
     if (browser) await browser.close();
     res.status(500).json({ error: 'Failed to run the Playwright test on the server.' });
   }
-});
+};
+
+// Register the handler for both paths to be safe against Vercel rewriting
+app.post('/api/run-test', runTestHandler);
+app.post('/run-test', runTestHandler);
 
 // Export the app for Vercel
 export default app;
