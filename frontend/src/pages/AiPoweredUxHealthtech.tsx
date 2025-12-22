@@ -24,10 +24,18 @@ const AiPoweredUxHealthtech = () => {
         body: JSON.stringify({ url }),
       });
 
+      // Check if the response is actually JSON before parsing
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Received non-JSON response:", text);
+        throw new Error(`Server returned error: ${response.status} ${response.statusText}`);
+      }
+
       if (!response.ok) {
         // If the server response is not 2xx, handle it as an error
         const errorData = await response.json();
-        throw new Error(errorData.error || 'An unknown error occurred');
+        throw new Error(errorData.error || 'An unknown server error occurred');
       }
 
       const data = await response.json();
