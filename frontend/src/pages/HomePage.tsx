@@ -10,6 +10,7 @@ const HomePage = () => {
     <>
       <Hero />
       <IncubatorRibbon />
+      <IncubatorRibbon />
       <CoreServices />
       <AgencyPartner />
       <FinalCta />
