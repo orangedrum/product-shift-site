@@ -26,14 +26,14 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     // Connect to Browserless.io
     browser = await playwright.connect({
       wsEndpoint: 'wss://chrome.browserless.io?token=2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95',
-      timeout: 8000, // Fail if connection takes longer than 8 seconds
+      timeout: 25000, // Give Browserless up to 25 seconds to connect
     });
 
     const page = await browser.newPage();
 
     console.log(`Navigating to ${url}...`);
-    // Fail if navigation takes longer than 8 seconds (leaving buffer for Vercel's 10s limit)
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 8000 });
+    // Give the page up to 25 seconds to load
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
 
     const pageTitle = await page.title();
     await browser.close();
