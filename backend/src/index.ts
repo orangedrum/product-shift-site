@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import { chromium as playwright } from 'playwright-core';
 
 const app = express();
 
@@ -20,30 +19,39 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  let browser;
   try {
-    console.log('Connecting to Browserless...');
-    // Connect to Browserless.io
-    browser = await playwright.connect({
-      wsEndpoint: 'wss://chrome.browserless.io?token=2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95',
-      timeout: 25000, // Give Browserless up to 25 seconds to connect
+    console.log('Sending request to Browserless...');
+
+    // We define the script we want Browserless to run as a string.
+    // This runs entirely on their servers.
+    const browserScript = `
+      module.exports = async ({ page, context }) => {
+        const { url } = context;
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+        const title = await page.title();
+        return { title };
+      };
+    `;
+
+    const response = await fetch('https://chrome.browserless.io/function?token=2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: browserScript,
+        context: { url } // Pass the URL to the script
+      })
     });
 
-    const page = await browser.newPage();
+    if (!response.ok) {
+      throw new Error(`Browserless error: ${response.status} ${response.statusText}`);
+    }
 
-    console.log(`Navigating to ${url}...`);
-    // Give the page up to 25 seconds to load
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+    const result = await response.json();
+    res.json({ message: 'Test Complete.', title: result.title });
 
-    const pageTitle = await page.title();
-    await browser.close();
-    browser = null;
-
-    res.json({ message: `Test Complete.`, title: pageTitle });
   } catch (error: any) {
-    console.error('Playwright error:', error);
-    if (browser) await browser.close();
-    res.status(500).json({ error: `Failed to run the Playwright test: ${error.message}`, details: error.message });
+    console.error('Test error:', error);
+    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
   }
 };
 

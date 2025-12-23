@@ -11,6 +11,11 @@
       "use": "@vercel/node"
     }
   ],
+  "functions": {
+    "backend/src/index.ts": {
+      "maxDuration": 60
+    }
+  },
   "routes": [
     {
       "src": "/api/(.*)",
