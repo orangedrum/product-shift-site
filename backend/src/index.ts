@@ -11,8 +11,8 @@ type Persona = {
   analyzers: ((data: { title: string }) => string)[];
 };
 
-const titleAnalyzer = (data: { title: string }, persona: Persona) =>
-  `As ${persona.name}, I found the title "${data.title}" to be a standard document title. From my perspective as ${persona.description}, you could consider using more engaging, benefit-oriented language.`;
+const titleAnalyzer = (data: { title: string }, persona: Persona, goal: string) =>
+  `As ${persona.name}, while trying to "${goal}", I found the title "${data.title}" to be a standard document title. From my perspective as ${persona.description}, you could consider using more engaging, benefit-oriented language that speaks directly to my goal.`;
 
 // Initialize Express App
 const app = express();
@@ -36,7 +36,7 @@ const personas: Record<string, Persona> = {
 };
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  const { url, personaId } = req.body;
+  const { url, personaId, goal } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
@@ -44,6 +44,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   if (!personaId || !personas[personaId]) {
     return res.status(400).json({ error: 'A valid personaId is required' });
+  }
+
+  if (!goal) {
+    return res.status(400).json({ error: 'A goal is required' });
   }
 
   try {
@@ -77,7 +81,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
     // --- Persona-Driven Analysis ---
     const activePersona = personas[personaId];
-    const analyses = activePersona.analyzers.map(analyzer => analyzer(result, activePersona));
+    const analyses = activePersona.analyzers.map(analyzer => analyzer(result, activePersona, goal));
 
     res.json({
       message: 'Analysis Complete.',
