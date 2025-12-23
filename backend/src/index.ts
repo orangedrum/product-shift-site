@@ -1,6 +1,19 @@
 import express from 'express';
 import cors from 'cors';
 
+// --- Persona & Analyzer Definitions ---
+
+type Persona = {
+  id: string;
+  name: string;
+  description: string;
+  // Each analyzer is a function that takes scraped data and returns a string analysis.
+  analyzers: ((data: { title: string }) => string)[];
+};
+
+const titleAnalyzer = (data: { title: string }, persona: Persona) =>
+  `As ${persona.name}, I found the title "${data.title}" to be a standard document title. From my perspective as ${persona.description}, you could consider using more engaging, benefit-oriented language.`;
+
 // Initialize Express App
 const app = express();
 
@@ -13,11 +26,24 @@ app.get('/api', (req, res) => {
   res.send('AI UX Agent Backend is running!');
 });
 
+const personas: Record<string, Persona> = {
+  'alex-busy-pro': {
+    id: 'alex-busy-pro',
+    name: 'Alex',
+    description: 'a busy professional',
+    analyzers: [titleAnalyzer],
+  },
+};
+
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  const { url } = req.body;
+  const { url, personaId } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
+  }
+
+  if (!personaId || !personas[personaId]) {
+    return res.status(400).json({ error: 'A valid personaId is required' });
   }
 
   try {
@@ -49,22 +75,14 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
     const result = await response.json();
 
-    // --- Modular Analyzer Architecture ---
-    // This structure allows us to build a flexible system.
-
-    const coreAnalyzers = [
-      (data: { title: string }) => `Based on the title "${data.title}", the page seems to be a standard document. Consider using more engaging, benefit-oriented language.`
-    ];
-
-    // In the future, we could add modules like this:
-    // const healthTechAnalyzers = [ checkHipaaCompliance, checkWcagAccessibility ];
-
-    const analyses = coreAnalyzers.map(analyzer => analyzer(result));
+    // --- Persona-Driven Analysis ---
+    const activePersona = personas[personaId];
+    const analyses = activePersona.analyzers.map(analyzer => analyzer(result, activePersona));
 
     res.json({
       message: 'Analysis Complete.',
       title: result.title,
-      analysis: analyses.join(' ') // We can combine multiple analysis results.
+      analysis: analyses.join(' '),
     });
 
   } catch (error: any) {
