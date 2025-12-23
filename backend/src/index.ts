@@ -37,7 +37,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       };
     `;
 
-    const response = await fetch('https://chrome.browserless.io/function?token=2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95', {
+    const response = await fetch(`https://chrome.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
