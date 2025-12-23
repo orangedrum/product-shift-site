@@ -43,7 +43,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Browserless error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`Browserless error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const result = await response.json();
