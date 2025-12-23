@@ -27,6 +27,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   try {
     console.log('Sending request to Browserless...');
 
+    // This script runs on the Browserless.io servers.
     const browserScript = `
       export default async ({ page, context }) => {
         const { url } = context;
