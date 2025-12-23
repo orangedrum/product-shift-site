@@ -29,7 +29,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      headless: true,
     });
 
     const page = await browser.newPage();
