@@ -18,17 +18,46 @@ app.get('/api', (req, res) => {
 });
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  // This is a temporary diagnostic endpoint that reports the token status in the main error field.
-  const token = process.env.BROWSERLESS_TOKEN;
-  const tokenStatus = token ? 'LOADED' : 'MISSING OR UNDEFINED';
-  const tokenValueCheck = token === '2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95' ? 'AND IT MATCHES' : 'BUT IT DOES NOT MATCH';
+  const { url } = req.body;
 
-  const diagnosticMessage = `DIAGNOSTIC RESULT: Token is ${tokenStatus} ${tokenValueCheck} the key you provided.`;
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
 
-  res.status(500).json({
-    error: diagnosticMessage,
-    details: diagnosticMessage
-  });
+  try {
+    console.log('Sending request to Browserless...');
+
+    // This script runs on the Browserless.io servers.
+    const browserScript = `
+      export default async ({ page, context }) => {
+        const { url } = context;
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+        const title = await page.title();
+        return { title };
+      };
+    `;
+
+    const response = await fetch(`https://chrome.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: browserScript,
+        context: { url }
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Browserless error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+
+    const result = await response.json();
+    res.json({ message: 'Test Complete.', title: result.title });
+
+  } catch (error: any) {
+    console.error('Test error:', error);
+    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
+  }
 };
 
 app.post('/api/run-test', runTestHandler);
