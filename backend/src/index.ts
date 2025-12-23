@@ -9,10 +9,6 @@ app.use(cors()); // Allow requests from any origin
 app.use(express.json());
 
 // Routes
-app.get('/', (req, res) => {
-  res.send('AI UX Agent Backend is running!');
-});
-
 app.get('/api', (req, res) => {
   res.send('AI UX Agent Backend is running!');
 });
@@ -52,11 +48,18 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     const result = await response.json();
-    res.json({ message: 'Test Complete.', title: result.title });
+
+    // --- AI INTEGRATION PLACEHOLDER ---
+    // TODO: In the future, we will send `result.title` to an AI service.
+    // For now, we will generate a mock analysis.
+    const mockAiAnalysis = `Based on the title "${result.title}", the page seems to be a standard document. Consider using more engaging, benefit-oriented language.`;
+
+    res.json({ message: 'Analysis Complete.', title: result.title, analysis: mockAiAnalysis });
 
   } catch (error: any) {
     console.error('Test error:', error);
-    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
+    const tokenStatus = `DIAGNOSTIC: Token is ${process.env.BROWSERLESS_TOKEN ? 'LOADED' : 'MISSING'}.`;
+    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: `${tokenStatus} Details: ${error.message}` });
   }
 };
 
