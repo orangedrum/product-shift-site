@@ -49,17 +49,27 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
     const result = await response.json();
 
-    // --- AI INTEGRATION PLACEHOLDER ---
-    // TODO: In the future, we will send `result.title` to an AI service.
-    // For now, we will generate a mock analysis.
-    const mockAiAnalysis = `Based on the title "${result.title}", the page seems to be a standard document. Consider using more engaging, benefit-oriented language.`;
+    // --- Modular Analyzer Architecture ---
+    // This structure allows us to build a flexible system.
 
-    res.json({ message: 'Analysis Complete.', title: result.title, analysis: mockAiAnalysis });
+    const coreAnalyzers = [
+      (data: { title: string }) => `Based on the title "${data.title}", the page seems to be a standard document. Consider using more engaging, benefit-oriented language.`
+    ];
+
+    // In the future, we could add modules like this:
+    // const healthTechAnalyzers = [ checkHipaaCompliance, checkWcagAccessibility ];
+
+    const analyses = coreAnalyzers.map(analyzer => analyzer(result));
+
+    res.json({
+      message: 'Analysis Complete.',
+      title: result.title,
+      analysis: analyses.join(' ') // We can combine multiple analysis results.
+    });
 
   } catch (error: any) {
     console.error('Test error:', error);
-    const tokenStatus = `DIAGNOSTIC: Token is ${process.env.BROWSERLESS_TOKEN ? 'LOADED' : 'MISSING'}.`;
-    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: `${tokenStatus} Details: ${error.message}` });
+    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
   }
 };
 
