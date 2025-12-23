@@ -18,15 +18,16 @@ app.get('/api', (req, res) => {
 });
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  // This is a temporary diagnostic endpoint.
-  // It checks the status of the environment variable and returns it directly.
+  // This is a temporary diagnostic endpoint that reports the token status in the main error field.
   const token = process.env.BROWSERLESS_TOKEN;
   const tokenStatus = token ? 'LOADED' : 'MISSING OR UNDEFINED';
-  const tokenValueCheck = token === '2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95' ? 'MATCHES PROVIDED KEY' : 'DOES NOT MATCH';
+  const tokenValueCheck = token === '2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95' ? 'AND IT MATCHES' : 'BUT IT DOES NOT MATCH';
+
+  const diagnosticMessage = `DIAGNOSTIC RESULT: Token is ${tokenStatus} ${tokenValueCheck} the key you provided.`;
 
   res.status(500).json({
-    error: 'DIAGNOSTIC-MODE',
-    details: `Token Status: ${tokenStatus}. Value Check: ${tokenValueCheck}.`
+    error: diagnosticMessage,
+    details: diagnosticMessage
   });
 };
 
