@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import { chromium as playwright } from 'playwright-core';
-import chromium from '@sparticuz/chromium';
 
 const app = express();
 
@@ -23,13 +22,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   let browser;
   try {
-    console.log('Launching Serverless Browser...');
-    // Configure for Vercel/Serverless environment
-    browser = await playwright.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: true,
+    console.log('Connecting to Browserless...');
+    // Connect to Browserless.io
+    browser = await playwright.connect({
+      wsEndpoint: 'wss://chrome.browserless.io?token=2TeqCwywXGDKLareb25cbb9d8b25c5a6a96c1af2a30b9ee95',
     });
 
     const page = await browser.newPage();
