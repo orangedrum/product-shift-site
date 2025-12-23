@@ -27,6 +27,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   try {
     console.log('Sending request to Browserless...');
 
+    // Diagnostic Log: Check if the environment variable is being loaded by Vercel.
+    console.log(`DIAGNOSTIC: Browserless token is ${process.env.BROWSERLESS_TOKEN ? 'LOADED' : 'MISSING OR UNDEFINED'}`);
+
     // This script runs on the Browserless.io servers.
     const browserScript = `
       export default async ({ page, context }) => {
