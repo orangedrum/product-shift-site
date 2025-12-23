@@ -1,5 +1,5 @@
 {
-  "name": "ai-ux-agent-backend",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Backend service for AI-powered UX healthtech agent",
   "main": "dist/index.js",
@@ -9,9 +9,6 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2",
