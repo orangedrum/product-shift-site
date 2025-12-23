@@ -45,7 +45,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   } catch (error: any) {
     console.error('Playwright error:', error);
     if (browser) await browser.close();
-    res.status(500).json({ error: 'Failed to run the Playwright test on the server.', details: error.message });
+    res.status(500).json({ error: `Failed to run the Playwright test: ${error.message}`, details: error.message });
   }
 };
 
