@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
+// Initialize Express App
 const app = express();
 
 // Middleware
