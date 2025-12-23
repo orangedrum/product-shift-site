@@ -3,16 +3,32 @@ import cors from 'cors';
 
 // --- Persona & Analyzer Definitions ---
 
+type ScrapedData = {
+  title: string;
+  headings: { tag: string; text: string }[];
+};
+
 type Persona = {
   id: string;
   name: string;
   description: string;
   // Each analyzer is a function that takes scraped data and returns a string analysis.
-  analyzers: ((data: { title: string }) => string)[];
+  analyzers: ((data: ScrapedData, persona: Persona, goal: string) => string)[];
 };
 
-const titleAnalyzer = (data: { title: string }, persona: Persona, goal: string) =>
+const titleAnalyzer = (data: ScrapedData, persona: Persona, goal: string) =>
   `As ${persona.name}, while trying to "${goal}", I found the title "${data.title}" to be a standard document title. From my perspective as ${persona.description}, you could consider using more engaging, benefit-oriented language that speaks directly to my goal.`;
+
+const headingsAnalyzer = (data: ScrapedData, persona: Persona, goal: string) => {
+  const h1s = data.headings.filter(h => h.tag === 'H1');
+  if (h1s.length === 0) {
+    return `As ${persona.name}, I noticed there is no main heading (H1) on the page. This makes it difficult for me to quickly grasp the page's primary purpose when trying to "${goal}".`;
+  }
+  if (h1s.length > 1) {
+    return `As ${persona.name}, I saw multiple main headings (H1s). This can be confusing as it's unclear which one is the most important when I'm trying to "${goal}".`;
+  }
+  return `The main heading "${h1s[0].text}" clearly communicates the page's topic, which helped me in my goal to "${goal}".`;
+};
 
 // Initialize Express App
 const app = express();
@@ -31,7 +47,7 @@ const personas: Record<string, Persona> = {
     id: 'alex-busy-pro',
     name: 'Alex',
     description: 'a busy professional',
-    analyzers: [titleAnalyzer],
+    analyzers: [titleAnalyzer, headingsAnalyzer],
   },
 };
 
@@ -59,7 +75,16 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         const { url } = context;
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
         const title = await page.title();
-        return { title };
+
+        const headings = await page.evaluate(() => {
+          const headingElements = Array.from(document.querySelectorAll('h1, h2, h3'));
+          return headingElements.map(h => ({
+            tag: h.tagName,
+            text: h.textContent?.trim() || ''
+          }));
+        });
+
+        return { title, headings };
       };
     `;
 
