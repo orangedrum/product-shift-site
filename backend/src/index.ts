@@ -28,7 +28,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     console.log('Sending request to Browserless...');
 
     const browserScript = `
-      module.exports = async ({ page, context }) => {
+      export default async ({ page, context }) => {
         const { url } = context;
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
         const title = await page.title();
