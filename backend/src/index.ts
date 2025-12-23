@@ -57,6 +57,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 };
 
 // Register the handler for both paths to be safe against Vercel rewriting
+// This ensures the API works whether Vercel strips the /api prefix or not.
 app.post('/api/run-test', runTestHandler);
 app.post('/run-test', runTestHandler);
 
