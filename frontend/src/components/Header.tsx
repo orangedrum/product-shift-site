@@ -35,7 +35,7 @@ const Header = () => {
           </div>
           <div className="hidden md:flex">
             <button className="inline-flex items-center justify-center bg-gradient-to-br from-brand-orange via-brand-pink to-brand-lightblue text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
-              Book Free Consultation
+              Book Super Expensive Consultation
             </button>
           </div>
 
