@@ -23,7 +23,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   let browser;
   try {
-    console.log('Launching browser...');
+    console.log('Launching Serverless Browser...');
     // Configure for Vercel/Serverless environment
     browser = await playwright.launch({
       args: chromium.args,
