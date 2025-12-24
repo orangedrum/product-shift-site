@@ -6,6 +6,7 @@ import cors from 'cors';
 type ScrapedData = {
   title: string;
   headings: { tag: string; text: string }[];
+  bodyText: string;
 };
 
 type Persona = {
@@ -30,6 +31,16 @@ const headingsAnalyzer = (data: ScrapedData, persona: Persona, goal: string) => 
   return `The main heading "${h1s[0].text}" clearly communicates the page's topic, which helped me in my goal to "${goal}".`;
 };
 
+const bodyAnalyzer = (data: ScrapedData, persona: Persona, goal: string) => {
+  if (!data.bodyText || data.bodyText.length < 50) {
+    return `As ${persona.name}, I found very little text on the page, which makes it hard to achieve my goal of "${goal}".`;
+  }
+  if (data.bodyText.length > 1000) {
+    return `As a ${persona.description}, I noticed a significant amount of text on the page. To help me achieve my goal of "${goal}", it would be helpful to have a clear summary or key takeaways near the top.`;
+  }
+  return `The introductory text seems to be of a reasonable length for me to quickly scan and understand the page's content.`;
+};
+
 // Initialize Express App
 const app = express();
 
@@ -47,7 +58,7 @@ const personas: Record<string, Persona> = {
     id: 'alex-busy-pro',
     name: 'Alex',
     description: 'a busy professional',
-    analyzers: [titleAnalyzer, headingsAnalyzer],
+    analyzers: [titleAnalyzer, headingsAnalyzer, bodyAnalyzer],
   },
 };
 
@@ -84,7 +95,13 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           }));
         });
 
-        return { title, headings };
+        const bodyText = await page.evaluate(() => {
+          const mainEl = document.querySelector('main');
+          const contentEl = mainEl || document.body;
+          return contentEl.innerText.trim().substring(0, 1500); // Get first 1500 chars
+        });
+
+        return { title, headings, bodyText };
       };
     `;
 
