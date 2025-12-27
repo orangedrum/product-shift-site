@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // --- Persona & Analyzer Definitions ---
 
@@ -14,31 +15,35 @@ type Persona = {
   name: string;
   description: string;
   // Each analyzer is a function that takes scraped data and returns a string analysis.
-  analyzers: ((data: ScrapedData, persona: Persona, goal: string) => string)[];
+  analyzers: ((data: ScrapedData, persona: Persona, goal: string, url: string) => Promise<string>)[];
 };
 
-const titleAnalyzer = (data: ScrapedData, persona: Persona, goal: string) =>
-  `As ${persona.name}, while trying to "${goal}", I found the title "${data.title}" to be a standard document title. From my perspective as ${persona.description}, you could consider using more engaging, benefit-oriented language that speaks directly to my goal.`;
+// --- AI Analyzer ---
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-const headingsAnalyzer = (data: ScrapedData, persona: Persona, goal: string) => {
-  const h1s = data.headings.filter(h => h.tag === 'H1');
-  if (h1s.length === 0) {
-    return `As ${persona.name}, I noticed there is no main heading (H1) on the page. This makes it difficult for me to quickly grasp the page's primary purpose when trying to "${goal}".`;
-  }
-  if (h1s.length > 1) {
-    return `As ${persona.name}, I saw multiple main headings (H1s). This can be confusing as it's unclear which one is the most important when I'm trying to "${goal}".`;
-  }
-  return `The main heading "${h1s[0].text}" clearly communicates the page's topic, which helped me in my goal to "${goal}".`;
-};
+const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-const bodyAnalyzer = (data: ScrapedData, persona: Persona, goal: string) => {
-  if (!data.bodyText || data.bodyText.length < 50) {
-    return `As ${persona.name}, I found very little text on the page, which makes it hard to achieve my goal of "${goal}".`;
-  }
-  if (data.bodyText.length > 1000) {
-    return `As a ${persona.description}, I noticed a significant amount of text on the page. To help me achieve my goal of "${goal}", it would be helpful to have a clear summary or key takeaways near the top.`;
-  }
-  return `The introductory text seems to be of a reasonable length for me to quickly scan and understand the page's content.`;
+  const prompt = `
+    You are a UX analysis agent. Your current persona is ${persona.name}, who is ${persona.description}.
+    Your goal is to: "${goal}".
+
+    You have scanned the following content from the webpage at ${url}:
+    - Page Title: "${data.title}"
+    - Headings: ${JSON.stringify(data.headings.map(h => h.text))}
+    - Introductory Body Text: "${data.bodyText.substring(0, 800)}..."
+
+    Based on this information, and keeping your persona and goal in mind, provide a short, insightful analysis in a single paragraph.
+    - Do NOT simply repeat the title or headings.
+    - Summarize what you think the page is about in your own words.
+    - Comment on whether the language feels trustworthy and professional from your perspective.
+    - State how easy or difficult it was to understand the page's purpose based on the text alone.
+    - Frame all feedback from the first-person perspective of your persona. For example: "As Alex, I felt that...".
+  `;
+
+  const result = await model.generateContent(prompt);
+  const response = result.response;
+  return response.text();
 };
 
 // Initialize Express App
@@ -58,7 +63,7 @@ const personas: Record<string, Persona> = {
     id: 'alex-busy-pro',
     name: 'Alex',
     description: 'a busy professional',
-    analyzers: [titleAnalyzer, headingsAnalyzer, bodyAnalyzer],
+    analyzers: [aiAnalyzer],
   },
 };
 
@@ -123,7 +128,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
     // --- Persona-Driven Analysis ---
     const activePersona = personas[personaId];
-    const analyses = activePersona.analyzers.map(analyzer => analyzer(result, activePersona, goal));
+    // We now use Promise.all because our AI analyzer is asynchronous.
+    const analysisPromises = activePersona.analyzers.map(analyzer => analyzer(result, activePersona, goal, url));
+    const analyses = await Promise.all(analysisPromises);
 
     res.json({
       message: 'Analysis Complete.',
