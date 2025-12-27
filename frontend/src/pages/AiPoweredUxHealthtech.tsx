@@ -42,46 +42,72 @@ const formatText = (text: string) => {
     if (line.startsWith('### ')) return <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-gray-800">{line.replace('### ', '')}</h3>;
     if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-gray-900">{line.replace('## ', '')}</h2>;
     
-    // Issue vs Fix Styling
+    // Issue vs Fix Styling (Neutralized)
     if (line.includes('**ISSUE:**')) {
       return (
-        <div key={index} className="mt-4 p-3 bg-red-50 border border-red-100 rounded-t-lg">
-          <p className="text-red-800"><strong className="font-bold text-red-900">ISSUE:</strong> {line.replace('- **ISSUE:**', '').replace('**ISSUE:**', '')}</p>
+        <div key={index} className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-t-lg">
+          <p className="text-gray-800"><strong className="font-bold text-gray-900">ISSUE:</strong> {line.replace('- **ISSUE:**', '').replace('**ISSUE:**', '')}</p>
         </div>
       );
     }
     if (line.includes('**FIX:**')) {
       return (
-        <div key={index} className="mb-4 p-3 bg-green-50 border border-green-100 border-t-0 rounded-b-lg">
-          <p className="text-green-800"><strong className="font-bold text-green-900">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
+        <div key={index} className="mb-4 p-3 bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
+          <p className="text-gray-800"><strong className="font-bold text-gray-900">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
         </div>
       );
     }
 
     // Bold
     const parts = line.split(/(\*\*.*?\*\*)/g);
-    return (
-      <p key={index} className="mb-2 text-gray-700 leading-relaxed">
-        {parts.map((part, i) => 
-          part.startsWith('**') && part.endsWith('**') 
-            ? <strong key={i} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong> 
-            : part
-        )}
-      </p>
-    );
+    
+    // Check for Sentiment Pills [Positive], [Neutral], [Negative]
+    const content = parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong>;
+      }
+      
+      // Split by sentiment tags
+      const subParts = part.split(/(\[(?:Positive|Neutral|Negative)\])/g);
+      return subParts.map((subPart, j) => {
+        if (subPart === '[Positive]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Positive</span>;
+        if (subPart === '[Neutral]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-gray-600 bg-gray-100 rounded-full border border-gray-200">Neutral</span>;
+        if (subPart === '[Negative]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Negative</span>;
+        return subPart;
+      });
+    });
+
+    return <p key={index} className="mb-2 text-gray-700 leading-relaxed">{content}</p>;
   });
 };
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
-  const [personaId, setPersonaId] = useState('alex-busy-pro'); // Default persona
+  const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro']);
   const [goal, setGoal] = useState('Quickly understand what this page is about.'); // Default goal
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<AnalysisError | null>(null);
 
+  const availablePersonas = [
+    { id: 'alex-busy-pro', name: 'Alex, the Busy Professional' },
+    { id: 'sam-college-student', name: 'Sam, the College Student' }
+  ];
+
+  const togglePersona = (id: string) => {
+    setSelectedPersonas(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    
+    if (selectedPersonas.length === 0) {
+      alert('Please select at least one persona.');
+      return;
+    }
+
     setIsLoading(true);
     setResult(null);
     setError(null);
@@ -92,7 +118,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url, personaId, goal }), // Send all three fields
+        body: JSON.stringify({ url, personaIds: selectedPersonas, goal }), 
       });
 
       const data = await response.json();
@@ -149,19 +175,25 @@ const AiPoweredUxHealthtech: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="persona" className="block text-sm font-medium text-gray-700">
-            Select Persona
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select Personas (Recommended: 3-5)
           </label>
-          <select
-            id="persona"
-            value={personaId}
-            onChange={(e) => setPersonaId(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="alex-busy-pro">Alex, the Busy Professional</option>
-            <option value="sam-college-student">Sam, the College Student</option>
-            {/* Future personas will be added here */}
-          </select>
+          <div className="space-y-2 bg-white p-3 border border-gray-300 rounded-md">
+            {availablePersonas.map((persona) => (
+              <div key={persona.id} className="flex items-center">
+                <input
+                  id={`persona-${persona.id}`}
+                  type="checkbox"
+                  checked={selectedPersonas.includes(persona.id)}
+                  onChange={() => togglePersona(persona.id)}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor={`persona-${persona.id}`} className="ml-2 block text-sm text-gray-900 cursor-pointer select-none">
+                  {persona.name}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div>

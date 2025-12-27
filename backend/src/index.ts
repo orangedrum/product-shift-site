@@ -164,14 +164,14 @@ const personas: Record<string, Persona> = {
 };
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  const { url, personaId, goal } = req.body;
+  const { url, personaIds, goal } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  if (!personaId || !personas[personaId]) {
-    return res.status(400).json({ error: 'A valid personaId is required' });
+  if (!personaIds || !Array.isArray(personaIds) || personaIds.length === 0) {
+    return res.status(400).json({ error: 'At least one persona is required' });
   }
 
   if (!goal) {
@@ -237,20 +237,29 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     const result = await response.json();
 
     // --- Persona-Driven Analysis ---
-    const activePersona = personas[personaId];
-    // We now use Promise.all because our AI analyzer is asynchronous.
-    const analysisPromises = activePersona.analyzers.map(analyzer => analyzer(result, activePersona, goal, url));
-    const analyses = await Promise.all(analysisPromises);
+    const allResults: any[] = [];
+
+    for (const pId of personaIds) {
+      const activePersona = personas[pId];
+      if (activePersona) {
+        const analysisPromises = activePersona.analyzers.map(analyzer => analyzer(result, activePersona, goal, url));
+        const analyses = await Promise.all(analysisPromises);
+        
+        analyses.forEach(analysis => {
+          allResults.push({
+            persona: activePersona.name,
+            avatar: activePersona.avatar,
+            analysis: analysis
+          });
+        });
+      }
+    }
 
     res.json({
       message: 'Analysis Complete.',
       title: result.title,
       screenshot: result.screenshot,
-      results: analyses.map(analysis => ({
-        persona: activePersona.name,
-        avatar: activePersona.avatar,
-        analysis: analysis
-      }))
+      results: allResults
     });
 
   } catch (error: any) {
