@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { ChevronDown, ChevronUp, User } from 'lucide-react';
+import { User, AlertCircle } from 'lucide-react';
 
 // Define types for the API response and error
 type UserSession = {
   persona: string;
+  description: string;
   avatar: string;
   analysis: string;
 };
@@ -98,7 +99,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [error, setError] = useState<AnalysisError | null>(null);
   const [showPersonaError, setShowPersonaError] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [expandedPersona, setExpandedPersona] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<number>(0);
 
   // Simulated progress bar effect
   useEffect(() => {
@@ -125,7 +126,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
     { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' },
     { id: 'sam-college-student', name: 'Sam', description: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile' },
     { id: 'charlie-family-worker', name: 'Charlie', description: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile' },
-    { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02&mouth=smile' }
+    { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02&mouth=smile' },
+    { id: 'sarah-social-shopper', name: 'Sarah', description: 'Social shopper, mid-20s', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&backgroundColor=ffdfbf&mouth=smile' },
+    { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', description: 'Wealthy, highly educated', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elizabeth&backgroundColor=c0ebd7&mouth=smile' }
   ];
 
   const togglePersona = (id: string) => {
@@ -136,10 +139,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
         return newSelection;
       }
     );
-  };
-
-  const togglePersonaDetails = (personaName: string) => {
-    setExpandedPersona(expandedPersona === personaName ? null : personaName);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -191,7 +190,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
+    <div className="container mx-auto p-4 max-w-7xl">
       <style>{`
         @media print {
           body * { visibility: hidden; }
@@ -299,55 +298,82 @@ const AiPoweredUxHealthtech: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 4) */}
-            <div className="lg:col-span-4 space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 border-b pb-2">User Sessions</h2>
-              {result.userSessions.map((res, idx) => {
-                // Parse the new delimited format
-                const userSection = res.analysis;
+            <div className="lg:col-span-5 space-y-6">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="p-4 border-b border-gray-100 bg-gray-50">
+                  <h2 className="text-lg font-bold text-gray-800">User Sessions</h2>
+                  <p className="text-xs text-gray-500">Click a user to view their detailed feedback</p>
+                </div>
                 
-                // Split by DETAILS first
-                const parts = userSection.split('|||USER_DETAILS|||');
-                const details = parts[1] || '';
-                const moodAndBubble = parts[0] || '';
-
-                // Split MOOD and BUBBLE
-                const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||');
-                // bubbleParts[0] might contain |||USER_MOOD||| Positive
-                const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
-                
-                const isExpanded = expandedPersona === res.persona;
-
-                return (
-                  <div key={idx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <div 
-                      className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                      onClick={() => togglePersonaDetails(res.persona)}
+                {/* Tab Bar */}
+                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b border-gray-100 no-scrollbar">
+                  {result.userSessions.map((res, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveTab(idx)}
+                      className={`flex flex-col items-center p-2 rounded-lg min-w-[80px] transition-all ${
+                        activeTab === idx 
+                          ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' 
+                          : 'hover:bg-gray-50 border border-transparent'
+                      }`}
                     >
-                      <div className="flex items-start gap-3">
-                        <img 
-                          src={res.avatar} 
-                          alt={res.persona} 
-                          className="w-12 h-12 rounded-full border-2 border-white shadow-sm bg-gray-50"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-center mb-1">
-                            <h3 className="text-sm font-bold text-gray-900 truncate">{res.persona}</h3>
-                            {isExpanded ? <ChevronUp size={16} className="text-gray-400"/> : <ChevronDown size={16} className="text-gray-400"/>}
-                          </div>
-                          <div className="bg-blue-50 p-2 rounded-lg rounded-tl-none text-xs text-gray-700 relative">
-                            "{userBubble}"
-                          </div>
+                      <img 
+                        src={res.avatar} 
+                        alt={res.persona}
+                        onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${res.persona}`; }}
+                        className={`w-10 h-10 rounded-full border-2 ${activeTab === idx ? 'border-indigo-300' : 'border-gray-100'}`}
+                      />
+                      <span className={`text-xs mt-1 font-medium truncate w-full text-center ${activeTab === idx ? 'text-indigo-700' : 'text-gray-600'}`}>
+                        {res.persona}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Active Tab Content */}
+                <div className="p-6 bg-indigo-50/30 min-h-[400px]">
+                  {result.userSessions[activeTab] && (() => {
+                    const res = result.userSessions[activeTab];
+                    const userSection = res.analysis;
+                    const parts = userSection.split('|||USER_DETAILS|||');
+                    const details = parts[1] || '';
+                    const moodAndBubble = parts[0] || '';
+                    const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||');
+                    const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
+
+                    return (
+                      <div className="animate-fade-in">
+                        <div className="flex items-center gap-3 mb-4">
+                          <h3 className="text-xl font-bold text-gray-900">{res.persona}</h3>
+                          <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200 shadow-sm">{res.description}</span>
                         </div>
-                      </div>
-                    </div>
-                    
-                    {isExpanded && (
-                      <div className="px-4 pb-4 pt-0 text-sm border-t border-gray-100 bg-gray-50">
-                        <div className="mt-3 space-y-2">
+                        
+                        <div className="bg-white p-4 rounded-xl rounded-tl-none shadow-sm border border-indigo-100 text-gray-800 relative mb-6">
+                          <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l border-b border-indigo-100 transform rotate-45"></div>
+                          <p className="text-lg italic text-gray-700 leading-relaxed">"{userBubble}"</p>
+                        </div>
+
+                        <div className="space-y-4 text-sm text-gray-700 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                           {formatText(details)}
                         </div>
                       </div>
-                    )}
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: Expert Report (Span 7) */}
+            <div className="lg:col-span-7">
+              <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg h-full">
+                <div className="flex justify-between items-center mb-6 border-b pb-4">
+                  <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
+                  <button 
+                    onClick={handlePrint}
+                    className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
+                  >
+                    Download PDF
+                  </button>
                   </div>
                 );
               })}

@@ -174,6 +174,18 @@ const personas: Record<string, Persona> = {
     description: 'a 45+ family-oriented homemaker with poor eyesight',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02&mouth=smile',
   },
+  'sarah-social-shopper': {
+    id: 'sarah-social-shopper',
+    name: 'Sarah',
+    description: 'an avid shopper in her 20s with an active social media following',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&backgroundColor=ffdfbf&mouth=smile',
+  },
+  'elizabeth-wealthy-elite': {
+    id: 'elizabeth-wealthy-elite',
+    name: 'Elizabeth',
+    description: 'a highly educated and wealthy individual with deep connections',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elizabeth&backgroundColor=c0ebd7&mouth=smile',
+  },
 };
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
@@ -313,7 +325,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       message: 'Analysis Complete.',
       title: result.title,
       screenshot: result.screenshot,
-      userSessions: userSessions.map(({ persona, avatar, analysis }) => ({ persona, avatar, analysis })),
+      userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description })),
       expertReport: expertReportText,
       scores
     });
