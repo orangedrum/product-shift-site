@@ -22,7 +22,7 @@ type Persona = {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
-  const modelName = 'gemini-2.0-flash';
+  const modelName = 'gemini-2.0-flash-lite';
   const model = genAI.getGenerativeModel({ model: modelName });
 
   const prompt = `
