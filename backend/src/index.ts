@@ -104,14 +104,15 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
 const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string): Promise<string> => {
   const prompt = `
     You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users.
-    **Format for Section 2:**
+    
+    **Required Output Format:**
     ### TEST RESULT: [PASS / FAIL]
     (Brief explanation of the result).
 
-    ### 4. Visual & Heuristic Analysis
+    ### Visual & Heuristic Analysis
     (Comment on visual hierarchy, layout, and trust signals. Assign a status like [Positive], [Neutral], or [Negative] to key areas.)
     
-    ### 5. Actionable Recommendations
+    ### Actionable Recommendations
     (Provide 2-3 concrete steps. Use this exact format:)
     - **ISSUE:** [Description]
     - **FIX:** [Action]
@@ -133,6 +134,8 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     ${s.output}
     ---
     `).join('\n')}
+
+    **IMPORTANT:** Do not use markdown tables in your response. Use bullet points or simple text.
   `;
   return generateContentWithFallback(prompt, data.screenshot);
 };

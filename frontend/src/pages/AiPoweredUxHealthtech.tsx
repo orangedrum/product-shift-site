@@ -31,7 +31,9 @@ type AnalysisError = {
 // Helper to format simple markdown to HTML
 const formatText = (text: string) => {
   if (!text) return null;
-  return text.split('\n').map((line, index) => {
+  return text.split('\n')
+    .filter(line => !line.match(/^\|.*\|$/)) // Filter out markdown table separator lines
+    .map((line, index) => {
     // Headers
     if (line.includes('TEST RESULT: PASS')) {
       return (
@@ -99,7 +101,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [error, setError] = useState<AnalysisError | null>(null);
   const [showPersonaError, setShowPersonaError] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<number>(0); // Index of the active tab
 
   // Simulated progress bar effect
   useEffect(() => {
@@ -192,7 +194,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <style>{`
         @media print {
           body * { visibility: hidden; }
@@ -327,7 +329,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     <button
                       key={idx}
                       onClick={() => setActiveTab(idx)}
-                      className={`flex flex-col items-center p-2 rounded-lg min-w-[80px] transition-all ${
+                      className={`flex flex-col items-center p-3 rounded-lg min-w-[110px] transition-all ${
                         activeTab === idx 
                           ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' 
                           : 'hover:bg-gray-100 border border-transparent'
@@ -337,7 +339,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                         src={res.avatar} 
                         alt={res.persona}
                         onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${res.persona}`; }}
-                        className={`w-10 h-10 rounded-full border-2 ${activeTab === idx ? 'border-indigo-300' : 'border-gray-100'}`}
+                        className={`w-16 h-16 rounded-full border-2 ${activeTab === idx ? 'border-indigo-300' : 'border-gray-100'}`}
                       />
                       <span className={`text-xs mt-1 font-medium truncate w-full text-center ${activeTab === idx ? 'text-indigo-700' : 'text-gray-600'}`}>
                         {res.persona}
@@ -360,8 +362,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     return (
                       <div className="animate-fade-in">
                         <div className="flex items-center gap-3 mb-4">
-                          <h3 className="text-xl font-bold text-gray-900">{res.persona}</h3>
-                          <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200 shadow-sm">{res.description}</span>
+                          <h3 className="text-lg font-bold text-gray-900">{res.persona}</h3>
+                          <span className="text-xs text-gray-600 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">{res.description}</span>
                         </div>
                         
                         <div className="bg-white p-4 rounded-xl rounded-tl-none shadow-sm border border-indigo-100 text-gray-800 relative mb-6">
@@ -380,8 +382,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
 
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
-            <div className="lg:col-span-7">
-              <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+            <div className="lg:col-span-7 h-full">
+              <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg h-full">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                   <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
                   <button 
@@ -390,6 +392,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   >
                     Download PDF
                   </button>
+                </div>
+
+                {/* Render Test Result First for Prominence */}
+                <div className="prose max-w-none">
+                  {formatText(result.expertReport.split('\n').find(line => line.includes('TEST RESULT:')) || '')}
                 </div>
                 
                 {/* Charts Section */}
@@ -419,13 +426,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 {/* Visual Reference */}
                 {result.screenshot && (
                   <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Visual Reference</h3>
+                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Visual Reference</h3>
                     <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
+                    <p className="text-xs text-gray-400 mt-2 text-center">Note: This is a full screenshot. Future versions will include contextual highlights.</p>
                   </div>
                 )}
 
                 <div className="prose max-w-none">
-                  {formatText(result.expertReport)}
+                  {/* Render the rest of the report, excluding the already-rendered test result */}
+                  {formatText(
+                    result.expertReport.split('\n').filter(line => !line.includes('TEST RESULT:')).join('\n')
+                  )}
                 </div>
               </div>
             </div>
