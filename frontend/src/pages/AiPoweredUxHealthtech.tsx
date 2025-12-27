@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 // Define types for the API response and error
@@ -96,6 +96,28 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<AnalysisError | null>(null);
   const [showPersonaError, setShowPersonaError] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // Simulated progress bar effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      setProgress(5); // Start at 5%
+      // We expect the process to take roughly 40 seconds with the new throttling
+      const duration = 40000; 
+      const step = 200;
+      
+      interval = setInterval(() => {
+        setProgress(old => {
+          if (old >= 95) return 95; // Cap at 95% until actual completion
+          return old + (100 / (duration / step));
+        });
+      }, step);
+    } else {
+      setProgress(0);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const availablePersonas = [
     { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' },
@@ -251,13 +273,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-all
-            ${isLoading 
-              ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-pulse cursor-wait' 
-              : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'}
-          `}
+          className={`w-full relative overflow-hidden inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-all bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400`}
         >
-          {isLoading ? 'Analyzing...' : 'Run Analysis'}
+          {isLoading && (
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-200 ease-linear"
+              style={{ width: `${progress}%` }}
+            />
+          )}
+          <span className="relative z-10">
+            {isLoading ? `Analyzing... ${Math.round(progress)}%` : 'Run Analysis'}
+          </span>
         </button>
       </form>
       </div>

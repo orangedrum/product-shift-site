@@ -26,8 +26,9 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   const modelsToTry = [
     'gemini-2.0-flash',               // Stable 2.0 Flash: Confirmed available in your list.
     'gemini-2.0-flash-lite-preview-02-05', // Lite Preview: Often has distinct quotas.
-    'gemini-1.5-flash',               // Standard 1.5 Flash: The reliable workhorse.
-    'gemini-1.5-flash-8b'             // 1.5 Flash 8b: Smaller, faster, often has separate quota.
+    'gemini-flash-latest',            // Alias for 1.5 Flash: Confirmed available.
+    'gemini-flash-lite-latest',       // Alias for 1.5 Flash Lite: Confirmed available.
+    'gemini-pro-latest'               // Fallback: Pro model.
   ];
 
   // Prepare image part if available
