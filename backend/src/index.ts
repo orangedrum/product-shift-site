@@ -22,8 +22,13 @@ type Persona = {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
-  const modelName = 'gemini-2.0-flash-lite';
-  const model = genAI.getGenerativeModel({ model: modelName });
+  // Strategy: Cycle through a prioritized list of models to find one with available free quota.
+  const modelsToTry = [
+    'gemini-2.0-flash-exp',           // Experimental: Often has separate, generous free quotas.
+    'gemini-flash-latest',            // Stable Alias: Usually points to the most reliable Flash version.
+    'gemini-2.0-flash-lite-preview-02-05', // Specific Preview: Previews often have distinct quotas.
+    'gemini-pro-latest'               // Fallback: Older but powerful pro model.
+  ];
 
   const prompt = `
     You are a UX analysis agent. Your current persona is ${persona.name}, who is ${persona.description}.
@@ -42,13 +47,22 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     - Frame all feedback from the first-person perspective of your persona. For example: "As Alex, I felt that...".
   `;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    return response.text();
-  } catch (error: any) {
-    // Diagnostic: Attempt to list models to see what IS available.
-    let diagnosticMessage = `Original Error: ${error.message}`;
+  let lastError: any = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      return response.text();
+    } catch (error: any) {
+      console.log(`Model '${modelName}' failed: ${error.message}`);
+      lastError = error;
+    }
+  }
+
+  // If we exit the loop, all models failed. Run the diagnostic.
+  let diagnosticMessage = `All fallback models failed. Last Error: ${lastError?.message}`;
 
     try {
       const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
@@ -59,7 +73,7 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
         const listData = await listResponse.json();
         if (listData.models) {
           const availableModels = listData.models.map((m: any) => m.name.replace('models/', '')).join(', ');
-          diagnosticMessage += `\n\nDIAGNOSTIC SUCCESS: The model '${modelName}' was not found. AVAILABLE MODELS: ${availableModels}`;
+          diagnosticMessage += `\n\nDIAGNOSTIC SUCCESS: Models tried: ${modelsToTry.join(', ')}. AVAILABLE MODELS: ${availableModels}`;
         } else {
           diagnosticMessage += `\n\nDIAGNOSTIC: API key seems valid but no models were returned. Response: ${JSON.stringify(listData)}`;
         }
@@ -69,7 +83,6 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     }
 
     throw new Error(diagnosticMessage);
-  }
 };
 
 // Initialize Express App
