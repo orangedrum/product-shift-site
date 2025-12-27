@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { ChevronDown, ChevronUp, User } from 'lucide-react';
 
 // Define types for the API response and error
 type UserSession = {
@@ -50,14 +51,14 @@ const formatText = (text: string) => {
     if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-gray-900">{line.replace('## ', '')}</h2>;
     
     // Issue vs Fix Styling (Neutralized)
-    if (line.includes('**ISSUE:**')) {
+    if (line.toUpperCase().includes('**ISSUE:**')) {
       return (
         <div key={index} className="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-t-lg">
-          <p className="text-gray-800"><strong className="font-bold text-gray-900">ISSUE:</strong> {line.replace('- **ISSUE:**', '').replace('**ISSUE:**', '')}</p>
+          <p className="text-gray-800"><strong className="font-bold text-gray-900">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
         </div>
       );
     }
-    if (line.includes('**FIX:**')) {
+    if (line.toUpperCase().includes('**FIX:**')) {
       return (
         <div key={index} className="mb-4 p-3 bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
           <p className="text-gray-800"><strong className="font-bold text-gray-900">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
@@ -97,6 +98,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [error, setError] = useState<AnalysisError | null>(null);
   const [showPersonaError, setShowPersonaError] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [expandedPersona, setExpandedPersona] = useState<string | null>(null);
 
   // Simulated progress bar effect
   useEffect(() => {
@@ -134,6 +136,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
         return newSelection;
       }
     );
+  };
+
+  const togglePersonaDetails = (personaName: string) => {
+    setExpandedPersona(expandedPersona === personaName ? null : personaName);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -290,67 +296,81 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {result && (
         <div id="report-section" className="mt-12">
-          <div className="flex flex-row gap-6 overflow-x-auto pb-8 snap-x">
-            {result.userSessions.map((res, idx) => {
-            // Parse the new delimited format
-            const userSection = res.analysis;
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            const userParts = userSection.split('|||USER_DETAILS|||');
-            const userBubble = userParts[0]?.replace('|||USER_BUBBLE|||', '').trim() || "I'm analyzing the page...";
-            const userDetails = userParts[1] || '';
-            
-            return (
-              <div key={idx} className="min-w-[300px] max-w-[350px] flex-shrink-0 snap-center">
-                {/* Section 1: The User Session (Alex) */}
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm h-full flex flex-col">
-                  <div className="flex flex-col items-center text-center mb-4">
-                    <img 
-                      src={res.avatar} 
-                      alt={res.persona} 
-                      className="w-20 h-20 rounded-full border-4 border-white shadow-md mb-3 bg-gray-50"
-                    />
-                    <h3 className="text-lg font-bold text-gray-900">{res.persona}</h3>
-                  </div>
-                  
-                  <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative mb-4">
-                        {/* Speech Bubble Triangle */}
-                    <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
-                        <p className="text-lg italic text-gray-800">"{userBubble}"</p>
-                      </div>
-                  <div className="text-sm">
-                        {formatText(userDetails)}
+            {/* LEFT COLUMN: Persona Summaries (Span 4) */}
+            <div className="lg:col-span-4 space-y-6">
+              <h2 className="text-xl font-bold text-gray-800 border-b pb-2">User Sessions</h2>
+              {result.userSessions.map((res, idx) => {
+                // Parse the new delimited format
+                const userSection = res.analysis;
+                
+                // Split by DETAILS first
+                const parts = userSection.split('|||USER_DETAILS|||');
+                const details = parts[1] || '';
+                const moodAndBubble = parts[0] || '';
+
+                // Split MOOD and BUBBLE
+                const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||');
+                // bubbleParts[0] might contain |||USER_MOOD||| Positive
+                const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
+                
+                const isExpanded = expandedPersona === res.persona;
+
+                return (
+                  <div key={idx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div 
+                      className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => togglePersonaDetails(res.persona)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <img 
+                          src={res.avatar} 
+                          alt={res.persona} 
+                          className="w-12 h-12 rounded-full border-2 border-white shadow-sm bg-gray-50"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-center mb-1">
+                            <h3 className="text-sm font-bold text-gray-900 truncate">{res.persona}</h3>
+                            {isExpanded ? <ChevronUp size={16} className="text-gray-400"/> : <ChevronDown size={16} className="text-gray-400"/>}
+                          </div>
+                          <div className="bg-blue-50 p-2 rounded-lg rounded-tl-none text-xs text-gray-700 relative">
+                            "{userBubble}"
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    
+                    {isExpanded && (
+                      <div className="px-4 pb-4 pt-0 text-sm border-t border-gray-100 bg-gray-50">
+                        <div className="mt-3 space-y-2">
+                          {formatText(details)}
+                        </div>
+                      </div>
+                    )}
                   </div>
-            );
-            })}
-          </div>
-
-          {/* Section 2: The Aggregated Expert Report */}
-          <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
-            <div className="flex justify-between items-center mb-6 border-b pb-4">
-              <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
-              <button 
-                onClick={handlePrint}
-                className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
-              >
-                Download PDF
-              </button>
+                );
+              })}
             </div>
-            
-            {/* Visual Reference */}
-            {result.screenshot && (
-              <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Visual Reference</h3>
-                <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
-              </div>
-            )}
 
-            {/* Charts Section */}
-            {result.scores && (
-              <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-100">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Performance Metrics</h3>
-                <div className="h-64 w-full">
+            {/* RIGHT COLUMN: Expert Report (Span 8) */}
+            <div className="lg:col-span-8">
+              <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+                <div className="flex justify-between items-center mb-6 border-b pb-4">
+                  <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
+                  <button 
+                    onClick={handlePrint}
+                    className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
+                  >
+                    Download PDF
+                  </button>
+                </div>
+                
+                {/* Charts Section */}
+                {result.scores && (result.scores.usability > 0 || result.scores.desirability > 0) ? (
+                  <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-100">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">Performance Metrics</h3>
+                    <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={[
                       { name: 'Usability', score: result.scores.usability },
@@ -367,11 +387,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
-            )}
+                  </div>
+                ) : null}
 
-            <div className="prose max-w-none">
-              {formatText(result.expertReport)}
+                {/* Visual Reference */}
+                {result.screenshot && (
+                  <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Visual Reference</h3>
+                    <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
+                  </div>
+                )}
+
+                <div className="prose max-w-none">
+                  {formatText(result.expertReport)}
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -113,11 +113,11 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     
     ### 5. Actionable Recommendations
     (Provide 2-3 concrete steps. Use this exact format:)
-    - **ISSUE:** [Brief description of the problem]
-    - **FIX:** [Specific action to take]
+    - **ISSUE:** [Description]
+    - **FIX:** [Action]
 
     |||SCORES_JSON|||
-    { "usability": 0-100, "desirability": 0-100, "clarity": 0-100 }
+    { "usability": 85, "desirability": 70, "clarity": 90 }
     (Provide integer scores based on the aggregate analysis)
 
     **Context:**
