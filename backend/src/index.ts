@@ -8,6 +8,7 @@ type ScrapedData = {
   title: string;
   headings: { tag: string; text: string }[];
   bodyText: string;
+  screenshot?: string;
 };
 
 type Persona = {
@@ -27,41 +28,72 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     'gemini-2.0-flash-exp',           // Experimental: Often has separate, generous free quotas.
     'gemini-flash-latest',            // Stable Alias: Usually points to the most reliable Flash version.
     'gemini-2.0-flash-lite-preview-02-05', // Specific Preview: Previews often have distinct quotas.
-    'gemini-pro-latest'               // Fallback: Older but powerful pro model.
+    'gemini-1.5-flash'                // Fallback: Reliable multimodal model.
   ];
 
   const prompt = `
-    You are a simulated user participating in a usability test. Your persona is ${persona.name}, who is ${persona.description}.
-    Your current task/goal is: "${goal}".
+    You are facilitating a usability test session.
 
-    You have just landed on this webpage and scanned the following text content:
+    **Context:**
+    - **Persona:** ${persona.name} (${persona.description})
+    - **Goal:** "${goal}"
+    - **URL:** ${url}
+
+    **Input Data:**
     - Page Title: "${data.title}"
     - Headings: ${JSON.stringify(data.headings.map(h => h.text))}
     - Introductory Body Text: "${data.bodyText}"
+    - [Visual Screenshot Attached]
 
     **Instructions:**
-    1.  **Be Critical & Realistic:** Real users are impatient, skeptical, and easily confused. Do not be overly positive or polite. If something is vague, say it.
-    2.  **Focus on the Goal:** Did you actually achieve your goal of "${goal}"?
-    3.  **Avoid Jargon:** Do not use UX terms like "heuristics" or "signal-to-noise ratio". Speak like a normal person.
 
-    **Provide your feedback in this specific Markdown format:**
-
+    **SECTION 1: THE USER SESSION (The "Synthesized User")**
+    Adopt the persona of ${persona.name}. You are currently looking at the webpage (screenshot and text).
+    Narrate your experience out loud. Be critical, impatient, and honest.
+    
+    Provide your feedback in this format:
     ### 1. My Experience
-    (In 2-3 sentences, describe your immediate reaction. Did you feel confident or confused? Did you find what you were looking for quickly?)
-
+    (2-3 sentences on your immediate reaction. Do you feel confident? Confused? Does the site look trustworthy?)
+    
     ### 2. Points of Friction
-    (List 1-2 specific things that confused you, annoyed you, or made you doubt the site. If nothing confused you, be extremely nitpicky about what *could* be clearer.)
-
+    (Specific things that confused or annoyed you. Be nitpicky.)
+    
     ### 3. What I Think This Is
-    (Define exactly what you think this product/service is based *only* on the text you read. Then, explain *why* you think that by quoting specific words or phrases from the page.)
+    (Define the product based ONLY on what you see. Explain why.)
+
+    ---
+
+    **SECTION 2: UX RESEARCH REPORT (The "Expert Analysis")**
+    Now, act as a Senior UX Researcher observing the session above.
+    Analyze the user's feedback and the visual design of the page.
+    
+    Provide a report with actionable next steps:
+    ### 4. Visual & Heuristic Analysis
+    (Comment on the visual hierarchy, layout, and trust signals based on the screenshot. Does it look professional? Modern? Outdated?)
+    
+    ### 5. Actionable Recommendations
+    (Provide 2-3 concrete steps to improve the user experience based on the friction points identified.)
+    - **Issue:** [Brief description]
+    - **Fix:** [Specific action to take]
   `;
 
   let lastError: any = null;
 
+  // Prepare image part if available
+  const imagePart = data.screenshot ? {
+    inlineData: {
+      data: data.screenshot,
+      mimeType: "image/jpeg",
+    },
+  } : null;
+
+  const parts: any[] = [prompt];
+  if (imagePart) parts.push(imagePart);
+
   for (const modelName of modelsToTry) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
+      const result = await model.generateContent(parts);
       const response = result.response;
       return response.text();
     } catch (error: any) {
@@ -147,6 +179,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     const browserScript = `
       export default async ({ page, context }) => {
         const { url } = context;
+        await page.setViewport({ width: 1280, height: 800 });
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
         const title = await page.title();
 
@@ -164,7 +197,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           return contentEl.innerText.trim().substring(0, 1500); // Get first 1500 chars
         });
 
-        return { title, headings, bodyText };
+        // Take a screenshot of the viewport (JPEG is smaller/faster for AI analysis)
+        const screenshot = await page.screenshot({ encoding: 'base64', type: 'jpeg', quality: 75 });
+
+        return { title, headings, bodyText, screenshot };
       };
     `;
 
