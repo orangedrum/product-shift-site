@@ -50,6 +50,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   for (const modelName of modelsToTry) {
+    // Add a "politeness" delay before every attempt to stay under RPM limits
+    await delay(2000); 
     try {
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
@@ -58,11 +60,6 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
     } catch (error: any) {
       console.log(`Model '${modelName}' failed: ${error.message}`);
       lastError = error;
-      // If we get a rate limit error, wait before trying the next model.
-      if (error.message.includes('429')) {
-        console.log('Rate limit hit, waiting 10 seconds before trying next model...');
-        await delay(10000);
-      }
     }
   }
 
