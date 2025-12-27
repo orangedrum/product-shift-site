@@ -216,10 +216,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
             </div>
 
-            <fieldset>
-              <legend className="block text-sm font-medium text-gray-700 mb-2">
-                Select Personas
-              </legend>
+        <div>
           <label htmlFor="url" className="block text-sm font-medium text-gray-700">
             Website URL
           </label>
@@ -233,7 +230,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
             required
           />
         </div>
-            </fieldset>
 
         <fieldset>
           <legend className="block text-sm font-medium text-gray-700 mb-2">Select Personas</legend>
