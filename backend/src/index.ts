@@ -24,10 +24,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-2.0-flash-exp',           // Experimental: Often has separate, generous free quotas.
+    'gemini-2.0-flash',               // Stable 2.0 Flash: Confirmed available in your list.
+    'gemini-2.0-flash-lite-preview-02-05', // Lite Preview: Often has distinct quotas.
     'gemini-flash-latest',            // Stable Alias: Usually points to the most reliable Flash version.
-    'gemini-2.0-flash-lite-preview-02-05', // Specific Preview: Previews often have distinct quotas.
-    'gemini-pro-latest'               // Fallback: Reliable pro model.
+    'gemini-1.5-flash-latest'         // Fallback: Older stable flash.
   ];
 
   // Prepare image part if available

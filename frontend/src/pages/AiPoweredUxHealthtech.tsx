@@ -92,10 +92,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
   const [taskType, setTaskType] = useState('understand');
-  const [customGoal, setCustomGoal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<AnalysisError | null>(null);
+  const [showPersonaError, setShowPersonaError] = useState(false);
 
   const availablePersonas = [
     { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' },
@@ -106,7 +106,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
   const togglePersona = (id: string) => {
     setSelectedPersonas(prev => 
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+      {
+        const newSelection = prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id];
+        if (newSelection.length >= 3) setShowPersonaError(false);
+        return newSelection;
+      }
     );
   };
 
@@ -114,7 +118,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
     event.preventDefault();
     
     if (selectedPersonas.length < 3) {
-      alert('Nielsen Norman Group recommends testing with at least 3-5 users to uncover the majority of usability problems. Please select at least 3 personas to proceed.');
+      setShowPersonaError(true);
       return;
     }
 
@@ -125,7 +129,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
     // Determine final goal string
     let finalGoal = 'Quickly understand what this page is about.';
     if (taskType === 'purchase') finalGoal = 'Attempt to make a purchase or sign up, thinking aloud about the decision process.';
-    if (taskType === 'custom') finalGoal = customGoal;
 
     try {
       const response = await fetch('/api/run-test', {
@@ -222,6 +225,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
             ))}
           </div>
+          {showPersonaError && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 animate-pulse">
+              <strong>Action Required:</strong> Nielsen Norman Group recommends testing with at least 3-5 users to uncover the majority of usability problems. Please select at least 3 personas to proceed.
+            </div>
+          )}
         </div>
 
         <div>
@@ -237,20 +245,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
               <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
               <label htmlFor="task-purchase" className="ml-2 block text-sm text-gray-700">Make a purchase / Sign up (Think Aloud)</label>
             </div>
-            <div className="flex items-center">
-              <input id="task-custom" name="task" type="radio" checked={taskType === 'custom'} onChange={() => setTaskType('custom')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-              <label htmlFor="task-custom" className="ml-2 block text-sm text-gray-700">Custom Goal</label>
-            </div>
-            {taskType === 'custom' && (
-              <input
-                type="text"
-                value={customGoal}
-                onChange={(e) => setCustomGoal(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="e.g., Find contact information"
-                required
-              />
-            )}
           </div>
         </div>
 
