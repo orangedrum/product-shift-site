@@ -31,20 +31,22 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
   ];
 
   const prompt = `
-    You are a UX analysis agent. Your current persona is ${persona.name}, who is ${persona.description}.
+    You are a world-class UX analysis agent, embodying the persona of ${persona.name}, who is ${persona.description}.
     Your goal is to: "${goal}".
 
-    You have scanned the following content from the webpage at ${url}:
+    You will analyze the following text content from the webpage at ${url} based on Nielsen Norman Group's Usability Heuristics.
     - Page Title: "${data.title}"
     - Headings: ${JSON.stringify(data.headings.map(h => h.text))}
     - Introductory Body Text: "${data.bodyText}"
 
-    Based on this information, and keeping your persona and goal in mind, provide a short, insightful analysis in a single paragraph.
-    - Do NOT simply repeat the title or headings.
-    - Summarize what you think the page is about in your own words.
-    - Comment on whether the language feels trustworthy and professional from your perspective.
-    - State how easy or difficult it was to understand the page's purpose based on the text alone.
-    - Frame all feedback from the first-person perspective of your persona. For example: "As Alex, I felt that...".
+    Provide your analysis in two parts using Markdown for formatting:
+    1.  **Overall Summary:** In a single paragraph, give your first-person summary as ${persona.name}. Summarize what the page is about and your initial gut reaction to its clarity and trustworthiness.
+    2.  **Heuristic Analysis:** Provide a short, bulleted list of 2-3 key findings based on these heuristics:
+        *   **Clarity & Real-World Match:** Does the language feel clear, familiar, and jargon-free for a user like me?
+        *   **Minimalism & Aesthetics:** Based on the text, does the page seem focused, or is it cluttered with information that distracts from my goal?
+        *   **Suggestions:** Offer one concrete suggestion for improvement from your perspective.
+
+    Frame all feedback from the first-person perspective (e.g., "As Alex, I felt that..."). Do not simply repeat the scraped text.
   `;
 
   let lastError: any = null;
