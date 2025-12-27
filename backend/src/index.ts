@@ -26,8 +26,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   const modelsToTry = [
     'gemini-2.0-flash',               // Stable 2.0 Flash: Confirmed available in your list.
     'gemini-2.0-flash-lite-preview-02-05', // Lite Preview: Often has distinct quotas.
-    'gemini-flash-latest',            // Stable Alias: Usually points to the most reliable Flash version.
-    'gemini-1.5-flash-latest'         // Fallback: Older stable flash.
+    'gemini-1.5-flash',               // Standard 1.5 Flash: The reliable workhorse.
+    'gemini-1.5-flash-8b'             // 1.5 Flash 8b: Smaller, faster, often has separate quota.
   ];
 
   // Prepare image part if available
@@ -251,9 +251,17 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     // --- Persona-Driven Analysis ---
     const userSessions: any[] = [];
 
+    // Helper to delay execution to avoid rate limits (Free Tier Throttling)
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
     for (const pId of personaIds) {
       const activePersona = personas[pId];
       if (activePersona) {
+        // Add a 4-second delay before each request (except the first) to stay under the RPM limit
+        if (userSessions.length > 0) {
+            await delay(4000);
+        }
+
         const sessionOutput = await generateUserSession(result, activePersona, goal, url);
         
         // Parse Mood to adjust avatar
@@ -283,6 +291,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // --- Aggregated Expert Report ---
+    await delay(4000); // Delay before the final expert report generation
     const rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url);
     
     // Extract JSON Scores
