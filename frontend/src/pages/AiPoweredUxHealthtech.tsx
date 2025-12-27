@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { User, AlertCircle } from 'lucide-react';
+import { User, AlertCircle, CheckCircle } from 'lucide-react';
 
 // Define types for the API response and error
 type UserSession = {
@@ -104,15 +104,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
   // Simulated progress bar effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isLoading) {
+    if (isLoading && selectedPersonas.length > 0) {
       setProgress(5); // Start at 5%
-      // We expect the process to take roughly 40 seconds with the new throttling
-      const duration = 40000; 
+      // Dynamically calculate duration: 4.5s per persona + 4.5s for the final report
+      const duration = (selectedPersonas.length + 1) * 4500;
       const step = 200;
       
       interval = setInterval(() => {
         setProgress(old => {
-          if (old >= 95) return 95; // Cap at 95% until actual completion
+          // Cap at 95% until the actual result comes back, to feel more authentic.
+          const newProgress = old + (100 / (duration / step));
+          if (newProgress >= 95) return 95;
           return old + (100 / (duration / step));
         });
       }, step);
@@ -120,7 +122,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       setProgress(0);
     }
     return () => clearInterval(interval);
-  }, [isLoading]);
+  }, [isLoading, selectedPersonas.length]);
 
   const availablePersonas = [
     { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' },
@@ -144,7 +146,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
-    if (selectedPersonas.length < 3) {
+    if (selectedPersonas.length < 3 || selectedPersonas.length > 5) {
       setShowPersonaError(true);
       return;
     }
@@ -190,7 +192,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <style>{`
         @media print {
           body * { visibility: hidden; }
@@ -200,11 +202,24 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      <div className="no-print">
-      <h1 className="text-3xl font-bold mb-4 text-gray-900">AI-Powered UX Agent</h1>
-      <p className="mb-6 text-gray-600">Select a persona and define their goal to analyze a website's usability from their perspective.</p>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+      {!result && (
+        <div className="no-print max-w-3xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-4 text-gray-900">AI-Powered UX Agent</h1>
+            <p className="mb-8 text-gray-600">Select 3-5 personas and define their goal to run a simulated usability analysis.</p>
+          </div>
+      
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-800 border border-blue-100">
+              <strong>Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+              We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
+              <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
+            </div>
+
+            <fieldset>
+              <legend className="block text-sm font-medium text-gray-700 mb-2">
+                Select Personas
+              </legend>
           <label htmlFor="url" className="block text-sm font-medium text-gray-700">
             Website URL
           </label>
@@ -218,17 +233,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
             required
           />
         </div>
+            </fieldset>
 
-        <div>
-          <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-800 border border-blue-100 mb-4">
-            <strong>Why 3+ users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
-            We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
-            <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1">Learn more</a>
-          </div>
-
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Personas <span className="text-gray-500 font-normal">(Minimum 3 required)</span>
-          </label>
+        <fieldset>
+          <legend className="block text-sm font-medium text-gray-700 mb-2">Select Personas</legend>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {availablePersonas.map((persona) => (
               <div 
@@ -236,9 +244,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 onClick={() => togglePersona(persona.id)}
                 className={`
                   flex items-center p-3 border rounded-lg cursor-pointer transition-all
-                  ${selectedPersonas.includes(persona.id) 
-                    ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500' 
-                    : 'border-gray-200 hover:border-indigo-200 hover:bg-gray-50'}
+                  ${selectedPersonas.includes(persona.id)
+                    ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500'
+                    : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}
+                  ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
                 `}
               >
                 <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-gray-100" />
@@ -247,22 +256,23 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   <div className="text-xs text-gray-500">{persona.description}</div>
                 </div>
                 {selectedPersonas.includes(persona.id) && (
-                  <div className="ml-auto text-indigo-600 font-bold">✓</div>
+                  <CheckCircle className="ml-auto text-indigo-600" size={20} />
                 )}
               </div>
             ))}
           </div>
           {showPersonaError && (
-            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 animate-pulse">
-              <strong>Action Required:</strong> Nielsen Norman Group recommends testing with at least 3-5 users to uncover the majority of usability problems. Please select at least 3 personas to proceed.
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 flex items-center gap-2">
+              <AlertCircle size={16} />
+              <strong>Action Required:</strong> Please select between 3 and 5 personas to run the analysis.
             </div>
           )}
-        </div>
+        </fieldset>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <fieldset>
+          <legend className="block text-sm font-medium text-gray-700 mb-2">
             User Goal / Task
-          </label>
+          </legend>
           <div className="space-y-2">
             <div className="flex items-center">
               <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
@@ -273,11 +283,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
               <label htmlFor="task-purchase" className="ml-2 block text-sm text-gray-700">Make a purchase / Sign up (Think Aloud)</label>
             </div>
           </div>
-        </div>
+        </fieldset>
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || selectedPersonas.length < 3 || selectedPersonas.length > 5}
           className={`w-full relative overflow-hidden inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-all bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400`}
         >
           {isLoading && (
@@ -291,10 +301,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </span>
         </button>
       </form>
+        </div>
+      )}
+
+      {result && (
+        <div className="no-print text-center mb-12 animate-fade-in">
+           <h1 className="text-3xl font-bold mb-2 text-gray-900">Analysis Complete</h1>
+           <p className="text-gray-600">Review the user sessions and the aggregated research report below.</p>
+           <button onClick={() => { setResult(null); setActiveTab(0); }} className="mt-6 bg-indigo-600 text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105">
+             Run Another Test
+           </button>
+        </div>
       </div>
 
       {result && (
-        <div id="report-section" className="mt-12">
+        <div id="report-section" className="animate-fade-in">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 4) */}
@@ -314,7 +335,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       className={`flex flex-col items-center p-2 rounded-lg min-w-[80px] transition-all ${
                         activeTab === idx 
                           ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' 
-                          : 'hover:bg-gray-50 border border-transparent'
+                          : 'hover:bg-gray-100 border border-transparent'
                       }`}
                     >
                       <img 
@@ -334,11 +355,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <div className="p-6 bg-indigo-50/30 min-h-[400px]">
                   {result.userSessions[activeTab] && (() => {
                     const res = result.userSessions[activeTab];
-                    const userSection = res.analysis;
-                    const parts = userSection.split('|||USER_DETAILS|||');
-                    const details = parts[1] || '';
+                    const userSection = res.analysis || '';
+                    const parts = userSection.split('|||USER_DETAILS|||') || ['', ''];
+                    const details = parts[1] || 'No detailed feedback provided.';
                     const moodAndBubble = parts[0] || '';
-                    const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||');
+                    const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||') || ['', ''];
                     const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
 
                     return (
