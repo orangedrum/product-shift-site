@@ -15,6 +15,7 @@ type Persona = {
   id: string;
   name: string;
   description: string;
+  avatar: string;
   // Each analyzer is a function that takes scraped data and returns a string analysis.
   analyzers: ((data: ScrapedData, persona: Persona, goal: string, url: string) => Promise<string>)[];
 };
@@ -61,10 +62,12 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     ### 3. What I Think This Is
     (Define the product based ONLY on what you see. Explain why.)
 
-    ---
+    |||REPORT_START|||
 
     **SECTION 2: UX RESEARCH REPORT (The "Expert Analysis")**
     Now, act as a Senior UX Researcher observing the session above.
+    Start with a **TL;DR** section summarizing the pass/fail status of the test.
+    
     Analyze the user's feedback and the visual design of the page.
     
     Provide a report with actionable next steps:
@@ -143,6 +146,7 @@ const personas: Record<string, Persona> = {
     id: 'alex-busy-pro',
     name: 'Alex',
     description: 'a busy professional',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4',
     analyzers: [aiAnalyzer],
   },
 };
@@ -229,7 +233,11 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     res.json({
       message: 'Analysis Complete.',
       title: result.title,
-      analysis: analyses.join(' '),
+      results: analyses.map(analysis => ({
+        persona: activePersona.name,
+        avatar: activePersona.avatar,
+        analysis: analysis
+      }))
     });
 
   } catch (error: any) {

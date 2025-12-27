@@ -1,15 +1,43 @@
 import React, { useState } from 'react';
 
 // Define types for the API response and error
+type AnalysisResult = {
+  persona: string;
+  avatar: string;
+  analysis: string;
+};
+
 type AnalysisResponse = {
   message: string;
   title: string;
-  analysis: string;
+  results: AnalysisResult[];
 };
 
 type AnalysisError = {
   error: string;
   details?: string;
+};
+
+// Helper to format simple markdown to HTML
+const formatText = (text: string) => {
+  if (!text) return null;
+  return text.split('\n').map((line, index) => {
+    // Headers
+    if (line.startsWith('### ')) return <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-gray-800">{line.replace('### ', '')}</h3>;
+    if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-gray-900">{line.replace('## ', '')}</h2>;
+    
+    // Bold
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    return (
+      <p key={index} className="mb-2 text-gray-700 leading-relaxed">
+        {parts.map((part, i) => 
+          part.startsWith('**') && part.endsWith('**') 
+            ? <strong key={i} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong> 
+            : part
+        )}
+      </p>
+    );
+  });
 };
 
 const AiPoweredUxHealthtech: React.FC = () => {
@@ -54,8 +82,22 @@ const AiPoweredUxHealthtech: React.FC = () => {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="container mx-auto p-4 max-w-2xl">
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          #report-section, #report-section * { visibility: visible; }
+          #report-section { position: absolute; left: 0; top: 0; width: 100%; }
+          .no-print { display: none !important; }
+        }
+      `}</style>
+
+      <div className="no-print">
       <h1 className="text-2xl font-bold mb-4">AI-Powered UX Agent</h1>
       <p className="mb-6 text-gray-600">Select a persona and define their goal to analyze a website's usability from their perspective.</p>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -112,11 +154,52 @@ const AiPoweredUxHealthtech: React.FC = () => {
           {isLoading ? 'Analyzing...' : 'Run Analysis'}
         </button>
       </form>
+      </div>
 
       {result && (
-        <div className="mt-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
-          <h2 className="font-bold">{result.message}</h2>
-          <p className="mt-2"><strong>AI Persona Analysis:</strong> {result.analysis}</p>
+        <div id="report-section" className="mt-12 space-y-8">
+          {result.results.map((res, idx) => {
+            const [userSession, expertReport] = res.analysis.split('|||REPORT_START|||');
+            
+            return (
+              <div key={idx} className="space-y-8">
+                {/* Section 1: The User Session (Alex) */}
+                <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <img 
+                      src={res.avatar} 
+                      alt={res.persona} 
+                      className="w-16 h-16 rounded-full border-2 border-white shadow-md"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-blue-900 mb-1">{res.persona}'s Session</h3>
+                      <div className="bg-white p-4 rounded-lg rounded-tl-none shadow-sm border border-blue-100 text-gray-700 relative">
+                        {/* Speech Bubble Triangle */}
+                        <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l border-b border-blue-100 transform rotate-45"></div>
+                        {formatText(userSession)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: The Expert Report */}
+                <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+                  <div className="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
+                    <button 
+                      onClick={handlePrint}
+                      className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
+                    >
+                      Download PDF
+                    </button>
+                  </div>
+                  <div className="prose max-w-none">
+                    {formatText(expertReport)}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
