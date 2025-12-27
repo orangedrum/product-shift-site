@@ -365,22 +365,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
             <div className="lg:col-span-7">
-              <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg h-full">
-                <div className="flex justify-between items-center mb-6 border-b pb-4">
-                  <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
-                  <button 
-                    onClick={handlePrint}
-                    className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
-                  >
-                    Download PDF
-                  </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* RIGHT COLUMN: Expert Report (Span 8) */}
-            <div className="lg:col-span-8">
               <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                   <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
