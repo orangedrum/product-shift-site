@@ -27,7 +27,7 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
     'gemini-2.0-flash-exp',           // Experimental: Often has separate, generous free quotas.
     'gemini-flash-latest',            // Stable Alias: Usually points to the most reliable Flash version.
     'gemini-2.0-flash-lite-preview-02-05', // Specific Preview: Previews often have distinct quotas.
-    'gemini-1.5-flash'                // Fallback: Reliable multimodal model.
+    'gemini-pro-latest'               // Fallback: Reliable pro model.
   ];
 
   // Prepare image part if available
@@ -82,6 +82,8 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
     Narrate your experience out loud. Be critical, impatient, and honest.
     
     **Required Output Format:**
+    |||USER_MOOD|||
+    (One word: Positive, Neutral, or Negative)
     |||USER_BUBBLE|||
     (A single, genuine, emotional sentence summarizing your immediate feeling. E.g., "I'm so confused, I don't know where to click!" or "This looks super professional, I trust it.")
     |||USER_DETAILS|||
@@ -112,6 +114,10 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     (Provide 2-3 concrete steps. Use this exact format:)
     - **ISSUE:** [Brief description of the problem]
     - **FIX:** [Specific action to take]
+
+    |||SCORES_JSON|||
+    { "usability": 0-100, "desirability": 0-100, "clarity": 0-100 }
+    (Provide integer scores based on the aggregate analysis)
 
     **Context:**
     - **Goal:** "${goal}"
@@ -147,25 +153,25 @@ const personas: Record<string, Persona> = {
     id: 'alex-busy-pro',
     name: 'Alex',
     description: 'a busy professional with two kids under 5',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
   },
   'sam-college-student': {
     id: 'sam-college-student',
     name: 'Sam',
     description: 'a budget-conscious college student',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile',
   },
   'charlie-family-worker': {
     id: 'charlie-family-worker',
     name: 'Charlie',
     description: 'a masculine, patriotic blue-collar worker',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile',
   },
   'beth-homemaker': {
     id: 'beth-homemaker',
     name: 'Beth',
     description: 'a 45+ family-oriented homemaker with poor eyesight',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02&mouth=smile',
   },
 };
 
@@ -249,9 +255,27 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       const activePersona = personas[pId];
       if (activePersona) {
         const sessionOutput = await generateUserSession(result, activePersona, goal, url);
+        
+        // Parse Mood to adjust avatar
+        let mood = 'Neutral';
+        let adjustedAvatar = activePersona.avatar;
+        
+        if (sessionOutput.includes('|||USER_MOOD|||')) {
+          const moodPart = sessionOutput.split('|||USER_MOOD|||')[1].split('|||')[0].trim();
+          if (moodPart.toLowerCase().includes('positive')) {
+            mood = 'Positive';
+            adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=smile&eyebrows=default');
+          } else if (moodPart.toLowerCase().includes('negative')) {
+            mood = 'Negative';
+            adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=sad&eyebrows=frown');
+          } else {
+            adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=default&eyebrows=default');
+          }
+        }
+
         userSessions.push({
           persona: activePersona.name,
-          avatar: activePersona.avatar,
+          avatar: adjustedAvatar,
           analysis: sessionOutput,
           personaObj: activePersona // Keep ref for report generation
         });
@@ -259,14 +283,29 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // --- Aggregated Expert Report ---
-    const expertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url);
+    const rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url);
+    
+    // Extract JSON Scores
+    let scores = { usability: 0, desirability: 0, clarity: 0 };
+    let expertReportText = rawExpertReport;
+
+    if (rawExpertReport.includes('|||SCORES_JSON|||')) {
+      const parts = rawExpertReport.split('|||SCORES_JSON|||');
+      expertReportText = parts[0];
+      try {
+        scores = JSON.parse(parts[1].trim());
+      } catch (e) {
+        console.error('Failed to parse scores JSON', e);
+      }
+    }
 
     res.json({
       message: 'Analysis Complete.',
       title: result.title,
       screenshot: result.screenshot,
       userSessions: userSessions.map(({ persona, avatar, analysis }) => ({ persona, avatar, analysis })),
-      expertReport
+      expertReport: expertReportText,
+      scores
     });
 
   } catch (error: any) {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 // Define types for the API response and error
 type UserSession = {
@@ -13,6 +14,11 @@ type AnalysisResponse = {
   screenshot?: string;
   userSessions: UserSession[];
   expertReport: string;
+  scores?: {
+    usability: number;
+    desirability: number;
+    clarity: number;
+  };
 };
 
 type AnalysisError = {
@@ -46,7 +52,7 @@ const formatText = (text: string) => {
     // Issue vs Fix Styling (Neutralized)
     if (line.includes('**ISSUE:**')) {
       return (
-        <div key={index} className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-t-lg">
+        <div key={index} className="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-t-lg">
           <p className="text-gray-800"><strong className="font-bold text-gray-900">ISSUE:</strong> {line.replace('- **ISSUE:**', '').replace('**ISSUE:**', '')}</p>
         </div>
       );
@@ -85,16 +91,17 @@ const formatText = (text: string) => {
 const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
-  const [goal, setGoal] = useState('Quickly understand what this page is about.'); // Default goal
+  const [taskType, setTaskType] = useState('understand');
+  const [customGoal, setCustomGoal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<AnalysisError | null>(null);
 
   const availablePersonas = [
-    { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4' },
-    { id: 'sam-college-student', name: 'Sam', description: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf' },
-    { id: 'charlie-family-worker', name: 'Charlie', description: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7' },
-    { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02' }
+    { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' },
+    { id: 'sam-college-student', name: 'Sam', description: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile' },
+    { id: 'charlie-family-worker', name: 'Charlie', description: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile' },
+    { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02&mouth=smile' }
   ];
 
   const togglePersona = (id: string) => {
@@ -115,13 +122,18 @@ const AiPoweredUxHealthtech: React.FC = () => {
     setResult(null);
     setError(null);
 
+    // Determine final goal string
+    let finalGoal = 'Quickly understand what this page is about.';
+    if (taskType === 'purchase') finalGoal = 'Attempt to make a purchase or sign up, thinking aloud about the decision process.';
+    if (taskType === 'custom') finalGoal = customGoal;
+
     try {
       const response = await fetch('/api/run-test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url, personaIds: selectedPersonas, goal }), 
+        body: JSON.stringify({ url, personaIds: selectedPersonas, goal: finalGoal }), 
       });
 
       const data = await response.json();
@@ -178,6 +190,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
         </div>
 
         <div>
+          <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-800 border border-blue-100 mb-4">
+            <strong>Why 3+ users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+            We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
+            <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1">Learn more</a>
+          </div>
+
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Select Personas <span className="text-gray-500 font-normal">(Minimum 3 required)</span>
           </label>
@@ -207,30 +225,43 @@ const AiPoweredUxHealthtech: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="goal" className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             User Goal / Task
           </label>
-          <input
-            type="text"
-            id="goal"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="e.g., Find contact information"
-            required
-          />
-        </div>
-
-        <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-800 border border-blue-100">
-          <strong>Why 3+ users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
-          We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
-          <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1">Learn more</a>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+              <label htmlFor="task-understand" className="ml-2 block text-sm text-gray-700">Quickly understand what this page is about</label>
+            </div>
+            <div className="flex items-center">
+              <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+              <label htmlFor="task-purchase" className="ml-2 block text-sm text-gray-700">Make a purchase / Sign up (Think Aloud)</label>
+            </div>
+            <div className="flex items-center">
+              <input id="task-custom" name="task" type="radio" checked={taskType === 'custom'} onChange={() => setTaskType('custom')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+              <label htmlFor="task-custom" className="ml-2 block text-sm text-gray-700">Custom Goal</label>
+            </div>
+            {taskType === 'custom' && (
+              <input
+                type="text"
+                value={customGoal}
+                onChange={(e) => setCustomGoal(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="e.g., Find contact information"
+                required
+              />
+            )}
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400"
+          className={`w-full inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-all
+            ${isLoading 
+              ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-pulse cursor-wait' 
+              : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'}
+          `}
         >
           {isLoading ? 'Analyzing...' : 'Run Analysis'}
         </button>
@@ -292,6 +323,30 @@ const AiPoweredUxHealthtech: React.FC = () => {
               <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
                 <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Visual Reference</h3>
                 <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
+              </div>
+            )}
+
+            {/* Charts Section */}
+            {result.scores && (
+              <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Performance Metrics</h3>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[
+                      { name: 'Usability', score: result.scores.usability },
+                      { name: 'Desirability', score: result.scores.desirability },
+                      { name: 'Clarity', score: result.scores.clarity },
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis domain={[0, 100]} />
+                      <Tooltip />
+                      <Bar dataKey="score" fill="#4F46E5" radius={[4, 4, 0, 0]}>
+                        {/* Optional: Color bars differently based on score */}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             )}
 
