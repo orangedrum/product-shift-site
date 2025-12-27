@@ -24,13 +24,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-2.0-flash-lite-preview-02-05', // Lite Preview: Often has distinct quotas.
-    'gemini-2.0-flash-lite',          // New Lite model
-    'gemini-flash-lite-latest',       // 1.5 Flash Lite alias
+    'gemini-1.5-flash-latest',        // Most reliable free tier workhorse
+    'gemini-flash-latest',            // Alias for 1.5 Flash
     'gemini-2.0-flash',               // Stable 2.0 Flash
-    'gemini-flash-latest',            // 1.5 Flash alias
-    'gemini-2.5-flash-lite',          // 2.5 Flash Lite (from diagnostic)
-    'gemini-2.5-flash'                // 2.5 Flash (from diagnostic)
+    'gemini-2.5-flash',               // Latest Flash model
+    'gemini-2.0-flash-lite',          // Lite models as fallbacks
+    'gemini-2.5-flash-lite',
+    'gemini-flash-lite-latest'
   ];
 
   // Prepare image part if available
@@ -46,6 +46,9 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   let lastError: any = null;
 
+  // Helper to delay execution to avoid rate limits
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   for (const modelName of modelsToTry) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName });
@@ -55,6 +58,11 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
     } catch (error: any) {
       console.log(`Model '${modelName}' failed: ${error.message}`);
       lastError = error;
+      // If we get a rate limit error, wait before trying the next model.
+      if (error.message.includes('429')) {
+        console.log('Rate limit hit, waiting 5 seconds before trying next model...');
+        await delay(5000);
+      }
     }
   }
 
