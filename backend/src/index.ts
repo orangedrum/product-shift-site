@@ -22,7 +22,8 @@ type Persona = {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.0-pro' });
+  const modelName = 'gemini-1.5-flash';
+  const model = genAI.getGenerativeModel({ model: modelName });
 
   const prompt = `
     You are a UX analysis agent. Your current persona is ${persona.name}, who is ${persona.description}.
@@ -41,9 +42,26 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     - Frame all feedback from the first-person perspective of your persona. For example: "As Alex, I felt that...".
   `;
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  return response.text();
+  try {
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    return response.text();
+  } catch (error: any) {
+    // Diagnostic: If the model is not found, list the available models to help debug.
+    if (error.message.includes('404') || error.message.includes('not found')) {
+      try {
+        const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
+        const listData = await listResponse.json();
+        if (listData.models) {
+          const availableModels = listData.models.map((m: any) => m.name.replace('models/', '')).join(', ');
+          throw new Error(`DIAGNOSTIC: The model '${modelName}' is not available for your API Key. Available models: ${availableModels}.`);
+        }
+      } catch (diagError) {
+        // If diagnostic fails, fall through to throw original error
+      }
+    }
+    throw error;
+  }
 };
 
 // Initialize Express App
