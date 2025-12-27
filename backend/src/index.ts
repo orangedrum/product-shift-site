@@ -22,7 +22,7 @@ type Persona = {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
   const prompt = `
     You are a UX analysis agent. Your current persona is ${persona.name}, who is ${persona.description}.
@@ -31,7 +31,7 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     You have scanned the following content from the webpage at ${url}:
     - Page Title: "${data.title}"
     - Headings: ${JSON.stringify(data.headings.map(h => h.text))}
-    - Introductory Body Text: "${data.bodyText.substring(0, 800)}..."
+    - Introductory Body Text: "${data.bodyText}"
 
     Based on this information, and keeping your persona and goal in mind, provide a short, insightful analysis in a single paragraph.
     - Do NOT simply repeat the title or headings.
@@ -80,6 +80,16 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   if (!goal) {
     return res.status(400).json({ error: 'A goal is required' });
+  }
+
+  if (!process.env.BROWSERLESS_TOKEN) {
+    console.error('BROWSERLESS_TOKEN is not set.');
+    return res.status(500).json({ error: 'Server Configuration Error', details: 'The Browserless API token is not configured.' });
+  }
+
+  if (!process.env.GEMINI_API_KEY) {
+    console.error('GEMINI_API_KEY is not set.');
+    return res.status(500).json({ error: 'Server Configuration Error', details: 'The AI API key is not configured.' });
   }
 
   try {
