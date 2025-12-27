@@ -24,11 +24,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-2.0-flash',               // Stable 2.0 Flash: Confirmed available in your list.
     'gemini-2.0-flash-lite-preview-02-05', // Lite Preview: Often has distinct quotas.
-    'gemini-flash-latest',            // Alias for 1.5 Flash: Confirmed available.
-    'gemini-flash-lite-latest',       // Alias for 1.5 Flash Lite: Confirmed available.
-    'gemini-pro-latest'               // Fallback: Pro model.
+    'gemini-2.0-flash-lite',          // New Lite model
+    'gemini-flash-lite-latest',       // 1.5 Flash Lite alias
+    'gemini-2.0-flash',               // Stable 2.0 Flash
+    'gemini-flash-latest',            // 1.5 Flash alias
+    'gemini-2.5-flash-lite',          // 2.5 Flash Lite (from diagnostic)
+    'gemini-2.5-flash'                // 2.5 Flash (from diagnostic)
   ];
 
   // Prepare image part if available
@@ -273,9 +275,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     for (const pId of personaIds) {
       const activePersona = personas[pId];
       if (activePersona) {
-        // Add a 4-second delay before each request (except the first) to stay under the RPM limit
+        // Add a 6-second delay before each request (except the first) to stay under the RPM limit
         if (userSessions.length > 0) {
-            await delay(4000);
+            await delay(6000);
         }
 
         const sessionOutput = await generateUserSession(result, activePersona, goal, url);
@@ -307,7 +309,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // --- Aggregated Expert Report ---
-    await delay(4000); // Delay before the final expert report generation
+    await delay(6000); // Delay before the final expert report generation
     const rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url);
     
     // Extract JSON Scores

@@ -108,8 +108,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
     let interval: NodeJS.Timeout;
     if (isLoading && selectedPersonas.length > 0) {
       setProgress(5); // Start at 5%
-      // Dynamically calculate duration: 4.5s per persona + 4.5s for the final report
-      const duration = (selectedPersonas.length + 1) * 4500;
+      // Dynamically calculate duration: 6.5s per persona + 6.5s for the final report
+      const duration = (selectedPersonas.length + 1) * 6500;
       const step = 200;
       
       interval = setInterval(() => {
