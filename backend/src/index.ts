@@ -22,7 +22,7 @@ type Persona = {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
-  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.0-pro' });
 
   const prompt = `
     You are a UX analysis agent. Your current persona is ${persona.name}, who is ${persona.description}.
