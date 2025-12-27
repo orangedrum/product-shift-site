@@ -72,7 +72,7 @@ const formatText = (text: string) => {
       const subParts = part.split(/(\[(?:Positive|Neutral|Negative)\])/g);
       return subParts.map((subPart, j) => {
         if (subPart === '[Positive]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Positive</span>;
-        if (subPart === '[Neutral]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-gray-600 bg-gray-100 rounded-full border border-gray-200">Neutral</span>;
+        if (subPart === '[Neutral]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-yellow-800 bg-yellow-100 rounded-full border border-yellow-200">Neutral</span>;
         if (subPart === '[Negative]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Negative</span>;
         return subPart;
       });
@@ -84,16 +84,17 @@ const formatText = (text: string) => {
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
-  const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro']);
+  const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
   const [goal, setGoal] = useState('Quickly understand what this page is about.'); // Default goal
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<AnalysisError | null>(null);
 
   const availablePersonas = [
-    { id: 'alex-busy-pro', name: 'Alex, the Busy Professional' },
-    { id: 'sam-college-student', name: 'Sam, the College Student' },
-    { id: 'charlie-family-worker', name: 'Charlie, the Family-Oriented Worker' }
+    { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4' },
+    { id: 'sam-college-student', name: 'Sam', description: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf' },
+    { id: 'charlie-family-worker', name: 'Charlie', description: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7' },
+    { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02' }
   ];
 
   const togglePersona = (id: string) => {
@@ -105,8 +106,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
-    if (selectedPersonas.length === 0) {
-      alert('Please select at least one persona.');
+    if (selectedPersonas.length < 3) {
+      alert('Nielsen Norman Group recommends testing with at least 3-5 users to uncover the majority of usability problems. Please select at least 3 personas to proceed.');
       return;
     }
 
@@ -158,7 +159,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       `}</style>
 
       <div className="no-print">
-      <h1 className="text-2xl font-bold mb-4">AI-Powered UX Agent</h1>
+      <h1 className="text-3xl font-bold mb-4 text-gray-900">AI-Powered UX Agent</h1>
       <p className="mb-6 text-gray-600">Select a persona and define their goal to analyze a website's usability from their perspective.</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -178,21 +179,28 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Personas (Recommended: 3-5)
+            Select Personas <span className="text-gray-500 font-normal">(Minimum 3 required)</span>
           </label>
-          <div className="space-y-2 bg-white p-3 border border-gray-300 rounded-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {availablePersonas.map((persona) => (
-              <div key={persona.id} className="flex items-center">
-                <input
-                  id={`persona-${persona.id}`}
-                  type="checkbox"
-                  checked={selectedPersonas.includes(persona.id)}
-                  onChange={() => togglePersona(persona.id)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor={`persona-${persona.id}`} className="ml-2 block text-sm text-gray-900 cursor-pointer select-none">
-                  {persona.name}
-                </label>
+              <div 
+                key={persona.id} 
+                onClick={() => togglePersona(persona.id)}
+                className={`
+                  flex items-center p-3 border rounded-lg cursor-pointer transition-all
+                  ${selectedPersonas.includes(persona.id) 
+                    ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500' 
+                    : 'border-gray-200 hover:border-indigo-200 hover:bg-gray-50'}
+                `}
+              >
+                <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-gray-100" />
+                <div>
+                  <div className="font-medium text-gray-900">{persona.name}</div>
+                  <div className="text-xs text-gray-500">{persona.description}</div>
+                </div>
+                {selectedPersonas.includes(persona.id) && (
+                  <div className="ml-auto text-indigo-600 font-bold">✓</div>
+                )}
               </div>
             ))}
           </div>
@@ -213,6 +221,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
           />
         </div>
 
+        <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-800 border border-blue-100">
+          <strong>Why 3+ users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+          We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
+          <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1">Learn more</a>
+        </div>
+
         <button
           type="submit"
           disabled={isLoading}
@@ -224,8 +238,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       </div>
 
       {result && (
-        <div id="report-section" className="mt-12 space-y-8">
-          {result.userSessions.map((res, idx) => {
+        <div id="report-section" className="mt-12">
+          <div className="flex flex-row gap-6 overflow-x-auto pb-8 snap-x">
+            {result.userSessions.map((res, idx) => {
             // Parse the new delimited format
             const userSection = res.analysis;
             
@@ -234,23 +249,24 @@ const AiPoweredUxHealthtech: React.FC = () => {
             const userDetails = userParts[1] || '';
             
             return (
-              <div key={idx} className="space-y-8">
+              <div key={idx} className="min-w-[300px] max-w-[350px] flex-shrink-0 snap-center">
                 {/* Section 1: The User Session (Alex) */}
-                <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
-                  <div className="flex items-start gap-4">
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm h-full flex flex-col">
+                  <div className="flex flex-col items-center text-center mb-4">
                     <img 
                       src={res.avatar} 
                       alt={res.persona} 
-                      className="w-16 h-16 rounded-full border-2 border-white shadow-md"
+                      className="w-20 h-20 rounded-full border-4 border-white shadow-md mb-3 bg-gray-50"
                     />
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-blue-900 mb-1">{res.persona}'s Session</h3>
-                      <div className="bg-white p-4 rounded-lg rounded-tl-none shadow-sm border border-blue-100 text-gray-700 relative">
+                    <h3 className="text-lg font-bold text-gray-900">{res.persona}</h3>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative mb-4">
                         {/* Speech Bubble Triangle */}
-                        <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l border-b border-blue-100 transform rotate-45"></div>
+                    <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
                         <p className="text-lg italic text-gray-800">"{userBubble}"</p>
                       </div>
-                      <div className="mt-6 pl-2">
+                  <div className="text-sm">
                         {formatText(userDetails)}
                       </div>
                     </div>
@@ -258,7 +274,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
               </div>
             );
-          })}
+            })}
+          </div>
 
           {/* Section 2: The Aggregated Expert Report */}
           <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">

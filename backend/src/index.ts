@@ -78,11 +78,10 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
 
     **Instructions:**
 
-    **SECTION 1: THE USER SESSION (The "Synthesized User")**
     Adopt the persona of ${persona.name}. You are currently looking at the webpage (screenshot and text).
     Narrate your experience out loud. Be critical, impatient, and honest.
     
-    **Format for Section 1:**
+    **Required Output Format:**
     |||USER_BUBBLE|||
     (A single, genuine, emotional sentence summarizing your immediate feeling. E.g., "I'm so confused, I don't know where to click!" or "This looks super professional, I trust it.")
     |||USER_DETAILS|||
@@ -147,7 +146,7 @@ const personas: Record<string, Persona> = {
   'alex-busy-pro': {
     id: 'alex-busy-pro',
     name: 'Alex',
-    description: 'a busy professional',
+    description: 'a busy professional with two kids under 5',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4',
   },
   'sam-college-student': {
@@ -159,8 +158,14 @@ const personas: Record<string, Persona> = {
   'charlie-family-worker': {
     id: 'charlie-family-worker',
     name: 'Charlie',
-    description: 'a family-oriented blue-collar worker',
+    description: 'a masculine, patriotic blue-collar worker',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7',
+  },
+  'beth-homemaker': {
+    id: 'beth-homemaker',
+    name: 'Beth',
+    description: 'a 45+ family-oriented homemaker with poor eyesight',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02',
   },
 };
 
