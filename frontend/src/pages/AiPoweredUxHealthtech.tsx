@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // Define types for the API response and error
-type AnalysisResult = {
+type UserSession = {
   persona: string;
   avatar: string;
   analysis: string;
@@ -11,7 +11,8 @@ type AnalysisResponse = {
   message: string;
   title: string;
   screenshot?: string;
-  results: AnalysisResult[];
+  userSessions: UserSession[];
+  expertReport: string;
 };
 
 type AnalysisError = {
@@ -91,7 +92,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
   const availablePersonas = [
     { id: 'alex-busy-pro', name: 'Alex, the Busy Professional' },
-    { id: 'sam-college-student', name: 'Sam, the College Student' }
+    { id: 'sam-college-student', name: 'Sam, the College Student' },
+    { id: 'charlie-family-worker', name: 'Charlie, the Family-Oriented Worker' }
   ];
 
   const togglePersona = (id: string) => {
@@ -223,11 +225,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {result && (
         <div id="report-section" className="mt-12 space-y-8">
-          {result.results.map((res, idx) => {
+          {result.userSessions.map((res, idx) => {
             // Parse the new delimited format
-            const parts = res.analysis.split('|||REPORT_START|||');
-            const expertReport = parts[1] || '';
-            const userSection = parts[0] || '';
+            const userSection = res.analysis;
             
             const userParts = userSection.split('|||USER_DETAILS|||');
             const userBubble = userParts[0]?.replace('|||USER_BUBBLE|||', '').trim() || "I'm analyzing the page...";
@@ -256,34 +256,34 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Section 2: The Expert Report */}
-                <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
-                  <div className="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
-                    <button 
-                      onClick={handlePrint}
-                      className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
-                    >
-                      Download PDF
-                    </button>
-                  </div>
-                  
-                  {/* Visual Reference */}
-                  {result.screenshot && (
-                    <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Visual Reference</h3>
-                      <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
-                    </div>
-                  )}
-
-                  <div className="prose max-w-none">
-                    {formatText(expertReport)}
-                  </div>
-                </div>
               </div>
             );
           })}
+
+          {/* Section 2: The Aggregated Expert Report */}
+          <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+            <div className="flex justify-between items-center mb-6 border-b pb-4">
+              <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
+              <button 
+                onClick={handlePrint}
+                className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
+              >
+                Download PDF
+              </button>
+            </div>
+            
+            {/* Visual Reference */}
+            {result.screenshot && (
+              <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Visual Reference</h3>
+                <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
+              </div>
+            )}
+
+            <div className="prose max-w-none">
+              {formatText(result.expertReport)}
+            </div>
+          </div>
         </div>
       )}
 

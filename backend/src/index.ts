@@ -16,14 +16,12 @@ type Persona = {
   name: string;
   description: string;
   avatar: string;
-  // Each analyzer is a function that takes scraped data and returns a string analysis.
-  analyzers: ((data: ScrapedData, persona: Persona, goal: string, url: string) => Promise<string>)[];
 };
 
-// --- AI Analyzer ---
+// --- AI Helpers ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
+const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
     'gemini-2.0-flash-exp',           // Experimental: Often has separate, generous free quotas.
@@ -32,6 +30,38 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     'gemini-1.5-flash'                // Fallback: Reliable multimodal model.
   ];
 
+  // Prepare image part if available
+  const imagePart = screenshot ? {
+    inlineData: {
+      data: screenshot,
+      mimeType: "image/jpeg",
+    },
+  } : null;
+
+  const parts: any[] = [prompt];
+  if (imagePart) parts.push(imagePart);
+
+  let lastError: any = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(parts);
+      const response = result.response;
+      return response.text();
+    } catch (error: any) {
+      console.log(`Model '${modelName}' failed: ${error.message}`);
+      lastError = error;
+    }
+  }
+
+  // If we exit the loop, all models failed. Throw error to be caught by handler.
+  throw new Error(`All fallback models failed. Last Error: ${lastError?.message}`);
+};
+
+// --- Generators ---
+
+const generateUserSession = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
   const prompt = `
     You are facilitating a usability test session.
 
@@ -65,13 +95,13 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     ### 3. What I Think This Is
     (Define the product based ONLY on what you see. Explain why.)
 
-    |||REPORT_START|||
+  `;
+  return generateContentWithFallback(prompt, data.screenshot);
+};
 
-    **SECTION 2: UX RESEARCH REPORT (The "Expert Analysis")**
-    Now, act as a Senior UX Researcher observing the session above.
-    
-    Analyze the user's feedback and the visual design of the page.
-    
+const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string): Promise<string> => {
+  const prompt = `
+    You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users.
     **Format for Section 2:**
     ### TEST RESULT: [PASS / FAIL]
     (Brief explanation of the result).
@@ -83,55 +113,22 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     (Provide 2-3 concrete steps. Use this exact format:)
     - **ISSUE:** [Brief description of the problem]
     - **FIX:** [Specific action to take]
+
+    **Context:**
+    - **Goal:** "${goal}"
+    - **URL:** ${url}
+    - [Visual Screenshot Attached]
+
+    **User Session Transcripts:**
+    ${sessions.map(s => `
+    ---
+    USER: ${s.persona.name} (${s.persona.description})
+    FEEDBACK:
+    ${s.output}
+    ---
+    `).join('\n')}
   `;
-
-  let lastError: any = null;
-
-  // Prepare image part if available
-  const imagePart = data.screenshot ? {
-    inlineData: {
-      data: data.screenshot,
-      mimeType: "image/jpeg",
-    },
-  } : null;
-
-  const parts: any[] = [prompt];
-  if (imagePart) parts.push(imagePart);
-
-  for (const modelName of modelsToTry) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(parts);
-      const response = result.response;
-      return response.text();
-    } catch (error: any) {
-      console.log(`Model '${modelName}' failed: ${error.message}`);
-      lastError = error;
-    }
-  }
-
-  // If we exit the loop, all models failed. Run the diagnostic.
-  let diagnosticMessage = `All fallback models failed. Last Error: ${lastError?.message}`;
-
-    try {
-      const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
-      if (!listResponse.ok) {
-        const errorText = await listResponse.text();
-        diagnosticMessage += `\n\nDIAGNOSTIC: Failed to list models. Status: ${listResponse.status}. Response: ${errorText}`;
-      } else {
-        const listData = await listResponse.json();
-        if (listData.models) {
-          const availableModels = listData.models.map((m: any) => m.name.replace('models/', '')).join(', ');
-          diagnosticMessage += `\n\nDIAGNOSTIC SUCCESS: Models tried: ${modelsToTry.join(', ')}. AVAILABLE MODELS: ${availableModels}`;
-        } else {
-          diagnosticMessage += `\n\nDIAGNOSTIC: API key seems valid but no models were returned. Response: ${JSON.stringify(listData)}`;
-        }
-      }
-    } catch (diagError: any) {
-      diagnosticMessage += `\n\nDIAGNOSTIC FAILURE: Could not run diagnosis. Error: ${diagError.message}`;
-    }
-
-    throw new Error(diagnosticMessage);
+  return generateContentWithFallback(prompt, data.screenshot);
 };
 
 // Initialize Express App
@@ -152,14 +149,18 @@ const personas: Record<string, Persona> = {
     name: 'Alex',
     description: 'a busy professional',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4',
-    analyzers: [aiAnalyzer],
   },
   'sam-college-student': {
     id: 'sam-college-student',
     name: 'Sam',
     description: 'a budget-conscious college student',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf',
-    analyzers: [aiAnalyzer],
+  },
+  'charlie-family-worker': {
+    id: 'charlie-family-worker',
+    name: 'Charlie',
+    description: 'a family-oriented blue-collar worker',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7',
   },
 };
 
@@ -237,29 +238,30 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     const result = await response.json();
 
     // --- Persona-Driven Analysis ---
-    const allResults: any[] = [];
+    const userSessions: any[] = [];
 
     for (const pId of personaIds) {
       const activePersona = personas[pId];
       if (activePersona) {
-        const analysisPromises = activePersona.analyzers.map(analyzer => analyzer(result, activePersona, goal, url));
-        const analyses = await Promise.all(analysisPromises);
-        
-        analyses.forEach(analysis => {
-          allResults.push({
-            persona: activePersona.name,
-            avatar: activePersona.avatar,
-            analysis: analysis
-          });
+        const sessionOutput = await generateUserSession(result, activePersona, goal, url);
+        userSessions.push({
+          persona: activePersona.name,
+          avatar: activePersona.avatar,
+          analysis: sessionOutput,
+          personaObj: activePersona // Keep ref for report generation
         });
       }
     }
+
+    // --- Aggregated Expert Report ---
+    const expertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url);
 
     res.json({
       message: 'Analysis Complete.',
       title: result.title,
       screenshot: result.screenshot,
-      results: allResults
+      userSessions: userSessions.map(({ persona, avatar, analysis }) => ({ persona, avatar, analysis })),
+      expertReport
     });
 
   } catch (error: any) {
