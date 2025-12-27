@@ -52,7 +52,10 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     Adopt the persona of ${persona.name}. You are currently looking at the webpage (screenshot and text).
     Narrate your experience out loud. Be critical, impatient, and honest.
     
-    Provide your feedback in this format:
+    **Format for Section 1:**
+    |||USER_BUBBLE|||
+    (A single, genuine, emotional sentence summarizing your immediate feeling. E.g., "I'm so confused, I don't know where to click!" or "This looks super professional, I trust it.")
+    |||USER_DETAILS|||
     ### 1. My Experience
     (2-3 sentences on your immediate reaction. Do you feel confident? Confused? Does the site look trustworthy?)
     
@@ -66,18 +69,20 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
 
     **SECTION 2: UX RESEARCH REPORT (The "Expert Analysis")**
     Now, act as a Senior UX Researcher observing the session above.
-    Start with a **TL;DR** section summarizing the pass/fail status of the test.
     
     Analyze the user's feedback and the visual design of the page.
     
-    Provide a report with actionable next steps:
+    **Format for Section 2:**
+    ### TEST RESULT: [PASS / FAIL]
+    (Brief explanation of the result).
+
     ### 4. Visual & Heuristic Analysis
-    (Comment on the visual hierarchy, layout, and trust signals based on the screenshot. Does it look professional? Modern? Outdated?)
+    (Comment on visual hierarchy, layout, and trust signals. Assign a status like [Positive], [Neutral], or [Negative] to key areas.)
     
     ### 5. Actionable Recommendations
-    (Provide 2-3 concrete steps to improve the user experience based on the friction points identified.)
-    - **Issue:** [Brief description]
-    - **Fix:** [Specific action to take]
+    (Provide 2-3 concrete steps. Use this exact format:)
+    - **ISSUE:** [Brief description of the problem]
+    - **FIX:** [Specific action to take]
   `;
 
   let lastError: any = null;
@@ -147,6 +152,13 @@ const personas: Record<string, Persona> = {
     name: 'Alex',
     description: 'a busy professional',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4',
+    analyzers: [aiAnalyzer],
+  },
+  'sam-college-student': {
+    id: 'sam-college-student',
+    name: 'Sam',
+    description: 'a budget-conscious college student',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf',
     analyzers: [aiAnalyzer],
   },
 };
@@ -233,6 +245,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     res.json({
       message: 'Analysis Complete.',
       title: result.title,
+      screenshot: result.screenshot,
       results: analyses.map(analysis => ({
         persona: activePersona.name,
         avatar: activePersona.avatar,

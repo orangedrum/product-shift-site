@@ -10,6 +10,7 @@ type AnalysisResult = {
 type AnalysisResponse = {
   message: string;
   title: string;
+  screenshot?: string;
   results: AnalysisResult[];
 };
 
@@ -23,9 +24,40 @@ const formatText = (text: string) => {
   if (!text) return null;
   return text.split('\n').map((line, index) => {
     // Headers
+    if (line.includes('TEST RESULT: PASS')) {
+      return (
+        <div key={index} className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-r">
+          <p className="font-bold text-xl">TEST RESULT: PASS</p>
+        </div>
+      );
+    }
+    if (line.includes('TEST RESULT: FAIL')) {
+      return (
+        <div key={index} className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-r">
+          <p className="font-bold text-xl">TEST RESULT: FAIL</p>
+        </div>
+      );
+    }
+
     if (line.startsWith('### ')) return <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-gray-800">{line.replace('### ', '')}</h3>;
     if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-gray-900">{line.replace('## ', '')}</h2>;
     
+    // Issue vs Fix Styling
+    if (line.includes('**ISSUE:**')) {
+      return (
+        <div key={index} className="mt-4 p-3 bg-red-50 border border-red-100 rounded-t-lg">
+          <p className="text-red-800"><strong className="font-bold text-red-900">ISSUE:</strong> {line.replace('- **ISSUE:**', '').replace('**ISSUE:**', '')}</p>
+        </div>
+      );
+    }
+    if (line.includes('**FIX:**')) {
+      return (
+        <div key={index} className="mb-4 p-3 bg-green-50 border border-green-100 border-t-0 rounded-b-lg">
+          <p className="text-green-800"><strong className="font-bold text-green-900">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
+        </div>
+      );
+    }
+
     // Bold
     const parts = line.split(/(\*\*.*?\*\*)/g);
     return (
@@ -127,6 +159,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="alex-busy-pro">Alex, the Busy Professional</option>
+            <option value="sam-college-student">Sam, the College Student</option>
             {/* Future personas will be added here */}
           </select>
         </div>
@@ -159,7 +192,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
       {result && (
         <div id="report-section" className="mt-12 space-y-8">
           {result.results.map((res, idx) => {
-            const [userSession, expertReport] = res.analysis.split('|||REPORT_START|||');
+            // Parse the new delimited format
+            const parts = res.analysis.split('|||REPORT_START|||');
+            const expertReport = parts[1] || '';
+            const userSection = parts[0] || '';
+            
+            const userParts = userSection.split('|||USER_DETAILS|||');
+            const userBubble = userParts[0]?.replace('|||USER_BUBBLE|||', '').trim() || "I'm analyzing the page...";
+            const userDetails = userParts[1] || '';
             
             return (
               <div key={idx} className="space-y-8">
@@ -176,7 +216,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       <div className="bg-white p-4 rounded-lg rounded-tl-none shadow-sm border border-blue-100 text-gray-700 relative">
                         {/* Speech Bubble Triangle */}
                         <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l border-b border-blue-100 transform rotate-45"></div>
-                        {formatText(userSession)}
+                        <p className="text-lg italic text-gray-800">"{userBubble}"</p>
+                      </div>
+                      <div className="mt-6 pl-2">
+                        {formatText(userDetails)}
                       </div>
                     </div>
                   </div>
@@ -193,6 +236,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       Download PDF
                     </button>
                   </div>
+                  
+                  {/* Visual Reference */}
+                  {result.screenshot && (
+                    <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Visual Reference</h3>
+                      <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
+                    </div>
+                  )}
+
                   <div className="prose max-w-none">
                     {formatText(expertReport)}
                   </div>
