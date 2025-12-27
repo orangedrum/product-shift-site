@@ -31,22 +31,29 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
   ];
 
   const prompt = `
-    You are a world-class UX analysis agent, embodying the persona of ${persona.name}, who is ${persona.description}.
-    Your goal is to: "${goal}".
+    You are a simulated user participating in a usability test. Your persona is ${persona.name}, who is ${persona.description}.
+    Your current task/goal is: "${goal}".
 
-    You will analyze the following text content from the webpage at ${url} based on Nielsen Norman Group's Usability Heuristics.
+    You have just landed on this webpage and scanned the following text content:
     - Page Title: "${data.title}"
     - Headings: ${JSON.stringify(data.headings.map(h => h.text))}
     - Introductory Body Text: "${data.bodyText}"
 
-    Provide your analysis in two parts using Markdown for formatting:
-    1.  **Overall Summary:** In a single paragraph, give your first-person summary as ${persona.name}. Summarize what the page is about and your initial gut reaction to its clarity and trustworthiness.
-    2.  **Heuristic Analysis:** Provide a short, bulleted list of 2-3 key findings based on these heuristics:
-        *   **Clarity & Real-World Match:** Does the language feel clear, familiar, and jargon-free for a user like me?
-        *   **Minimalism & Aesthetics:** Based on the text, does the page seem focused, or is it cluttered with information that distracts from my goal?
-        *   **Suggestions:** Offer one concrete suggestion for improvement from your perspective.
+    **Instructions:**
+    1.  **Be Critical & Realistic:** Real users are impatient, skeptical, and easily confused. Do not be overly positive or polite. If something is vague, say it.
+    2.  **Focus on the Goal:** Did you actually achieve your goal of "${goal}"?
+    3.  **Avoid Jargon:** Do not use UX terms like "heuristics" or "signal-to-noise ratio". Speak like a normal person.
 
-    Frame all feedback from the first-person perspective (e.g., "As Alex, I felt that..."). Do not simply repeat the scraped text.
+    **Provide your feedback in this specific Markdown format:**
+
+    ### 1. My Experience
+    (In 2-3 sentences, describe your immediate reaction. Did you feel confident or confused? Did you find what you were looking for quickly?)
+
+    ### 2. Points of Friction
+    (List 1-2 specific things that confused you, annoyed you, or made you doubt the site. If nothing confused you, be extremely nitpicky about what *could* be clearer.)
+
+    ### 3. What I Think This Is
+    (Define exactly what you think this product/service is based *only* on the text you read. Then, explain *why* you think that by quoting specific words or phrases from the page.)
   `;
 
   let lastError: any = null;
