@@ -47,20 +47,28 @@ const aiAnalyzer = async (data: ScrapedData, persona: Persona, goal: string, url
     const response = result.response;
     return response.text();
   } catch (error: any) {
-    // Diagnostic: If the model is not found, list the available models to help debug.
-    if (error.message.includes('404') || error.message.includes('not found')) {
-      try {
-        const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
+    // Diagnostic: Attempt to list models to see what IS available.
+    let diagnosticMessage = `Original Error: ${error.message}`;
+
+    try {
+      const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
+      if (!listResponse.ok) {
+        const errorText = await listResponse.text();
+        diagnosticMessage += `\n\nDIAGNOSTIC: Failed to list models. Status: ${listResponse.status}. Response: ${errorText}`;
+      } else {
         const listData = await listResponse.json();
         if (listData.models) {
           const availableModels = listData.models.map((m: any) => m.name.replace('models/', '')).join(', ');
-          throw new Error(`DIAGNOSTIC: The model '${modelName}' is not available for your API Key. Available models: ${availableModels}.`);
+          diagnosticMessage += `\n\nDIAGNOSTIC SUCCESS: The model '${modelName}' was not found. AVAILABLE MODELS: ${availableModels}`;
+        } else {
+          diagnosticMessage += `\n\nDIAGNOSTIC: API key seems valid but no models were returned. Response: ${JSON.stringify(listData)}`;
         }
-      } catch (diagError) {
-        // If diagnostic fails, fall through to throw original error
       }
+    } catch (diagError: any) {
+      diagnosticMessage += `\n\nDIAGNOSTIC FAILURE: Could not run diagnosis. Error: ${diagError.message}`;
     }
-    throw error;
+
+    throw new Error(diagnosticMessage);
   }
 };
 
