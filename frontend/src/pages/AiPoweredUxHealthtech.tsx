@@ -216,87 +216,87 @@ const AiPoweredUxHealthtech: React.FC = () => {
               <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
             </div>
 
-        <div>
-          <label htmlFor="url" className="block text-sm font-medium text-gray-700">
-            Website URL
-          </label>
-          <input
-            type="url"
-            id="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="https://example.com"
-            required
-          />
-        </div>
+            <div>
+              <label htmlFor="url" className="block text-sm font-medium text-gray-700">
+                Website URL
+              </label>
+              <input
+                type="url"
+                id="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="https://example.com"
+                required
+              />
+            </div>
 
-        <fieldset>
-          <legend className="block text-sm font-medium text-gray-700 mb-2">Select Personas</legend>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {availablePersonas.map((persona) => (
-              <div 
-                key={persona.id} 
-                onClick={() => togglePersona(persona.id)}
-                className={`
-                  flex items-center p-3 border rounded-lg cursor-pointer transition-all
-                  ${selectedPersonas.includes(persona.id)
-                    ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500'
-                    : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}
-                  ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
-              >
-                <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-gray-100" />
-                <div>
-                  <div className="font-medium text-gray-900">{persona.name}</div>
-                  <div className="text-xs text-gray-500">{persona.description}</div>
-                </div>
-                {selectedPersonas.includes(persona.id) && (
-                  <CheckCircle className="ml-auto text-indigo-600" size={20} />
-                )}
+            <fieldset>
+              <legend className="block text-sm font-medium text-gray-700 mb-2">Select Personas</legend>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {availablePersonas.map((persona) => (
+                  <div 
+                    key={persona.id} 
+                    onClick={() => togglePersona(persona.id)}
+                    className={`
+                      flex items-center p-3 border rounded-lg cursor-pointer transition-all
+                      ${selectedPersonas.includes(persona.id)
+                        ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500'
+                        : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}
+                      ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                  >
+                    <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-gray-100" />
+                    <div>
+                      <div className="font-medium text-gray-900">{persona.name}</div>
+                      <div className="text-xs text-gray-500">{persona.description}</div>
+                    </div>
+                    {selectedPersonas.includes(persona.id) && (
+                      <CheckCircle className="ml-auto text-indigo-600" size={20} />
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          {showPersonaError && (
-            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 flex items-center gap-2">
-              <AlertCircle size={16} />
-              <strong>Action Required:</strong> Please select between 3 and 5 personas to run the analysis.
-            </div>
-          )}
-        </fieldset>
+              {showPersonaError && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 flex items-center gap-2">
+                  <AlertCircle size={16} />
+                  <strong>Action Required:</strong> Please select between 3 and 5 personas to run the analysis.
+                </div>
+              )}
+            </fieldset>
 
-        <fieldset>
-          <legend className="block text-sm font-medium text-gray-700 mb-2">
-            User Goal / Task
-          </legend>
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-              <label htmlFor="task-understand" className="ml-2 block text-sm text-gray-700">Quickly understand what this page is about</label>
-            </div>
-            <div className="flex items-center">
-              <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-              <label htmlFor="task-purchase" className="ml-2 block text-sm text-gray-700">Make a purchase / Sign up (Think Aloud)</label>
-            </div>
-          </div>
-        </fieldset>
+            <fieldset>
+              <legend className="block text-sm font-medium text-gray-700 mb-2">
+                User Goal / Task
+              </legend>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+                  <label htmlFor="task-understand" className="ml-2 block text-sm text-gray-700">Quickly understand what this page is about</label>
+                </div>
+                <div className="flex items-center">
+                  <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+                  <label htmlFor="task-purchase" className="ml-2 block text-sm text-gray-700">Make a purchase / Sign up (Think Aloud)</label>
+                </div>
+              </div>
+            </fieldset>
 
-        <button
-          type="submit"
-          disabled={isLoading || selectedPersonas.length < 3 || selectedPersonas.length > 5}
-          className={`w-full relative overflow-hidden inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-all bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400`}
-        >
-          {isLoading && (
-            <div 
-              className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-200 ease-linear"
-              style={{ width: `${progress}%` }}
-            />
-          )}
-          <span className="relative z-10">
-            {isLoading ? `Analyzing... ${Math.round(progress)}%` : 'Run Analysis'}
-          </span>
-        </button>
-      </form>
+            <button
+              type="submit"
+              disabled={isLoading || selectedPersonas.length < 3 || selectedPersonas.length > 5}
+              className={`w-full relative overflow-hidden inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-all bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400`}
+            >
+              {isLoading && (
+                <div 
+                  className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-200 ease-linear"
+                  style={{ width: `${progress}%` }}
+                />
+              )}
+              <span className="relative z-10">
+                {isLoading ? `Analyzing... ${Math.round(progress)}%` : 'Run Analysis'}
+              </span>
+            </button>
+          </form>
         </div>
       )}
 
