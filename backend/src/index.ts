@@ -24,13 +24,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-latest',        // Most reliable free tier workhorse
-    'gemini-flash-latest',            // Alias for 1.5 Flash
-    'gemini-2.0-flash',               // Stable 2.0 Flash
-    'gemini-2.5-flash',               // Latest Flash model
-    'gemini-2.0-flash-lite',          // Lite models as fallbacks
+    'gemini-1.5-flash-latest', // Highest priority: Stable, generous free tier.
+    'gemini-flash-latest',     // Alias for 1.5 Flash
+    'gemini-2.0-flash',        // Next best option
+    'gemini-2.5-flash',        // Newest flash model
+    'gemini-2.0-flash-lite',   // Lite models as final fallbacks
     'gemini-2.5-flash-lite',
-    'gemini-flash-lite-latest'
+    'gemini-flash-lite-latest',
   ];
 
   // Prepare image part if available
@@ -60,8 +60,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       lastError = error;
       // If we get a rate limit error, wait before trying the next model.
       if (error.message.includes('429')) {
-        console.log('Rate limit hit, waiting 5 seconds before trying next model...');
-        await delay(5000);
+        console.log('Rate limit hit, waiting 10 seconds before trying next model...');
+        await delay(10000);
       }
     }
   }
