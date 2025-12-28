@@ -16,22 +16,22 @@ const MarketingHero: React.FC = () => {
 
       <div className="container mx-auto px-4 relative z-20 text-center max-w-4xl">
         <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[rgb(255,119,51)] via-[rgb(255,102,255)] to-[rgb(77,210,255)]">
-            UX for Health & Neuro Apps
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+            Instant UX Audits
           </span>
           <br />
-          That Need Patient-Friendly Adoption
+          Powered by AI Personas
         </h1>
         <p className="text-lg md:text-xl mb-8 text-gray-100 max-w-2xl mx-auto">
-          Is patient engagement low? Are users getting confused? Watch how users actually struggle with standard health app interfaces.
+          Stop guessing. Get an expert-level usability report, complete with feedback from 5 distinct AI user personas, for a fraction of the cost of traditional testing.
         </p>
         
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button className="px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-gray-900 transition-colors">
-            &#9658; Watch Full User Testing Session
-          </button>
-          <a href="#value-prop" className="px-8 py-4 bg-gradient-to-r from-[rgb(255,119,51)] via-[rgb(255,102,255)] to-[rgb(77,210,255)] text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-            Get Free Checklist
+          <Link to="/ai-powered-ux-healthtech" className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+            Run a Free Analysis
+          </Link>
+          <a href="#pricing" className="px-8 py-4 border-2 border-gray-400 text-white font-semibold rounded-lg hover:bg-white hover:text-gray-900 transition-colors">
+            View Pricing
           </a>
         </div>
       </div>
