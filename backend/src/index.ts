@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { createClient } from '@supabase/supabase-js';
 
 // --- Persona & Analyzer Definitions ---
 
@@ -20,6 +21,11 @@ type Persona = {
 
 // --- AI Helpers ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+// --- Supabase Client ---
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
@@ -223,6 +229,39 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     return res.status(500).json({ error: 'Server Configuration Error', details: 'The AI API key is not configured.' });
   }
 
+  // --- Usage Limit Check ---
+  const userIdentifier = req.ip; // Use IP address for simple unique user tracking
+  const today = new Date().toISOString().split('T')[0];
+  const GLOBAL_DAILY_LIMIT = 50; // Set a global limit of 50 free tests per day
+
+  try {
+    // Check global daily usage
+    const { count: globalCount, error: globalError } = await supabase
+      .from('daily_usage')
+      .select('*', { count: 'exact', head: true })
+      .eq('usage_date', today);
+
+    if (globalError) throw globalError;
+    if (globalCount !== null && globalCount >= GLOBAL_DAILY_LIMIT) {
+      return res.status(429).json({ error: 'Daily Limit Reached', details: 'The global daily limit for free demos has been reached. Please try again tomorrow.' });
+    }
+
+    // Check this specific user's daily usage
+    const { data: userData, error: userError } = await supabase
+      .from('daily_usage')
+      .select('count')
+      .eq('user_identifier', userIdentifier)
+      .eq('usage_date', today)
+      .single();
+
+    if (userError && userError.code !== 'PGRST116') throw userError; // Ignore "no rows found" error
+    if (userData && userData.count >= 1) {
+      return res.status(429).json({ error: 'Demo Limit Reached', details: 'You have already run your free demo for today. Please upgrade to Pro for unlimited tests.' });
+    }
+  } catch (e: any) {
+    return res.status(500).json({ error: 'Database Error', details: `Could not verify usage limits: ${e.message}` });
+  }
+
   try {
     console.log('Sending request to Browserless...');
 
@@ -311,6 +350,16 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           personaObj: activePersona // Keep ref for report generation
         });
       }
+    }
+
+    // --- On success, increment usage count ---
+    const { error: upsertError } = await supabase
+      .from('daily_usage')
+      .upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
+
+    if (upsertError) {
+      // Log the error but don't fail the request for the user
+      console.error('Failed to increment usage count:', upsertError);
     }
 
     // --- Aggregated Expert Report ---

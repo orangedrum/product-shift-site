@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MarketingHero from '../components/MarketingHero';
 import { Link } from 'react-router-dom';
 import { BarChart, Bot, BrainCircuit, Check, Users } from 'lucide-react';
+
+// Re-using the main component for the demo, but we could abstract this later
+import AiPoweredUxHealthtech from './AiPoweredUxHealthtech';
 
 // --- Internal Components for Landing Page Sections ---
 
@@ -50,6 +53,52 @@ const FeaturesSection = () => (
   </section>
 );
 
+const DemoSection = () => {
+  const [url, setUrl] = useState('');
+  const [result, setResult] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<any>(null);
+
+  const handleDemoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setResult(null);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/run-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          personaIds: ['alex-busy-pro'], // Hardcode Alex for the demo
+          goal: 'Quickly understand what this page is about.'
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw data;
+      setResult(data);
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (result) {
+    // If we have a result, render the full component with the data
+    // This is a simplified way to show the results.
+    return <div className="py-12"><AiPoweredUxHealthtech initialResult={result} /></div>;
+  }
+
+  // Simplified form for the demo
+  return (
+    <section id="demo" className="bg-gray-800 text-white py-20">
+      {/* ... Demo form UI will go here in a future step ... */}
+    </section>
+  );
+};
+
 const PricingSection = () => (
   <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
     <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
@@ -62,16 +111,16 @@ const PricingSection = () => (
       <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-3xl mx-auto">
         {/* Free Plan */}
         <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col">
-          <h3 className="text-2xl font-bold text-center">Free Demo</h3>
-          <p className="text-center text-gray-500 mt-2">Experience the power of AI analysis</p>
+          <h3 className="text-2xl font-bold text-center">Free Analysis</h3>
+          <p className="text-center text-gray-500 mt-2">Run a full analysis, on us.</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Run <strong>1 Free Test</strong></li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Run <strong>1 Free Analysis</strong> Today</li>
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Analysis with 3 Personas</li>
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Includes Visual & Heuristic Analysis</li>
           </ul>
           <Link to="/ai-powered-ux-healthtech" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
-            Run Free Demo
+            Run Free Analysis
           </Link>
         </div>
         {/* Pro Plan */}
@@ -87,9 +136,9 @@ const PricingSection = () => (
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Performance Charts</li>
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Unlimited Monthly Tests</li>
           </ul>
-          <a href="mailto:sales@theproductshift.com?subject=Inquiry about Pro Access" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
-            Contact Sales
-          </a>
+          <Link to="/waitlist" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
+            Join Pro Waitlist
+          </Link>
         </div>
       </div>
     </div>
@@ -101,6 +150,7 @@ const AiUixAgentLandingPage: React.FC = () => {
       <main>
         <MarketingHero />
         <FeaturesSection />
+        {/* <DemoSection /> */} {/* Demo section is ready to be built out */}
         <PricingSection />
       </main>
   );

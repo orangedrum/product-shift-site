@@ -5,6 +5,7 @@ import Styleguide from './pages/Styleguide';
 import AiPoweredUxHealthtech from './pages/AiPoweredUxHealthtech';
 import AiUixAgentLandingPage from './pages/AiUixAgentLandingPage';
 import HomePage from './pages/HomePage';
+import WaitlistPage from './pages/WaitlistPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/styleguide" element={<Styleguide />} />
           <Route path="/ai-powered-ux-healthtech" element={<AiPoweredUxHealthtech />} />
           <Route path="/product-landing" element={<AiUixAgentLandingPage />} />
+          <Route path="/waitlist" element={<WaitlistPage />} />
         </Routes>
       </main>
       <Footer />
