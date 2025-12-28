@@ -232,7 +232,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   // --- Usage Limit Check ---
   const userIdentifier = req.ip; // Use IP address for simple unique user tracking
   const today = new Date().toISOString().split('T')[0];
-  const GLOBAL_DAILY_LIMIT = 50; // Set a global limit of 50 free tests per day
+  const GLOBAL_DAILY_LIMIT = 25; // Set a conservative global limit of 25 free tests per day
 
   try {
     // Check global daily usage
