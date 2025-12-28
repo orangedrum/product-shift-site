@@ -74,15 +74,45 @@ const FeaturesSection = () => (
 );
 
 const WaitlistForm = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const [state, setState] = useState({
+    submitting: false,
+    succeeded: false,
+    error: null,
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // In a real app, you'd post to a service like Formspree or your own API
-    setSubmitted(true);
+    setState({ ...state, submitting: true, error: null });
+
+    const form = e.target as HTMLFormElement;
+    const data = new FormData(form);
+
+    try {
+      // IMPORTANT: Replace with your own Formspree endpoint
+      const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        body: data,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        setState({ submitting: false, succeeded: true, error: null });
+      } else {
+        const responseData = await response.json();
+        if (responseData.hasOwnProperty('errors')) {
+          throw new Error(responseData.errors.map((error: any) => error.message).join(', '));
+        } else {
+          throw new Error('Oops! There was a problem submitting your form');
+        }
+      }
+    } catch (error: any) {
+      setState({ submitting: false, succeeded: false, error: error.message });
+    }
   };
 
-  if (submitted) {
+  if (state.succeeded) {
     return (
       <div className="text-center p-6 bg-green-100 border border-green-200 rounded-lg animate-fade-in">
         <PartyPopper className="mx-auto text-green-600 mb-2" size={32} />
@@ -93,13 +123,18 @@ const WaitlistForm = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 text-left animate-fade-in">
+    <form onSubmit={handleSubmit} className="space-y-3 text-left animate-fade-in" noValidate>
       <h4 className="font-bold text-indigo-800 text-center mb-2">Join the Pro Waitlist</h4>
       <div>
         <label htmlFor="email-waitlist" className="sr-only">Email address</label>
-        <input type="email" id="email-waitlist" required className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="your@email.com" />
+        <input type="email" id="email-waitlist" name="email" required className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="your@email.com" />
       </div>
-      <button type="submit" className="w-full px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">Get 30% Off</button>
+      <button type="submit" disabled={state.submitting} className="w-full px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 disabled:opacity-60">
+        {state.submitting ? 'Submitting...' : 'Get 30% Off'}
+      </button>
+      {state.error && (
+        <p className="text-xs text-red-600 text-center mt-2">{state.error}</p>
+      )}
     </form>
   );
 };

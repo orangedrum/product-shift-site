@@ -234,6 +234,28 @@ const personas: Record<string, Persona> = {
 const runTestHandler = async (req: express.Request, res: express.Response) => {
   const { url, personaIds, goal } = req.body;
 
+  // Check for "test-mode" to bypass expensive calls for UI testing
+  if (url.includes('test-mode')) {
+    console.log('--- RUNNING IN TEST MODE ---');
+    const fakeReport = {
+        message: 'Analysis Complete.',
+        title: 'Test Mode Report',
+        screenshot: '', // No screenshot in test mode
+        userSessions: [{
+            persona: 'Alex',
+            description: 'a busy professional with two kids under 5',
+            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
+            analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||This is a test report, it looks great!|||USER_DETAILS|||### 1. My Experience\nThis is a fake report generated for testing purposes. The UI seems responsive and the data flow is working correctly.',
+            personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' }
+        }],
+        expertReport: '### TEST RESULT: PASS\nThis is a test mode report. If you are seeing this, the test mode functionality is working correctly.\n\n### Actionable Recommendations\n- **ISSUE:** This is a test issue.\n- **FIX:** This is a test fix.',
+        scores: { usability: 95, desirability: 90, clarity: 98 }
+    };
+    // Add a small delay to simulate network latency
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    return res.json(fakeReport);
+  }
+
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
   }
