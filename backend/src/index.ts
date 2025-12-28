@@ -114,7 +114,21 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
   return generateContentWithFallback(prompt, data.screenshot);
 };
 
-const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string): Promise<string> => {
+const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
+  let footerContent = `
+    ---
+    **The Product Shift** | AI-Powered UX Audits
+    Get your own report at product-shift-site.vercel.app/landingpg-aiuxagent
+  `;
+
+  if (isDemo) {
+    footerContent = `
+    ---
+    **Ready for more?** Unlock the full potential of AI-powered UX research.
+    Use code **EARLYBIRD30** for 30% off your first month of Pro.
+    Upgrade Now at product-shift-site.vercel.app/landingpg-aiuxagent
+    `;
+  }
   const prompt = `
     You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users.
     
@@ -151,10 +165,7 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     **IMPORTANT:** Do not use markdown tables in your response. Use bullet points or simple text.
 
     **PDF FOOTER:** At the very end of the report, include the following footer exactly as written, with a separator line:
-    ---
-    **Ready for more?** Unlock the full potential of AI-powered UX research.
-    Use code **EARLYBIRD30** for 30% off your first month of Pro.
-    Upgrade Now
+    ${footerContent}
   `;
   return generateContentWithFallback(prompt, data.screenshot);
 };
@@ -248,7 +259,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   // --- Usage Limit Check ---
   const userIdentifier = req.ip; // Use IP address for simple unique user tracking
   const today = new Date().toISOString().split('T')[0];
-  const GLOBAL_DAILY_LIMIT = 2; // Temporarily set to 2 for testing purposes
+  const GLOBAL_DAILY_LIMIT = 25; // Set a conservative global limit of 25 free tests per day
 
   // Only run usage checks if Supabase is configured (i.e., in production)
   if (supabaseUrl && supabaseServiceKey) {
@@ -387,8 +398,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // --- Aggregated Expert Report ---
+    const isDemo = personaIds.length === 1;
     await delay(6000); // Delay before the final expert report generation
-    const rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url);
+    const rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
     
     // Extract JSON Scores
     let scores = { usability: 0, desirability: 0, clarity: 0 };
