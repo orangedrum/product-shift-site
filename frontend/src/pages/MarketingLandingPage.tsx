@@ -182,15 +182,18 @@ const DemoSection = () => {
         <p className="mt-6 text-lg text-gray-300">
           Our AI persona, Alex, will analyze your site to see if she can quickly understand what it's about.
         </p>
-        <form onSubmit={handleDemoSubmit} className="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3">
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="flex-grow px-4 py-3 text-gray-900 border border-gray-600 bg-gray-900/50 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Enter your website URL..."
-            required
-          />
+        <form onSubmit={handleDemoSubmit} className="mt-8 max-w-xl mx-auto flex flex-col gap-3">
+          <div className="flex items-center bg-gray-900/50 border border-gray-600 rounded-md focus-within:ring-2 focus-within:ring-indigo-500">
+            <span className="pl-4 text-gray-400">https://</span>
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="flex-grow px-2 py-3 text-white bg-transparent border-none focus:outline-none focus:ring-0"
+              placeholder="your-website.com"
+              required
+            />
+          </div>
           <button type="submit" disabled={isLoading} className="relative overflow-hidden px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
             {isLoading && (
               <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />

@@ -234,32 +234,35 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   const today = new Date().toISOString().split('T')[0];
   const GLOBAL_DAILY_LIMIT = 2; // Temporarily set to 2 for testing purposes
 
-  try {
-    // Check global daily usage
-    const { count: globalCount, error: globalError } = await supabase
-      .from('daily_usage')
-      .select('*', { count: 'exact', head: true })
-      .eq('usage_date', today);
+  // Only run usage checks if Supabase is configured (i.e., in production)
+  if (supabaseUrl && supabaseServiceKey) {
+    try {
+      // Check global daily usage
+      const { count: globalCount, error: globalError } = await supabase
+        .from('daily_usage')
+        .select('*', { count: 'exact', head: true })
+        .eq('usage_date', today);
 
-    if (globalError) throw globalError;
-    if (globalCount !== null && globalCount >= GLOBAL_DAILY_LIMIT) {
-      return res.status(429).json({ error: 'Daily Limit Reached', details: 'The global daily limit for free demos has been reached. Please try again tomorrow.' });
+      if (globalError) throw globalError;
+      if (globalCount !== null && globalCount >= GLOBAL_DAILY_LIMIT) {
+        return res.status(429).json({ error: 'Daily Limit Reached', details: 'The global daily limit for free demos has been reached. Please try again tomorrow.' });
+      }
+
+      // Check this specific user's daily usage
+      const { data: userData, error: userError } = await supabase
+        .from('daily_usage')
+        .select('count')
+        .eq('user_identifier', userIdentifier)
+        .eq('usage_date', today)
+        .single();
+
+      if (userError && userError.code !== 'PGRST116') throw userError; // Ignore "no rows found" error
+      if (userData && userData.count >= 1) {
+        return res.status(429).json({ error: 'Demo Limit Reached', details: 'You have already run your free demo for today. Please upgrade to Pro for unlimited tests.' });
+      }
+    } catch (e: any) {
+      return res.status(500).json({ error: 'Database Error', details: `Could not verify usage limits: ${e.message}` });
     }
-
-    // Check this specific user's daily usage
-    const { data: userData, error: userError } = await supabase
-      .from('daily_usage')
-      .select('count')
-      .eq('user_identifier', userIdentifier)
-      .eq('usage_date', today)
-      .single();
-
-    if (userError && userError.code !== 'PGRST116') throw userError; // Ignore "no rows found" error
-    if (userData && userData.count >= 1) {
-      return res.status(429).json({ error: 'Demo Limit Reached', details: 'You have already run your free demo for today. Please upgrade to Pro for unlimited tests.' });
-    }
-  } catch (e: any) {
-    return res.status(500).json({ error: 'Database Error', details: `Could not verify usage limits: ${e.message}` });
   }
 
   try {
@@ -353,13 +356,15 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // --- On success, increment usage count ---
-    const { error: upsertError } = await supabase
-      .from('daily_usage')
-      .upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
+    if (supabaseUrl && supabaseServiceKey) {
+      const { error: upsertError } = await supabase
+        .from('daily_usage')
+        .upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
 
-    if (upsertError) {
-      // Log the error but don't fail the request for the user
-      console.error('Failed to increment usage count:', upsertError);
+      if (upsertError) {
+        // Log the error but don't fail the request for the user
+        console.error('Failed to increment usage count:', upsertError);
+      }
     }
 
     // --- Aggregated Expert Report ---
