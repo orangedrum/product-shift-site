@@ -195,6 +195,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+      <div className="bg-blue-500 text-white text-center p-4 font-bold">
+        BLUE
+      </div>
       <style>{`
         @media print {
           body * { visibility: hidden; }

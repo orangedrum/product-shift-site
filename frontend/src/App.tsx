@@ -2,8 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Styleguide from './pages/Styleguide';
-import AiPoweredUxHealthtech from './pages/AiPoweredUxHealthtech';
-import AiUixAgentLandingPage from './pages/AiUixAgentLandingPage';
+import AiUxAgent from './pages/AiUxAgent';
+import MarketingLandingPage from './pages/MarketingLandingPage';
 import HomePage from './pages/HomePage';
 import WaitlistPage from './pages/WaitlistPage';
 
@@ -15,8 +15,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/styleguide" element={<Styleguide />} />
-          <Route path="/ai-powered-ux-healthtech" element={<AiPoweredUxHealthtech />} />
-          <Route path="/product-landing" element={<AiUixAgentLandingPage />} />
+          <Route path="/ai-powered-ux-healthtech" element={<AiUxAgent />} />
+          <Route path="/product-landing" element={<MarketingLandingPage />} />
           <Route path="/waitlist" element={<WaitlistPage />} />
         </Routes>
       </main>

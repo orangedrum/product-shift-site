@@ -8,9 +8,6 @@ import FinalCta from '../components/FinalCta';
 const HomePage = () => {
   return (
     <>
-      <div className="bg-orange-500 text-white text-center p-4 font-bold">
-        ORANGE
-      </div>
       <Hero />
       <IncubatorRibbon />
       <CoreServices />
