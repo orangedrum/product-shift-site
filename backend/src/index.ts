@@ -271,6 +271,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         return res.status(429).json({ error: 'Demo Limit Reached', details: 'You have already run your free demo for today. Please upgrade to Pro for unlimited tests.' });
       }
     } catch (e: any) {
+      if (e.code === '42P01') { // Specific PostgreSQL error code for "undefined_table"
+         return res.status(500).json({ error: 'Database Setup Incomplete', details: `The required 'daily_usage' table was not found. Please ensure the database setup script has been run.` });
+      }
       return res.status(500).json({ error: 'Database Error', details: `Could not verify usage limits: ${e.message}` });
     }
   }
