@@ -149,6 +149,12 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     `).join('\n')}
 
     **IMPORTANT:** Do not use markdown tables in your response. Use bullet points or simple text.
+
+    **PDF FOOTER:** At the very end of the report, include the following footer exactly as written, with a separator line:
+    ---
+    **Ready for more?** Unlock the full potential of AI-powered UX research.
+    Use code **EARLYBIRD30** for 30% off your first month of Pro.
+    Upgrade Now
   `;
   return generateContentWithFallback(prompt, data.screenshot);
 };

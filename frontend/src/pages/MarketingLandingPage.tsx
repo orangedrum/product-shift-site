@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MarketingHero from '../components/MarketingHero';
 import { Link } from 'react-router-dom';
-import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock } from 'lucide-react';
+import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper } from 'lucide-react';
 
 // --- Helper to format results ---
 // A simplified version for the demo. In a larger app, this would be a shared utility.
@@ -73,6 +73,37 @@ const FeaturesSection = () => (
   </section>
 );
 
+const WaitlistForm = () => {
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, you'd post to a service like Formspree or your own API
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="text-center p-6 bg-green-100 border border-green-200 rounded-lg animate-fade-in">
+        <PartyPopper className="mx-auto text-green-600 mb-2" size={32} />
+        <h4 className="font-bold text-green-800">You're on the list!</h4>
+        <p className="text-sm text-green-700 mt-1">We'll email you with your 30% discount code when Pro launches. Thanks for your support!</p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3 text-left animate-fade-in">
+      <h4 className="font-bold text-indigo-800 text-center mb-2">Join the Pro Waitlist</h4>
+      <div>
+        <label htmlFor="email-waitlist" className="sr-only">Email address</label>
+        <input type="email" id="email-waitlist" required className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="your@email.com" />
+      </div>
+      <button type="submit" className="w-full px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">Get 30% Off</button>
+    </form>
+  );
+};
+
 const DemoSection = () => {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState(null);
@@ -129,6 +160,7 @@ const DemoSection = () => {
     const session = result.userSessions?.[0];
     const userBubble = session?.analysis?.split('|||USER_BUBBLE|||')[1]?.split('|||USER_DETAILS|||')[0]?.trim() || "Analysis complete.";
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
+    const [showWaitlist, setShowWaitlist] = useState(false);
 
     return (
       <section id="demo-results" className="bg-gray-50 py-24 sm:py-32">
@@ -141,7 +173,11 @@ const DemoSection = () => {
             {/* Persona Feedback */}
             <div className="lg:col-span-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
               <div className="flex flex-col items-center text-center">
-                <img src={session.avatar} alt={session.persona} className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-3 bg-gray-100" />
+                <img 
+                  src={session.avatar} 
+                  alt={session.persona} 
+                  onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4`; }}
+                  className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-3 bg-gray-100" />
                 <h3 className="text-xl font-bold text-gray-900">{session.persona}</h3>
                 <p className="text-sm text-gray-500">{session.description}</p>
               </div>
@@ -156,16 +192,22 @@ const DemoSection = () => {
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
               </div>
-              <div className="mt-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-white/0 backdrop-blur-sm"></div>
-                <div className="relative z-10">
-                  <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
-                  <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
-                  <p className="text-sm text-indigo-700 mt-1">Get the complete heuristic analysis, performance scores, and feedback from 4 more personas.</p>
-                  <Link to="/waitlist" className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-                    Join Pro Waitlist for $19/mo
-                  </Link>
-                </div>
+              <div className="mt-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200 text-center">
+                {showWaitlist ? (
+                  <WaitlistForm />
+                ) : (
+                  <div className="relative">
+                    <div className="absolute -inset-6 bg-gradient-to-t from-indigo-50/80 to-indigo-50/0 backdrop-blur-sm pointer-events-none"></div>
+                    <div className="relative z-10">
+                      <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
+                      <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
+                      <p className="text-sm text-indigo-700 mt-1">Get the complete heuristic analysis, performance scores, and feedback from 5 more personas.</p>
+                      <button onClick={() => setShowWaitlist(true)} className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+                        Join Pro Waitlist for $19/mo
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -224,17 +266,17 @@ const PricingSection = () => (
       <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-3xl mx-auto">
         {/* Free Plan */}
         <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col">
-          <h3 className="text-2xl font-bold text-center">Free Analysis</h3>
-          <p className="text-center text-gray-500 mt-2">Run a full analysis, on us.</p>
+          <h3 className="text-2xl font-bold text-center">Free Demo</h3>
+          <p className="text-center text-gray-500 mt-2">Run a 1-persona analysis</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Run <strong>1 Free Analysis</strong> Today</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Analysis with 3 Personas</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Includes Visual & Heuristic Analysis</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Run <strong>1 Free Demo</strong> Today</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Analysis with 1 Persona (Alex)</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Includes Actionable Fixes</li>
           </ul>
-          <Link to="/ai-powered-ux-healthtech" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
-            Run Free Analysis
-          </Link>
+          <a href="#demo" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+            Run Free Demo
+          </a>
         </div>
         {/* Pro Plan */}
         <div className="pricing-card best-value bg-white p-8 border-2 border-indigo-500 rounded-xl shadow-2xl text-left flex flex-col relative">
