@@ -165,6 +165,16 @@ app.get('/api', (req, res) => {
   res.send('AI UX Agent Backend is running!');
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    browserlessToken: process.env.BROWSERLESS_TOKEN ? 'SET' : 'MISSING',
+    geminiApiKey: process.env.GEMINI_API_KEY ? 'SET' : 'MISSING',
+    supabaseUrl: process.env.SUPABASE_URL ? 'SET' : 'MISSING',
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY ? 'SET' : 'MISSING',
+  });
+});
+
 const personas: Record<string, Persona> = {
   'alex-busy-pro': {
     id: 'alex-busy-pro',
