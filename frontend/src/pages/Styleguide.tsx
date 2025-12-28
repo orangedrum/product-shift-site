@@ -30,10 +30,6 @@ const Styleguide = () => {
                 <Link to="/product-landing" className="text-brand-blue hover:underline font-semibold">AI Agent Landing Page</Link>
                 <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/product-landing</code>
               </li>
-              <li>
-                <Link to="/product-landing" className="text-brand-blue hover:underline font-semibold">AI Agent Landing Page</Link>
-                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/product-landing</code>
-              </li>
             </ul>
           </div>
         </section>
