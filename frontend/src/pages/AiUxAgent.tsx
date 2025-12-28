@@ -315,7 +315,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         <div id="report-section" className="animate-fade-in">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* LEFT COLUMN: Persona Summaries (Span 4) */}
+            {/* LEFT COLUMN: Persona Summaries (Span 5) */}
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-100 bg-gray-50">

@@ -258,9 +258,6 @@ const PricingSection = () => (
 const AiUixAgentLandingPage: React.FC = () => {
   return (
       <main>
-        <div className="bg-green-500 text-white text-center p-4 font-bold">
-          GREEN
-        </div>
         <MarketingHero />
         <FeaturesSection />
         <DemoSection />
