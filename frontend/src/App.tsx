@@ -14,7 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/styleguide" element={<Styleguide />} />
-          <Route path="/ai-powered-uxhealthtech" element={<AiPoweredUxHealthtech />} />
+          <Route path="/ai-powered-ux-healthtech" element={<AiPoweredUxHealthtech />} />
           <Route path="/product-landing" element={<AiUixAgentLandingPage />} />
         </Routes>
       </main>
