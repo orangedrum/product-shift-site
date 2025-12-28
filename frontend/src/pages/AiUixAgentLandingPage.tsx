@@ -62,34 +62,34 @@ const PricingSection = () => (
       <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-3xl mx-auto">
         {/* Free Plan */}
         <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col">
-          <h3 className="text-2xl font-bold text-center">Free</h3>
-          <p className="text-center text-gray-500 mt-2">For quick checks & first impressions</p>
+          <h3 className="text-2xl font-bold text-center">Free Demo</h3>
+          <p className="text-center text-gray-500 mt-2">Experience the power of AI analysis</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />1 Persona Analysis</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Text-only Feedback (No Visuals)</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />3 Free Tests Total</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Run <strong>1 Free Test</strong></li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Analysis with 3 Personas</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Includes Visual & Heuristic Analysis</li>
           </ul>
           <Link to="/ai-powered-ux-healthtech" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
-            Try for Free
+            Run Free Demo
           </Link>
         </div>
         {/* Pro Plan */}
         <div className="pricing-card best-value bg-white p-8 border-2 border-indigo-500 rounded-xl shadow-2xl text-left flex flex-col relative">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Best Value</div>
-          <h3 className="text-2xl font-bold text-center">Pro</h3>
-          <p className="text-center text-gray-500 mt-2">For startups & product teams</p>
+          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Full Access</div>
+          <h3 className="text-2xl font-bold text-center">Pro & Enterprise</h3>
+          <p className="text-center text-gray-500 mt-2">For teams that need to ship with confidence</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Up to 5 Personas per Test</li>
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Visual & Heuristic Analysis</li>
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Downloadable PDF Reports</li>
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Performance Charts</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Unlimited Tests</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Unlimited Monthly Tests</li>
           </ul>
-          <button className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
-            Join Pro Waitlist
-          </button>
+          <a href="mailto:sales@theproductshift.com?subject=Inquiry about Pro Access" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
+            Contact Sales
+          </a>
         </div>
       </div>
     </div>
