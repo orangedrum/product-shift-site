@@ -110,7 +110,7 @@ const DemoSection = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url,
+          url: `https://${url}`,
           personaIds: ['alex-busy-pro'], // Hardcode Alex for the demo
           goal: 'Quickly understand what this page is about.'
         }),

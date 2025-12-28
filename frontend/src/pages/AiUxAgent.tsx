@@ -161,13 +161,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
     let finalGoal = 'Quickly understand what this page is about.';
     if (taskType === 'purchase') finalGoal = 'Attempt to make a purchase or sign up, thinking aloud about the decision process.';
 
+    // Ensure the URL has a protocol
+    const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+
     try {
       const response = await fetch('/api/run-test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url, personaIds: selectedPersonas, goal: finalGoal }), 
+        body: JSON.stringify({ url: fullUrl, personaIds: selectedPersonas, goal: finalGoal }), 
       });
 
       const data = await response.json();
