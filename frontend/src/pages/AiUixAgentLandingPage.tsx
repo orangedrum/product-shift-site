@@ -1,6 +1,4 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import MarketingHero from '../components/MarketingHero';
 import { Link } from 'react-router-dom';
 import { BarChart, Bot, BrainCircuit, Check, Users } from 'lucide-react';
@@ -69,8 +67,8 @@ const PricingSection = () => (
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />1 Persona Analysis</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Text-only Feedback</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />3 Tests / Month</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Text-only Feedback (No Visuals)</li>
+            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />3 Free Tests Total</li>
           </ul>
           <Link to="/ai-powered-ux-healthtech" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
             Try for Free
@@ -100,15 +98,11 @@ const PricingSection = () => (
 
 const AiUixAgentLandingPage: React.FC = () => {
   return (
-    <>
-      <Header />
       <main>
         <MarketingHero />
         <FeaturesSection />
         <PricingSection />
       </main>
-      <Footer />
-    </>
   );
 };
 
