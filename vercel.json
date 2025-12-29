@@ -9,6 +9,9 @@
     {
       "src": "backend/src/index.ts",
       "use": "@vercel/node"
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "rewrites": [
