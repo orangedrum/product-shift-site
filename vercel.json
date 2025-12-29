@@ -18,8 +18,11 @@
       "dest": "/backend/src/index.ts"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "/index.html"
     }
   ]
 }
