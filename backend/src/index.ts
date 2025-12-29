@@ -235,7 +235,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   const { url, personaIds, goal } = req.body;
 
   // Check for "test-mode" to bypass expensive calls for UI testing
-  if (url.includes('test-mode')) {
+  if (url.toLowerCase().includes('test-mode')) {
     console.log('--- RUNNING IN TEST MODE ---');
     const fakeReport = {
         message: 'Analysis Complete.',
@@ -449,6 +449,20 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   } catch (error: any) {
     console.error('Test error:', error);
+
+    // Log error to Supabase for Admin Dashboard
+    if (supabaseUrl && supabaseServiceKey) {
+      try {
+        await supabase.from('error_logs').insert({
+          message: error.message,
+          details: error.stack || JSON.stringify(error),
+          endpoint: '/api/run-test'
+        });
+      } catch (logErr) {
+        console.error('Failed to log error to DB:', logErr);
+      }
+    }
+
     res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
   }
 };
@@ -519,7 +533,14 @@ app.get('/api/admin/stats', async (req, res) => {
     
     if (waitlistError) throw waitlistError;
 
-    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: [] });
+    // Get Recent Errors
+    const { data: recentErrors } = await supabase
+        .from('error_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [] });
 
   } catch (error: any) {
     console.error('Admin Stats Error:', error);
