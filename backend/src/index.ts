@@ -477,5 +477,55 @@ app.post('/api/join-waitlist', async (req, res) => {
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
 
+app.get('/api/admin/stats', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+
+  // 1. Security Check
+  if (!secretKey) {
+     console.error('ADMIN_SECRET_KEY is not set in environment variables.');
+     return res.status(500).json({ error: 'Server Configuration Error: ADMIN_SECRET_KEY missing' });
+  }
+
+  if (!authHeader || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid Secret Key' });
+  }
+
+  try {
+    // 2. Fetch Data (Mock if DB is missing, Real if DB is present)
+    if (!supabaseUrl || !supabaseServiceKey) {
+        return res.json({
+            dailyUsage: 0,
+            waitlistCount: 0,
+            recentErrors: []
+        });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get Daily Usage (Sum of all counts for today)
+    const { data: usageData, error: usageError } = await supabase
+        .from('daily_usage')
+        .select('count')
+        .eq('usage_date', today);
+    
+    if (usageError) throw usageError;
+    const dailyUsage = usageData?.reduce((acc, curr) => acc + curr.count, 0) || 0;
+
+    // Get Waitlist Count
+    const { count: waitlistCount, error: waitlistError } = await supabase
+        .from('waitlist_emails')
+        .select('*', { count: 'exact', head: true });
+    
+    if (waitlistError) throw waitlistError;
+
+    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: [] });
+
+  } catch (error: any) {
+    console.error('Admin Stats Error:', error);
+    res.status(500).json({ error: 'Failed to fetch stats', details: error.message });
+  }
+});
+
 // Export the app for Vercel
 export default app;

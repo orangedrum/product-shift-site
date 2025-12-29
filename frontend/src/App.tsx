@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Styleguide from './pages/Styleguide';
@@ -20,6 +20,10 @@ function App() {
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} /> 
           <Route path="/waitlist" element={<WaitlistPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          
+          {/* Redirects & Fallbacks */}
+          <Route path="/ai-powered-uxhealthtech" element={<Navigate to="/ai-powered-ux-healthtech" replace />} />
+          <Route path="*" element={<div className="text-center py-20"><h1 className="text-4xl font-bold">404</h1><p>Page not found</p></div>} />
         </Routes>
       </main>
       <Footer />
