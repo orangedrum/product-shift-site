@@ -73,72 +73,6 @@ const FeaturesSection = () => (
   </section>
 );
 
-const WaitlistForm = () => {
-  const [state, setState] = useState({
-    submitting: false,
-    succeeded: false,
-    error: null,
-  });
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setState({ ...state, submitting: true, error: null });
-
-    const form = e.target as HTMLFormElement;
-    const data = new FormData(form);
-
-    try {
-      // IMPORTANT: Replace with your own Formspree endpoint
-      const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
-        method: 'POST',
-        body: data,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        setState({ submitting: false, succeeded: true, error: null });
-      } else {
-        const responseData = await response.json();
-        if (responseData.hasOwnProperty('errors')) {
-          throw new Error(responseData.errors.map((error: any) => error.message).join(', '));
-        } else {
-          throw new Error('Oops! There was a problem submitting your form');
-        }
-      }
-    } catch (error: any) {
-      setState({ submitting: false, succeeded: false, error: error.message });
-    }
-  };
-
-  if (state.succeeded) {
-    return (
-      <div className="text-center p-6 bg-green-100 border border-green-200 rounded-lg animate-fade-in">
-        <PartyPopper className="mx-auto text-green-600 mb-2" size={32} />
-        <h4 className="font-bold text-green-800">You're on the list!</h4>
-        <p className="text-sm text-green-700 mt-1">We'll email you with your 30% discount code when Pro launches. Thanks for your support!</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-3 text-left animate-fade-in" noValidate>
-      <h4 className="font-bold text-indigo-800 text-center mb-2">Join the Pro Waitlist</h4>
-      <div>
-        <label htmlFor="email-waitlist" className="sr-only">Email address</label>
-        <input type="email" id="email-waitlist" name="email" required className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="your@email.com" />
-      </div>
-      <button type="submit" disabled={state.submitting} className="w-full px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 disabled:opacity-60">
-        {state.submitting ? 'Submitting...' : 'Get 30% Off'}
-      </button>
-      {state.error && (
-        <p className="text-xs text-red-600 text-center mt-2">{state.error}</p>
-      )}
-    </form>
-  );
-};
-
 const DemoSection = () => {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState(null);
@@ -195,7 +129,6 @@ const DemoSection = () => {
     const session = result.userSessions?.[0];
     const userBubble = session?.analysis?.split('|||USER_BUBBLE|||')[1]?.split('|||USER_DETAILS|||')[0]?.trim() || "Analysis complete.";
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
-    const [showWaitlist, setShowWaitlist] = useState(false);
 
     return (
       <section id="demo-results" className="bg-gray-50 py-24 sm:py-32">

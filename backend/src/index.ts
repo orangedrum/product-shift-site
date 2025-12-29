@@ -237,6 +237,19 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   // Check for "test-mode" to bypass expensive calls for UI testing
   if (url.includes('test-mode')) {
     console.log('--- RUNNING IN TEST MODE ---');
+    const testAvatars = [
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=sad&eyebrows=frown',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=default',
+      'https://broken.url/image.png' // To test the onError fallback
+    ];
+    const testBubbles = [
+      "This is a dynamic test report, it looks great!",
+      "I'm a little confused by the layout, but I think I get it.",
+      "This is a negative test case. The colors are jarring."
+    ];
+    const randomIndex = Math.floor(Math.random() * testBubbles.length);
+
     const fakeReport = {
         message: 'Analysis Complete.',
         title: 'Test Mode Report',
@@ -244,11 +257,11 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         userSessions: [{
             persona: 'Alex',
             description: 'a busy professional with two kids under 5',
-            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
-            analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||This is a test report, it looks great!|||USER_DETAILS|||### 1. My Experience\nThis is a fake report generated for testing purposes. The UI seems responsive and the data flow is working correctly.',
+            avatar: testAvatars[randomIndex],
+            analysis: `|||USER_MOOD|||Neutral|||USER_BUBBLE|||${testBubbles[randomIndex]}|||USER_DETAILS|||### 1. My Experience\nThis is a fake report generated for testing purposes. The UI seems responsive and the data flow is working correctly.`,
             personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' }
         }],
-        expertReport: '### TEST RESULT: PASS\nThis is a test mode report. If you are seeing this, the test mode functionality is working correctly.\n\n### Actionable Recommendations\n- **ISSUE:** This is a test issue.\n- **FIX:** This is a test fix.',
+        expertReport: '### TEST RESULT: PASS\nThis is a test mode report. If you are seeing this, the test mode functionality is working correctly.\n\n### Actionable Recommendations\n- **ISSUE:** This is a test issue. The button color is not accessible.\n- **FIX:** Increase the contrast ratio to meet WCAG AA standards.',
         scores: { usability: 95, desirability: 90, clarity: 98 }
     };
     // Add a small delay to simulate network latency
@@ -279,7 +292,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   }
 
   // --- Usage Limit Check ---
-  const userIdentifier = req.ip; // Use IP address for simple unique user tracking
+  // Use x-forwarded-for header from Vercel for a more reliable IP, fallback to req.ip
+  const userIdentifier = (req.headers['x-forwarded-for'] as string) || req.ip;
+  console.log(`Identifying user with: ${userIdentifier}`); // Add logging for debugging
   const today = new Date().toISOString().split('T')[0];
   const GLOBAL_DAILY_LIMIT = 25; // Set a conservative global limit of 25 free tests per day
 
@@ -454,6 +469,28 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 };
 
 app.post('/api/run-test', runTestHandler);
+
+app.post('/api/join-waitlist', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required.' });
+  }
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    // In a real scenario, you might still want to capture emails even if DB is down,
+    // but for now, we'll return an error.
+    return res.status(500).json({ error: 'Server configuration error.' });
+  }
+
+  const { error } = await supabase.from('waitlist_emails').insert({ email });
+
+  if (error) {
+    return res.status(500).json({ error: 'Could not save email.', details: error.message });
+  }
+
+  return res.status(200).json({ message: 'Successfully joined waitlist.' });
+});
 
 // Export the app for Vercel
 export default app;
