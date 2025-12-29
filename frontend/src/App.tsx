@@ -6,6 +6,7 @@ import AiUxAgent from './pages/AiUxAgent';
 import MarketingLandingPage from './pages/MarketingLandingPage'; 
 import HomePage from './pages/HomePage';
 import WaitlistPage from './pages/WaitlistPage';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/ai-powered-ux-healthtech" element={<AiUxAgent />} /> 
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} /> 
           <Route path="/waitlist" element={<WaitlistPage />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
       </main>
       <Footer />
