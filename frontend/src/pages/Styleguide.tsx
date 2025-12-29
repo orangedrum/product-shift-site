@@ -1,14 +1,61 @@
-import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Styleguide = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [secretKey, setSecretKey] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // This function just verifies the key by making a valid request to a protected endpoint.
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      // Hit the protected endpoint to verify the key
+      const authResponse = await fetch('/api/admin/stats', {
+        headers: {
+          'Authorization': `Bearer ${secretKey}`
+        }
+      });
+      if (!authResponse.ok) {
+        const errData = await authResponse.json();
+        throw new Error(errData.error || 'Authentication failed');
+      }
+      setIsAuthenticated(true);
+    } catch (e: any) {
+      setError(e.message);
+      setIsAuthenticated(false);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto max-w-md py-24 px-4 text-center">
+        <h1 className="text-2xl font-bold mb-4">Admin Access Required</h1>
+        <p className="text-gray-600 mb-6">This page is protected. Please enter the admin key to continue.</p>
+        <form onSubmit={handleAuth} className="space-y-4">
+          <div>
+            <label htmlFor="secret" className="sr-only">Secret Key</label>
+            <input
+              type="password"
+              id="secret"
+              value={secretKey}
+              onChange={(e) => setSecretKey(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              placeholder="Enter admin secret key"
+            />
+          </div>
+          <button type="submit" className="w-full px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md">Authenticate</button>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+        </form>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+    <div className="bg-gray-100 min-h-screen">
+      <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold mb-4">Component Styleguide</h1>
         <p className="text-lg text-gray-600">This page is for developing and viewing components in isolation.</p>
 
@@ -29,6 +76,10 @@ const Styleguide = () => {
               <li>
                 <Link to="/landingpg-aiuxagent" className="text-brand-blue hover:underline font-semibold">AI Agent Landing Page</Link>
                 <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/landingpg-aiuxagent</code>
+              </li>
+              <li>
+                <Link to="/admin-dashboard" className="text-brand-blue hover:underline font-semibold">Admin Dashboard</Link>
+                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/admin-dashboard</code>
               </li>
             </ul>
           </div>
@@ -144,7 +195,6 @@ const Styleguide = () => {
         </section>
 
       </main>
-      <Footer />
     </div>
   );
 };
