@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart, Users, AlertTriangle } from 'lucide-react';
+import { BarChart, Users, AlertTriangle, DollarSign, CreditCard } from 'lucide-react';
 
 type Stats = {
   dailyUsage: number;
@@ -84,6 +84,25 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+        {/* Future Paywall Metrics */}
+        <div className="bg-white p-6 rounded-lg shadow border border-dashed border-gray-300 opacity-60">
+          <div className="flex items-center gap-4">
+            <DollarSign className="text-gray-400" size={32} />
+            <div>
+              <p className="text-sm text-gray-500">Monthly Revenue (MRR)</p>
+              <p className="text-3xl font-bold text-gray-400">$0</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow border border-dashed border-gray-300 opacity-60">
+          <div className="flex items-center gap-4">
+            <CreditCard className="text-gray-400" size={32} />
+            <div>
+              <p className="text-sm text-gray-500">Paying Customers</p>
+              <p className="text-3xl font-bold text-gray-400">0</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Recent Errors */}
@@ -109,21 +128,3 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
-
-```
-
-```diff
-import MarketingLandingPage from './pages/MarketingLandingPage'; 
-import HomePage from './pages/HomePage';
-import WaitlistPage from './pages/WaitlistPage';
-import AdminDashboard from './pages/AdminDashboard';
-
-function App() {
-  return (
-          <Route path="/ai-powered-ux-healthtech" element={<AiUxAgent />} /> 
-          <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} /> 
-          <Route path="/waitlist" element={<WaitlistPage />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        </Routes>
-      </main>
-      <Footer />
