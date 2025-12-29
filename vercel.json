@@ -7,7 +7,9 @@
       "config": { "distDir": "dist" }
     }
   ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/(.*)", "dest": "/frontend/$1" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/frontend/index.html" }
   ]
 }
