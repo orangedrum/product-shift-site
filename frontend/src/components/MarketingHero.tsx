@@ -27,9 +27,9 @@ const MarketingHero: React.FC = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link to="/ai-powered-ux-healthtech" className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+          <a href="#demo" className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
             Run a Free Analysis
-          </Link>
+          </a>
           <a href="#pricing" className="px-8 py-4 border-2 border-gray-400 text-white font-semibold rounded-lg hover:bg-white hover:text-gray-900 transition-colors">
             View Pricing
           </a>

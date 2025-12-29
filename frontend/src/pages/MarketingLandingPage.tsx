@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper } from 'lucide-react';
 
 // --- Helper to format results ---
-// A simplified version for the demo. In a larger app, this would be a shared utility.
 const formatDemoText = (text: string) => {
   if (!text) return null;
   return text.split('\n').map((line, index) => {
@@ -160,22 +159,15 @@ const DemoSection = () => {
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
               </div>
-              <div className="mt-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200 text-center">
-                {showWaitlist ? (
-                  <WaitlistForm />
-                ) : (
-                  <div className="relative">
-                    <div className="absolute -inset-6 bg-gradient-to-t from-indigo-50/80 to-indigo-50/0 backdrop-blur-sm pointer-events-none"></div>
-                    <div className="relative z-10">
-                      <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
-                      <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
-                      <p className="text-sm text-indigo-700 mt-1">Get the complete heuristic analysis, performance scores, and feedback from 5 more personas.</p>
-                      <button onClick={() => setShowWaitlist(true)} className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-                        Join Pro Waitlist for $19/mo
-                      </button>
-                    </div>
-                  </div>
-                )}
+              <div className="mt-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200 text-center relative">
+                <div className="relative z-10">
+                  <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
+                  <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
+                  <p className="text-sm text-indigo-700 mt-1">Get the complete heuristic analysis, performance scores, and feedback from 5 more personas.</p>
+                  <a href="#waitlist-form" className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+                    Join Waitlist for $19/mo
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -222,61 +214,72 @@ const DemoSection = () => {
   );
 };
 
-const PricingSection = () => (
-  <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
-    <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-        Affordable UX Research for Every Stage
-      </h2>
-      <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
-        Get the insights of a full usability study without the five-figure price tag.
-      </p>
-      <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-3xl mx-auto">
-        {/* Free Plan */}
-        <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col">
-          <h3 className="text-2xl font-bold text-center">Free Demo</h3>
-          <p className="text-center text-gray-500 mt-2">Run a 1-persona analysis</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Run <strong>1 Free Demo</strong> Today</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Analysis with 1 Persona (Alex)</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Includes Actionable Fixes</li>
-          </ul>
-          <a href="#demo" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
-            Run Free Demo
-          </a>
-        </div>
-        {/* Pro Plan */}
-        <div className="pricing-card best-value bg-white p-8 border-2 border-indigo-500 rounded-xl shadow-2xl text-left flex flex-col relative">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Full Access</div>
-          <h3 className="text-2xl font-bold text-center">Pro & Enterprise</h3>
-          <p className="text-center text-gray-500 mt-2">For teams that need to ship with confidence</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Up to 5 Personas per Test</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Visual & Heuristic Analysis</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Downloadable PDF Reports</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Performance Charts</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Unlimited Monthly Tests</li>
-          </ul>
-          <Link to="/waitlist" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
-            Join Pro Waitlist
-          </Link>
+const WaitlistSection = () => {
+  const [state, setState] = useState({ submitting: false, succeeded: false, error: null });
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setState({ ...state, submitting: true, error: null });
+    const data = new FormData(e.currentTarget);
+    try {
+      const response = await fetch('/api/join-waitlist', {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(data)),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.ok) {
+        setState({ submitting: false, succeeded: true, error: null });
+      } else {
+        const resData = await response.json();
+        throw new Error(resData.details || 'An error occurred.');
+      }
+    } catch (error: any) {
+      setState({ submitting: false, succeeded: false, error: error.message });
+    }
+  };
+
+  return (
+    <section id="waitlist-form" className="bg-gray-50 py-24 sm:py-32">
+      <div className="container mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 text-center">
+        <div className="p-8 bg-white border border-gray-200 rounded-xl shadow-lg">
+          {state.succeeded ? (
+            <div className="text-center p-6 bg-green-100 border border-green-200 rounded-lg animate-fade-in">
+              <PartyPopper className="mx-auto text-green-600 mb-2" size={32} />
+              <h4 className="font-bold text-green-800">You're on the list!</h4>
+              <p className="text-sm text-green-700 mt-1">We'll email you with your 30% discount code when Pro launches. Thanks for your support!</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in" noValidate>
+              <h2 className="text-3xl font-extrabold text-indigo-600">Join the Pro Waitlist</h2>
+              <p className="text-gray-600">Be the first to know when we launch and get **30% off** your first month.</p>
+              <div>
+                <label htmlFor="email-waitlist" className="sr-only">Email address</label>
+                <input type="email" id="email-waitlist" name="email" required className="w-full max-w-md mx-auto px-4 py-2 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="your@email.com" />
+              </div>
+              <button type="submit" disabled={state.submitting} className="w-full max-w-md mx-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 disabled:opacity-60">
+                {state.submitting ? 'Submitting...' : 'Get 30% Off'}
+              </button>
+              {state.error && (
+                <p className="text-xs text-red-600 text-center mt-2">{state.error}</p>
+              )}
+            </form>
+          )}
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
-const AiUixAgentLandingPage: React.FC = () => {
+
+const MarketingLandingPage: React.FC = () => {
   return (
       <main>
         <MarketingHero />
         <FeaturesSection />
         <DemoSection />
-        <PricingSection />
+        <WaitlistSection />
       </main>
   );
 };
 
-export default AiUixAgentLandingPage;
+export default MarketingLandingPage;
