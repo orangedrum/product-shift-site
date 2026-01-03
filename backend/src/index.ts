@@ -130,7 +130,7 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     `;
   }
   const prompt = `
-    You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users.
+    You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users. Your report should be professional, insightful, and easy to understand.
     
     **Required Output Format:**
     ### TEST RESULT: [PASS / FAIL]
@@ -149,7 +149,6 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     (Provide integer scores based on the aggregate analysis)
 
     **Context:**
-    - **Goal:** "${goal}"
     - **URL:** ${url}
     - [Visual Screenshot Attached]
 
@@ -345,15 +344,23 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         // Take a screenshot of the viewport (JPEG is smaller/faster for AI analysis)
         const screenshot = await page.screenshot({ encoding: 'base64', type: 'jpeg', quality: 75 });
 
-        return { title, headings, bodyText, screenshot };
+        // A valid connection will have a protocol. An invalid one might be null.
+        const securityDetails = response.securityDetails();
+        const hasValidSsl = securityDetails && securityDetails.protocol()?.startsWith('TLS');
+
+        return { title, headings, bodyText, screenshot, hasValidSsl };
       };
     `;
 
+    const launchOptions = {
+      ignoreHTTPSErrors: true, // Bypass SSL errors to continue the test
+    };
+
     const queryParams = new URLSearchParams({
       token: process.env.BROWSERLESS_TOKEN!,
+      launch: JSON.stringify(launchOptions),
     });
 
-    // Removed launch: JSON.stringify(launchOptions) to allow SSL errors to surface
     const response = await fetch(`https://chrome.browserless.io/function?${queryParams.toString()}`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -362,32 +369,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         context: { url },
       })
     });
-
     if (!response.ok) {
       const errorText = await response.text();
-      // Check for specific SSL error
-      if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
-        const sslErrorDetails = `
-          The error "net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH" indicates that your website's SSL/TLS configuration might be using outdated security protocols or ciphers that modern browsers (like the one our AI agent uses) consider insecure.
-
-          To resolve this and make the internet more secure for everyone, we strongly recommend you:
-          1.  **Check your SSL/TLS Certificate**: Ensure it's valid, up-to-date, and correctly installed.
-          2.  **Update your Server's Security Configuration**: Configure your server to use modern TLS versions (e.g., TLS 1.2 or 1.3) and strong cipher suites.
-          3.  **Use an SSL/TLS Checker**: Tools like SSL Labs (ssllabs.com/ssltest/) can help you diagnose specific issues and provide recommendations.
-
-          Once your site's security is updated, please try running the analysis again. This not only helps our tool but also improves the security and trustworthiness of your website for all your users!
-        `;
-        // Throw an object that matches the AnalysisError type expected by the frontend
-        throw {
-          error: 'Browserless error: SSL/TLS Security Mismatch',
-          details: sslErrorDetails.trim()
-        };
-      } else {
-        throw {
-          error: `Browserless error: ${response.status} ${response.statusText}`,
-          details: errorText
-        };
-      }
+      throw new Error(`Browserless error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const result = await response.json();
@@ -449,7 +433,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     // --- Aggregated Expert Report ---
     const isDemo = personaIds.length === 1;
     await delay(6000); // Delay before the final expert report generation
-    const rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
+    let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
     
     // Extract JSON Scores
     let scores = { usability: 0, desirability: 0, clarity: 0 };
@@ -465,6 +449,11 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       }
     }
 
+    // Prepend the security warning if an SSL issue was detected
+    if (!result.hasValidSsl) {
+      expertReportText = '|||SSL_WARNING_ALERT|||\n' + expertReportText;
+    }
+
     res.json({
       message: 'Analysis Complete.',
       title: result.title,
@@ -476,16 +465,12 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   } catch (error: any) {
     console.error('Test error:', error);
-
-    // Our custom thrown object has `error` and `details`. A standard Error has `message`.
-    const finalError = error.error || `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`;
-    const finalDetails = error.details || error.message || 'No further details available.';
-
+    
     // Log error to Supabase for Admin Dashboard
     if (supabaseUrl && supabaseServiceKey) {
       try {
         await supabase.from('error_logs').insert({
-          message: finalError,
+          message: `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`,
           details: error.stack || JSON.stringify(error), // Log the full error for debugging
           endpoint: '/api/run-test'
         });
@@ -494,7 +479,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       }
     }
 
-    res.status(500).json({ error: finalError, details: finalDetails });
+    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
   }
 };
 

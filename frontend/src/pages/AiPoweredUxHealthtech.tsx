@@ -92,6 +92,27 @@ const formatText = (text: string) => {
   });
 };
 
+const SslWarning = () => (
+  <div className="p-6 mb-8 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-lg prose max-w-none">
+    <h2 className="text-xl font-bold text-yellow-900 !my-0 !mb-2 flex items-center gap-2">
+      <AlertCircle />
+      Security Alert: Insecure Connection Detected
+    </h2>
+    <p className="!my-1">
+      Our AI agent detected a security issue with your site's SSL/TLS certificate (<code>net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH</code>). While we proceeded with the analysis, this is a critical issue you should address.
+    </p>
+    <p className="!my-1">
+      An insecure connection erodes user trust and can harm your site's reputation. Helping create a safer internet is a shared responsibility.
+    </p>
+    <h4 className="font-bold !mt-4 !mb-1">Recommended Actions:</h4>
+    <ul className="!my-0 !pl-5">
+      <li>Check your SSL/TLS Certificate is valid and correctly installed.</li>
+      <li>Update your server to use modern TLS versions (TLS 1.2 or 1.3).</li>
+      <li>Use a free online checker like <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="underline font-medium">SSL Labs</a> to diagnose the problem.</li>
+    </ul>
+  </div>
+);
+
 const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
@@ -313,6 +334,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
         </div>)}
       {result && (
         <div id="report-section" className="animate-fade-in">
+          {/* Conditionally render the SSL warning at the top of the report */}
+          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SslWarning />}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 4) */}
@@ -396,7 +419,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
                 {/* Render Test Result First for Prominence */}
                 <div className="prose max-w-none">
-                  {formatText(result.expertReport.split('\n').find(line => line.includes('TEST RESULT:')) || '')}
+                  {formatText(result.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').find(line => line.includes('TEST RESULT:')) || '')}
                 </div>
                 
                 {/* Charts Section */}
@@ -435,7 +458,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <div className="prose max-w-none">
                   {/* Render the rest of the report, excluding the already-rendered test result */}
                   {formatText(
-                    result.expertReport.split('\n').filter(line => !line.includes('TEST RESULT:')).join('\n')
+                    result.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').filter(line => !line.includes('TEST RESULT:')).join('\n')
                   )}
                 </div>
               </div>
