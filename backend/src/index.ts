@@ -323,7 +323,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     const browserScript = `
       export default async ({ page, context }) => {
         const { url } = context;
-        await page.setViewport({ width: 1280, height: 800 });
+        await page.setViewport({ width: 1280, height: 800 }); // Corrected viewport setting
         const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
         const title = await page.title();
 
@@ -348,34 +348,23 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         // Defensively check if the response object and its properties exist.
         const securityDetails = response ? response.securityDetails() : null;
         const hasValidSsl = !!(securityDetails && securityDetails.protocol()?.startsWith('TLS'));
-
         return { title, headings, bodyText, screenshot, hasValidSsl };
       };
     `;
 
-    const launchOptions = {
-      ignoreHTTPSErrors: true, // Bypass SSL errors to continue the test
-    };
-
-    const queryParams = new URLSearchParams({
-      token: process.env.BROWSERLESS_TOKEN!,
-    });
-
-    // The launch options are sent in the body for this endpoint, not the query string.
+    // Reverted to a simple fetch call. We will not try to bypass SSL errors anymore.
     const response = await fetch(`https://production-sfo.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN!}`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: browserScript,
         context: { url },
-        launch: launchOptions,
       })
     });
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Browserless error: ${response.status} ${response.statusText} - ${errorText}`);
     }
-
     const result = await response.json();
 
     // --- Persona-Driven Analysis ---
@@ -467,12 +456,13 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   } catch (error: any) {
     console.error('Test error:', error);
+    const errorMessage = error.message || 'An unknown error occurred.';
     
     // Log error to Supabase for Admin Dashboard
     if (supabaseUrl && supabaseServiceKey) {
       try {
         await supabase.from('error_logs').insert({
-          error_message: `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`,
+          error_message: `Failed to run the test: ${errorMessage}`,
           details: error.stack || JSON.stringify(error), // Log the full error for debugging
           endpoint: '/api/run-test'
         });
@@ -481,7 +471,16 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       }
     }
 
-    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
+    // Provide a specific, user-friendly error for the SSL issue.
+    if (errorMessage.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+      const sslErrorDetails = `Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site. We recommend using a free tool like SSL Labs (ssllabs.com/ssltest/) to diagnose and fix it.`;
+      return res.status(400).json({
+        error: 'Site Security Error',
+        details: sslErrorDetails
+      });
+    }
+
+    res.status(500).json({ error: `Failed to run the test`, details: errorMessage });
   }
 };
 
