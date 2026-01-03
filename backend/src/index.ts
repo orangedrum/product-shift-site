@@ -362,7 +362,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       launch: JSON.stringify(launchOptions),
     });
 
-    const response = await fetch(`https://chrome.browserless.io/function?${queryParams.toString()}`, { 
+    const response = await fetch(`https://production-sfo.browserless.io/function?${queryParams.toString()}`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -471,7 +471,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     if (supabaseUrl && supabaseServiceKey) {
       try {
         await supabase.from('error_logs').insert({
-          error_message: `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`,
+          message: `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`,
           details: error.stack || JSON.stringify(error), // Log the full error for debugging
           endpoint: '/api/run-test'
         });
