@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MarketingHero from '../components/MarketingHero';
 import { Link } from 'react-router-dom';
-import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw } from 'lucide-react';
+import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, ShieldAlert } from 'lucide-react';
 
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {
@@ -44,6 +44,23 @@ const formatDemoText = (text: string) => {
 
   return recommendations;
 };
+
+const SiteSecurityError = ({ error }: { error: any }) => (
+  <div className="mt-6 max-w-xl mx-auto p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 rounded-r-md shadow-lg text-left">
+    <div className="flex items-start gap-3">
+      <ShieldAlert className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+      <div>
+        <h3 className="font-bold text-lg">Security Alert</h3>
+        <p className="text-sm mt-1">{error.details || error.error}</p>
+        {error.usageCounted === false && (
+          <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+            Usage not counted
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+);
 
 // --- Internal Components for Landing Page Sections ---
 
@@ -148,6 +165,7 @@ const DemoSection = () => {
     const session = result.userSessions?.[0];
     const userBubble = session?.analysis?.split('|||USER_BUBBLE|||')[1]?.split('|||USER_DETAILS|||')[0]?.trim() || "Analysis complete.";
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
+    const visualAnalysis = result.expertReport?.split('### Visual & Heuristic Analysis')[1]?.split('### Actionable Recommendations')[0];
 
     return (
       <section id="demo" className="bg-gray-50 py-24 sm:py-32">
@@ -183,6 +201,29 @@ const DemoSection = () => {
             </div>
             {/* Report Snippet & CTA */}
             <div className="lg:col-span-8 bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+              
+              {/* Visual Analysis Teaser (Blurred) */}
+              {visualAnalysis && (
+                <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                    <h3 className="font-bold text-gray-700">Visual & Heuristic Analysis</h3>
+                  </div>
+                  <div className="p-6 bg-white relative">
+                    <div className="blur-sm select-none text-gray-400 space-y-2">
+                      {visualAnalysis.split('\n').filter(l => l.trim()).map((l, i) => (
+                        <p key={i}>{l}</p>
+                      ))}
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/40">
+                      <span className="flex items-center gap-2 text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm">
+                        <Lock size={12} />
+                        Unlock Full Analysis
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <h3 className="text-xl font-bold text-gray-900 mb-4">Actionable Recommendations</h3>
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
@@ -243,10 +284,14 @@ const DemoSection = () => {
           </button>
         </form>
         {error && (
-          <div className="mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-sm text-red-200 flex items-center gap-2 max-w-xl mx-auto">
-            <AlertCircle size={16} />
-            <strong>Error:</strong> {error.details || error.error}
-          </div>
+          error.error === 'Site Security Error' ? (
+            <SiteSecurityError error={error} />
+          ) : (
+            <div className="mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-sm text-red-200 flex items-center gap-2 max-w-xl mx-auto">
+              <AlertCircle size={16} />
+              <strong>Error:</strong> {error.details || error.error}
+            </div>
+          )
         )}
       </div>
     </section>
