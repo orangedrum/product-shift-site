@@ -349,18 +349,45 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       };
     `;
 
-    const response = await fetch(`https://chrome.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN}`, {
+    const queryParams = new URLSearchParams({
+      token: process.env.BROWSERLESS_TOKEN!,
+    });
+
+    // Removed launch: JSON.stringify(launchOptions) to allow SSL errors to surface
+    const response = await fetch(`https://chrome.browserless.io/function?${queryParams.toString()}`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: browserScript,
-        context: { url }
+        context: { url },
       })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Browserless error: ${response.status} ${response.statusText} - ${errorText}`);
+      // Check for specific SSL error
+      if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+        const sslErrorDetails = `
+          The error "net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH" indicates that your website's SSL/TLS configuration might be using outdated security protocols or ciphers that modern browsers (like the one our AI agent uses) consider insecure.
+
+          To resolve this and make the internet more secure for everyone, we strongly recommend you:
+          1.  **Check your SSL/TLS Certificate**: Ensure it's valid, up-to-date, and correctly installed.
+          2.  **Update your Server's Security Configuration**: Configure your server to use modern TLS versions (e.g., TLS 1.2 or 1.3) and strong cipher suites.
+          3.  **Use an SSL/TLS Checker**: Tools like SSL Labs (ssllabs.com/ssltest/) can help you diagnose specific issues and provide recommendations.
+
+          Once your site's security is updated, please try running the analysis again. This not only helps our tool but also improves the security and trustworthiness of your website for all your users!
+        `;
+        // Throw an object that matches the AnalysisError type expected by the frontend
+        throw {
+          error: 'Browserless error: SSL/TLS Security Mismatch',
+          details: sslErrorDetails.trim()
+        };
+      } else {
+        throw {
+          error: `Browserless error: ${response.status} ${response.statusText}`,
+          details: errorText
+        };
+      }
     }
 
     const result = await response.json();
