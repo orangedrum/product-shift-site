@@ -291,16 +291,26 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   }
 
   // --- SECURITY: SSRF Protection ---
-  // Prevent users from scanning local/private network addresses
-  const isRestrictedUrl = /^(?:http|https):\/\/(?:localhost|127\.|192\.168\.|10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|\[::1\])/.test(url);
-  // Updated to include Cloud Metadata (169.254), 0.0.0.0, and IPv6 Unique Local
-  const isRestrictedUrl = /^(?:http|https):\/\/(?:localhost|127\.|192\.168\.|10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|0\.|\[::1\]|\[f[c-d][0-9a-f]{2}:)/i.test(url);
-  if (isRestrictedUrl) {
-     return res.status(400).json({
-        error: 'Restricted URL',
-        details: 'For security reasons, analysis of local or private network addresses is not permitted.',
-        usageCounted: false
-     });
+  try {
+    const hostname = new URL(url).hostname;
+    // Check for localhost
+    if (hostname === 'localhost') throw new Error('Localhost');
+    
+    // Only apply IP-based blocking if the hostname looks like an IP
+    const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname) || /^\[?[a-fA-F0-9:]+\]?$/.test(hostname);
+    if (isIp) {
+      const isRestrictedIp = /^(?:127\.|192\.168\.|10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|0\.|\[::1\]|\[f[c-d][0-9a-f]{2}:)/i.test(hostname);
+      if (isRestrictedIp) throw new Error('Private IP');
+    }
+  } catch (e: any) {
+    if (e.message === 'Localhost' || e.message === 'Private IP') {
+       return res.status(400).json({
+          error: 'Restricted URL',
+          details: 'For security reasons, analysis of local or private network addresses is not permitted.',
+          usageCounted: false
+       });
+    }
+    return res.status(400).json({ error: 'Invalid URL', details: 'The provided URL is not valid.' });
   }
 
   // --- Usage Limit Check ---

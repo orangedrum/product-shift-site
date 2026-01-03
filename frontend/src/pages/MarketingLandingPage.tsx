@@ -193,7 +193,11 @@ const DemoSection = () => {
       if (!response.ok) throw data;
       setResult(data);
     } catch (err: any) {
-      setError(err);
+      setError({
+        error: err.error || 'Analysis Failed',
+        details: err.details || err.message || 'An unexpected error occurred.',
+        usageCounted: err.usageCounted
+      });
     } finally {
       setIsLoading(false);
     }
