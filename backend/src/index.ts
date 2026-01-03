@@ -238,17 +238,30 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     console.log('--- RUNNING IN TEST MODE ---');
     const fakeReport = {
         message: 'Analysis Complete.',
-        title: 'Test Mode Report',
+        title: 'Test Mode: The Product Shift',
         screenshot: '', // No screenshot in test mode
-        userSessions: [{
-            persona: 'Alex',
-            description: 'a busy professional with two kids under 5',
-            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
-            analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||This is a test report, it looks great!|||USER_DETAILS|||### 1. My Experience\nThis is a fake report generated for testing purposes. The UI seems responsive and the data flow is working correctly.',
-            personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' }
-        }],
-        expertReport: '### TEST RESULT: PASS\nThis is a test mode report. If you are seeing this, the test mode functionality is working correctly.\n\n### Actionable Recommendations\n- **ISSUE:** This is a test issue.\n- **FIX:** This is a test fix.',
-        scores: { usability: 95, desirability: 90, clarity: 98 }
+        userSessions: [
+            {
+                persona: 'Alex',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
+                analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||I instantly get what this is. The value prop is super clear.|||USER_DETAILS|||### 1. My Experience\nI landed on the page and immediately understood the offering. The headline "AI-Powered UX Audits" is punchy. I feel confident this tool could save me time.\n\n### 2. Points of Friction\nI\'m not sure about the pricing structure. It says "Pro" but doesn\'t list a price upfront. That\'s a bit annoying.\n\n### 3. What I Think This Is\nIt\'s an automated user testing tool that uses AI agents instead of real people to give quick feedback.',
+                personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' }
+            },
+            {
+                persona: 'Sam',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile',
+                analysis: '|||USER_MOOD|||Neutral|||USER_BUBBLE|||It looks cool, but is it free?|||USER_DETAILS|||### 1. My Experience\nThe design is clean. I like the robot illustrations. But as a student, I need to know if there\'s a free tier immediately.\n\n### 2. Points of Friction\nThe "Join Waitlist" button is everywhere. I just want to try it now.\n\n### 3. What I Think This Is\nA SaaS platform for UX designers.',
+                personaObj: { id: 'sam-college-student', name: 'Sam', description: 'a budget-conscious college student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile' }
+            },
+            {
+                persona: 'Charlie',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile',
+                analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||Straightforward. No fluff.|||USER_DETAILS|||### 1. My Experience\nSolid layout. I like the step-by-step breakdown. It feels professional and robust.\n\n### 2. Points of Friction\nNone really. Maybe the font size could be a tad larger on the features list.\n\n### 3. What I Think This Is\nA tool to automate website testing.',
+                personaObj: { id: 'charlie-family-worker', name: 'Charlie', description: 'a masculine, patriotic blue-collar worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile' }
+            }
+        ],
+        expertReport: '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability. The value proposition is communicated effectively above the fold.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct and draw attention immediately.\n- **Trust Signals:** [Neutral] While the design is professional, adding social proof or testimonials would boost credibility.\n- **Navigation:** [Positive] Simple and intuitive.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking for the Pro tier.\n- **FIX:** Add a "starting at" price or a comparison table to the pricing section.\n- **ISSUE:** The "Join Waitlist" CTA is repetitive.\n- **FIX:** Vary the CTA text (e.g., "Get Early Access", "Secure Your Spot") to reduce fatigue.\n\n|||SCORES_JSON|||\n{ "usability": 88, "desirability": 92, "clarity": 95 }',
+        scores: { usability: 88, desirability: 92, clarity: 95 }
     };
     // Add a small delay to simulate network latency
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -282,8 +295,16 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   const today = new Date().toISOString().split('T')[0];
   const GLOBAL_DAILY_LIMIT = 25; // Set a conservative global limit of 25 free tests per day
 
-  // Only run usage checks if Supabase is configured (i.e., in production)
-  if (supabaseUrl && supabaseServiceKey) {
+  // --- BYPASS LOGIC ---
+  // 1. Automatically bypass limits on Preview branches or Local Development
+  const isNonProduction = process.env.VERCEL_ENV === 'preview' || process.env.VERCEL_ENV === 'development' || process.env.NODE_ENV === 'development';
+  // 2. Allow manual bypass via Environment Variable (The "Switch")
+  const isManualBypass = process.env.SKIP_USAGE_LIMITS === 'true';
+
+  const shouldCheckLimits = !isNonProduction && !isManualBypass;
+
+  // Only run usage checks if Supabase is configured AND we aren't bypassing limits
+  if (shouldCheckLimits && supabaseUrl && supabaseServiceKey) {
     try {
       // Check global daily usage
       const { count: globalCount, error: globalError } = await supabase
