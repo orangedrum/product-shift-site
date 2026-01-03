@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { User, AlertCircle, CheckCircle, ShieldAlert } from 'lucide-react';
+import { User, AlertCircle, CheckCircle, ShieldAlert, WifiOff, Ban, Clock, RefreshCw } from 'lucide-react';
 
 // Define types for the API response and error
 type UserSession = {
@@ -114,22 +114,59 @@ const SslWarning = () => (
   </div>
 );
 
-const SiteSecurityError: React.FC<{ error: AnalysisError }> = ({ error }) => (
-  <div className="mt-6 max-w-3xl mx-auto p-6 bg-yellow-50 border-2 border-yellow-300 text-yellow-900 rounded-lg shadow-md">
-    <div className="flex items-center gap-4">
-      <ShieldAlert className="w-12 h-12 text-yellow-500 flex-shrink-0" />
-      <div>
-        <h2 className="text-xl font-bold">{error.error}</h2>
-        <p className="mt-2 text-sm text-yellow-800">{error.details}</p>
+const AnalysisErrorCard: React.FC<{ error: AnalysisError, onReset: () => void }> = ({ error, onReset }) => {
+  // Determine Icon and Color based on error type
+  let Icon = AlertCircle;
+  let iconColor = "text-red-500";
+  let borderColor = "border-red-300";
+  let subHeader = "Analysis Failed";
+
+  if (error.error === 'Site Security Error') {
+    Icon = ShieldAlert;
+    iconColor = "text-yellow-500";
+    borderColor = "border-yellow-400";
+    subHeader = "Security Alert";
+  } else if (error.error === 'Site Not Found') {
+    Icon = WifiOff;
+    iconColor = "text-gray-500";
+    borderColor = "border-gray-400";
+    subHeader = "Connection Error";
+  } else if (error.error === 'Connection Timed Out') {
+    Icon = Clock;
+    iconColor = "text-orange-500";
+    borderColor = "border-orange-400";
+    subHeader = "Timeout Error";
+  } else if (error.error === 'Restricted URL' || error.error === 'Access Denied') {
+    Icon = Ban;
+    iconColor = "text-red-600";
+    borderColor = "border-red-500";
+    subHeader = "Access Restricted";
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto mt-12 text-center animate-fade-in">
+      <div className={`p-8 bg-white border-2 ${borderColor} rounded-xl shadow-xl text-center text-gray-900`}>
+        <div className="flex justify-center mb-4">
+          <Icon className={`w-12 h-12 ${iconColor}`} />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">We were unable to test your site</h3>
         {error.usageCounted === false && (
-          <p className="mt-3 text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded inline-block border border-yellow-200">
-            This analysis was not counted against your usage limit.
+          <p className={`text-sm font-semibold uppercase tracking-wide mb-4 ${iconColor.replace('text-', 'text-opacity-80 text-')}`}>
+            {subHeader} — This test not counted toward your limit
           </p>
         )}
+        <p className="text-gray-600 mb-4">{error.details || error.error}</p>
+        {error.error === 'Site Security Error' && (
+          <p className="text-gray-600">We recommend using a free tool like SSL Labs to diagnose and fix it. <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">You can learn more here.</a></p>
+        )}
       </div>
+      <button onClick={onReset} className="mt-8 inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 underline transition-colors">
+        <RefreshCw size={16} />
+        Run Another Test
+      </button>
     </div>
-  </div>
-);
+  );
+};
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -229,6 +266,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
     }
   };
 
+  const resetState = () => {
+    setResult(null);
+    setError(null);
+    setIsLoading(false);
+    setUrl('');
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -244,7 +288,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      {!result && (
+      {!result && !error && (
         <div className="no-print max-w-3xl mx-auto">
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-4 text-gray-900">AI-Powered UX Agent</h1>
@@ -347,7 +391,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         <div className="no-print text-center mb-12 animate-fade-in">
            <h1 className="text-3xl font-bold mb-2 text-gray-900">Analysis Complete</h1>
            <p className="text-gray-600">Review the user sessions and the aggregated research report below.</p>
-           <button onClick={() => { setResult(null); setActiveTab(0); }} className="mt-6 bg-indigo-600 text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105">
+           <button onClick={resetState} className="mt-6 bg-indigo-600 text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105">
              Run Another Test
            </button>
         </div>)}
@@ -487,14 +531,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {error && (
-        // Conditionally render the new, styled security error
-        error.error === 'Site Security Error' ? (
-          <SiteSecurityError error={error} />
+        error.usageCounted === false ? (
+          <AnalysisErrorCard error={error} onReset={resetState} />
         ) : (
           // Fallback to the generic red error box for other errors
-          <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+          <div className="no-print mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md max-w-3xl mx-auto">
             <h2 className="font-bold">{error.error}</h2>
-            <p>{error.details}</p>
+            <p>{error.details || 'An unknown server error occurred.'}</p>
           </div>
         )
       )}

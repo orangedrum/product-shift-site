@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MarketingHero from '../components/MarketingHero';
 import { Link } from 'react-router-dom';
-import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, ShieldAlert } from 'lucide-react';
+import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, ShieldAlert, WifiOff, Ban, Clock } from 'lucide-react';
 
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {
@@ -45,28 +45,60 @@ const formatDemoText = (text: string) => {
   return recommendations;
 };
 
-const SiteSecurityError = ({ error }: { error: any }) => (
-  <div className="max-w-lg mx-auto p-8 bg-white border-2 border-yellow-400 rounded-xl shadow-2xl text-center text-gray-900">
-    <div className="flex justify-center mb-4">
-      <ShieldAlert className="w-12 h-12 text-yellow-500" />
-    </div>
-    <h3 className="text-2xl font-bold text-gray-900 mb-2">We were unable to test your site</h3>
-    
-    {error.usageCounted === false && (
-      <p className="text-sm font-semibold text-yellow-700 uppercase tracking-wide mb-4">
-        Security Alert — This test not counted toward your limit
+const AnalysisErrorCard = ({ error }: { error: any }) => {
+  // Determine Icon and Color based on error type
+  let Icon = AlertCircle;
+  let iconColor = "text-red-500";
+  let borderColor = "border-red-400";
+  let subHeader = "Analysis Failed";
+
+  if (error.error === 'Site Security Error') {
+    Icon = ShieldAlert;
+    iconColor = "text-yellow-500";
+    borderColor = "border-yellow-400";
+    subHeader = "Security Alert";
+  } else if (error.error === 'Site Not Found' || error.error === 'Connection Refused') {
+    Icon = WifiOff;
+    iconColor = "text-gray-500";
+    borderColor = "border-gray-400";
+    subHeader = "Connection Error";
+  } else if (error.error === 'Connection Timed Out') {
+    Icon = Clock;
+    iconColor = "text-orange-500";
+    borderColor = "border-orange-400";
+    subHeader = "Timeout Error";
+  } else if (error.error === 'Restricted URL' || error.error === 'Access Denied') {
+    Icon = Ban;
+    iconColor = "text-red-600";
+    borderColor = "border-red-600";
+    subHeader = "Access Restricted";
+  }
+
+  return (
+    <div className={`max-w-lg mx-auto p-8 bg-white border-2 ${borderColor} rounded-xl shadow-2xl text-center text-gray-900`}>
+      <div className="flex justify-center mb-4">
+        <Icon className={`w-12 h-12 ${iconColor}`} />
+      </div>
+      <h3 className="text-2xl font-bold text-gray-900 mb-2">We were unable to test your site</h3>
+      
+      {error.usageCounted === false && (
+        <p className={`text-sm font-semibold uppercase tracking-wide mb-4 ${iconColor.replace('text-', 'text-opacity-80 text-')}`}>
+          {subHeader} — This test not counted toward your limit
+        </p>
+      )}
+      
+      <p className="text-gray-600 mb-4">
+        {error.details || error.error}
       </p>
-    )}
-    
-    <p className="text-gray-600 mb-4">
-      Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site.
-    </p>
-    
-    <p className="text-gray-600">
-      We recommend using a free tool like SSL Labs to diagnose and fix it. <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">You can learn more here.</a>
-    </p>
-  </div>
-);
+      
+      {error.error === 'Site Security Error' && (
+        <p className="text-gray-600">
+          We recommend using a free tool like SSL Labs to diagnose and fix it. <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">You can learn more here.</a>
+        </p>
+      )}
+    </div>
+  );
+};
 
 // --- Internal Components for Landing Page Sections ---
 
@@ -268,9 +300,9 @@ const DemoSection = () => {
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">See It In Action: Run a Free Demo</h2>
         
-        {error && error.error === 'Site Security Error' ? (
+        {error && error.usageCounted === false ? (
           <div className="mt-8 animate-fade-in">
-            <SiteSecurityError error={error} />
+            <AnalysisErrorCard error={error} />
             <button 
               onClick={() => setError(null)}
               className="mt-8 inline-flex items-center gap-2 text-gray-400 hover:text-white underline transition-colors"

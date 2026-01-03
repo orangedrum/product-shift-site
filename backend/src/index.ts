@@ -290,6 +290,17 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     return res.status(500).json({ error: 'Server Configuration Error', details: 'The AI API key is not configured.' });
   }
 
+  // --- SECURITY: SSRF Protection ---
+  // Prevent users from scanning local/private network addresses
+  const isRestrictedUrl = /^(?:http|https):\/\/(?:localhost|127\.|192\.168\.|10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|\[::1\])/.test(url);
+  if (isRestrictedUrl) {
+     return res.status(400).json({
+        error: 'Restricted URL',
+        details: 'For security reasons, analysis of local or private network addresses is not permitted.',
+        usageCounted: false
+     });
+  }
+
   // --- Usage Limit Check ---
   const userIdentifier = req.ip; // Use IP address for simple unique user tracking
   const today = new Date().toISOString().split('T')[0];
@@ -384,7 +395,27 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     });
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Browserless error: ${response.status} ${response.statusText} - ${errorText}`);
+      
+      // --- Network Error Mapping ---
+      if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
+        throw new Error('BROWSERLESS_ERR_NOT_FOUND');
+      }
+      if (errorText.includes('net::ERR_CONNECTION_REFUSED')) {
+        throw new Error('BROWSERLESS_ERR_REFUSED');
+      }
+      if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT')) {
+        throw new Error('BROWSERLESS_ERR_TIMEOUT');
+      }
+      if (errorText.includes('403') || errorText.includes('401')) {
+        throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
+      }
+      // Specific SSL Error
+      if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+        throw new Error('BROWSERLESS_ERR_SSL');
+      }
+
+      // Fallback for other Browserless errors
+      throw new Error(`Browserless error: ${response.status} - ${errorText}`);
     }
     const result = await response.json();
 
@@ -493,11 +524,34 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // Provide a specific, user-friendly error for the SSL issue.
-    if (errorMessage.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+    if (errorMessage === 'BROWSERLESS_ERR_SSL' || errorMessage.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
       const sslErrorDetails = `Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site. We recommend using a free tool like SSL Labs (ssllabs.com/ssltest/) to diagnose and fix it.`;
       return res.status(400).json({
         error: 'Site Security Error',
         details: sslErrorDetails,
+        usageCounted: false
+      });
+    }
+
+    // Map other specific network errors to user-friendly responses
+    if (errorMessage === 'BROWSERLESS_ERR_NOT_FOUND') {
+      return res.status(400).json({
+        error: 'Site Not Found',
+        details: 'We could not locate this domain. Please check your spelling and ensure the website is online.',
+        usageCounted: false
+      });
+    }
+    if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT') {
+      return res.status(408).json({
+        error: 'Connection Timed Out',
+        details: 'The website took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.',
+        usageCounted: false
+      });
+    }
+    if (errorMessage === 'BROWSERLESS_ERR_REFUSED' || errorMessage === 'BROWSERLESS_ERR_ACCESS_DENIED') {
+      return res.status(403).json({
+        error: 'Access Denied',
+        details: 'The website is blocking our AI agent. This often happens with sites that have strict firewalls or anti-bot protection.',
         usageCounted: false
       });
     }
