@@ -293,6 +293,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   // --- SECURITY: SSRF Protection ---
   // Prevent users from scanning local/private network addresses
   const isRestrictedUrl = /^(?:http|https):\/\/(?:localhost|127\.|192\.168\.|10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|\[::1\])/.test(url);
+  // Updated to include Cloud Metadata (169.254), 0.0.0.0, and IPv6 Unique Local
+  const isRestrictedUrl = /^(?:http|https):\/\/(?:localhost|127\.|192\.168\.|10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|0\.|\[::1\]|\[f[c-d][0-9a-f]{2}:)/i.test(url);
   if (isRestrictedUrl) {
      return res.status(400).json({
         error: 'Restricted URL',
@@ -357,6 +359,18 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         const { url } = context;
         await page.setViewport({ width: 1280, height: 800 }); // Corrected viewport setting
         const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+        
+        // Check HTTP Status Codes to trigger specific errors
+        if (response) {
+          const status = response.status();
+          if (status === 403 || status === 401) {
+            throw new Error('BROWSERLESS_ERR_ACCESS_DENIED_STATUS');
+          }
+          if (status === 404) {
+            throw new Error('BROWSERLESS_ERR_NOT_FOUND_STATUS');
+          }
+        }
+
         const title = await page.title();
 
         const headings = await page.evaluate(() => {
@@ -404,9 +418,13 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         throw new Error('BROWSERLESS_ERR_REFUSED');
       }
       if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT')) {
+      // Catch both network timeouts and navigation timeouts
+      if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout')) {
         throw new Error('BROWSERLESS_ERR_TIMEOUT');
       }
       if (errorText.includes('403') || errorText.includes('401')) {
+      // Catch explicit status codes thrown from our script
+      if (errorText.includes('403') || errorText.includes('401') || errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS')) {
         throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
       }
       // Specific SSL Error
@@ -541,7 +559,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         usageCounted: false
       });
     }
-    if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT') {
+    if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT' || errorMessage.includes('TimeoutError')) {
       return res.status(408).json({
         error: 'Connection Timed Out',
         details: 'The website took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.',
