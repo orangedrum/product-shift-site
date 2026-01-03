@@ -6,23 +6,43 @@ import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopp
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {
   if (!text) return null;
-  return text.split('\n').map((line, index) => {
-    if (line.toUpperCase().includes('**ISSUE:**')) {
-      return (
-        <div key={index} className="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-t-lg">
-          <p className="text-gray-800"><strong className="font-bold text-gray-900">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
-        </div>
-      );
+  
+  const lines = text.split('\n');
+  const recommendations: JSX.Element[] = [];
+  let issueFixPairs = 0;
+
+  for (const line of lines) {
+    if (line.toUpperCase().includes('**ISSUE:**') && issueFixPairs < 2) {
+        recommendations.push(
+          <div key={`issue-${issueFixPairs}`} className="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-t-lg">
+            <p className="text-gray-800"><strong className="font-bold text-gray-900">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
+          </div>
+        );
+    } else if (line.toUpperCase().includes('**FIX:**') && issueFixPairs < 2) {
+        recommendations.push(
+          <div key={`fix-${issueFixPairs}`} className="mb-4 p-3 bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
+            <p className="text-gray-800"><strong className="font-bold text-gray-900">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
+          </div>
+        );
+        issueFixPairs++;
     }
-    if (line.toUpperCase().includes('**FIX:**')) {
-      return (
-        <div key={index} className="mb-4 p-3 bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
-          <p className="text-gray-800"><strong className="font-bold text-gray-900">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
+  }
+
+  // Add the teaser element if we found at least two pairs
+  if (issueFixPairs >= 2) {
+    recommendations.push(
+      <div key="teaser" className="relative mt-4 p-4 bg-gray-100 border border-gray-300 rounded-lg text-center overflow-hidden">
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm" />
+        <div className="relative z-10">
+          <Lock className="mx-auto text-gray-400 mb-2" />
+          <p className="font-semibold text-gray-700">+1 more critical recommendation</p>
+          <p className="text-xs text-gray-500">Join the waitlist to unlock the full report.</p>
         </div>
-      );
-    }
-    return null; // Only render Issue/Fix for the demo report
-  });
+      </div>
+    );
+  }
+
+  return recommendations;
 };
 
 // --- Internal Components for Landing Page Sections ---
@@ -150,7 +170,15 @@ const DemoSection = () => {
               </div>
               <div className="mt-6 bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative">
                 <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
-                <p className="text-base italic text-gray-700 leading-relaxed">"{userBubble}"</p>
+                <div className="relative">
+                  <p className="text-base italic text-gray-700 leading-relaxed blur-sm select-none">"{userBubble}"</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-transparent">
+                      <span className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm">
+                          <Lock size={12} className="inline-block mr-1" />
+                          Unlock Feedback
+                      </span>
+                  </div>
+                </div>
               </div>
             </div>
             {/* Report Snippet & CTA */}

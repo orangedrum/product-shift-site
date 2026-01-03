@@ -476,7 +476,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       const sslErrorDetails = `Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site. We recommend using a free tool like SSL Labs (ssllabs.com/ssltest/) to diagnose and fix it.`;
       return res.status(400).json({
         error: 'Site Security Error',
-        details: sslErrorDetails
+        details: sslErrorDetails,
+        usageCounted: false
       });
     }
 

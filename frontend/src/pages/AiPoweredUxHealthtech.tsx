@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { User, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, AlertCircle, CheckCircle, ShieldAlert } from 'lucide-react';
 
 // Define types for the API response and error
 type UserSession = {
@@ -26,6 +26,7 @@ type AnalysisResponse = {
 type AnalysisError = {
   error: string;
   details?: string;
+  usageCounted?: boolean;
 };
 
 // Helper to format simple markdown to HTML
@@ -110,6 +111,23 @@ const SslWarning = () => (
       <li>Update your server to use modern TLS versions (TLS 1.2 or 1.3).</li>
       <li>Use a free online checker like <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="underline font-medium">SSL Labs</a> to diagnose the problem.</li>
     </ul>
+  </div>
+);
+
+const SiteSecurityError: React.FC<{ error: AnalysisError }> = ({ error }) => (
+  <div className="mt-6 max-w-3xl mx-auto p-6 bg-yellow-50 border-2 border-yellow-300 text-yellow-900 rounded-lg shadow-md">
+    <div className="flex items-center gap-4">
+      <ShieldAlert className="w-12 h-12 text-yellow-500 flex-shrink-0" />
+      <div>
+        <h2 className="text-xl font-bold">{error.error}</h2>
+        <p className="mt-2 text-sm text-yellow-800">{error.details}</p>
+        {error.usageCounted === false && (
+          <p className="mt-3 text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded inline-block border border-yellow-200">
+            This analysis was not counted against your usage limit.
+          </p>
+        )}
+      </div>
+    </div>
   </div>
 );
 
@@ -204,6 +222,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       setError({
         error: err.error || 'An unknown error occurred.',
         details: err.details || 'Could not retrieve details.',
+        usageCounted: err.usageCounted,
       });
     } finally {
       setIsLoading(false);
@@ -468,10 +487,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {error && (
-        <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-          <h2 className="font-bold">Error</h2>
-          <p>{error.details || error.error}</p>
-        </div>
+        // Conditionally render the new, styled security error
+        error.error === 'Site Security Error' ? (
+          <SiteSecurityError error={error} />
+        ) : (
+          // Fallback to the generic red error box for other errors
+          <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+            <h2 className="font-bold">{error.error}</h2>
+            <p>{error.details}</p>
+          </div>
+        )
       )}
     </div>);
 };
