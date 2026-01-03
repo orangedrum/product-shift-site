@@ -324,7 +324,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       export default async ({ page, context }) => {
         const { url } = context;
         await page.setViewport({ width: 1280, height: 800 });
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+        const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
         const title = await page.title();
 
         const headings = await page.evaluate(() => {
