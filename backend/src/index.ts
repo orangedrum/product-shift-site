@@ -427,12 +427,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       if (errorText.includes('net::ERR_CONNECTION_REFUSED')) {
         throw new Error('BROWSERLESS_ERR_REFUSED');
       }
-      if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT')) {
       // Catch both network timeouts and navigation timeouts
       if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout')) {
         throw new Error('BROWSERLESS_ERR_TIMEOUT');
       }
-      if (errorText.includes('403') || errorText.includes('401')) {
       // Catch explicit status codes thrown from our script
       if (errorText.includes('403') || errorText.includes('401') || errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS')) {
         throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');

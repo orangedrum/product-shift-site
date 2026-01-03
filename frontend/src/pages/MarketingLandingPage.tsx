@@ -189,7 +189,15 @@ const DemoSection = () => {
           goal: 'Quickly understand what this page is about.'
         }),
       });
-      const data = await response.json();
+      
+      let data;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        throw { error: 'Server Error', details: `The server returned an unexpected response (${response.status}). Please try again later.` };
+      }
+
       if (!response.ok) throw data;
       setResult(data);
     } catch (err: any) {
