@@ -246,7 +246,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
         body: JSON.stringify({ url, personaIds: selectedPersonas, goal: finalGoal }), 
       });
 
-      const data = await response.json();
+      let data;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        throw { error: 'Server Error', details: `The server returned an unexpected response (${response.status}). Please try again later.` };
+      }
 
       if (!response.ok) {
         // Assuming the backend sends a JSON error object

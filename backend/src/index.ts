@@ -368,7 +368,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       export default async ({ page, context }) => {
         const { url } = context;
         await page.setViewport({ width: 1280, height: 800 }); // Corrected viewport setting
-        const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+        // Set timeout to 15s to ensure we return before Vercel's hard limit
+        const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
         
         // Check HTTP Status Codes to trigger specific errors
         if (response) {
@@ -408,129 +409,145 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       };
     `;
 
+    // Create an AbortController to enforce a network timeout on the fetch itself
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s hard limit for the API call
+
     // Reverted to a simple fetch call. We will not try to bypass SSL errors anymore.
-    const response = await fetch(`https://production-sfo.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN!}`, { 
+    try {
+      const response = await fetch(`https://production-sfo.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN!}`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: browserScript,
         context: { url },
-      })
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
+      }),
+      signal: controller.signal as any // Cast to any to satisfy TS if needed, or standard AbortSignal
+      });
       
-      // --- Network Error Mapping ---
-      if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
-        throw new Error('BROWSERLESS_ERR_NOT_FOUND');
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        
+        // --- Network Error Mapping ---
+        if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
+          throw new Error('BROWSERLESS_ERR_NOT_FOUND');
+        }
+        if (errorText.includes('net::ERR_CONNECTION_REFUSED')) {
+          throw new Error('BROWSERLESS_ERR_REFUSED');
+        }
+        // Catch both network timeouts and navigation timeouts
+        if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout')) {
+          throw new Error('BROWSERLESS_ERR_TIMEOUT');
+        }
+        // Catch explicit status codes thrown from our script
+        if (errorText.includes('403') || errorText.includes('401') || errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS')) {
+          throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
+        }
+        // Specific SSL Error
+        if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+          throw new Error('BROWSERLESS_ERR_SSL');
+        }
+
+        // Fallback for other Browserless errors
+        throw new Error(`Browserless error: ${response.status} - ${errorText}`);
       }
-      if (errorText.includes('net::ERR_CONNECTION_REFUSED')) {
-        throw new Error('BROWSERLESS_ERR_REFUSED');
+      const result = await response.json();
+
+      // --- Persona-Driven Analysis ---
+      const userSessions: any[] = [];
+
+      // Helper to delay execution to avoid rate limits (Free Tier Throttling)
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+      for (const pId of personaIds) {
+        const activePersona = personas[pId];
+        if (activePersona) {
+          // Add a 6-second delay before each request (except the first) to stay under the RPM limit
+          if (userSessions.length > 0) {
+              await delay(6000);
+          }
+
+          const sessionOutput = await generateUserSession(result, activePersona, goal, url);
+          
+          // Parse Mood to adjust avatar
+          let mood = 'Neutral';
+          let adjustedAvatar = activePersona.avatar;
+          
+          if (sessionOutput.includes('|||USER_MOOD|||')) {
+            const moodPart = sessionOutput.split('|||USER_MOOD|||')[1].split('|||')[0].trim();
+            if (moodPart.toLowerCase().includes('positive')) {
+              mood = 'Positive';
+              adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=smile&eyebrows=default');
+            } else if (moodPart.toLowerCase().includes('negative')) {
+              mood = 'Negative';
+              adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=sad&eyebrows=frown');
+            } else {
+              adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=default&eyebrows=default');
+            }
+          }
+
+          userSessions.push({
+            persona: activePersona.name,
+            avatar: adjustedAvatar,
+            analysis: sessionOutput,
+            personaObj: activePersona // Keep ref for report generation
+          });
+        }
       }
-      // Catch both network timeouts and navigation timeouts
-      if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout')) {
+
+      // --- On success, increment usage count ---
+      if (supabaseUrl && supabaseServiceKey) {
+        const { error: upsertError } = await supabase
+          .from('daily_usage')
+          .upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
+
+        if (upsertError) {
+          // Log the error but don't fail the request for the user
+          console.error('Failed to increment usage count:', upsertError);
+        }
+      }
+
+      // --- Aggregated Expert Report ---
+      const isDemo = personaIds.length === 1;
+      await delay(6000); // Delay before the final expert report generation
+      let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
+      
+      // Extract JSON Scores
+      let scores = { usability: 0, desirability: 0, clarity: 0 };
+      let expertReportText = rawExpertReport;
+
+      if (rawExpertReport.includes('|||SCORES_JSON|||')) {
+        const parts = rawExpertReport.split('|||SCORES_JSON|||');
+        expertReportText = parts[0];
+        try {
+          scores = JSON.parse(parts[1].trim());
+        } catch (e) {
+          console.error('Failed to parse scores JSON', e);
+        }
+      }
+
+      // Prepend the security warning if an SSL issue was detected
+      if (!result.hasValidSsl) {
+        expertReportText = '|||SSL_WARNING_ALERT|||\n' + expertReportText;
+      }
+
+      res.json({
+        message: 'Analysis Complete.',
+        title: result.title,
+        screenshot: result.screenshot,
+        userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description })),
+        expertReport: expertReportText,
+        scores
+      });
+    } catch (error: any) {
+      // Catch fetch abort errors (timeouts)
+      if (error.name === 'AbortError') {
         throw new Error('BROWSERLESS_ERR_TIMEOUT');
       }
-      // Catch explicit status codes thrown from our script
-      if (errorText.includes('403') || errorText.includes('401') || errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS')) {
-        throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
-      }
-      // Specific SSL Error
-      if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
-        throw new Error('BROWSERLESS_ERR_SSL');
-      }
-
-      // Fallback for other Browserless errors
-      throw new Error(`Browserless error: ${response.status} - ${errorText}`);
+      throw error;
     }
-    const result = await response.json();
-
-    // --- Persona-Driven Analysis ---
-    const userSessions: any[] = [];
-
-    // Helper to delay execution to avoid rate limits (Free Tier Throttling)
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-    for (const pId of personaIds) {
-      const activePersona = personas[pId];
-      if (activePersona) {
-        // Add a 6-second delay before each request (except the first) to stay under the RPM limit
-        if (userSessions.length > 0) {
-            await delay(6000);
-        }
-
-        const sessionOutput = await generateUserSession(result, activePersona, goal, url);
-        
-        // Parse Mood to adjust avatar
-        let mood = 'Neutral';
-        let adjustedAvatar = activePersona.avatar;
-        
-        if (sessionOutput.includes('|||USER_MOOD|||')) {
-          const moodPart = sessionOutput.split('|||USER_MOOD|||')[1].split('|||')[0].trim();
-          if (moodPart.toLowerCase().includes('positive')) {
-            mood = 'Positive';
-            adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=smile&eyebrows=default');
-          } else if (moodPart.toLowerCase().includes('negative')) {
-            mood = 'Negative';
-            adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=sad&eyebrows=frown');
-          } else {
-            adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=default&eyebrows=default');
-          }
-        }
-
-        userSessions.push({
-          persona: activePersona.name,
-          avatar: adjustedAvatar,
-          analysis: sessionOutput,
-          personaObj: activePersona // Keep ref for report generation
-        });
-      }
-    }
-
-    // --- On success, increment usage count ---
-    if (supabaseUrl && supabaseServiceKey) {
-      const { error: upsertError } = await supabase
-        .from('daily_usage')
-        .upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
-
-      if (upsertError) {
-        // Log the error but don't fail the request for the user
-        console.error('Failed to increment usage count:', upsertError);
-      }
-    }
-
-    // --- Aggregated Expert Report ---
-    const isDemo = personaIds.length === 1;
-    await delay(6000); // Delay before the final expert report generation
-    let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
-    
-    // Extract JSON Scores
-    let scores = { usability: 0, desirability: 0, clarity: 0 };
-    let expertReportText = rawExpertReport;
-
-    if (rawExpertReport.includes('|||SCORES_JSON|||')) {
-      const parts = rawExpertReport.split('|||SCORES_JSON|||');
-      expertReportText = parts[0];
-      try {
-        scores = JSON.parse(parts[1].trim());
-      } catch (e) {
-        console.error('Failed to parse scores JSON', e);
-      }
-    }
-
-    // Prepend the security warning if an SSL issue was detected
-    if (!result.hasValidSsl) {
-      expertReportText = '|||SSL_WARNING_ALERT|||\n' + expertReportText;
-    }
-
-    res.json({
-      message: 'Analysis Complete.',
-      title: result.title,
-      screenshot: result.screenshot,
-      userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description })),
-      expertReport: expertReportText,
-      scores
-    });
 
   } catch (error: any) {
     console.error('Test error:', error);
