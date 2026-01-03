@@ -46,19 +46,25 @@ const formatDemoText = (text: string) => {
 };
 
 const SiteSecurityError = ({ error }: { error: any }) => (
-  <div className="mt-6 max-w-xl mx-auto p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 rounded-r-md shadow-lg text-left">
-    <div className="flex items-start gap-3">
-      <ShieldAlert className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
-      <div>
-        <h3 className="font-bold text-lg">Security Alert</h3>
-        <p className="text-sm mt-1">{error.details || error.error}</p>
-        {error.usageCounted === false && (
-          <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-            Usage not counted
-          </div>
-        )}
-      </div>
+  <div className="max-w-lg mx-auto p-8 bg-white border-2 border-yellow-400 rounded-xl shadow-2xl text-center text-gray-900">
+    <div className="flex justify-center mb-4">
+      <ShieldAlert className="w-12 h-12 text-yellow-500" />
     </div>
+    <h3 className="text-2xl font-bold text-gray-900 mb-2">We were unable to test your site</h3>
+    
+    {error.usageCounted === false && (
+      <p className="text-sm font-semibold text-yellow-700 uppercase tracking-wide mb-4">
+        Security Alert — This test not counted toward your limit
+      </p>
+    )}
+    
+    <p className="text-gray-600 mb-4">
+      Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site.
+    </p>
+    
+    <p className="text-gray-600">
+      We recommend using a free tool like SSL Labs to diagnose and fix it. <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">You can learn more here.</a>
+    </p>
   </div>
 );
 
@@ -261,37 +267,49 @@ const DemoSection = () => {
     <section id="demo" className="bg-gray-800 text-white py-24 sm:py-32">
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">See It In Action: Run a Free Demo</h2>
-        <p className="mt-6 text-lg text-gray-300">
-          Our AI persona, Alex, will analyze your site to see if she can quickly understand what it's about.
-        </p>
-        <form onSubmit={handleDemoSubmit} className="mt-8 max-w-xl mx-auto flex flex-col gap-3">
-          <div className="flex items-center bg-gray-900/50 border border-gray-600 rounded-md focus-within:ring-2 focus-within:ring-indigo-500">
-            <span className="pl-4 text-gray-400">https://</span>
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="flex-grow px-2 py-3 text-white bg-transparent border-none focus:outline-none focus:ring-0"
-              placeholder="your-website.com"
-              required
-            />
-          </div>
-          <button type="submit" disabled={isLoading} className="relative overflow-hidden px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
-            {isLoading && (
-              <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />
-            )}
-            <span className="relative z-10">{isLoading ? 'Analyzing...' : 'Run Free Demo'}</span>
-          </button>
-        </form>
-        {error && (
-          error.error === 'Site Security Error' ? (
+        
+        {error && error.error === 'Site Security Error' ? (
+          <div className="mt-8 animate-fade-in">
             <SiteSecurityError error={error} />
-          ) : (
-            <div className="mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-sm text-red-200 flex items-center gap-2 max-w-xl mx-auto">
-              <AlertCircle size={16} />
-              <strong>Error:</strong> {error.details || error.error}
-            </div>
-          )
+            <button 
+              onClick={() => setError(null)}
+              className="mt-8 inline-flex items-center gap-2 text-gray-400 hover:text-white underline transition-colors"
+            >
+              <RefreshCw size={16} />
+              Run Another Test
+            </button>
+          </div>
+        ) : (
+          <>
+            <p className="mt-6 text-lg text-gray-300">
+              Our AI persona, Alex, will analyze your site to see if she can quickly understand what it's about.
+            </p>
+            <form onSubmit={handleDemoSubmit} className="mt-8 max-w-xl mx-auto flex flex-col gap-3">
+              <div className="flex items-center bg-gray-900/50 border border-gray-600 rounded-md focus-within:ring-2 focus-within:ring-indigo-500">
+                <span className="pl-4 text-gray-400">https://</span>
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="flex-grow px-2 py-3 text-white bg-transparent border-none focus:outline-none focus:ring-0"
+                  placeholder="your-website.com"
+                  required
+                />
+              </div>
+              <button type="submit" disabled={isLoading} className="relative overflow-hidden px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
+                {isLoading && (
+                  <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />
+                )}
+                <span className="relative z-10">{isLoading ? 'Analyzing...' : 'Run Free Demo'}</span>
+              </button>
+            </form>
+            {error && (
+              <div className="mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-sm text-red-200 flex items-center gap-2 max-w-xl mx-auto">
+                <AlertCircle size={16} />
+                <strong>Error:</strong> {error.details || error.error}
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
