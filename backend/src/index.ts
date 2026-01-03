@@ -345,8 +345,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         const screenshot = await page.screenshot({ encoding: 'base64', type: 'jpeg', quality: 75 });
 
         // A valid connection will have a protocol. An invalid one might be null.
-        const securityDetails = response.securityDetails();
-        const hasValidSsl = securityDetails && securityDetails.protocol()?.startsWith('TLS');
+        // Defensively check if the response object and its properties exist.
+        const securityDetails = response ? response.securityDetails() : null;
+        const hasValidSsl = !!(securityDetails && securityDetails.protocol()?.startsWith('TLS'));
 
         return { title, headings, bodyText, screenshot, hasValidSsl };
       };
@@ -470,7 +471,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     if (supabaseUrl && supabaseServiceKey) {
       try {
         await supabase.from('error_logs').insert({
-          message: `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`,
+          error_message: `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`,
           details: error.stack || JSON.stringify(error), // Log the full error for debugging
           endpoint: '/api/run-test'
         });
