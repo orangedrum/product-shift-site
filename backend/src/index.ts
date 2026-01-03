@@ -477,12 +477,16 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   } catch (error: any) {
     console.error('Test error:', error);
 
+    // Our custom thrown object has `error` and `details`. A standard Error has `message`.
+    const finalError = error.error || `Failed to run the test: ${error.message || 'An unknown issue occurred.'}`;
+    const finalDetails = error.details || error.message || 'No further details available.';
+
     // Log error to Supabase for Admin Dashboard
     if (supabaseUrl && supabaseServiceKey) {
       try {
         await supabase.from('error_logs').insert({
-          message: error.message,
-          details: error.stack || JSON.stringify(error),
+          message: finalError,
+          details: error.stack || JSON.stringify(error), // Log the full error for debugging
           endpoint: '/api/run-test'
         });
       } catch (logErr) {
@@ -490,7 +494,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       }
     }
 
-    res.status(500).json({ error: `Failed to run the test: ${error.message}`, details: error.message });
+    res.status(500).json({ error: finalError, details: finalDetails });
   }
 };
 
