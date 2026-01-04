@@ -180,8 +180,58 @@ const app = express();
 
 app.set('trust proxy', 1); // Trust Vercel proxy to get correct req.ip
 // Middleware
-app.use(cors()); // Allow requests from any origin
-app.use(express.json());
+app.use(cors({ origin: true }));
+
+// --- Stripe Webhook Endpoint ---
+// This MUST be before `app.use(express.json())` so we can get the raw body for signature verification.
+app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!sig || !webhookSecret) {
+    console.error('Webhook secret or signature missing.');
+    return res.status(400).send('Webhook Error: Missing secret or signature.');
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+  } catch (err: any) {
+    console.error(`Webhook signature verification failed: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case 'checkout.session.completed':
+      const session = event.data.object as Stripe.Checkout.Session;
+      
+      // This is where we provision the user's account.
+      // We find the user by the email they entered at checkout.
+      const customerEmail = session.customer_details?.email;
+      const stripeCustomerId = session.customer as string;
+      const stripeSubscriptionId = session.subscription as string;
+
+      if (customerEmail) {
+        const { error } = await supabase.from('customers').upsert({ 
+          email: customerEmail,
+          stripe_customer_id: stripeCustomerId,
+          stripe_subscription_id: stripeSubscriptionId,
+          plan_status: 'active'
+        }, { onConflict: 'email' });
+
+        if (error) console.error('Supabase upsert error:', error);
+      }
+      break;
+    // TODO: Handle other events like `customer.subscription.deleted` to downgrade users.
+  }
+
+  res.json({received: true});
+});
+
+// This must come AFTER the webhook endpoint.
+app.use(express.json()); 
 
 // Routes
 app.get('/api', (req, res) => {
@@ -680,6 +730,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 // --- Stripe Checkout Route ---
 app.post('/api/create-checkout-session', async (req, res) => {
   const { planId } = req.body;
+  const userEmail = req.body.email; // We'll get this from the user later
 
   if (!process.env.STRIPE_SECRET_KEY) {
     console.error('STRIPE_SECRET_KEY is missing.');
@@ -697,6 +748,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
 
     const session = await stripe.checkout.sessions.create({
+      customer_email: userEmail, // Pass the user's email to pre-fill and link the customer
       payment_method_types: ['card'],
       line_items: [
         {

@@ -300,12 +300,18 @@ const DemoSection = () => {
 };
 
 const PricingSection = () => {
+  const [email, setEmail] = useState('');
+
   const handleStarterCheckout = async () => {
+    if (!email) {
+      alert('Please enter your email to proceed.');
+      return;
+    }
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: 'starter' }),
+        body: JSON.stringify({ planId: 'starter', email: email }),
       });
       const data = await response.json();
       if (data.url) {
@@ -342,6 +348,16 @@ const PricingSection = () => {
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Up to 5 Personas per Test</li>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Full PDF Reports</li>
           </ul>
+          <div className="mt-6">
+            <label htmlFor="email-checkout" className="sr-only">Email address</label>
+            <input 
+              type="email" 
+              id="email-checkout" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+              placeholder="your@email.com" required />
+          </div>
           <button onClick={handleStarterCheckout} className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
             Get Started
           </button>
