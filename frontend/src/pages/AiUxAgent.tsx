@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { User, AlertCircle, CheckCircle } from 'lucide-react';
+import { AnalysisErrorCard, SslWarning, AnalysisError } from '../components/AnalysisErrorCard';
 
 // Define types for the API response and error
 type UserSession = {
@@ -21,11 +22,6 @@ type AnalysisResponse = {
     desirability: number;
     clarity: number;
   };
-};
-
-type AnalysisError = {
-  error: string;
-  details?: string;
 };
 
 // Helper to format simple markdown to HTML
@@ -198,6 +194,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
     }
   };
 
+  const resetState = () => {
+    setResult(null);
+    setError(null);
+    setIsLoading(false);
+    setUrl('');
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -213,7 +216,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      {!result && (
+      {!result && !error && (
         <div className="no-print max-w-3xl mx-auto">
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-4 text-gray-900">AI-Powered UX Agent</h1>
@@ -232,15 +235,20 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <label htmlFor="url" className="block text-sm font-medium text-gray-700">
                   Website URL
                 </label>
-                <input
-                  type="url"
-                  id="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="https://example.com"
-                  required
-                />
+                <div className="mt-1 flex rounded-md shadow-sm">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                    https://
+                  </span>
+                  <input
+                    type="text"
+                    id="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value.replace(/^https?:\/\//, ''))}
+                    className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="example.com"
+                    required
+                  />
+                </div>
               </div>
             </fieldset>
             <fieldset>
@@ -316,12 +324,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
         <div className="no-print text-center mb-12 animate-fade-in">
            <h1 className="text-3xl font-bold mb-2 text-gray-900">Analysis Complete</h1>
            <p className="text-gray-600">Review the user sessions and the aggregated research report below.</p>
-           <button onClick={() => { setResult(null); setActiveTab(0); }} className="mt-6 bg-indigo-600 text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105">
+           <button onClick={resetState} className="mt-6 bg-indigo-600 text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105">
              Run Another Test
            </button>
         </div>)}
       {result && (
         <div id="report-section" className="animate-fade-in">
+          {/* Conditionally render the SSL warning at the top of the report */}
+          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SslWarning />}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
@@ -405,7 +415,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
                 {/* Render Test Result First for Prominence */}
                 <div className="prose max-w-none">
-                  {formatText(result.expertReport.split('\n').find(line => line.includes('TEST RESULT:')) || '')}
+                  {formatText(result.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').find(line => line.includes('TEST RESULT:')) || '')}
                 </div>
                 
                 {/* Charts Section */}
@@ -444,7 +454,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <div className="prose max-w-none">
                   {/* Render the rest of the report, excluding the already-rendered test result */}
                   {formatText(
-                    result.expertReport.split('\n').filter(line => !line.includes('TEST RESULT:')).join('\n')
+                    result.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').filter(line => !line.includes('TEST RESULT:')).join('\n')
                   )}
                 </div>
               </div>
@@ -454,10 +464,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {error && (
-        <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-          <h2 className="font-bold">Error</h2>
-          <p>{error.details || error.error}</p>
-        </div>
+        error.usageCounted === false ? (
+          <AnalysisErrorCard error={error} onReset={resetState} />
+        ) : (
+          // Fallback to the generic red error box for other errors
+          <div className="no-print mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md max-w-3xl mx-auto">
+            <h2 className="font-bold">{error.error}</h2>
+            <p>{error.details || 'An unknown server error occurred.'}</p>
+          </div>
+        )
       )}
     </div>);
 };
