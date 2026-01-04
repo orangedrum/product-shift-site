@@ -451,7 +451,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           throw new Error('BROWSERLESS_ERR_REFUSED');
         }
         if (errorText.includes('net::ERR_EMPTY_RESPONSE')) {
-          throw new Error('BROWSERLESS_ERR_SERVER_ERROR');
+          throw new Error('BROWSERLESS_ERR_TIMEOUT');
         }
 
         // 3. Check for generic timeout errors as a fallback.

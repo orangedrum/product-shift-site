@@ -57,6 +57,11 @@ const AnalysisErrorCard: React.FC<{ error: any, onReset: () => void }> = ({ erro
     iconColor = "text-yellow-500";
     borderColor = "border-yellow-400";
     subHeader = "Security Alert";
+  } else if (error.error === 'Target Site Error') {
+    Icon = AlertCircle;
+    iconColor = "text-orange-500";
+    borderColor = "border-orange-400";
+    subHeader = "Site Error";
   } else if (error.error === 'Site Not Found' || error.error === 'Connection Refused') {
     Icon = WifiOff;
     iconColor = "text-gray-500";
