@@ -677,6 +677,53 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   }
 };
 
+// --- Stripe Checkout Route ---
+app.post('/api/create-checkout-session', async (req, res) => {
+  const { planId } = req.body;
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error('STRIPE_SECRET_KEY is missing.');
+    return res.status(500).json({ error: 'Server Configuration Error: Stripe key missing' });
+  }
+
+  try {
+    // Determine price based on planId (For MVP, we define price inline)
+    // In a full app, you might fetch this from a database or Stripe Product ID
+    const unitAmount = planId === 'starter' ? 2900 : 0; // $29.00 in cents
+    const planName = planId === 'starter' ? 'Starter Plan' : 'Unknown Plan';
+
+    if (unitAmount === 0) {
+      return res.status(400).json({ error: 'Invalid Plan ID' });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: planName,
+              description: '10 AI UX Audits per month',
+            },
+            unit_amount: unitAmount,
+            recurring: { interval: 'month' }, // Subscription mode
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin}/landingpg-aiuxagent`,
+    });
+
+    res.json({ url: session.url });
+  } catch (error: any) {
+    console.error('Stripe Checkout Error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session', details: error.message });
+  }
+});
+
 app.post('/api/run-test', runTestHandler);
 
 app.post('/api/join-waitlist', async (req, res) => {

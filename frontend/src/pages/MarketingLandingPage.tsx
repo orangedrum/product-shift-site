@@ -299,29 +299,28 @@ const DemoSection = () => {
   );
 };
 
-const PricingSection = () => (
-  {
-    const handleStarterCheckout = async () => {
-      try {
-        const response = await fetch('/api/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planId: 'starter' }),
-        });
-        const data = await response.json();
-        if (data.url) {
-          window.location.href = data.url; // Redirect to Stripe
-        } else {
-          alert('Failed to initialize checkout. Please try again.');
-        }
-      } catch (error) {
-        console.error('Checkout error:', error);
-        alert('An error occurred. Please try again.');
+const PricingSection = () => {
+  const handleStarterCheckout = async () => {
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: 'starter' }),
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Stripe
+      } else {
+        alert('Failed to initialize checkout. Please try again.');
       }
-    };
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
 
-    return (
-  <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
+  return (
+    <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
     <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
       <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
         Affordable UX Research for Every Stage
@@ -386,9 +385,8 @@ const PricingSection = () => (
       </div>
     </div>
   </section>
-    );
-  }
-);
+  );
+};
 
 const WaitlistSection = () => {
   const [state, setState] = useState({ submitting: false, succeeded: false, error: null });
@@ -460,31 +458,3 @@ const MarketingLandingPage: React.FC = () => {
 };
 
 export default MarketingLandingPage;
-```Excellent. Your methodical approach is exactly what's needed for a smooth integration. Let's address the code.
-
-### Code Review
-
-I've reviewed the changes you're about to implement. The logic is sound, but there's a small but significant structural error in the `MarketingLandingPage.tsx` file that will cause the application to crash.
-
-In the `PricingSection` component, you have a `<button>` nested inside a `<Link>`, which is invalid HTML and React structure. Furthermore, the component definition itself is slightly malformed.
-
-I will correct this structure. Instead of a `<Link>` component, we will use a single `<button>` and attach the `handleStarterCheckout` function directly to its `onClick` event. This is the correct pattern for triggering an action that leads to a navigation change.
-
-Here is the corrected code.
-
-```diff
---- a/Users/orangedrum/Dropbox/ProductShift/site/01gemassist_productshiftsite/frontend/src/pages/MarketingLandingPage.tsx
-+++ b/Users/orangedrum/Dropbox/ProductShift/site/01gemassist_productshiftsite/frontend/src/pages/MarketingLandingPage.tsx
-@@ -391,12 +391,9 @@
-             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Up to 5 Personas per Test</li>
-             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Full PDF Reports</li>
-           </ul>
--          <Link to="/ai-powered-ux?plan=starter" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
-           <button onClick={handleStarterCheckout} className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-             Get Started
--          </Link>
-           </button>
-         </div>
- 
-         {/* Pro Plan */}
-
