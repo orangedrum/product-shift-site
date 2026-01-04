@@ -412,10 +412,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       };
     `;
 
-    // Create an AbortController to enforce a network timeout on the fetch itself
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s hard limit for the API call
-
     // Reverted to a simple fetch call. We will not try to bypass SSL errors anymore.
     try {
       const response = await fetch(`https://production-sfo.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN!}`, { 
@@ -424,11 +420,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       body: JSON.stringify({
         code: browserScript,
         context: { url },
-      }),
-      signal: controller.signal as any // Cast to any to satisfy TS if needed, or standard AbortSignal
+      })
       });
-      
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -545,10 +538,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         scores
       });
     } catch (error: any) {
-      // Catch fetch abort errors (timeouts)
-      if (error.name === 'AbortError') {
-        throw new Error('BROWSERLESS_ERR_TIMEOUT');
-      }
       throw error;
     }
 
