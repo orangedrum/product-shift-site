@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import WaitlistPage from './pages/WaitlistPage';
 import AdminDashboard from './pages/AdminDashboard';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} /> 
           <Route path="/waitlist" element={<WaitlistPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           
           {/* Redirects & Fallbacks */}
