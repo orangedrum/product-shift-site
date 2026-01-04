@@ -308,22 +308,58 @@ const PricingSection = () => (
       <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
         Get the insights of a full usability study without the five-figure price tag.
       </p>
-      <div className="mt-12 max-w-md mx-auto">
-        {/* Pro Plan */}
-        <div className="pricing-card best-value bg-white p-8 border-2 border-indigo-500 rounded-xl shadow-2xl text-left flex flex-col relative">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Full Access</div>
-          <h3 className="text-2xl font-bold text-center">Pro & Enterprise</h3>
-          <p className="text-center text-gray-500 mt-2">For teams that need to ship with confidence</p>
+      <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {/* Starter Plan */}
+        <div className="pricing-card bg-white p-8 border-2 border-indigo-500 rounded-xl shadow-2xl text-left flex flex-col relative">
+          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Starter</div>
+          <div className="text-center">
+            <p className="text-4xl font-extrabold text-gray-900">$29</p>
+            <p className="text-gray-500">per month</p>
+          </div>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Up to 5 Personas per Test</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Visual & Heuristic Analysis</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Downloadable PDF Reports</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Performance Charts</li>
-            <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Unlimited Monthly Tests</li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 tests / month</strong></li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Up to 5 Personas per Test</li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Full PDF Reports</li>
           </ul>
-          <Link to="/waitlist" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
-            Join Pro Waitlist
+          <Link to="/ai-powered-ux-healthtech?plan=starter" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
+            Get Started
+          </Link>
+        </div>
+
+        {/* Pro Plan */}
+        <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col">
+          <h3 className="text-2xl font-bold text-center">Pro</h3>
+          <div className="text-center mt-2">
+            <p className="text-4xl font-extrabold text-gray-900">$99</p>
+            <p className="text-gray-500">per month</p>
+          </div>
+          <hr className="my-6" />
+          <ul className="space-y-3 text-gray-600 flex-grow">
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>50 tests / month</strong></li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Team Access</li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Guaranteed Premium AI Model</li>
+          </ul>
+          <a href="#waitlist-form" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+            Join Waitlist
+          </a>
+        </div>
+
+        {/* Agency Plan */}
+        <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col">
+          <h3 className="text-2xl font-bold text-center">Agency</h3>
+          <div className="text-center mt-2">
+            <p className="text-4xl font-extrabold text-gray-900">$499</p>
+            <p className="text-gray-500">per month</p>
+          </div>
+          <hr className="my-6" />
+          <ul className="space-y-3 text-gray-600 flex-grow">
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>100 tests / month</strong></li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Custom Personas & White Label</li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Multi-client Interface</li>
+          </ul>
+          <a href="#waitlist-form" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+            Join Waitlist
           </Link>
         </div>
       </div>

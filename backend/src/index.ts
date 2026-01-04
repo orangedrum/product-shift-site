@@ -550,6 +550,11 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
       }
 
+      // --- MVP Plan & Revenue Logging ---
+      const isStarterPlan = url.includes('plan=starter');
+      const planType = isStarterPlan ? 'starter' : (isDemo ? 'demo' : 'free');
+      const revenue = isStarterPlan ? 29.00 : 0;
+
       // --- Log Analysis Run & Cost ---
       if (supabaseUrl && supabaseServiceKey) {
         // Default to 2 cents per AI call if not specified in environment
@@ -564,7 +569,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
             url: url,
             persona_count: personaIds.length,
             estimated_cost: estimatedCost,
-            is_demo: isDemo
+            is_demo: isDemo,
+            plan_type: planType,
+            revenue: revenue
           });
         if (runLogError) console.error('Failed to log analysis run:', runLogError);
       }

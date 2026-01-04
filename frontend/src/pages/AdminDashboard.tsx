@@ -4,8 +4,8 @@ import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, Refresh
 type Stats = {
   dailyUsage: number;
   waitlistCount: number;
-  recentErrors: { id: number; created_at: string; error_message: string; details: string }[];
-  recentRuns: { id: number; created_at: string; user_identifier: string; url: string; persona_count: number; estimated_cost: number; is_demo: boolean }[];
+  recentErrors: { id: number; created_at: string; error_message: string; details: string; }[];
+  recentRuns: { id: number; created_at: string; user_identifier: string; url: string; persona_count: number; estimated_cost: number; is_demo: boolean; plan_type: string; revenue: number; }[];
 };
 
 const AdminDashboard: React.FC = () => {
@@ -185,22 +185,36 @@ const AdminDashboard: React.FC = () => {
                 <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
                     <tr>
                         <th scope="col" className="px-6 py-3">URL</th>
-                        <th scope="col" className="px-6 py-3">User</th>
-                        <th scope="col" className="px-6 py-3">Personas</th>
-                        <th scope="col" className="px-6 py-3">Est. Cost</th>
+                        <th scope="col" className="px-6 py-3">Plan</th>
+                        <th scope="col" className="px-6 py-3 text-right">Revenue</th>
+                        <th scope="col" className="px-6 py-3 text-right">Our Cost</th>
+                        <th scope="col" className="px-6 py-3 text-right">Profit</th>
+                        <th scope="col" className="px-6 py-3 text-right">Margin</th>
                         <th scope="col" className="px-6 py-3">Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {stats?.recentRuns?.map((run) => (
-                        <tr key={run.id} className="bg-white border-b hover:bg-gray-50">
+                    {stats?.recentRuns?.map((run) => {
+                        const profit = run.revenue - run.estimated_cost;
+                        const margin = run.revenue > 0 ? (profit / run.revenue) * 100 : 0;
+                        const planColor = run.plan_type === 'starter' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+
+                        return (
+                        <tr key={run.id} className="bg-white border-b hover:bg-gray-50 text-sm">
                             <td className="px-6 py-4 font-medium text-gray-900 truncate max-w-xs" title={run.url}>{run.url}</td>
-                            <td className="px-6 py-4 font-mono text-gray-500">{run.user_identifier}</td>
-                            <td className="px-6 py-4">{run.persona_count} {run.is_demo && <span className="text-xs text-indigo-600 font-semibold">(Demo)</span>}</td>
-                            <td className="px-6 py-4 font-semibold">${run.estimated_cost.toFixed(2)}</td>
+                            <td className="px-6 py-4">
+                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${planColor}`}>
+                                    {run.plan_type}
+                                </span>
+                            </td>
+                            <td className="px-6 py-4 font-mono text-right text-green-600">${run.revenue.toFixed(2)}</td>
+                            <td className="px-6 py-4 font-mono text-right text-red-600">(${run.estimated_cost.toFixed(2)})</td>
+                            <td className="px-6 py-4 font-mono text-right font-semibold">${profit.toFixed(2)}</td>
+                            <td className="px-6 py-4 font-mono text-right">{margin.toFixed(0)}%</td>
                             <td className="px-6 py-4 text-gray-500">{new Date(run.created_at).toLocaleString()}</td>
                         </tr>
-                    ))}
+                        )
+                    })}
                     {stats?.recentRuns?.length === 0 && (
                         <tr>
                             <td colSpan={5} className="text-center py-4 text-gray-500">No recent runs found.</td>
