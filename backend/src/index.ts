@@ -426,24 +426,33 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       if (!response.ok) {
         const errorText = await response.text();
         
-        // --- Network Error Mapping ---
+        // --- Corrected Network Error Mapping ---
+
+        // 1. Check for our custom, specific errors thrown from the browser script first.
+        if (errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS')) {
+            throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
+        }
+        if (errorText.includes('BROWSERLESS_ERR_SERVER_ERROR')) {
+            throw new Error('BROWSERLESS_ERR_SERVER_ERROR');
+        }
+        if (errorText.includes('BROWSERLESS_ERR_NOT_FOUND_STATUS')) {
+            throw new Error('BROWSERLESS_ERR_NOT_FOUND');
+        }
+
+        // 2. Check for specific, known network-level errors.
+        if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+          throw new Error('BROWSERLESS_ERR_SSL');
+        }
         if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
           throw new Error('BROWSERLESS_ERR_NOT_FOUND');
         }
         if (errorText.includes('net::ERR_CONNECTION_REFUSED')) {
           throw new Error('BROWSERLESS_ERR_REFUSED');
         }
-        // Catch both network timeouts and navigation timeouts
+
+        // 3. Check for generic timeout errors as a fallback.
         if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout') || errorText.includes('net::ERR_EMPTY_RESPONSE')) {
           throw new Error('BROWSERLESS_ERR_TIMEOUT');
-        }
-        // Catch explicit status codes thrown from our script
-        if (errorText.includes('403') || errorText.includes('401') || errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS') || errorText.includes('BROWSERLESS_ERR_SERVER_ERROR')) {
-          throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
-        }
-        // Specific SSL Error
-        if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
-          throw new Error('BROWSERLESS_ERR_SSL');
         }
 
         // Fallback for other Browserless errors
