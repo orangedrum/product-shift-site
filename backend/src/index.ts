@@ -425,6 +425,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('Browserless Error Raw:', errorText);
         
         // --- Corrected Network Error Mapping ---
 
@@ -449,9 +450,12 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         if (errorText.includes('net::ERR_CONNECTION_REFUSED')) {
           throw new Error('BROWSERLESS_ERR_REFUSED');
         }
+        if (errorText.includes('net::ERR_EMPTY_RESPONSE')) {
+          throw new Error('BROWSERLESS_ERR_SERVER_ERROR');
+        }
 
         // 3. Check for generic timeout errors as a fallback.
-        if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout') || errorText.includes('net::ERR_EMPTY_RESPONSE')) {
+        if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError')) {
           throw new Error('BROWSERLESS_ERR_TIMEOUT');
         }
 
@@ -560,7 +564,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         await supabase.from('error_logs').insert({
           error_message: `Failed to run the test: ${errorMessage}`,
           details: error.stack || JSON.stringify(error), // Log the full error for debugging
-          endpoint: '/api/run-test'
+          endpoint: '/api/run-test',
+          user_identifier: userIdentifier
         });
       } catch (logErr) {
         console.error('Failed to log error to DB:', logErr);
@@ -585,10 +590,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         usageCounted: false
       });
     }
-    if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT' || errorMessage.includes('TimeoutError') || errorMessage.includes('net::ERR_EMPTY_RESPONSE')) {
+    if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT' || errorMessage.includes('TimeoutError')) {
       return res.status(408).json({
         error: 'Connection Timed Out',
-        details: 'The website took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.',
+        details: 'The URL you entered took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.',
         usageCounted: false
       });
     }
