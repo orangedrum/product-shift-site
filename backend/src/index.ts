@@ -265,6 +265,7 @@ const personas: Record<string, Persona> = {
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
   const { url, personaIds, goal } = req.body;
+  const isDemo = personaIds.length === 1;
 
   // Check for "test-mode" to bypass expensive calls for UI testing
   if (url.toLowerCase().includes('test-mode')) {
@@ -568,11 +569,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         if (runLogError) console.error('Failed to log analysis run:', runLogError);
       }
 
-      // --- Aggregated Expert Report ---
-      const isDemo = personaIds.length === 1;
-      await delay(6000); // Delay before the final expert report generation
-      let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
-      
       // Extract JSON Scores
       let scores = { usability: 0, desirability: 0, clarity: 0 };
       let expertReportText = rawExpertReport;
@@ -587,6 +583,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
       }
 
+      // --- Aggregated Expert Report ---
+      await delay(6000); // Delay before the final expert report generation
+      let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
+      
       // Prepend the security warning if an SSL issue was detected
       if (!result.hasValidSsl) {
         expertReportText = '|||SSL_WARNING_ALERT|||\n' + expertReportText;
@@ -742,7 +742,7 @@ app.get('/api/admin/stats', async (req, res) => {
         .from('analysis_runs')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(50);
 
     if (runsError) throw runsError;
 
