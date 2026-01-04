@@ -380,6 +380,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           if (status === 404) {
             throw new Error('BROWSERLESS_ERR_NOT_FOUND_STATUS');
           }
+          if (status >= 500) {
+            throw new Error('BROWSERLESS_ERR_SERVER_ERROR');
+          }
         }
 
         const title = await page.title();
@@ -438,11 +441,11 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           throw new Error('BROWSERLESS_ERR_REFUSED');
         }
         // Catch both network timeouts and navigation timeouts
-        if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout')) {
+        if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('timeout') || errorText.includes('net::ERR_EMPTY_RESPONSE')) {
           throw new Error('BROWSERLESS_ERR_TIMEOUT');
         }
         // Catch explicit status codes thrown from our script
-        if (errorText.includes('403') || errorText.includes('401') || errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS')) {
+        if (errorText.includes('403') || errorText.includes('401') || errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS') || errorText.includes('BROWSERLESS_ERR_SERVER_ERROR')) {
           throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
         }
         // Specific SSL Error
@@ -584,7 +587,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         usageCounted: false
       });
     }
-    if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT' || errorMessage.includes('TimeoutError')) {
+    if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT' || errorMessage.includes('TimeoutError') || errorMessage.includes('net::ERR_EMPTY_RESPONSE')) {
       return res.status(408).json({
         error: 'Connection Timed Out',
         details: 'The website took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.',
@@ -595,6 +598,13 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       return res.status(403).json({
         error: 'Access Denied',
         details: 'The website is blocking our AI agent. This often happens with sites that have strict firewalls or anti-bot protection.',
+        usageCounted: false
+      });
+    }
+    if (errorMessage.includes('BROWSERLESS_ERR_SERVER_ERROR')) {
+      return res.status(502).json({
+        error: 'Target Site Error',
+        details: 'The target website responded with a server error (500 or similar). It may be down for maintenance or experiencing issues.',
         usageCounted: false
       });
     }
