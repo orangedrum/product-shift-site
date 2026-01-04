@@ -360,7 +360,7 @@ const PricingSection = () => (
           </ul>
           <a href="#waitlist-form" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
             Join Waitlist
-          </Link>
+          </a>
         </div>
       </div>
     </div>
