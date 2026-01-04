@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import MarketingHero from '../components/MarketingHero';
 import { Link } from 'react-router-dom';
-import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, ShieldAlert, WifiOff, Ban, Clock } from 'lucide-react';
+import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw } from 'lucide-react';
+import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {
@@ -43,72 +44,6 @@ const formatDemoText = (text: string) => {
   }
 
   return recommendations;
-};
-
-const AnalysisErrorCard: React.FC<{ error: any, onReset: () => void }> = ({ error, onReset }) => {
-  // Determine Icon and Color based on error type
-  let Icon = AlertCircle;
-  let iconColor = "text-red-500";
-  let borderColor = "border-red-400";
-  let subHeader = "Analysis Failed";
-
-  if (error.error === 'Site Security Error') {
-    Icon = ShieldAlert;
-    iconColor = "text-yellow-500";
-    borderColor = "border-yellow-400";
-    subHeader = "Security Alert";
-  } else if (error.error === 'Target Site Error') {
-    Icon = AlertCircle;
-    iconColor = "text-orange-500";
-    borderColor = "border-orange-400";
-    subHeader = "Site Error";
-  } else if (error.error === 'Site Not Found' || error.error === 'Connection Refused') {
-    Icon = WifiOff;
-    iconColor = "text-gray-500";
-    borderColor = "border-gray-400";
-    subHeader = "Connection Error";
-  } else if (error.error === 'Connection Timed Out') {
-    Icon = Clock;
-    iconColor = "text-orange-500";
-    borderColor = "border-orange-400";
-    subHeader = "Timeout Error";
-  } else if (error.error === 'Restricted URL' || error.error === 'Access Denied') {
-    Icon = Ban;
-    iconColor = "text-red-600";
-    borderColor = "border-red-600";
-    subHeader = "Access Restricted";
-  }
-
-  return (
-    <div className="max-w-lg mx-auto">
-      <div className={`p-8 bg-white border-2 ${borderColor} rounded-xl shadow-2xl text-center text-gray-900`}>
-        <div className="flex justify-center mb-4">
-          <Icon className={`w-12 h-12 ${iconColor}`} />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">We were unable to test your site</h3>
-        
-        {error.usageCounted === false && (
-          <p className={`text-sm font-semibold uppercase tracking-wide mb-4 ${iconColor.replace('text-', 'text-opacity-80 text-')}`}>
-            {subHeader} — This test not counted toward your limit
-          </p>
-        )}
-        
-        <p className="text-gray-600 mb-4">
-          {error.details || error.error}
-        </p>
-        
-        {error.error === 'Site Security Error' && (
-          <p className="text-gray-600">
-            We recommend using a free tool like SSL Labs to diagnose and fix it. <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">You can learn more here.</a>
-          </p>
-        )}
-      </div>
-      <button onClick={onReset} className="mt-8 inline-flex items-center gap-2 text-gray-400 hover:text-white underline transition-colors">
-        <RefreshCw size={16} />
-        Run Another Test
-      </button>
-    </div>
-  );
 };
 
 // --- Internal Components for Landing Page Sections ---
@@ -325,7 +260,7 @@ const DemoSection = () => {
         
         {error && error.usageCounted === false ? (
           <div className="mt-8 animate-fade-in">
-            <AnalysisErrorCard error={error} onReset={() => setError(null)} />
+            <AnalysisErrorCard error={error} onReset={() => setError(null)} theme="dark" />
           </div>
         ) : (
           <>
