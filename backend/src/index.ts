@@ -426,41 +426,47 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Browserless Error Raw:', errorText);
+
+        const throwWithRaw = (msg: string) => {
+           const e = new Error(msg);
+           (e as any).rawError = errorText;
+           throw e;
+        };
         
         // --- Corrected Network Error Mapping ---
 
         // 1. Check for our custom, specific errors thrown from the browser script first.
         if (errorText.includes('BROWSERLESS_ERR_ACCESS_DENIED_STATUS')) {
-            throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
+            throwWithRaw('BROWSERLESS_ERR_ACCESS_DENIED');
         }
         if (errorText.includes('BROWSERLESS_ERR_SERVER_ERROR')) {
-            throw new Error('BROWSERLESS_ERR_SERVER_ERROR');
+            throwWithRaw('BROWSERLESS_ERR_SERVER_ERROR');
         }
         if (errorText.includes('BROWSERLESS_ERR_NOT_FOUND_STATUS')) {
-            throw new Error('BROWSERLESS_ERR_NOT_FOUND');
+            throwWithRaw('BROWSERLESS_ERR_NOT_FOUND');
         }
 
         // 2. Check for specific, known network-level errors.
         if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
-          throw new Error('BROWSERLESS_ERR_SSL');
+          throwWithRaw('BROWSERLESS_ERR_SSL');
         }
         if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
-          throw new Error('BROWSERLESS_ERR_NOT_FOUND');
+          throwWithRaw('BROWSERLESS_ERR_NOT_FOUND');
         }
         if (errorText.includes('net::ERR_CONNECTION_REFUSED')) {
-          throw new Error('BROWSERLESS_ERR_REFUSED');
+          throwWithRaw('BROWSERLESS_ERR_REFUSED');
         }
         if (errorText.includes('net::ERR_EMPTY_RESPONSE')) {
-          throw new Error('BROWSERLESS_ERR_TIMEOUT');
+          throwWithRaw('BROWSERLESS_ERR_TIMEOUT');
         }
 
         // 3. Check for generic timeout errors as a fallback.
         if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError')) {
-          throw new Error('BROWSERLESS_ERR_TIMEOUT');
+          throwWithRaw('BROWSERLESS_ERR_TIMEOUT');
         }
 
         // Fallback for other Browserless errors
-        throw new Error(`Browserless error: ${response.status} - ${errorText}`);
+        throwWithRaw(`Browserless error: ${response.status} - ${errorText}`);
       }
       const result = await response.json();
 
@@ -557,6 +563,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   } catch (error: any) {
     console.error('Test error:', error);
     const errorMessage = error.message || 'An unknown error occurred.';
+    // Extract raw error if available for debugging
+    const rawError = (error as any).rawError || '';
+    const debugSuffix = rawError ? ` [DEBUG RAW: ${rawError.substring(0, 150)}...]` : '';
     
     // Log error to Supabase for Admin Dashboard
     if (supabaseUrl && supabaseServiceKey) {
@@ -577,7 +586,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       const sslErrorDetails = `Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site. We recommend using a free tool like SSL Labs (ssllabs.com/ssltest/) to diagnose and fix it.`;
       return res.status(400).json({
         error: 'Site Security Error',
-        details: sslErrorDetails,
+        details: sslErrorDetails + debugSuffix,
         usageCounted: false
       });
     }
@@ -586,33 +595,33 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     if (errorMessage === 'BROWSERLESS_ERR_NOT_FOUND') {
       return res.status(400).json({
         error: 'Site Not Found',
-        details: 'We could not locate this domain. Please check your spelling and ensure the website is online.',
+        details: 'We could not locate this domain. Please check your spelling and ensure the website is online.' + debugSuffix,
         usageCounted: false
       });
     }
     if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT' || errorMessage.includes('TimeoutError')) {
       return res.status(408).json({
         error: 'Connection Timed Out',
-        details: 'The URL you entered took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.',
+        details: 'The URL you entered took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.' + debugSuffix,
         usageCounted: false
       });
     }
     if (errorMessage === 'BROWSERLESS_ERR_REFUSED' || errorMessage === 'BROWSERLESS_ERR_ACCESS_DENIED') {
       return res.status(403).json({
         error: 'Access Denied',
-        details: 'The website is blocking our AI agent. This often happens with sites that have strict firewalls or anti-bot protection.',
+        details: 'The website is blocking our AI agent. This often happens with sites that have strict firewalls or anti-bot protection.' + debugSuffix,
         usageCounted: false
       });
     }
     if (errorMessage.includes('BROWSERLESS_ERR_SERVER_ERROR')) {
       return res.status(502).json({
         error: 'Target Site Error',
-        details: 'The target website responded with a server error (500 or similar). It may be down for maintenance or experiencing issues.',
+        details: 'The target website responded with a server error (500 or similar). It may be down for maintenance or experiencing issues.' + debugSuffix,
         usageCounted: false
       });
     }
 
-    res.status(500).json({ error: `Failed to run the test`, details: errorMessage });
+    res.status(500).json({ error: `Failed to run the test`, details: errorMessage + debugSuffix });
   }
 };
 
