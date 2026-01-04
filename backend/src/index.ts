@@ -467,8 +467,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
         }
 
-        // 3. Check for genuine browser-level timeout errors as a fallback.
-        if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError')) {
+        // 3. Check for genuine timeout errors from Browserless as a fallback.
+        if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError') || errorText.includes('Navigation timeout')) {
           throw new Error('BROWSERLESS_ERR_TIMEOUT');
         }
 
@@ -613,7 +613,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     if (errorMessage === 'BROWSERLESS_ERR_REFUSED' || errorMessage === 'BROWSERLESS_ERR_ACCESS_DENIED') {
       return res.status(403).json({
         error: 'Access Denied',
-        details: 'The URL you entered is blocking our AI agent. This often happens with sites that have strict firewalls or anti-bot protection.',
+        details: 'The URL you provided is blocking our AI agent. This can happen with sites that have strict firewalls or anti-bot protection.',
         usageCounted: false
       });
     }
