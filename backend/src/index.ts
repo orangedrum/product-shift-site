@@ -181,6 +181,21 @@ app.get('/api', (req, res) => {
   res.send('AI UX Agent Backend is running!');
 });
 
+// --- Deterministic Test Routes ---
+// These routes are for internal testing to provide reliable, predictable responses.
+app.get('/api/test-pages/timeout', (req, res) => {
+  setTimeout(() => {
+    res.send('This page loaded after a long delay.');
+  }, 20000); // 20 second delay, will be caught by our 15s timeout
+});
+app.get('/api/test-pages/access-denied', (req, res) => {
+  res.status(403).send('Access Denied by Test Page');
+});
+app.get('/api/test-pages/server-error', (req, res) => {
+  res.status(500).send('Internal Server Error on Test Page');
+});
+// --- End Test Routes ---
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -447,12 +462,12 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
           throw new Error('BROWSERLESS_ERR_NOT_FOUND');
         }
-        // An empty response or refused connection is a form of access denial (firewall, etc.)
+        // A refused connection or an empty response from a firewall is a form of access denial.
         if (errorText.includes('net::ERR_CONNECTION_REFUSED') || errorText.includes('net::ERR_EMPTY_RESPONSE')) {
           throw new Error('BROWSERLESS_ERR_ACCESS_DENIED');
         }
 
-        // 3. Check for genuine timeout errors as a fallback.
+        // 3. Check for genuine browser-level timeout errors as a fallback.
         if (errorText.includes('net::ERR_CONNECTION_TIMED_OUT') || errorText.includes('TimeoutError')) {
           throw new Error('BROWSERLESS_ERR_TIMEOUT');
         }
@@ -591,21 +606,21 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     if (errorMessage === 'BROWSERLESS_ERR_TIMEOUT' || errorMessage.includes('TimeoutError')) {
       return res.status(408).json({
         error: 'Connection Timed Out',
-        details: 'The URL you entered took too long to respond. It might be down, experiencing heavy traffic, or blocking automated access.',
+        details: 'The URL you entered took too long to respond. This can happen if the site is down, experiencing heavy traffic, or blocking automated access.',
         usageCounted: false
       });
     }
     if (errorMessage === 'BROWSERLESS_ERR_REFUSED' || errorMessage === 'BROWSERLESS_ERR_ACCESS_DENIED') {
       return res.status(403).json({
         error: 'Access Denied',
-        details: 'The website is blocking our AI agent. This often happens with sites that have strict firewalls or anti-bot protection.',
+        details: 'The URL you entered is blocking our AI agent. This often happens with sites that have strict firewalls or anti-bot protection.',
         usageCounted: false
       });
     }
     if (errorMessage.includes('BROWSERLESS_ERR_SERVER_ERROR')) {
       return res.status(502).json({
         error: 'Target Site Error',
-        details: 'The target website responded with a server error (500 or similar). It may be down for maintenance or experiencing issues.',
+        details: 'The URL you entered responded with a server error (500 or similar). The site may be down for maintenance or experiencing issues.',
         usageCounted: false
       });
     }
