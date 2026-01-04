@@ -22,7 +22,7 @@ function App() {
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           
           {/* Redirects & Fallbacks */}
-          <Route path="/ai-powered-uxhealthtech" element={<Navigate to="/ai-powered-ux-healthtech" replace />} />
+          <Route path="/ai-powered-ux-healthtech" element={<Navigate to="/ai-powered-ux" replace />} />
           <Route path="*" element={<div className="text-center py-20"><h1 className="text-4xl font-bold">404</h1><p>Page not found</p></div>} />
         </Routes>
       </main>
