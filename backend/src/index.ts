@@ -172,6 +172,7 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
 // Initialize Express App
 const app = express();
 
+app.set('trust proxy', 1); // Trust Vercel proxy to get correct req.ip
 // Middleware
 app.use(cors()); // Allow requests from any origin
 app.use(express.json());
@@ -193,6 +194,25 @@ app.get('/api/test-pages/access-denied', (req, res) => {
 });
 app.get('/api/test-pages/server-error', (req, res) => {
   res.status(500).send('Internal Server Error on Test Page');
+});
+
+app.get('/api/test-pages/db-log', async (req, res) => {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return res.status(500).json({ error: 'Supabase credentials missing in environment variables' });
+  }
+  try {
+    const { data, error } = await supabase.from('error_logs').insert({
+      error_message: 'Test Log Entry from /api/test-pages/db-log',
+      details: 'Testing DB write capability. If you see this, writing works.',
+      endpoint: '/api/test-pages/db-log',
+      user_identifier: 'test-user-ip'
+    }).select();
+
+    if (error) return res.status(500).json({ error: 'Supabase Insert Failed', details: error });
+    res.json({ message: 'Successfully wrote to error_logs table.', insertedData: data });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Unexpected Error during DB Write', details: e.message });
+  }
 });
 // --- End Test Routes ---
 
