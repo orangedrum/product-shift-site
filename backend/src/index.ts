@@ -549,6 +549,25 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
       }
 
+      // --- Log Analysis Run & Cost ---
+      if (supabaseUrl && supabaseServiceKey) {
+        // Default to 2 cents per AI call if not specified in environment
+        const costPerAiCallCents = parseInt(process.env.AI_COST_PER_CALL_CENTS || '2');
+        const totalAiCalls = personaIds.length + 1; // N personas + 1 aggregated report
+        const estimatedCost = (totalAiCalls * costPerAiCallCents) / 100; // Store cost in dollars
+
+        const { error: runLogError } = await supabase
+          .from('analysis_runs')
+          .insert({
+            user_identifier: userIdentifier,
+            url: url,
+            persona_count: personaIds.length,
+            estimated_cost: estimatedCost,
+            is_demo: isDemo
+          });
+        if (runLogError) console.error('Failed to log analysis run:', runLogError);
+      }
+
       // --- Aggregated Expert Report ---
       const isDemo = personaIds.length === 1;
       await delay(6000); // Delay before the final expert report generation
@@ -718,7 +737,16 @@ app.get('/api/admin/stats', async (req, res) => {
         .order('created_at', { ascending: false })
         .limit(5);
 
-    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [] });
+    // Get Recent Analysis Runs
+    const { data: recentRuns, error: runsError } = await supabase
+        .from('analysis_runs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+    if (runsError) throw runsError;
+
+    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [] });
 
   } catch (error: any) {
     console.error('Admin Stats Error:', error);

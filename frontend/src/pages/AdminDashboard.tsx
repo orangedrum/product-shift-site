@@ -4,7 +4,8 @@ import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, Refresh
 type Stats = {
   dailyUsage: number;
   waitlistCount: number;
-  recentErrors: { created_at: string; error_message: string }[];
+  recentErrors: { id: number; created_at: string; error_message: string; details: string }[];
+  recentRuns: { id: number; created_at: string; user_identifier: string; url: string; persona_count: number; estimated_cost: number; is_demo: boolean }[];
 };
 
 const AdminDashboard: React.FC = () => {
@@ -158,17 +159,55 @@ const AdminDashboard: React.FC = () => {
         <h2 className="text-2xl font-bold mb-4">Recent Errors</h2>
         <div className="bg-white p-6 rounded-lg shadow border">
           <ul className="space-y-3">
-            {stats?.recentErrors?.map((err, i) => (
-              <li key={i} className="text-sm p-3 bg-red-50 rounded-md flex items-start gap-3">
+            {stats?.recentErrors?.map((err) => (
+              <li key={err.id} className="text-sm p-3 bg-red-50 rounded-md flex items-start gap-3">
                 <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={16} />
-                <div>
-                  <p className="font-mono text-red-700">{err.error_message}</p>
-                  <p className="text-xs text-gray-500">{new Date(err.created_at).toLocaleString()}</p>
+                <div className="w-full overflow-hidden">
+                  <p className="font-mono text-red-700 font-semibold">{err.error_message}</p>
+                  <p className="text-xs text-gray-500 mb-2">{new Date(err.created_at).toLocaleString()}</p>
+                  <details className="text-xs">
+                    <summary className="cursor-pointer text-gray-600 hover:text-gray-900">Show Details</summary>
+                    <pre className="mt-2 p-2 bg-red-100 text-red-800 rounded overflow-auto text-xs">{err.details}</pre>
+                  </details>
                 </div>
               </li>
             ))}
             {stats?.recentErrors?.length === 0 && <p className="text-gray-500">No errors logged. Great!</p>}
           </ul>
+        </div>
+      </div>
+
+      {/* Recent Runs */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-4">Recent Analysis Runs</h2>
+        <div className="bg-white rounded-lg shadow border overflow-x-auto">
+            <table className="w-full text-sm text-left">
+                <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
+                    <tr>
+                        <th scope="col" className="px-6 py-3">URL</th>
+                        <th scope="col" className="px-6 py-3">User</th>
+                        <th scope="col" className="px-6 py-3">Personas</th>
+                        <th scope="col" className="px-6 py-3">Est. Cost</th>
+                        <th scope="col" className="px-6 py-3">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {stats?.recentRuns?.map((run) => (
+                        <tr key={run.id} className="bg-white border-b hover:bg-gray-50">
+                            <td className="px-6 py-4 font-medium text-gray-900 truncate max-w-xs" title={run.url}>{run.url}</td>
+                            <td className="px-6 py-4 font-mono text-gray-500">{run.user_identifier}</td>
+                            <td className="px-6 py-4">{run.persona_count} {run.is_demo && <span className="text-xs text-indigo-600 font-semibold">(Demo)</span>}</td>
+                            <td className="px-6 py-4 font-semibold">${run.estimated_cost.toFixed(2)}</td>
+                            <td className="px-6 py-4 text-gray-500">{new Date(run.created_at).toLocaleString()}</td>
+                        </tr>
+                    ))}
+                    {stats?.recentRuns?.length === 0 && (
+                        <tr>
+                            <td colSpan={5} className="text-center py-4 text-gray-500">No recent runs found.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
         </div>
       </div>
     </div>
