@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart, Users, AlertTriangle, DollarSign, CreditCard } from 'lucide-react';
+import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, RefreshCw } from 'lucide-react';
 
 type Stats = {
   dailyUsage: number;
@@ -13,13 +13,23 @@ const AdminDashboard: React.FC = () => {
   const [secretKey, setSecretKey] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const fetchStats = async () => {
+  const fetchStats = async (keyOverride?: string) => {
+    const key = keyOverride || secretKey;
+    if (!key) return;
+
     try {
       const response = await fetch('/api/admin/stats', {
         headers: {
-          'Authorization': `Bearer ${secretKey}`
+          'Authorization': `Bearer ${key}`
         }
       });
+
+      if (response.status === 401) {
+        setIsAuthenticated(false);
+        localStorage.removeItem('adminSecretKey');
+        throw new Error('Session expired or invalid key');
+      }
+
       if (!response.ok) {
         const errData = await response.json();
         throw new Error(errData.error || 'Failed to fetch stats');
@@ -27,15 +37,41 @@ const AdminDashboard: React.FC = () => {
       const data = await response.json();
       setStats(data);
       setIsAuthenticated(true);
+      if (key) localStorage.setItem('adminSecretKey', key);
     } catch (e: any) {
       setError(e.message);
-      setIsAuthenticated(false);
+      // Don't de-auth on simple network errors, only on 401s (handled above)
     }
   };
+
+  // 1. Check for stored key on mount
+  useEffect(() => {
+    const storedKey = localStorage.getItem('adminSecretKey');
+    if (storedKey) {
+      setSecretKey(storedKey);
+      fetchStats(storedKey);
+    }
+  }, []);
+
+  // 2. Auto-refresh polling (every 10 seconds)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const interval = setInterval(() => {
+      fetchStats();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, secretKey]);
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
     fetchStats();
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminSecretKey');
+    setSecretKey('');
+    setIsAuthenticated(false);
+    setStats(null);
   };
 
   if (!isAuthenticated) {
@@ -63,7 +99,19 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto py-12 px-4">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <div className="flex gap-3">
+            <button onClick={() => fetchStats()} className="p-2 text-gray-600 hover:text-indigo-600 transition-colors" title="Refresh Data">
+                <RefreshCw size={20} />
+            </button>
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition-colors">
+                <LogOut size={16} />
+                Logout
+            </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Stat Cards */}
         <div className="bg-white p-6 rounded-lg shadow border">

@@ -204,7 +204,6 @@ app.get('/api/test-pages/db-log', async (req, res) => {
     const { data, error } = await supabase.from('error_logs').insert({
       error_message: 'Test Log Entry from /api/test-pages/db-log',
       details: 'Testing DB write capability. If you see this, writing works.',
-      user_identifier: 'test-user-ip'
     }).select();
 
     if (error) return res.status(500).json({ error: 'Supabase Insert Failed', details: error });
@@ -596,7 +595,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         await supabase.from('error_logs').insert({
           error_message: `Failed to run the test: ${errorMessage}`,
           details: error.stack || JSON.stringify(error), // Log the full error for debugging
-          user_identifier: userIdentifier
         });
       } catch (logErr) {
         console.error('Failed to log error to DB:', logErr);
