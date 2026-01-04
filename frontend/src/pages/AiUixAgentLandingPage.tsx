@@ -229,7 +229,7 @@ const PricingSection = () => (
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Analysis with 3 Personas</li>
             <li className="flex items-center gap-3"><Check className="text-green-500" size={20} />Includes Visual & Heuristic Analysis</li>
           </ul>
-          <Link to="/ai-powered-ux-healthtech" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+          <Link to="/ai-powered-ux" className="mt-8 block w-full text-center px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
             Run Free Analysis
           </Link>
         </div>

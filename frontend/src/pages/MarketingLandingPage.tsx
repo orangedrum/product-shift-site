@@ -322,7 +322,7 @@ const PricingSection = () => (
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Up to 5 Personas per Test</li>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Full PDF Reports</li>
           </ul>
-          <Link to="/ai-powered-ux-healthtech?plan=starter" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
+          <Link to="/ai-powered-ux?plan=starter" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95">
             Get Started
           </Link>
         </div>

@@ -16,7 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/styleguide" element={<Styleguide />} />
-          <Route path="/ai-powered-ux-healthtech" element={<AiUxAgent />} /> 
+          <Route path="/ai-powered-ux" element={<AiUxAgent />} /> 
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} /> 
           <Route path="/waitlist" element={<WaitlistPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

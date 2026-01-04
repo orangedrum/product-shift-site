@@ -70,8 +70,8 @@ const Styleguide = () => {
                 <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/</code>
               </li>
               <li>
-                <Link to="/ai-powered-ux-healthtech" className="text-brand-blue hover:underline font-semibold">AI UX Agent</Link>
-                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/ai-powered-ux-healthtech</code>
+                <Link to="/ai-powered-ux" className="text-brand-blue hover:underline font-semibold">AI UX Agent</Link>
+                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/ai-powered-ux</code>
               </li>
               <li>
                 <Link to="/landingpg-aiuxagent" className="text-brand-blue hover:underline font-semibold">AI Agent Landing Page</Link>
