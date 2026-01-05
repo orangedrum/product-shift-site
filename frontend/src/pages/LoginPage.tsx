@@ -1,20 +1,28 @@
 import React, { useEffect } from 'react';
-import { useSession } from '@supabase/auth-helpers-react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 const LoginPage: React.FC = () => {
-  const session = useSession();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session) {
-      // User is logged in, redirect them to the tool
-      navigate('/ai-powered-ux');
-    }
-  }, [session, navigate]);
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/ai-powered-ux');
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        navigate('/ai-powered-ux');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="container mx-auto max-w-md py-12 px-4">
