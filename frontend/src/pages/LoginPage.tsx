@@ -1,28 +1,51 @@
 import React, { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get('plan');
 
   useEffect(() => {
+    const handleRedirect = async (session: any) => {
+      if (!session) return;
+
+      // If the user came here with a plan intent, redirect to Stripe
+      if (plan === 'starter') {
+        try {
+          const { user } = session;
+          const response = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ planId: 'starter', email: user.email }),
+          });
+          const data = await response.json();
+          if (data.url) {
+            window.location.href = data.url;
+            return;
+          }
+        } catch (error) {
+          console.error('Checkout redirect error:', error);
+          // If error, fall through to dashboard
+        }
+      }
+      navigate('/ai-powered-ux');
+    };
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/ai-powered-ux');
-      }
+      handleRedirect(session);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate('/ai-powered-ux');
-      }
+      handleRedirect(session);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, plan]);
 
   return (
     <div className="container mx-auto max-w-md py-12 px-4">
