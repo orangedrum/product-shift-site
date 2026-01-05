@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -8,6 +8,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const plan = searchParams.get('plan');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Create a stable redirect URL that preserves the plan intent
   const redirectUrl = useMemo(() => {
@@ -20,7 +21,10 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     const handleRedirect = async (session: any) => {
-      if (!session) return;
+      if (!session) {
+        setIsLoading(false);
+        return;
+      }
 
       // If the user came here with a plan intent, redirect to Stripe
       if (plan === 'starter') {
@@ -38,6 +42,7 @@ const LoginPage: React.FC = () => {
           }
         } catch (error) {
           console.error('Checkout redirect error:', error);
+          setIsLoading(false);
           // If error, fall through to dashboard
         }
       }
@@ -55,6 +60,17 @@ const LoginPage: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate, plan]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Securely logging you in...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-md py-12 px-4">

@@ -157,6 +157,11 @@ const DemoSection = () => {
     }
   };
 
+  const scrollToPricing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   if (result) {
     const session = result.userSessions?.[0];
     const userBubble = session?.analysis?.split('|||USER_BUBBLE|||')[1]?.split('|||USER_DETAILS|||')[0]?.trim() || "Analysis complete.";
@@ -187,10 +192,10 @@ const DemoSection = () => {
                 <div className="relative">
                   <p className="text-base italic text-gray-700 leading-relaxed blur-sm select-none">"{userBubble}"</p>
                   <div className="absolute inset-0 flex items-center justify-center bg-transparent">
-                      <span className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm">
+                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
                           <Lock size={12} className="inline-block mr-1" />
                           Unlock Feedback
-                      </span>
+                      </a>
                   </div>
                 </div>
               </div>
@@ -211,10 +216,10 @@ const DemoSection = () => {
                       ))}
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center bg-white/40">
-                      <span className="flex items-center gap-2 text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm">
+                      <a href="#pricing" onClick={scrollToPricing} className="flex items-center gap-2 text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer">
                         <Lock size={12} />
                         Unlock Full Analysis
-                      </span>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -229,8 +234,8 @@ const DemoSection = () => {
                   <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
                   <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
                   <p className="text-sm text-indigo-700 mt-1">Get the complete heuristic analysis, performance scores, and feedback from 5 more personas.</p>
-                  <a href="#waitlist-form" className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-                    Join Waitlist
+                  <a href="#pricing" onClick={scrollToPricing} className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+                    Get Full Access
                   </a>
                 </div>
               </div>
