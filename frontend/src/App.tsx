@@ -7,7 +7,7 @@ import MarketingLandingPage from './pages/MarketingLandingPage';
 import HomePage from './pages/HomePage';
 import WaitlistPage from './pages/WaitlistPage';
 import AdminDashboard from './pages/AdminDashboard';
-import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentConfirmation from './pages/PaymentConfirmation';
 import LoginPage from './pages/LoginPage';
 import AccountPage from './pages/AccountPage';
 import { RequireSubscription } from './components/RequireSubscription';
@@ -30,7 +30,7 @@ function App() {
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/account" element={<AccountPage />} />
-          <Route path="/payment-success" element={<PaymentSuccessPage />} />
+          <Route path="/payment-success" element={<PaymentConfirmation />} />
           
           {/* Redirects & Fallbacks */}
           <Route path="/ai-powered-ux-healthtech" element={<Navigate to="/ai-powered-ux" replace />} />
