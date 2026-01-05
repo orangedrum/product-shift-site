@@ -6,6 +6,7 @@ type Stats = {
   waitlistCount: number;
   recentErrors: { id: number; created_at: string; error_message: string; details: string; }[];
   recentRuns: { id: number; created_at: string; user_identifier: string; url: string; persona_count: number; estimated_cost: number; is_demo: boolean; plan_type: string; revenue: number; }[];
+  recentSubscribers: { id: number; created_at: string; email: string; plan_status: string; }[];
 };
 
 const AdminDashboard: React.FC = () => {
@@ -148,7 +149,7 @@ const AdminDashboard: React.FC = () => {
             <CreditCard className="text-gray-400" size={32} />
             <div>
               <p className="text-sm text-gray-500">Paying Customers</p>
-              <p className="text-3xl font-bold text-gray-400">0</p>
+              <p className="text-3xl font-bold text-gray-900">{stats?.recentSubscribers?.length || 0}</p>
             </div>
           </div>
         </div>
@@ -174,6 +175,36 @@ const AdminDashboard: React.FC = () => {
             ))}
             {stats?.recentErrors?.length === 0 && <p className="text-gray-500">No errors logged. Great!</p>}
           </ul>
+        </div>
+      </div>
+
+      {/* Recent Subscribers */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-4">Recent Subscribers</h2>
+        <div className="bg-white rounded-lg shadow border overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
+              <tr>
+                <th scope="col" className="px-6 py-3">Email</th>
+                <th scope="col" className="px-6 py-3">Status</th>
+                <th scope="col" className="px-6 py-3">Date Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats?.recentSubscribers?.map((sub) => (
+                <tr key={sub.id} className="bg-white border-b hover:bg-gray-50">
+                  <td className="px-6 py-4 font-medium text-gray-900">{sub.email}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${sub.plan_status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                      {sub.plan_status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-gray-500">{new Date(sub.created_at).toLocaleString()}</td>
+                </tr>
+              ))}
+              {stats?.recentSubscribers?.length === 0 && <tr><td colSpan={3} className="text-center py-4 text-gray-500">No subscribers yet.</td></tr>}
+            </tbody>
+          </table>
         </div>
       </div>
 

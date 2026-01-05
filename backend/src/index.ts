@@ -903,8 +903,16 @@ app.get('/api/admin/stats', async (req, res) => {
 
     if (runsError) throw runsError;
 
-    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [] });
+    // Get Recent Subscribers
+    const { data: recentSubscribers, error: subscribersError } = await supabase
+        .from('customers')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
 
+    if (subscribersError) throw subscribersError;
+
+    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [], recentSubscribers: recentSubscribers || [] });
   } catch (error: any) {
     console.error('Admin Stats Error:', error);
     res.status(500).json({ error: 'Failed to fetch stats', details: error.message });
