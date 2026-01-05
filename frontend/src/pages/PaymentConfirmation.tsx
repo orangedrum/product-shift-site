@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Check, Loader2, AlertCircle } from 'lucide-react';
+import { Check, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 
 const PaymentConfirmation = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const PaymentConfirmation = () => {
 
       // Poll for subscription activation (Webhook latency is usually 1-3 seconds)
       let attempts = 0;
-      const maxAttempts = 15; // ~30 seconds max wait
+      const maxAttempts = 30; // ~30 seconds max wait (1s interval)
 
       const poll = setInterval(async () => {
         attempts++;
@@ -35,12 +35,12 @@ const PaymentConfirmation = () => {
           clearInterval(poll);
           setStatus('success');
           // Short delay to show the success state before redirecting
-          setTimeout(() => navigate('/ai-powered-ux'), 2000);
+          setTimeout(() => navigate('/ai-powered-ux'), 1500);
         } else if (attempts >= maxAttempts) {
           clearInterval(poll);
           setStatus('timeout');
         }
-      }, 2000);
+      }, 1000);
 
       return () => clearInterval(poll);
     };
@@ -56,6 +56,12 @@ const PaymentConfirmation = () => {
             <Loader2 className="h-12 w-12 text-indigo-600 mx-auto mb-4 animate-spin" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Confirming Payment...</h2>
             <p className="text-gray-600">We're syncing your subscription with our secure database. This usually takes just a moment.</p>
+            
+            <div className="mt-8">
+              <button onClick={() => navigate('/account')} className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center justify-center gap-1 mx-auto">
+                Taking too long? Go to My Account <ArrowRight size={14} />
+              </button>
+            </div>
           </div>
         )}
         {status === 'success' && (

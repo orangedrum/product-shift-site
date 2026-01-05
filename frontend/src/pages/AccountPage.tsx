@@ -1,31 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { RefreshCw } from 'lucide-react';
 
 const AccountPage = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const getProfile = async () => {
+    setLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      navigate('/login');
+      return;
+    }
+
+    const { data } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('email', session.user.email)
+      .single();
+
+    setProfile(data);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const getProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate('/login');
-        return;
-      }
-
-      const { data } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('email', session.user.email)
-        .single();
-
-      setProfile(data);
-      setLoading(false);
-    };
-
     getProfile();
   }, [navigate]);
 
@@ -47,7 +49,12 @@ const AccountPage = () => {
       <h1 className="text-3xl font-bold mb-8 text-gray-900">My Account</h1>
       
       <div className="bg-white shadow-lg rounded-xl p-8 mb-8 border border-gray-100">
-        <h2 className="text-xl font-bold mb-6 text-gray-800">Subscription Status</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gray-800">Subscription Status</h2>
+          <button onClick={getProfile} className="text-indigo-600 hover:text-indigo-800 p-2 rounded-full hover:bg-indigo-50 transition-colors" title="Refresh Status">
+            <RefreshCw size={20} />
+          </button>
+        </div>
         {profile ? (
           <div className="space-y-4">
             <div className="flex justify-between items-center border-b border-gray-100 pb-4">
@@ -68,7 +75,8 @@ const AccountPage = () => {
           </div>
         ) : (
           <div className="text-center py-6">
-            <p className="text-gray-600 mb-4">No active subscription found.</p>
+            <p className="text-gray-900 font-medium mb-2">No active subscription found.</p>
+            <p className="text-sm text-gray-500 mb-6">If you just made a payment, please click the refresh icon above in a few moments.</p>
             <button 
               onClick={() => navigate('/landingpg-aiuxagent')}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
