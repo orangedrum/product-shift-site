@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -8,6 +8,15 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const plan = searchParams.get('plan');
+
+  // Create a stable redirect URL that preserves the plan intent
+  const redirectUrl = useMemo(() => {
+    const url = new URL(`${window.location.origin}/login`);
+    if (plan) {
+      url.searchParams.set('plan', plan);
+    }
+    return url.toString();
+  }, [plan]);
 
   useEffect(() => {
     const handleRedirect = async (session: any) => {
@@ -51,11 +60,15 @@ const LoginPage: React.FC = () => {
     <div className="container mx-auto max-w-md py-12 px-4">
       <div className="p-8 border rounded-lg shadow-lg bg-white">
         <h2 className="text-2xl font-bold text-center mb-6">Sign In / Sign Up</h2>
+        <p className="text-center text-gray-600 mb-6">Enter your email to receive a secure login link.</p>
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
           providers={['google']} // Optional: Add social logins like Google
-          redirectTo={`${window.location.origin}/ai-powered-ux`}
+          view="magic_link"
+          showLinks={false}
+          magicLink={true}
+          redirectTo={redirectUrl}
         />
       </div>
     </div>
