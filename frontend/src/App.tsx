@@ -9,6 +9,8 @@ import WaitlistPage from './pages/WaitlistPage';
 import AdminDashboard from './pages/AdminDashboard';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import LoginPage from './pages/LoginPage';
+import AccountPage from './pages/AccountPage';
+import { RequireSubscription } from './components/RequireSubscription';
 
 function App() {
   return (
@@ -18,11 +20,16 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/styleguide" element={<Styleguide />} />
-          <Route path="/ai-powered-ux" element={<AiUxAgent />} /> 
+          <Route path="/ai-powered-ux" element={
+            <RequireSubscription>
+              <AiUxAgent />
+            </RequireSubscription>
+          } /> 
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} /> 
           <Route path="/waitlist" element={<WaitlistPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           
           {/* Redirects & Fallbacks */}
