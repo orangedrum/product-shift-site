@@ -25,7 +25,15 @@ const PaymentConfirmation = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: sessionId }),
-      }).catch(err => console.error('Verification fallback failed:', err));
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.verified) {
+          setStatus('success');
+          setTimeout(() => navigate('/ai-powered-ux'), 1500);
+        }
+      })
+      .catch(err => console.error('Verification fallback failed:', err));
 
       // 2. Passive Polling (The "Safety Net")
       // Poll for subscription activation (Webhook latency is usually 1-3 seconds)

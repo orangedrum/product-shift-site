@@ -236,6 +236,9 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
   res.json({received: true});
 });
 
+// This must come AFTER the webhook endpoint.
+app.use(express.json());
+
 // --- Active Payment Verification (Self-Healing) ---
 // Allows the frontend to force a check if the webhook is slow or missing.
 app.post('/api/verify-payment', async (req, res) => {
@@ -274,9 +277,6 @@ app.post('/api/verify-payment', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// This must come AFTER the webhook endpoint.
-app.use(express.json()); 
 
 // Routes
 app.get('/api', (req, res) => {
