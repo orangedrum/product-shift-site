@@ -185,6 +185,7 @@ app.use(cors({ origin: true }));
 // --- Stripe Webhook Endpoint ---
 // This MUST be before `app.use(express.json())` so we can get the raw body for signature verification.
 app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  console.log('🔔 Webhook received from IP:', req.ip);
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -199,7 +200,7 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err: any) {
     console.error(`Webhook signature verification failed: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message} | Ensure STRIPE_WEBHOOK_SECRET matches the Stripe Dashboard.`);
   }
 
   // Handle the event
@@ -207,6 +208,7 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session;
       
+      console.log(`💰 Processing checkout session: ${session.id}`);
       // This is where we provision the user's account.
       // We find the user by the email they entered at checkout.
       const customerEmail = session.customer_details?.email;
@@ -221,13 +223,56 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           plan_status: 'active'
         }, { onConflict: 'email' });
 
-        if (error) console.error('Supabase upsert error:', error);
+        if (error) {
+            console.error('Supabase upsert error:', error);
+        } else {
+            console.log(`✅ Successfully provisioned subscription for ${customerEmail}`);
+        }
       }
       break;
     // TODO: Handle other events like `customer.subscription.deleted` to downgrade users.
   }
 
   res.json({received: true});
+});
+
+// --- Active Payment Verification (Self-Healing) ---
+// Allows the frontend to force a check if the webhook is slow or missing.
+app.post('/api/verify-payment', async (req, res) => {
+  const { session_id } = req.body;
+  
+  if (!session_id) {
+    return res.status(400).json({ error: 'Missing session_id' });
+  }
+
+  try {
+    // 1. Ask Stripe directly about this session
+    const session = await stripe.checkout.sessions.retrieve(session_id as string);
+    
+    // 2. If paid, ensure the database is updated immediately
+    if (session.payment_status === 'paid') {
+      const customerEmail = session.customer_details?.email;
+      const stripeCustomerId = session.customer as string;
+      const stripeSubscriptionId = session.subscription as string;
+
+      if (customerEmail) {
+        await supabase.from('customers').upsert({ 
+          email: customerEmail,
+          stripe_customer_id: stripeCustomerId,
+          stripe_subscription_id: stripeSubscriptionId,
+          plan_status: 'active'
+        }, { onConflict: 'email' });
+        
+        return res.json({ status: 'active', verified: true });
+      }
+    }
+    
+    res.json({ status: session.payment_status, verified: false });
+  } catch (error: any) {
+    console.error('Payment Verification Error:', error);
+    // Don't fail hard, just return error so frontend keeps polling
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // This must come AFTER the webhook endpoint.

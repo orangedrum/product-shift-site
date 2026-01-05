@@ -19,6 +19,15 @@ const PaymentConfirmation = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
+      // 1. Active Verification (The "Fast Lane")
+      // Immediately ask the backend to verify with Stripe, in case webhook is slow/missing.
+      fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId }),
+      }).catch(err => console.error('Verification fallback failed:', err));
+
+      // 2. Passive Polling (The "Safety Net")
       // Poll for subscription activation (Webhook latency is usually 1-3 seconds)
       let attempts = 0;
       const maxAttempts = 30; // ~30 seconds max wait (1s interval)
