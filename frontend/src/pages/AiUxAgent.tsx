@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { User, AlertCircle, CheckCircle } from 'lucide-react';
-import { AnalysisErrorCard, SslWarning, AnalysisError } from '../components/AnalysisErrorCard';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink } from 'lucide-react';
+import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 
 // Define types for the API response and error
 type UserSession = {
@@ -89,6 +89,56 @@ const formatText = (text: string) => {
   });
 };
 
+// Custom Security Alert Component (Matches user's exact design)
+const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = ({ isBlocking = false, onReset }) => (
+  <div className="max-w-2xl mx-auto mt-8 bg-white border border-gray-200 rounded-xl shadow-lg p-8 animate-fade-in">
+    <div className="flex flex-col items-center text-center gap-6">
+      <div className="p-4 bg-orange-50 rounded-full">
+        <ShieldAlert className="text-orange-500" size={48} />
+      </div>
+      
+      <div className="space-y-2">
+        <h3 className="text-xl font-bold text-gray-900">Security Connection Issue</h3>
+        <p className="text-gray-600 max-w-md mx-auto">
+          Our AI agent detected a potential issue with this site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).
+        </p>
+      </div>
+
+      <div className="w-full bg-gray-50 rounded-lg border border-gray-100 p-5 text-left">
+        <h4 className="font-semibold text-gray-900 text-sm mb-3 uppercase tracking-wider">How to fix this</h4>
+        <ul className="space-y-3 text-sm text-gray-600">
+          <li className="flex gap-3">
+            <CheckCircle className="text-green-500 shrink-0" size={18} />
+            <span>Check if your SSL certificate is valid and not expired.</span>
+          </li>
+          <li className="flex gap-3">
+            <CheckCircle className="text-green-500 shrink-0" size={18} />
+            <span>Ensure your server supports TLS 1.2 or higher.</span>
+          </li>
+          <li className="flex gap-3">
+            <ExternalLink className="text-indigo-500 shrink-0" size={18} />
+            <span>
+              Diagnose with 
+              <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-800 font-medium ml-1 underline">
+                SSL Labs Server Test
+              </a>
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      {isBlocking && onReset && (
+        <button 
+          onClick={onReset}
+          className="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"
+        >
+          Try Another URL
+        </button>
+      )}
+    </div>
+  </div>
+);
+
 const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
@@ -99,6 +149,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [showPersonaError, setShowPersonaError] = useState(false);
   const [progress, setProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<number>(0); // Index of the active tab
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
 
   // Simulated progress bar effect
   useEffect(() => {
@@ -189,6 +241,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       setError({
         error: err.error || 'An unknown error occurred.',
         details: err.details || 'Could not retrieve details.',
+        usageCounted: err.usageCounted,
       });
     } finally {
       setIsLoading(false);
@@ -202,8 +255,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
     setUrl('');
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrintClick = () => {
+    setShowDownloadDialog(true);
+  };
+
+  const confirmPrint = (mode: 'full' | 'summary') => {
+    setPrintMode(mode);
+    setShowDownloadDialog(false);
+    // Small delay to allow React to update the DOM classes before the print dialog opens
+    setTimeout(() => window.print(), 100);
   };
 
   return (
@@ -216,6 +276,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           .no-print { display: none !important; }
           
+<<<<<<< HEAD
           /* Ensure background colors and images print */
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           
@@ -234,6 +295,18 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Page Breaks */
           .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
           .page-break-before { page-break-before: always; }
+=======
+          /* Print Modes */
+          .print-summary-only .user-sessions-column { display: none !important; }
+          .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
+          
+          /* Full Report Print Styling */
+          .screen-only { display: none !important; }
+          .print-only { display: block !important; }
+          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; grid-column: span 12 !important; }
+          .break-inside-avoid { break-inside: avoid; }
+          .user-sessions-column { margin-bottom: 2rem; }
+>>>>>>> staging
         }
       `}</style>
 
@@ -256,16 +329,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <label htmlFor="url" className="block text-sm font-medium text-gray-700">
                   Website URL
                 </label>
-                <div className="mt-1 flex rounded-md shadow-sm">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                    https://
-                  </span>
+                <div className="mt-2 relative">
+                  <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                    <span className="text-indigo-500 font-normal text-lg">https://</span>
+                  </div>
                   <input
                     type="text"
                     id="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value.replace(/^https?:\/\//, ''))}
-                    className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full pl-24 pr-6 py-5 text-lg font-normal text-gray-900 bg-white border border-indigo-500 rounded-lg ring-2 ring-indigo-500 placeholder-gray-500 focus:outline-none transition-all"
                     placeholder="example.com"
                     required
                   />
@@ -282,14 +355,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     className={`
                       flex items-center p-3 border rounded-lg cursor-pointer transition-all
                       ${selectedPersonas.includes(persona.id)
-                        ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500'
+                        ? 'border-transparent bg-indigo-50 ring-2 ring-indigo-500'
                         : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}
                       ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
                   >
                     <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-gray-100" />
                     <div>
-                      <div className="font-medium text-gray-900">{persona.name}</div>
+                      <div className="text-gray-900">{persona.name}</div>
                       <div className="text-xs text-gray-500">{persona.description}</div>
                     </div>
                     {selectedPersonas.includes(persona.id) && (
@@ -349,9 +422,56 @@ const AiPoweredUxHealthtech: React.FC = () => {
              Run Another Test
            </button>
         </div>)}
+
+      {/* Download Dialog */}
+      {showDownloadDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Download Report</h3>
+            <p className="text-gray-600 mb-6 text-sm">Choose the format for your PDF export.</p>
+            
+            <div className="space-y-3">
+              <button 
+                onClick={() => confirmPrint('full')}
+                className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-left"
+              >
+                <div className="bg-indigo-100 p-2 rounded-lg group-hover:bg-indigo-200">
+                  <Users className="text-indigo-600" size={24} />
+                </div>
+                <div>
+                  <span className="block font-semibold text-gray-900">Full Report</span>
+                  <span className="text-xs text-gray-500">Includes all User Session transcripts & Expert Analysis</span>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => confirmPrint('summary')}
+                className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-left"
+              >
+                <div className="bg-green-100 p-2 rounded-lg group-hover:bg-green-200">
+                  <FileText className="text-green-700" size={24} />
+                </div>
+                <div>
+                  <span className="block font-semibold text-gray-900">Summary Only</span>
+                  <span className="text-xs text-gray-500">Expert Analysis & Scores only (Compact)</span>
+                </div>
+              </button>
+            </div>
+
+            <button 
+              onClick={() => setShowDownloadDialog(false)}
+              className="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {result && (
-        <div id="report-section" className="animate-fade-in">
+        <div id="report-section" className={`animate-fade-in ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
+<<<<<<< HEAD
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SslWarning />}
           
           {/* Report Header (Visible on Screen & Print) */}
@@ -363,6 +483,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
           </div>
 
+=======
+          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
+>>>>>>> staging
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
@@ -374,7 +497,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
                 
                 {/* Tab Bar */}
-                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b border-gray-100 no-scrollbar">
+                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b border-gray-100 no-scrollbar screen-only">
                   {result.userSessions.map((res, idx) => (
                     <button
                       key={idx}
@@ -399,7 +522,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
 
                 {/* Active Tab Content */}
-                <div className="p-6 bg-indigo-50/30 min-h-[400px]">
+                <div className="p-6 bg-indigo-50/30 min-h-[400px] screen-only">
                   {result.userSessions[activeTab] && (() => {
                     const res = result.userSessions[activeTab];
                     const userSection = res.analysis || '';
@@ -428,16 +551,53 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     );
                   })()}
                 </div>
+
+                {/* PRINT VIEW: All Sessions List */}
+                <div className="hidden print-only p-6 bg-white">
+                  {result.userSessions.map((res, idx) => {
+                    const userSection = res.analysis || '';
+                    const parts = userSection.split('|||USER_DETAILS|||') || ['', ''];
+                    const details = parts[1] || 'No detailed feedback provided.';
+                    const moodAndBubble = parts[0] || '';
+                    const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||') || ['', ''];
+                    const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
+
+                    return (
+                      <div key={idx} className="mb-8 pb-8 border-b border-gray-200 last:border-0 break-inside-avoid">
+                        <div className="flex items-center gap-3 mb-4">
+                          <img 
+                            src={res.avatar} 
+                            alt={res.persona}
+                            className="w-12 h-12 rounded-full border border-gray-200"
+                          />
+                          <div>
+                            <h3 className="text-lg font-bold text-gray-900">{res.persona}</h3>
+                            <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded-full border border-gray-200">{res.description}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-gray-800 mb-4 italic">
+                          "{userBubble}"
+                        </div>
+
+                        <div className="space-y-2 text-sm text-gray-700">
+                          {formatText(details)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
               </div>
             </div>
 
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
-            <div className="lg:col-span-7 h-full">
+            <div className="lg:col-span-7 h-full expert-report-column">
               <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg h-full">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                   <h2 className="text-2xl font-bold text-gray-900 m-0">UX Research Report</h2>
                   <button 
-                    onClick={handlePrint}
+                    onClick={handlePrintClick}
                     className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
                   >
                     Download PDF
@@ -495,7 +655,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {error && (
-        error.usageCounted === false ? (
+        error.error === 'Site Security Error' ? (
+          <SecurityAlert isBlocking={true} onReset={resetState} />
+        ) : error.usageCounted === false ? (
           <AnalysisErrorCard error={error} onReset={resetState} />
         ) : (
           // Fallback to the generic red error box for other errors

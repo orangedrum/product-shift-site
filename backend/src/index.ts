@@ -371,6 +371,46 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   // Check for "test-mode" to bypass expensive calls for UI testing
   if (url.toLowerCase().includes('test-mode')) {
     console.log('--- RUNNING IN TEST MODE ---');
+
+    // --- SIMULATED ERROR SCENARIOS ---
+    if (url.includes('test-mode-ssl')) {
+      const sslErrorDetails = `Security Alert: Insecure Connection Detected. Our AI agent detected a security issue with your site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).`;
+      return res.status(400).json({
+        error: 'Site Security Error',
+        details: sslErrorDetails,
+        usageCounted: false
+      });
+    }
+    if (url.includes('test-mode-timeout')) {
+      return res.status(408).json({
+        error: 'Connection Timed Out',
+        details: 'The URL you entered took too long to respond. This can happen if the site is down, experiencing heavy traffic, or blocking automated access.',
+        usageCounted: false
+      });
+    }
+    if (url.includes('test-mode-404')) {
+      return res.status(400).json({
+        error: 'Site Not Found',
+        details: 'We could not locate this domain. Please check your spelling and ensure the website is online.',
+        usageCounted: false
+      });
+    }
+    if (url.includes('test-mode-403')) {
+      return res.status(403).json({
+        error: 'Access Denied',
+        details: 'The URL you provided is blocking our AI agent. This can happen with sites that have strict firewalls or anti-bot protection.',
+        usageCounted: false
+      });
+    }
+    if (url.includes('test-mode-500')) {
+      return res.status(502).json({
+        error: 'Target Site Error',
+        details: 'The URL you entered responded with a server error (500 or similar). The site may be down for maintenance or experiencing issues.',
+        usageCounted: false
+      });
+    }
+    // --- END SIMULATED ERRORS ---
+
     const fakeReport = {
         message: 'Analysis Complete.',
         title: 'Test Mode: The Product Shift',
@@ -576,7 +616,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
 
         // 2. Check for specific, known network-level errors.
-        if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+        if (errorText.includes('net::ERR_SSL_') || errorText.includes('net::ERR_CERT_')) {
           throw new Error('BROWSERLESS_ERR_SSL');
         }
         if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
@@ -730,8 +770,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // Provide a specific, user-friendly error for the SSL issue.
-    if (errorMessage === 'BROWSERLESS_ERR_SSL' || errorMessage.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
-      const sslErrorDetails = `Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site. We recommend using a free tool like SSL Labs (ssllabs.com/ssltest/) to diagnose and fix it.`;
+    if (errorMessage === 'BROWSERLESS_ERR_SSL' || errorMessage.includes('net::ERR_SSL_') || errorMessage.includes('net::ERR_CERT_')) {
+      const sslErrorDetails = `Security Alert: Insecure Connection Detected. Our AI agent detected a security issue with your site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).`;
       return res.status(400).json({
         error: 'Site Security Error',
         details: sslErrorDetails,
