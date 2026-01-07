@@ -276,7 +276,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
           #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           .no-print { display: none !important; }
           
-<<<<<<< HEAD
           /* Ensure background colors and images print */
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           
@@ -287,15 +286,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
           h3 { font-size: 14pt; margin-top: 0.5cm; page-break-after: avoid; }
           p { margin-bottom: 0.5cm; }
           
-          /* Layout Fixes */
-          .grid { display: block !important; }
-          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; }
-          img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
-          
-          /* Page Breaks */
-          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
-          .page-break-before { page-break-before: always; }
-=======
           /* Print Modes */
           .print-summary-only .user-sessions-column { display: none !important; }
           .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
@@ -303,10 +293,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Full Report Print Styling */
           .screen-only { display: none !important; }
           .print-only { display: block !important; }
-          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; grid-column: span 12 !important; }
-          .break-inside-avoid { break-inside: avoid; }
+          
+          /* Layout Fixes */
+          .grid { display: block !important; }
+          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; grid-column: span 12 !important; }
+          img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
           .user-sessions-column { margin-bottom: 2rem; }
->>>>>>> staging
+          
+          /* Page Breaks */
+          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
+          .page-break-before { page-break-before: always; }
         }
       `}</style>
 
@@ -471,8 +467,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       {result && (
         <div id="report-section" className={`animate-fade-in ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
-<<<<<<< HEAD
-          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SslWarning />}
+          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
           {/* Report Header (Visible on Screen & Print) */}
           <div className="mb-8 border-b border-gray-200 pb-6">
@@ -483,9 +478,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
           </div>
 
-=======
-          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
->>>>>>> staging
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
