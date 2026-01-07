@@ -47,21 +47,21 @@ const formatText = (text: string) => {
       );
     }
 
-    if (line.startsWith('### ')) return <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-gray-800">{line.replace('### ', '')}</h3>;
-    if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-gray-900">{line.replace('## ', '')}</h2>;
+    if (line.startsWith('### ')) return <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-black">{line.replace('### ', '')}</h3>;
+    if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-black">{line.replace('## ', '')}</h2>;
     
     // Issue vs Fix Styling (Neutralized)
     if (line.toUpperCase().includes('**ISSUE:**')) {
       return (
-        <div key={index} className="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-t-lg">
-          <p className="text-gray-800"><strong className="font-bold text-gray-900">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
+        <div key={index} className="mt-4 p-4 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg">
+          <p className="text-black"><strong className="font-bold text-black">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
         </div>
       );
     }
     if (line.toUpperCase().includes('**FIX:**')) {
       return (
-        <div key={index} className="mb-4 p-3 bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
-          <p className="text-gray-800"><strong className="font-bold text-gray-900">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
+        <div key={index} className="mb-4 p-4 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg">
+          <p className="text-black"><strong className="font-bold text-black">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
         </div>
       );
     }
@@ -72,7 +72,7 @@ const formatText = (text: string) => {
     // Check for Sentiment Pills [Positive], [Neutral], [Negative]
     const content = parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong>;
+        return <strong key={i} className="font-semibold text-black">{part.slice(2, -2)}</strong>;
       }
       
       // Split by sentiment tags
@@ -85,7 +85,7 @@ const formatText = (text: string) => {
       });
     });
 
-    return <p key={index} className="mb-2 text-gray-700 leading-relaxed">{content}</p>;
+    return <p key={index} className="mb-2 text-black leading-relaxed">{content}</p>;
   });
 };
 
@@ -172,9 +172,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
   useEffect(() => {
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
-      radial-gradient(900px circle at 50% 30%, #ff1493 0%, #ff0000 30%, transparent 70%),
-      radial-gradient(at ${r()}% ${r()}%, #ffffff 0%, transparent 60%),
-      radial-gradient(at ${r()}% ${r()}%, #ffe4e1 0%, transparent 50%),
+      radial-gradient(1350px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+      radial-gradient(at ${r()}% ${r()}%, #ff8c00 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ffffff 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
       #ffffff
     `);
   }, []);
@@ -299,8 +301,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       className="min-h-screen transition-colors duration-500"
       style={{
         background: bgGradient || `
-          radial-gradient(900px circle at 50% 30%, #ff1493 0%, #ff0000 30%, transparent 70%),
-          #ffffff
+          radial-gradient(1350px circle at 100% 0%, #ff1493 0%, #ff0000 60%, transparent 80%), #ffffff
         `
       }}
     >
@@ -340,6 +341,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Page Breaks */
           .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
           .page-break-before { page-break-before: always; }
+
+          /* Force Neo Styling in Print */
+          .border-2 { border-width: 2px !important; border-color: #000 !important; }
         }
       `}</style>
 
@@ -388,7 +392,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     className={`
                       flex items-center p-3 rounded-xl cursor-pointer transition-all border-2 border-black
                       ${selectedPersonas.includes(persona.id)
-                        ? 'bg-cyan-100 shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
+                        ? 'bg-[#ff8c00] shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
                         : 'bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#000]'}
                       ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
@@ -431,7 +435,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading || selectedPersonas.length < 3 || selectedPersonas.length > 5}
-              className={`w-full relative overflow-hidden inline-flex justify-center py-4 px-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-lg font-bold rounded-xl text-white transition-all bg-pink-500 hover:bg-pink-400 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed`}
+              className={`w-full relative overflow-hidden inline-flex justify-center py-4 px-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-lg font-bold rounded-xl text-white transition-all bg-[#ff1493] hover:bg-[#ff69b4] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed`}
             >
               {isLoading && (
                 <div 
@@ -507,10 +511,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
           {/* Report Header (Visible on Screen & Print) */}
-          <div className="mb-8 border-b border-gray-200 pb-6">
+          <div className="mb-8 border-b-2 border-black pb-6">
             <h1 className="text-4xl font-black text-black mb-2">{result.title || 'UX Audit Report'}</h1>
-            <div className="text-gray-500 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm">
-              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-gray-700">{result.url || url}</span>
+            <div className="text-black flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm font-bold">
+              <span className="font-mono bg-white border-2 border-black px-2 py-1 rounded text-black shadow-[2px_2px_0px_0px_#000]">{result.url || url}</span>
               <span>{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
           </div>
@@ -520,30 +524,30 @@ const AiPoweredUxHealthtech: React.FC = () => {
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
-                <div className="p-4 border-b border-gray-100 bg-gray-50">
-                  <h2 className="text-lg font-bold text-gray-800">User Sessions</h2>
-                  <p className="text-xs text-gray-500">Click a user to view their detailed feedback</p>
+                <div className="p-4 border-b-2 border-black bg-gray-50">
+                  <h2 className="text-lg font-bold text-black">User Sessions</h2>
+                  <p className="text-xs text-black font-medium">Click a user to view their detailed feedback</p>
                 </div>
                 
                 {/* Tab Bar */}
-                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b border-gray-100 no-scrollbar screen-only">
+                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b-2 border-black no-scrollbar screen-only">
                   {result.userSessions.map((res, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveTab(idx)}
-                      className={`flex flex-col items-center p-3 rounded-lg min-w-[110px] transition-all ${
+                      className={`flex flex-col items-center p-3 rounded-lg min-w-[110px] transition-all border-2 ${
                         activeTab === idx 
-                          ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' 
-                          : 'hover:bg-gray-100 border border-transparent'
+                          ? 'bg-[#ff8c00] border-black shadow-[2px_2px_0px_0px_#000]' 
+                          : 'bg-white hover:bg-gray-100 border-transparent'
                       }`}
                     >
                       <img 
                         src={res.avatar} 
                         alt={res.persona}
                         onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${res.persona}`; }}
-                        className={`w-16 h-16 rounded-full border-2 ${activeTab === idx ? 'border-indigo-300' : 'border-gray-100'}`}
+                        className={`w-16 h-16 rounded-full border-2 border-black bg-white`}
                       />
-                      <span className={`text-xs mt-1 font-medium truncate w-full text-center ${activeTab === idx ? 'text-indigo-700' : 'text-gray-600'}`}>
+                      <span className={`text-xs mt-1 font-bold truncate w-full text-center text-black`}>
                         {res.persona}
                       </span>
                     </button>
@@ -551,7 +555,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
 
                 {/* Active Tab Content */}
-                <div className="p-6 bg-indigo-50/30 min-h-[400px] screen-only">
+                <div className="p-6 bg-white min-h-[400px] screen-only">
                   {result.userSessions[activeTab] && (() => {
                     const res = result.userSessions[activeTab];
                     const userSection = res.analysis || '';
@@ -564,16 +568,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     return (
                       <div className="animate-fade-in">
                         <div className="flex items-center gap-3 mb-4">
-                          <h3 className="text-lg font-bold text-gray-900">{res.persona}</h3>
-                          <span className="text-xs text-gray-600 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">{res.description}</span>
+                          <h3 className="text-lg font-bold text-black">{res.persona}</h3>
+                          <span className="text-xs text-black font-bold bg-white px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">{res.description}</span>
                         </div>
                         
-                        <div className="bg-white p-4 rounded-xl rounded-tl-none shadow-sm border border-indigo-100 text-gray-800 relative mb-6">
-                          <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l border-b border-indigo-100 transform rotate-45"></div>
-                          <p className="text-lg italic text-gray-700 leading-relaxed">"{userBubble}"</p>
+                        <div className="bg-white p-4 rounded-xl rounded-tl-none shadow-[4px_4px_0px_0px_#000] border-2 border-black text-black relative mb-6">
+                          <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l-2 border-b-2 border-black transform rotate-45"></div>
+                          <p className="text-lg italic text-black leading-relaxed">"{userBubble}"</p>
                         </div>
 
-                        <div className="space-y-4 text-sm text-gray-700 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                        <div className="space-y-4 text-sm text-black bg-white p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
                           {formatText(details)}
                         </div>
                       </div>
@@ -600,16 +604,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
                             className="w-12 h-12 rounded-full border border-gray-200"
                           />
                           <div>
-                            <h3 className="text-lg font-bold text-gray-900">{res.persona}</h3>
-                            <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded-full border border-gray-200">{res.description}</span>
+                            <h3 className="text-lg font-bold text-black">{res.persona}</h3>
+                            <span className="text-xs text-black bg-white px-2 py-1 rounded-full border-2 border-black">{res.description}</span>
                           </div>
                         </div>
                         
-                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-gray-800 mb-4 italic">
+                        <div className="bg-white p-4 rounded-lg border-2 border-black text-black mb-4 italic">
                           "{userBubble}"
                         </div>
 
-                        <div className="space-y-2 text-sm text-gray-700">
+                        <div className="space-y-2 text-sm text-black">
                           {formatText(details)}
                         </div>
                       </div>
@@ -623,8 +627,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
             <div className="lg:col-span-7 h-full expert-report-column">
               <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
-                <div className="flex justify-between items-center mb-6 border-b pb-4">
-                  <h2 className="text-2xl font-bold text-gray-900 m-0">UX Research Report</h2>
+                <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
+                  <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
                   <button 
                     onClick={handlePrintClick}
                     className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
@@ -640,8 +644,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 
                 {/* Charts Section */}
                 {result.scores && (result.scores.usability > 0 || result.scores.desirability > 0) ? (
-                  <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-100">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">Performance Metrics</h3>
+                  <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+                    <h3 className="text-lg font-bold text-black mb-4">Performance Metrics</h3>
                     <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={[
@@ -653,7 +657,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       <XAxis dataKey="name" />
                       <YAxis domain={[0, 100]} />
                       <Tooltip />
-                      <Bar dataKey="score" fill="#4F46E5" radius={[4, 4, 0, 0]}>
+                      <Bar dataKey="score" fill="#ff1493" radius={[4, 4, 0, 0]}>
                         {/* Optional: Color bars differently based on score */}
                       </Bar>
                     </BarChart>
@@ -664,10 +668,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
                 {/* Visual Reference */}
                 {result.screenshot && (
-                  <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100 break-inside-avoid">
-                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Visual Reference</h3>
-                    <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
-                    <p className="text-xs text-gray-400 mt-2 text-center">Note: This is a full screenshot. Future versions will include contextual highlights.</p>
+                  <div className="mb-8 p-4 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
+                    <h3 className="text-sm font-bold text-black uppercase tracking-wider mb-3">Visual Reference</h3>
+                    <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border-2 border-black" />
+                    <p className="text-xs text-black mt-2 text-center">Note: This is a full screenshot. Future versions will include contextual highlights.</p>
                   </div>
                 )}
 
