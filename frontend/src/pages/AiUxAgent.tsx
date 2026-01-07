@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { User, AlertCircle, CheckCircle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AlertCircle, CheckCircle, FileText, Users } from 'lucide-react';
 import { AnalysisErrorCard, SslWarning, AnalysisError } from '../components/AnalysisErrorCard';
 
 // Define types for the API response and error
@@ -98,6 +98,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [showPersonaError, setShowPersonaError] = useState(false);
   const [progress, setProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<number>(0); // Index of the active tab
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
 
   // Simulated progress bar effect
   useEffect(() => {
@@ -188,6 +190,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       setError({
         error: err.error || 'An unknown error occurred.',
         details: err.details || 'Could not retrieve details.',
+        usageCounted: err.usageCounted,
       });
     } finally {
       setIsLoading(false);
@@ -201,8 +204,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
     setUrl('');
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrintClick = () => {
+    setShowDownloadDialog(true);
+  };
+
+  const confirmPrint = (mode: 'full' | 'summary') => {
+    setPrintMode(mode);
+    setShowDownloadDialog(false);
+    // Small delay to allow React to update the DOM classes before the print dialog opens
+    setTimeout(() => window.print(), 100);
   };
 
   return (
@@ -213,6 +223,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
           #report-section, #report-section * { visibility: visible; }
           #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           .no-print { display: none !important; }
+          
+          /* Print Modes */
+          .print-summary-only .user-sessions-column { display: none !important; }
+          .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
         }
       `}</style>
 
@@ -401,12 +415,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
 
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
-            <div className="lg:col-span-7 h-full">
+            <div className="lg:col-span-7 h-full expert-report-column">
               <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg h-full">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                   <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
                   <button 
-                    onClick={handlePrint}
+                    onClick={handlePrintClick}
                     className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
                   >
                     Download PDF

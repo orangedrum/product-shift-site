@@ -576,7 +576,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
 
         // 2. Check for specific, known network-level errors.
-        if (errorText.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+        if (errorText.includes('net::ERR_SSL_') || errorText.includes('net::ERR_CERT_')) {
           throw new Error('BROWSERLESS_ERR_SSL');
         }
         if (errorText.includes('net::ERR_NAME_NOT_RESOLVED')) {
@@ -729,7 +729,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     }
 
     // Provide a specific, user-friendly error for the SSL issue.
-    if (errorMessage === 'BROWSERLESS_ERR_SSL' || errorMessage.includes('net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH')) {
+    if (errorMessage === 'BROWSERLESS_ERR_SSL' || errorMessage.includes('net::ERR_SSL_') || errorMessage.includes('net::ERR_CERT_')) {
       const sslErrorDetails = `Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site. We recommend using a free tool like SSL Labs (ssllabs.com/ssltest/) to diagnose and fix it.`;
       return res.status(400).json({
         error: 'Site Security Error',
