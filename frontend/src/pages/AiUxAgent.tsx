@@ -264,6 +264,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Print Modes */
           .print-summary-only .user-sessions-column { display: none !important; }
           .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
+          
+          /* Full Report Print Styling */
+          .screen-only { display: none !important; }
+          .print-only { display: block !important; }
+          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; grid-column: span 12 !important; }
+          .break-inside-avoid { break-inside: avoid; }
+          .user-sessions-column { margin-bottom: 2rem; }
         }
       `}</style>
 
@@ -440,7 +447,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
                 
                 {/* Tab Bar */}
-                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b border-gray-100 no-scrollbar">
+                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b border-gray-100 no-scrollbar screen-only">
                   {result.userSessions.map((res, idx) => (
                     <button
                       key={idx}
@@ -465,7 +472,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
 
                 {/* Active Tab Content */}
-                <div className="p-6 bg-indigo-50/30 min-h-[400px]">
+                <div className="p-6 bg-indigo-50/30 min-h-[400px] screen-only">
                   {result.userSessions[activeTab] && (() => {
                     const res = result.userSessions[activeTab];
                     const userSection = res.analysis || '';
@@ -494,6 +501,43 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     );
                   })()}
                 </div>
+
+                {/* PRINT VIEW: All Sessions List */}
+                <div className="hidden print-only p-6 bg-white">
+                  {result.userSessions.map((res, idx) => {
+                    const userSection = res.analysis || '';
+                    const parts = userSection.split('|||USER_DETAILS|||') || ['', ''];
+                    const details = parts[1] || 'No detailed feedback provided.';
+                    const moodAndBubble = parts[0] || '';
+                    const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||') || ['', ''];
+                    const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
+
+                    return (
+                      <div key={idx} className="mb-8 pb-8 border-b border-gray-200 last:border-0 break-inside-avoid">
+                        <div className="flex items-center gap-3 mb-4">
+                          <img 
+                            src={res.avatar} 
+                            alt={res.persona}
+                            className="w-12 h-12 rounded-full border border-gray-200"
+                          />
+                          <div>
+                            <h3 className="text-lg font-bold text-gray-900">{res.persona}</h3>
+                            <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded-full border border-gray-200">{res.description}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-gray-800 mb-4 italic">
+                          "{userBubble}"
+                        </div>
+
+                        <div className="space-y-2 text-sm text-gray-700">
+                          {formatText(details)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
               </div>
             </div>
 

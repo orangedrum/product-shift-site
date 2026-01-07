@@ -371,6 +371,39 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   // Check for "test-mode" to bypass expensive calls for UI testing
   if (url.toLowerCase().includes('test-mode')) {
     console.log('--- RUNNING IN TEST MODE ---');
+
+    // --- SIMULATED ERROR SCENARIOS ---
+    if (url.includes('test-mode-ssl')) {
+      const sslErrorDetails = `Security Alert: Insecure Connection Detected. Our AI agent detected a security issue with your site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).`;
+      return res.status(400).json({
+        error: 'Site Security Error',
+        details: sslErrorDetails,
+        usageCounted: false
+      });
+    }
+    if (url.includes('test-mode-timeout')) {
+      return res.status(408).json({
+        error: 'Connection Timed Out',
+        details: 'The URL you entered took too long to respond. This can happen if the site is down, experiencing heavy traffic, or blocking automated access.',
+        usageCounted: false
+      });
+    }
+    if (url.includes('test-mode-404')) {
+      return res.status(400).json({
+        error: 'Site Not Found',
+        details: 'We could not locate this domain. Please check your spelling and ensure the website is online.',
+        usageCounted: false
+      });
+    }
+    if (url.includes('test-mode-403')) {
+      return res.status(403).json({
+        error: 'Access Denied',
+        details: 'The URL you provided is blocking our AI agent. This can happen with sites that have strict firewalls or anti-bot protection.',
+        usageCounted: false
+      });
+    }
+    // --- END SIMULATED ERRORS ---
+
     const fakeReport = {
         message: 'Analysis Complete.',
         title: 'Test Mode: The Product Shift',
