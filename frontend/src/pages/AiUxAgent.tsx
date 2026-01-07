@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users } from 'lucide-react';
-import { AnalysisErrorCard, SslWarning, AnalysisError } from '../components/AnalysisErrorCard';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink } from 'lucide-react';
+import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 
 // Define types for the API response and error
 type UserSession = {
@@ -87,6 +87,43 @@ const formatText = (text: string) => {
     return <p key={index} className="mb-2 text-gray-700 leading-relaxed">{content}</p>;
   });
 };
+
+// Custom Security Alert Component (Matches user's exact design)
+const SecurityAlert: React.FC<{ isBlocking?: boolean }> = ({ isBlocking = false }) => (
+  <div className="mb-8 bg-red-50 border-l-4 border-red-600 p-6 rounded-r-lg shadow-sm animate-fade-in">
+    <div className="flex items-start gap-4">
+      <div className="p-2 bg-red-100 rounded-full shrink-0">
+        <ShieldAlert className="text-red-600" size={32} />
+      </div>
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-xl font-bold text-gray-900">Security Alert: Insecure Connection Detected</h3>
+          <p className="text-gray-800 mt-1 font-medium">
+            Our AI agent detected a security issue with your site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).
+            {isBlocking 
+              ? " Because of this, we could not complete the analysis." 
+              : " While we proceeded with the analysis, this is a critical issue you should address."}
+          </p>
+        </div>
+        
+        <p className="text-gray-700">An insecure connection erodes user trust and can harm your site's reputation. Helping create a safer internet is a shared responsibility.</p>
+        
+        <div className="bg-white p-4 rounded border border-red-100">
+          <h4 className="font-bold text-gray-900 text-sm uppercase tracking-wide mb-2">Recommended Actions:</h4>
+          <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm">
+            <li>Check your SSL/TLS Certificate is valid and correctly installed.</li>
+            <li>Update your server to use modern TLS versions (TLS 1.2 or 1.3).</li>
+            <li>
+              <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-1">
+                Use a free online checker like SSL Labs <ExternalLink size={12} />
+              </a> to diagnose the problem.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -342,10 +379,56 @@ const AiPoweredUxHealthtech: React.FC = () => {
              Run Another Test
            </button>
         </div>)}
+
+      {/* Download Dialog */}
+      {showDownloadDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Download Report</h3>
+            <p className="text-gray-600 mb-6 text-sm">Choose the format for your PDF export.</p>
+            
+            <div className="space-y-3">
+              <button 
+                onClick={() => confirmPrint('full')}
+                className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-left"
+              >
+                <div className="bg-indigo-100 p-2 rounded-lg group-hover:bg-indigo-200">
+                  <Users className="text-indigo-600" size={24} />
+                </div>
+                <div>
+                  <span className="block font-semibold text-gray-900">Full Report</span>
+                  <span className="text-xs text-gray-500">Includes all User Session transcripts & Expert Analysis</span>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => confirmPrint('summary')}
+                className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-left"
+              >
+                <div className="bg-green-100 p-2 rounded-lg group-hover:bg-green-200">
+                  <FileText className="text-green-700" size={24} />
+                </div>
+                <div>
+                  <span className="block font-semibold text-gray-900">Summary Only</span>
+                  <span className="text-xs text-gray-500">Expert Analysis & Scores only (Compact)</span>
+                </div>
+              </button>
+            </div>
+
+            <button 
+              onClick={() => setShowDownloadDialog(false)}
+              className="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {result && (
-        <div id="report-section" className="animate-fade-in">
+        <div id="report-section" className={`animate-fade-in ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
-          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SslWarning />}
+          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
@@ -478,7 +561,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {error && (
-        error.usageCounted === false ? (
+        error.error === 'Site Security Error' ? (
+          <SecurityAlert isBlocking={true} />
+        ) : error.usageCounted === false ? (
           <AnalysisErrorCard error={error} onReset={resetState} />
         ) : (
           // Fallback to the generic red error box for other errors

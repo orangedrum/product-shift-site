@@ -730,7 +730,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
     // Provide a specific, user-friendly error for the SSL issue.
     if (errorMessage === 'BROWSERLESS_ERR_SSL' || errorMessage.includes('net::ERR_SSL_') || errorMessage.includes('net::ERR_CERT_')) {
-      const sslErrorDetails = `Your website's security (SSL/TLS) configuration appears to be outdated. Our AI agent's modern browser was blocked for security reasons. This is a critical issue that can prevent users from accessing your site. We recommend using a free tool like SSL Labs (ssllabs.com/ssltest/) to diagnose and fix it.`;
+      const sslErrorDetails = `Security Alert: Insecure Connection Detected. Our AI agent detected a security issue with your site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).`;
       return res.status(400).json({
         error: 'Site Security Error',
         details: sslErrorDetails,
