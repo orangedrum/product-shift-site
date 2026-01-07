@@ -121,6 +121,7 @@ const StyleGuide: React.FC = () => {
 
       </div>
     </div>
+    </div>
   );
 };
 
