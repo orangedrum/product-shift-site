@@ -14,6 +14,7 @@ type UserSession = {
 type AnalysisResponse = {
   message: string;
   title: string;
+  url?: string;
   screenshot?: string;
   userSessions: UserSession[];
   expertReport: string;
@@ -209,10 +210,30 @@ const AiPoweredUxHealthtech: React.FC = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <style>{`
         @media print {
+          @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
           #report-section, #report-section * { visibility: visible; }
           #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           .no-print { display: none !important; }
+          
+          /* Ensure background colors and images print */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          
+          /* Typography for Print */
+          body { font-size: 12pt; line-height: 1.5; color: #000; }
+          h1 { font-size: 24pt; margin-bottom: 0.5cm; }
+          h2 { font-size: 18pt; margin-top: 1cm; margin-bottom: 0.5cm; page-break-after: avoid; }
+          h3 { font-size: 14pt; margin-top: 0.5cm; page-break-after: avoid; }
+          p { margin-bottom: 0.5cm; }
+          
+          /* Layout Fixes */
+          .grid { display: block !important; }
+          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; }
+          img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
+          
+          /* Page Breaks */
+          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
+          .page-break-before { page-break-before: always; }
         }
       `}</style>
 
@@ -332,6 +353,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
         <div id="report-section" className="animate-fade-in">
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SslWarning />}
+          
+          {/* Report Header (Visible on Screen & Print) */}
+          <div className="mb-8 border-b border-gray-200 pb-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{result.title || 'UX Audit Report'}</h1>
+            <div className="text-gray-500 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm">
+              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-gray-700">{result.url || url}</span>
+              <span>{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
@@ -404,7 +435,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             <div className="lg:col-span-7 h-full">
               <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg h-full">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
-                  <h2 className="text-2xl font-bold text-gray-900">UX Research Report</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 m-0">UX Research Report</h2>
                   <button 
                     onClick={handlePrint}
                     className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
@@ -444,7 +475,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
                 {/* Visual Reference */}
                 {result.screenshot && (
-                  <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                  <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100 break-inside-avoid">
                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Visual Reference</h3>
                     <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border" />
                     <p className="text-xs text-gray-400 mt-2 text-center">Note: This is a full screenshot. Future versions will include contextual highlights.</p>

@@ -703,6 +703,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       res.json({
         message: 'Analysis Complete.',
         title: result.title,
+        url: url,
         screenshot: result.screenshot,
         userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description })),
         expertReport: expertReportText,
