@@ -900,6 +900,26 @@ app.post('/api/join-waitlist', async (req, res) => {
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
 
+app.delete('/api/admin/errors/:id', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { id } = req.params;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return res.status(500).json({ error: 'DB Config Missing' });
+  }
+
+  const { error } = await supabase.from('error_logs').delete().eq('id', id);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json({ success: true });
+});
+
 app.get('/api/admin/stats', async (req, res) => {
   const authHeader = req.headers.authorization;
   const secretKey = process.env.ADMIN_SECRET_KEY;

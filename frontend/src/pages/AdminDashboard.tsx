@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, RefreshCw, Palette } from 'lucide-react';
+import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, RefreshCw, Palette, Check, X } from 'lucide-react';
 
 type Stats = {
   dailyUsage: number;
@@ -15,6 +15,7 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [secretKey, setSecretKey] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [errorToDelete, setErrorToDelete] = useState<number | null>(null);
 
   const fetchStats = async (keyOverride?: string) => {
     const key = keyOverride || secretKey;
@@ -77,6 +78,20 @@ const AdminDashboard: React.FC = () => {
     setStats(null);
   };
 
+  const confirmDeleteError = async () => {
+    if (!errorToDelete) return;
+    try {
+      await fetch(`/api/admin/errors/${errorToDelete}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${secretKey}` }
+      });
+      fetchStats(); // Refresh list
+      setErrorToDelete(null);
+    } catch (e) {
+      console.error('Failed to delete error', e);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="container mx-auto max-w-md py-24 px-4 text-center">
@@ -105,8 +120,8 @@ const AdminDashboard: React.FC = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <div className="flex gap-3">
-            <Link to="/styleguide" className="p-2 text-gray-600 hover:text-indigo-600 transition-colors" title="Style Guide">
-                <Palette size={20} />
+            <Link to="/styleguide" className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium">
+                <Palette size={16} /> Style Guide
             </Link>
             <button onClick={() => fetchStats()} className="p-2 text-gray-600 hover:text-indigo-600 transition-colors" title="Refresh Data">
                 <RefreshCw size={20} />
@@ -175,6 +190,12 @@ const AdminDashboard: React.FC = () => {
                     <pre className="mt-2 p-2 bg-red-100 text-red-800 rounded overflow-auto text-xs">{err.details}</pre>
                   </details>
                 </div>
+                <button 
+                  onClick={() => setErrorToDelete(err.id)}
+                  className="flex-shrink-0 flex items-center gap-1 px-3 py-1 bg-white border border-red-200 text-red-600 text-xs font-bold rounded hover:bg-red-50 transition-colors"
+                >
+                  <Check size={12} /> All Clear
+                </button>
               </li>
             ))}
             {stats?.recentErrors?.length === 0 && <p className="text-gray-500">No errors logged. Great!</p>}
@@ -259,6 +280,30 @@ const AdminDashboard: React.FC = () => {
             </table>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {errorToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-lg font-bold mb-2">Clear this error?</h3>
+            <p className="text-gray-600 mb-6 text-sm">Are you sure this issue is resolved? This will permanently remove it from the log.</p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setErrorToDelete(null)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md font-medium"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDeleteError}
+                className="px-4 py-2 bg-green-600 text-white rounded-md font-bold hover:bg-green-700"
+              >
+                Yes, All Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
