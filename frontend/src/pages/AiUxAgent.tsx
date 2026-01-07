@@ -151,6 +151,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0); // Index of the active tab
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
+  const [bgGradient, setBgGradient] = useState('');
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -165,6 +166,19 @@ const AiPoweredUxHealthtech: React.FC = () => {
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Randomize background on mount
+  useEffect(() => {
+    const r = () => Math.floor(Math.random() * 100);
+    setBgGradient(`
+      radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.4), transparent 40%),
+      radial-gradient(at ${r()}% ${r()}%, #ff4500 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ffffff 0%, transparent 50%),
+      linear-gradient(135deg, #ff8c00, #ff0080)
+    `);
   }, []);
 
   // Simulated progress bar effect
@@ -286,11 +300,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
       ref={containerRef}
       className="min-h-screen transition-colors duration-500"
       style={{
-        background: `
+        background: bgGradient || `
           radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.5), transparent 40%),
-          linear-gradient(135deg, #fb923c 0%, #ec4899 35%, #06b6d4 70%, #6366f1 100%)
+          linear-gradient(135deg, #ff8c00 0%, #ff1493 100%)
         `
-        // Orange-400, Pink-500, Cyan-500, Indigo-500
       }}
     >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
@@ -340,8 +353,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
       
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-white p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-sm text-black">
-              <strong className="font-bold">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+            <div className="bg-gray-100 p-3 rounded-lg border border-gray-300 text-xs text-gray-600">
+              <strong className="font-bold text-gray-800">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
               We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
               <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
             </div>
@@ -360,7 +373,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     id="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value.replace(/^https?:\/\//, ''))}
-                    className="block w-full pl-24 pr-6 py-4 text-lg font-normal text-gray-900 bg-white border-2 border-black rounded-lg shadow-[2.5px_3px_0px_0px_#000] focus:shadow-[5.5px_7px_0px_0px_#000] focus:outline-none transition-all duration-200 placeholder-gray-500"
+                    className="block w-full pl-24 pr-6 py-6 text-xl font-normal text-gray-900 bg-white border-2 border-black rounded-lg shadow-[2.5px_3px_0px_0px_#000] focus:shadow-[5.5px_7px_0px_0px_#000] focus:outline-none transition-all duration-200 placeholder-gray-500"
                     placeholder="example.com"
                     required
                   />
@@ -377,7 +390,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     className={`
                       flex items-center p-3 rounded-xl cursor-pointer transition-all border-2 border-black
                       ${selectedPersonas.includes(persona.id)
-                        ? 'bg-indigo-200 shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
+                        ? 'bg-gray-200 shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
                         : 'bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#000]'}
                       ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
