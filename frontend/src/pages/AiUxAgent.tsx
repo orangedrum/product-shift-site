@@ -172,12 +172,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
   useEffect(() => {
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
-      radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.4), transparent 40%),
-      radial-gradient(at ${r()}% ${r()}%, #ff4500 0%, transparent 50%),
-      radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
-      radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
-      radial-gradient(at ${r()}% ${r()}%, #ffffff 0%, transparent 50%),
-      linear-gradient(135deg, #ff8c00, #ff0080)
+      radial-gradient(900px circle at 50% 30%, #ff1493 0%, #ff0000 30%, transparent 70%),
+      radial-gradient(at ${r()}% ${r()}%, #ffffff 0%, transparent 60%),
+      radial-gradient(at ${r()}% ${r()}%, #ffe4e1 0%, transparent 50%),
+      #ffffff
     `);
   }, []);
 
@@ -301,8 +299,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
       className="min-h-screen transition-colors duration-500"
       style={{
         background: bgGradient || `
-          radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.5), transparent 40%),
-          linear-gradient(135deg, #ff8c00 0%, #ff1493 100%)
+          radial-gradient(900px circle at 50% 30%, #ff1493 0%, #ff0000 30%, transparent 70%),
+          #ffffff
         `
       }}
     >
@@ -361,12 +359,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
             <fieldset>
               <div>
-                <label htmlFor="url" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="url" className="block text-sm font-bold text-black">
                   Website URL
                 </label>
                 <div className="mt-2 relative">
                   <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                    <span className="text-indigo-500 font-normal text-lg">https://</span>
+                    <span className="text-black font-bold text-lg">https://</span>
                   </div>
                   <input
                     type="text"
@@ -390,7 +388,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     className={`
                       flex items-center p-3 rounded-xl cursor-pointer transition-all border-2 border-black
                       ${selectedPersonas.includes(persona.id)
-                        ? 'bg-gray-200 shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
+                        ? 'bg-cyan-100 shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
                         : 'bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#000]'}
                       ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
@@ -433,7 +431,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading || selectedPersonas.length < 3 || selectedPersonas.length > 5}
-              className={`w-full relative overflow-hidden inline-flex justify-center py-4 px-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-lg font-bold rounded-xl text-black transition-all bg-cyan-400 hover:bg-cyan-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed`}
+              className={`w-full relative overflow-hidden inline-flex justify-center py-4 px-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-lg font-bold rounded-xl text-white transition-all bg-pink-500 hover:bg-pink-400 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed`}
             >
               {isLoading && (
                 <div 
