@@ -360,7 +360,7 @@ const personas: Record<string, Persona> = {
     id: 'elizabeth-wealthy-elite',
     name: 'Elizabeth',
     description: 'a highly educated and wealthy individual with deep connections',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elizabeth&backgroundColor=c0ebd7&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Victoria&backgroundColor=c0ebd7&mouth=smile',
   },
 };
 
@@ -418,20 +418,23 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         userSessions: [
             {
                 persona: 'Alex',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alexandra&backgroundColor=b6e3f4&mouth=smile',
                 analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||I instantly get what this is. The value prop is super clear.|||USER_DETAILS|||### 1. My Experience\nI landed on the page and immediately understood the offering. The headline "AI-Powered UX Audits" is punchy. I feel confident this tool could save me time.\n\n### 2. Points of Friction\nI\'m not sure about the pricing structure. It says "Pro" but doesn\'t list a price upfront. That\'s a bit annoying.\n\n### 3. What I Think This Is\nIt\'s an automated user testing tool that uses AI agents instead of real people to give quick feedback.',
-                personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' }
+                description: 'a busy professional with two kids under 5',
+                personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alexandra&backgroundColor=b6e3f4&mouth=smile' }
             },
             {
                 persona: 'Sam',
                 avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile',
                 analysis: '|||USER_MOOD|||Neutral|||USER_BUBBLE|||It looks cool, but is it free?|||USER_DETAILS|||### 1. My Experience\nThe design is clean. I like the robot illustrations. But as a student, I need to know if there\'s a free tier immediately.\n\n### 2. Points of Friction\nThe "Join Waitlist" button is everywhere. I just want to try it now.\n\n### 3. What I Think This Is\nA SaaS platform for UX designers.',
+                description: 'a budget-conscious college student',
                 personaObj: { id: 'sam-college-student', name: 'Sam', description: 'a budget-conscious college student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile' }
             },
             {
                 persona: 'Charlie',
                 avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile',
                 analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||Straightforward. No fluff.|||USER_DETAILS|||### 1. My Experience\nSolid layout. I like the step-by-step breakdown. It feels professional and robust.\n\n### 2. Points of Friction\nNone really. Maybe the font size could be a tad larger on the features list.\n\n### 3. What I Think This Is\nA tool to automate website testing.',
+                description: 'a masculine, patriotic blue-collar worker',
                 personaObj: { id: 'charlie-family-worker', name: 'Charlie', description: 'a masculine, patriotic blue-collar worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile' }
             }
         ],

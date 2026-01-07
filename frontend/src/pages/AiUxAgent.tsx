@@ -63,7 +63,7 @@ const formatText = (text: string) => {
     // Issue vs Fix Styling (Neutralized)
     if (line.toUpperCase().includes('**ISSUE:**')) {
       return (
-        <div key={index} className="mt-4 p-4 bg-gray-100 border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg">
+        <div key={index} className="mt-4 p-4 bg-gray-200 border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg">
           <p className="text-black"><strong className="font-bold text-black">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
         </div>
       );
@@ -621,12 +621,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
           {/* Report Header (Visible on Screen & Print) */}
-          <div className="mb-8 border-b-2 border-black pb-6 report-cover">
-            <div className="flex flex-col justify-center h-full">
-              <h1 className="text-5xl font-black text-black mb-4">{result.title || 'UX Audit Report'}</h1>
-              <div className="text-black flex flex-col items-center gap-4 text-lg font-bold">
-                <span className="font-mono bg-white border-2 border-black px-4 py-2 rounded text-black shadow-[4px_4px_0px_0px_#000]">{result.url || url}</span>
-                <span>{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <div className="mb-8 report-cover">
+            <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left">
+              <h1 className="text-4xl font-black text-black mb-2">{result.title || 'UX Audit Report'}</h1>
+              <div className="text-black flex flex-col gap-1">
+                <span className="font-mono text-gray-700 font-bold text-lg">{result.url || url}</span>
+                <span className="text-sm font-medium">{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
               </div>
             </div>
           </div>
