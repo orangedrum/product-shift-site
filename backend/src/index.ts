@@ -330,7 +330,7 @@ const personas: Record<string, Persona> = {
     id: 'alex-busy-pro',
     name: 'Alex',
     description: 'a busy professional with two kids under 5',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alexandra&backgroundColor=b6e3f4&mouth=smile',
   },
   'sam-college-student': {
     id: 'sam-college-student',
@@ -668,12 +668,12 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
             const moodPart = sessionOutput.split('|||USER_MOOD|||')[1].split('|||')[0].trim();
             if (moodPart.toLowerCase().includes('positive')) {
               mood = 'Positive';
-              adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=smile&eyebrows=default');
+              adjustedAvatar = activePersona.avatar.replace(/mouth=[^&]+/, 'mouth=smile').replace(/eyebrows=[^&]+/, 'eyebrows=default');
             } else if (moodPart.toLowerCase().includes('negative')) {
               mood = 'Negative';
-              adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=sad&eyebrows=frown');
+              adjustedAvatar = activePersona.avatar.replace(/mouth=[^&]+/, 'mouth=sad').replace(/eyebrows=[^&]+/, 'eyebrows=frown');
             } else {
-              adjustedAvatar = activePersona.avatar.replace('mouth=smile', 'mouth=default&eyebrows=default');
+              adjustedAvatar = activePersona.avatar.replace(/mouth=[^&]+/, 'mouth=default').replace(/eyebrows=[^&]+/, 'eyebrows=default');
             }
           }
 

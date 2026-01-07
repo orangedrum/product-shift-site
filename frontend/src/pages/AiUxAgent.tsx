@@ -40,15 +40,19 @@ const formatText = (text: string) => {
     // Headers
     if (line.includes('TEST RESULT: PASS')) {
       return (
-        <div key={index} className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-r">
-          <p className="font-bold text-xl">TEST RESULT: PASS</p>
+        <div key={index} className="mb-6">
+          <h2 className="text-2xl font-black text-black flex items-center gap-2">
+            Test Result: <span className="text-green-600 flex items-center gap-2">PASS <span className="text-3xl">👍</span></span>
+          </h2>
         </div>
       );
     }
     if (line.includes('TEST RESULT: FAIL')) {
       return (
-        <div key={index} className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-r">
-          <p className="font-bold text-xl">TEST RESULT: FAIL</p>
+        <div key={index} className="mb-6">
+          <h2 className="text-2xl font-black text-black flex items-center gap-2">
+            Test Result: <span className="text-red-600 flex items-center gap-2">FAIL <span className="text-3xl">👎</span></span>
+          </h2>
         </div>
       );
     }
@@ -59,7 +63,7 @@ const formatText = (text: string) => {
     // Issue vs Fix Styling (Neutralized)
     if (line.toUpperCase().includes('**ISSUE:**')) {
       return (
-        <div key={index} className="mt-4 p-4 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg">
+        <div key={index} className="mt-4 p-4 bg-gray-100 border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg">
           <p className="text-black"><strong className="font-bold text-black">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
         </div>
       );
@@ -243,7 +247,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   }, [isLoading, selectedPersonas.length]);
 
   const availablePersonas = [
-    { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4&mouth=smile' },
+    { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alexandra&backgroundColor=b6e3f4&mouth=smile' },
     { id: 'sam-college-student', name: 'Sam', description: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile' },
     { id: 'charlie-family-worker', name: 'Charlie', description: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile' },
     { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02&mouth=smile' },
