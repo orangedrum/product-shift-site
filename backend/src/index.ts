@@ -546,6 +546,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         // Set timeout to 15s to ensure we return before Vercel's hard limit
         const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
         
+        // SPA Stabilization: Wait for client-side redirects/hydration to settle.
+        // This prevents "Execution context destroyed" if the app redirects immediately after load.
+        await new Promise(r => setTimeout(r, 2000));
+        
         // Check HTTP Status Codes to trigger specific errors
         if (response) {
           const status = response.status();
@@ -613,6 +617,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
         if (errorText.includes('BROWSERLESS_ERR_NOT_FOUND_STATUS')) {
             throw new Error('BROWSERLESS_ERR_NOT_FOUND');
+        }
+        if (errorText.includes('Execution context was destroyed')) {
+            throw new Error('BROWSERLESS_ERR_CONTEXT_DESTROYED');
         }
 
         // 2. Check for specific, known network-level errors.
@@ -798,6 +805,13 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       return res.status(403).json({
         error: 'Access Denied',
         details: 'The URL you provided is blocking our AI agent. This can happen with sites that have strict firewalls or anti-bot protection.',
+        usageCounted: false
+      });
+    }
+    if (errorMessage === 'BROWSERLESS_ERR_CONTEXT_DESTROYED') {
+      return res.status(409).json({
+        error: 'Page Redirected Unexpectedly',
+        details: 'The page navigated or reloaded while we were analyzing it. This often happens with sites that have immediate client-side redirects.',
         usageCounted: false
       });
     }
