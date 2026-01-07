@@ -306,16 +306,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <label htmlFor="url" className="block text-sm font-medium text-gray-700">
                   Website URL
                 </label>
-                <div className="mt-2 relative rounded-xl shadow-md transition-shadow hover:shadow-lg">
+                <div className="mt-2 relative">
                   <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                    <span className="text-indigo-500 font-bold text-lg">https://</span>
+                    <span className="text-indigo-500 font-normal text-lg">https://</span>
                   </div>
                   <input
                     type="text"
                     id="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value.replace(/^https?:\/\//, ''))}
-                    className="block w-full pl-24 pr-6 py-5 text-lg font-medium text-gray-900 bg-white border-2 border-indigo-500 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all placeholder-gray-400"
+                    className="block w-full pl-24 pr-6 py-5 text-lg font-normal text-gray-900 bg-indigo-50 border border-indigo-500 rounded-lg ring-2 ring-indigo-500 placeholder-gray-500 focus:outline-none transition-all"
                     placeholder="example.com"
                     required
                   />
@@ -339,7 +339,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   >
                     <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-gray-100" />
                     <div>
-                      <div className="font-medium text-gray-900">{persona.name}</div>
+                      <div className="text-gray-900">{persona.name}</div>
                       <div className="text-xs text-gray-500">{persona.description}</div>
                     </div>
                     {selectedPersonas.includes(persona.id) && (
