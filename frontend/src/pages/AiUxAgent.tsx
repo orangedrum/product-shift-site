@@ -89,13 +89,13 @@ const formatText = (text: string) => {
 };
 
 // Custom Security Alert Component (Matches user's exact design)
-const SecurityAlert: React.FC<{ isBlocking?: boolean }> = ({ isBlocking = false }) => (
+const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = ({ isBlocking = false, onReset }) => (
   <div className="mb-8 bg-red-50 border-l-4 border-red-600 p-6 rounded-r-lg shadow-sm animate-fade-in">
     <div className="flex items-start gap-4">
       <div className="p-2 bg-red-100 rounded-full shrink-0">
         <ShieldAlert className="text-red-600" size={32} />
       </div>
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         <div>
           <h3 className="text-xl font-bold text-gray-900">Security Alert: Insecure Connection Detected</h3>
           <p className="text-gray-800 mt-1 font-medium">
@@ -120,6 +120,15 @@ const SecurityAlert: React.FC<{ isBlocking?: boolean }> = ({ isBlocking = false 
             </li>
           </ul>
         </div>
+
+        {isBlocking && onReset && (
+          <button 
+            onClick={onReset}
+            className="mt-2 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+          >
+            Try Another URL
+          </button>
+        )}
       </div>
     </div>
   </div>
@@ -606,7 +615,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {error && (
         error.error === 'Site Security Error' ? (
-          <SecurityAlert isBlocking={true} />
+          <SecurityAlert isBlocking={true} onReset={resetState} />
         ) : error.usageCounted === false ? (
           <AnalysisErrorCard error={error} onReset={resetState} />
         ) : (

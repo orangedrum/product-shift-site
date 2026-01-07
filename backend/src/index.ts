@@ -402,6 +402,13 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         usageCounted: false
       });
     }
+    if (url.includes('test-mode-500')) {
+      return res.status(502).json({
+        error: 'Target Site Error',
+        details: 'The URL you entered responded with a server error (500 or similar). The site may be down for maintenance or experiencing issues.',
+        usageCounted: false
+      });
+    }
     // --- END SIMULATED ERRORS ---
 
     const fakeReport = {
