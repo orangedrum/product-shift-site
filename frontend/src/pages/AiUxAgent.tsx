@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink } from 'lucide-react';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
@@ -152,6 +152,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
 
+  // Mouse tracking for interactive background
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (containerRef.current) {
+        const x = e.clientX;
+        const y = e.clientY;
+        containerRef.current.style.setProperty('--mouse-x', `${x}px`);
+        containerRef.current.style.setProperty('--mouse-y', `${y}px`);
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   // Simulated progress bar effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -267,7 +282,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-purple-50 to-pink-50">
+    <div 
+      ref={containerRef}
+      className="min-h-screen transition-colors duration-500"
+      style={{
+        background: `
+          radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.5), transparent 40%),
+          linear-gradient(135deg, #fb923c 0%, #ec4899 35%, #06b6d4 70%, #6366f1 100%)
+        `
+        // Orange-400, Pink-500, Cyan-500, Indigo-500
+      }}
+    >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <style>{`
         @media print {
@@ -309,14 +334,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {!result && !error && (
         <div className="no-print max-w-3xl mx-auto">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4 text-gray-900">AI-Powered UX Agent</h1>
-            <p className="mb-8 text-gray-600">Select 3-5 personas and define their goal to run a simulated usability analysis.</p>
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">AI-Powered UX Agent</h1>
+            <p className="text-lg text-black font-medium">Select 3-5 personas and define their goal to run a simulated usability analysis.</p>
           </div>
       
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-blue-50 p-4 rounded-md text-sm text-blue-800 border border-blue-100">
-              <strong>Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+            <div className="bg-white p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-sm text-black">
+              <strong className="font-bold">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
               We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
               <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
             </div>
@@ -343,33 +368,33 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
             </fieldset>
             <fieldset>
-              <legend className="block text-sm font-medium text-gray-700 mb-2">Select Personas</legend>
+              <legend className="block text-sm font-bold text-black mb-3 uppercase tracking-wide">Select Personas</legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {availablePersonas.map((persona) => (
                   <div 
                     key={persona.id} 
                     onClick={() => togglePersona(persona.id)}
                     className={`
-                      flex items-center p-3 border rounded-lg cursor-pointer transition-all
+                      flex items-center p-3 rounded-xl cursor-pointer transition-all border-2 border-black
                       ${selectedPersonas.includes(persona.id)
-                        ? 'border-transparent bg-indigo-50 ring-2 ring-indigo-500'
-                        : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}
+                        ? 'bg-indigo-200 shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
+                        : 'bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#000]'}
                       ${!selectedPersonas.includes(persona.id) && selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
                   >
-                    <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-gray-100" />
+                    <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-white border border-black" />
                     <div>
-                      <div className="text-gray-900">{persona.name}</div>
-                      <div className="text-xs text-gray-500">{persona.description}</div>
+                      <div className="text-black font-bold">{persona.name}</div>
+                      <div className="text-xs text-black font-medium">{persona.description}</div>
                     </div>
                     {selectedPersonas.includes(persona.id) && (
-                      <CheckCircle className="ml-auto text-indigo-600" size={20} />
+                      <CheckCircle className="ml-auto text-black" size={20} />
                     )}
                   </div>
                 ))}
               </div>
               {showPersonaError && (
-                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700 flex items-center gap-2">
+                <div className="mt-3 p-3 bg-red-100 border-2 border-black rounded-lg text-sm text-black font-bold flex items-center gap-2 shadow-[4px_4px_0px_0px_#000]">
                   <AlertCircle size={16} />
                   <strong>Action Required:</strong> Please select between 3 and 5 personas to run the analysis.
                 </div>
@@ -377,17 +402,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </fieldset>
 
             <fieldset>
-              <legend className="block text-sm font-medium text-gray-700 mb-2">
+              <legend className="block text-sm font-bold text-black mb-2 uppercase tracking-wide">
                 User Goal / Task
               </legend>
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-                  <label htmlFor="task-understand" className="ml-2 block text-sm text-gray-700">Quickly understand what this page is about</label>
+                  <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black" />
+                  <label htmlFor="task-understand" className="ml-2 block text-sm text-black font-medium">Quickly understand what this page is about</label>
                 </div>
                 <div className="flex items-center">
-                  <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-                  <label htmlFor="task-purchase" className="ml-2 block text-sm text-gray-700">Make a purchase / Sign up (Think Aloud)</label>
+                  <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black" />
+                  <label htmlFor="task-purchase" className="ml-2 block text-sm text-black font-medium">Make a purchase / Sign up (Think Aloud)</label>
                 </div>
               </div>
             </fieldset>
@@ -395,7 +420,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading || selectedPersonas.length < 3 || selectedPersonas.length > 5}
-              className={`w-full relative overflow-hidden inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-all bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400`}
+              className={`w-full relative overflow-hidden inline-flex justify-center py-4 px-4 border-2 border-black shadow-[4px_4px_0px_0px_#000] text-lg font-bold rounded-xl text-black transition-all bg-cyan-400 hover:bg-cyan-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed`}
             >
               {isLoading && (
                 <div 
@@ -413,9 +438,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {result && (
         <div className="no-print text-center mb-12 animate-fade-in">
-           <h1 className="text-3xl font-bold mb-2 text-gray-900">Analysis Complete</h1>
-           <p className="text-gray-600">Review the user sessions and the aggregated research report below.</p>
-           <button onClick={resetState} className="mt-6 bg-indigo-600 text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105">
+           <h1 className="text-4xl font-black mb-2 text-black">Analysis Complete</h1>
+           <p className="text-black font-medium text-lg">Review the user sessions and the aggregated research report below.</p>
+           <button onClick={resetState} className="mt-6 bg-black text-white font-bold py-3 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">
              Run Another Test
            </button>
         </div>)}
@@ -472,7 +497,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           
           {/* Report Header (Visible on Screen & Print) */}
           <div className="mb-8 border-b border-gray-200 pb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{result.title || 'UX Audit Report'}</h1>
+            <h1 className="text-4xl font-black text-black mb-2">{result.title || 'UX Audit Report'}</h1>
             <div className="text-gray-500 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm">
               <span className="font-mono bg-gray-100 px-2 py-1 rounded text-gray-700">{result.url || url}</span>
               <span>{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
@@ -483,7 +508,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
                 <div className="p-4 border-b border-gray-100 bg-gray-50">
                   <h2 className="text-lg font-bold text-gray-800">User Sessions</h2>
                   <p className="text-xs text-gray-500">Click a user to view their detailed feedback</p>
@@ -586,7 +611,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
             <div className="lg:col-span-7 h-full expert-report-column">
-              <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-lg h-full">
+              <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                   <h2 className="text-2xl font-bold text-gray-900 m-0">UX Research Report</h2>
                   <button 
