@@ -90,46 +90,50 @@ const formatText = (text: string) => {
 
 // Custom Security Alert Component (Matches user's exact design)
 const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = ({ isBlocking = false, onReset }) => (
-  <div className="mb-8 bg-red-50 border-l-4 border-red-600 p-6 rounded-r-lg shadow-sm animate-fade-in">
-    <div className="flex items-start gap-4">
-      <div className="p-2 bg-red-100 rounded-full shrink-0">
-        <ShieldAlert className="text-red-600" size={32} />
+  <div className="max-w-2xl mx-auto mt-8 bg-white border border-gray-200 rounded-xl shadow-lg p-8 animate-fade-in">
+    <div className="flex flex-col items-center text-center gap-6">
+      <div className="p-4 bg-orange-50 rounded-full">
+        <ShieldAlert className="text-orange-500" size={48} />
       </div>
-      <div className="space-y-4 w-full">
-        <div>
-          <h3 className="text-xl font-bold text-gray-900">Security Alert: Insecure Connection Detected</h3>
-          <p className="text-gray-800 mt-1 font-medium">
-            Our AI agent detected a security issue with your site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).
-            {isBlocking 
-              ? " Because of this, we could not complete the analysis." 
-              : " While we proceeded with the analysis, this is a critical issue you should address."}
-          </p>
-        </div>
-        
-        <p className="text-gray-700">An insecure connection erodes user trust and can harm your site's reputation. Helping create a safer internet is a shared responsibility.</p>
-        
-        <div className="bg-white p-4 rounded border border-red-100">
-          <h4 className="font-bold text-gray-900 text-sm uppercase tracking-wide mb-2">Recommended Actions:</h4>
-          <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm">
-            <li>Check your SSL/TLS Certificate is valid and correctly installed.</li>
-            <li>Update your server to use modern TLS versions (TLS 1.2 or 1.3).</li>
-            <li>
-              <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-1">
-                Use a free online checker like SSL Labs <ExternalLink size={12} />
-              </a> to diagnose the problem.
-            </li>
-          </ul>
-        </div>
+      
+      <div className="space-y-2">
+        <h3 className="text-xl font-bold text-gray-900">Security Connection Issue</h3>
+        <p className="text-gray-600 max-w-md mx-auto">
+          Our AI agent detected a potential issue with this site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).
+        </p>
+      </div>
 
-        {isBlocking && onReset && (
-          <button 
-            onClick={onReset}
-            className="mt-2 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-          >
-            Try Another URL
-          </button>
-        )}
+      <div className="w-full bg-gray-50 rounded-lg border border-gray-100 p-5 text-left">
+        <h4 className="font-semibold text-gray-900 text-sm mb-3 uppercase tracking-wider">How to fix this</h4>
+        <ul className="space-y-3 text-sm text-gray-600">
+          <li className="flex gap-3">
+            <CheckCircle className="text-green-500 shrink-0" size={18} />
+            <span>Check if your SSL certificate is valid and not expired.</span>
+          </li>
+          <li className="flex gap-3">
+            <CheckCircle className="text-green-500 shrink-0" size={18} />
+            <span>Ensure your server supports TLS 1.2 or higher.</span>
+          </li>
+          <li className="flex gap-3">
+            <ExternalLink className="text-indigo-500 shrink-0" size={18} />
+            <span>
+              Diagnose with 
+              <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-800 font-medium ml-1 underline">
+                SSL Labs Server Test
+              </a>
+            </span>
+          </li>
+        </ul>
       </div>
+
+      {isBlocking && onReset && (
+        <button 
+          onClick={onReset}
+          className="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"
+        >
+          Try Another URL
+        </button>
+      )}
     </div>
   </div>
 );
