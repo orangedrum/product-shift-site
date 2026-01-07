@@ -376,8 +376,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
           #report-section, #report-section * { visibility: visible; }
           #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           
-          /* Cover Page Styling */
-          .report-cover { height: 90vh; display: flex; flex-direction: column; justify-content: center; page-break-after: always; text-align: center; }
+          /* Cover Page Styling - Compact for Print */
+          .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
           
           .no-print { display: none !important; }
           
@@ -621,7 +621,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
           {/* Report Header (Visible on Screen & Print) */}
-          <div className="mb-8 report-cover">
+          <div className="mb-8 report-cover break-inside-avoid">
             <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left">
               <h1 className="text-4xl font-black text-black mb-2">{result.title || 'UX Audit Report'}</h1>
               <div className="text-black flex flex-col gap-1">
@@ -700,8 +700,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
 
                 {/* PRINT VIEW: All Sessions List */}
-                <div className="hidden print-only p-6 bg-white page-break-before">
-                  <h2 className="text-2xl font-bold mb-6">Detailed User Sessions</h2>
+                <div className="hidden print-only mb-8">
+                  <div className="bg-white p-4 mb-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
+                    <h2 className="text-2xl font-black text-black m-0">Detailed User Sessions</h2>
+                  </div>
+
                   {result.userSessions.map((res, idx) => {
                     const userSection = res.analysis || '';
                     const parts = userSection.split('|||USER_DETAILS|||') || ['', ''];
@@ -740,7 +743,19 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
 
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
-            <div className="lg:col-span-7 h-full expert-report-column">
+            <div className="lg:col-span-7 h-full expert-report-column page-break-before">
+              
+              {/* Print-Only Title Card for Full Report */}
+              <div className="hidden print-only mb-8">
+                <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left">
+                  <h1 className="text-3xl font-black text-black mb-2">Full Report & Analysis</h1>
+                  <div className="text-black flex flex-col gap-1">
+                    <span className="font-mono text-gray-700 font-bold text-lg">{result.url || url}</span>
+                    <span className="text-sm font-medium">{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
                 <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4 break-inside-avoid">
                   <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
