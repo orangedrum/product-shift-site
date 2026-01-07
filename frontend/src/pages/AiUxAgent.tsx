@@ -267,6 +267,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   return (
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-purple-50 to-pink-50">
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <style>{`
         @media print {
@@ -334,7 +335,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     id="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value.replace(/^https?:\/\//, ''))}
-                    className="block w-full pl-24 pr-6 py-5 text-lg font-normal text-gray-900 bg-white border border-indigo-500 rounded-lg ring-2 ring-indigo-500 placeholder-gray-500 focus:outline-none transition-all"
+                    className="block w-full pl-24 pr-6 py-4 text-lg font-normal text-gray-900 bg-white border-2 border-black rounded-lg shadow-[2.5px_3px_0px_0px_#000] focus:shadow-[5.5px_7px_0px_0px_#000] focus:outline-none transition-all duration-200 placeholder-gray-500"
                     placeholder="example.com"
                     required
                   />
@@ -659,6 +660,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         )
       )}
+    </div>
     </div>);
 };
 
