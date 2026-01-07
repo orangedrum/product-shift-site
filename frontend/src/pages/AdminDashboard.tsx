@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, RefreshCw, Palette } from 'lucide-react';
 
 type Stats = {
   dailyUsage: number;
@@ -104,6 +105,9 @@ const AdminDashboard: React.FC = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <div className="flex gap-3">
+            <Link to="/styleguide" className="p-2 text-gray-600 hover:text-indigo-600 transition-colors" title="Style Guide">
+                <Palette size={20} />
+            </Link>
             <button onClick={() => fetchStats()} className="p-2 text-gray-600 hover:text-indigo-600 transition-colors" title="Refresh Data">
                 <RefreshCw size={20} />
             </button>

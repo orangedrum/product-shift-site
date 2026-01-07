@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, LogIn, LogOut, User, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
@@ -33,6 +33,8 @@ type AnalysisResponse = {
 const formatText = (text: string) => {
   if (!text) return null;
   return text.split('\n')
+    // Filter out JSON blocks if they accidentally leak into the text
+    .filter(line => !line.trim().startsWith('{') && !line.trim().startsWith('}') && !line.includes('"usability":'))
     .filter(line => !line.match(/^\|.*\|$/)) // Filter out markdown table separator lines
     .map((line, index) => {
     // Headers
@@ -369,6 +371,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
           body * { visibility: hidden; }
           #report-section, #report-section * { visibility: visible; }
           #report-section { position: absolute; left: 0; top: 0; width: 100%; }
+          
+          /* Cover Page Styling */
+          .report-cover { height: 90vh; display: flex; flex-direction: column; justify-content: center; page-break-after: always; text-align: center; }
+          
           .no-print { display: none !important; }
           
           /* Ensure background colors and images print */
@@ -376,8 +382,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
           
           /* Typography for Print */
           body { font-size: 12pt; line-height: 1.5; color: #000; }
-          h1 { font-size: 24pt; margin-bottom: 0.5cm; }
-          h2 { font-size: 18pt; margin-top: 1cm; margin-bottom: 0.5cm; page-break-after: avoid; }
+          h1 { font-size: 32pt; margin-bottom: 0.5cm; }
+          h2 { font-size: 20pt; margin-top: 1cm; margin-bottom: 0.5cm; page-break-after: avoid; border-bottom: 2px solid #000; padding-bottom: 10px; }
           h3 { font-size: 14pt; margin-top: 0.5cm; page-break-after: avoid; }
           p { margin-bottom: 0.5cm; }
           
@@ -397,7 +403,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           
           /* Page Breaks */
           .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
-          .page-break-before { page-break-before: always; }
+          .page-break-before { page-break-before: always; display: block; }
 
           /* Force Neo Styling in Print */
           .border-2 { border-width: 2px !important; border-color: #000 !important; }
@@ -611,11 +617,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
           {/* Report Header (Visible on Screen & Print) */}
-          <div className="mb-8 border-b-2 border-black pb-6">
-            <h1 className="text-4xl font-black text-black mb-2">{result.title || 'UX Audit Report'}</h1>
-            <div className="text-black flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm font-bold">
-              <span className="font-mono bg-white border-2 border-black px-2 py-1 rounded text-black shadow-[2px_2px_0px_0px_#000]">{result.url || url}</span>
-              <span>{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <div className="mb-8 border-b-2 border-black pb-6 report-cover">
+            <div className="flex flex-col justify-center h-full">
+              <h1 className="text-5xl font-black text-black mb-4">{result.title || 'UX Audit Report'}</h1>
+              <div className="text-black flex flex-col items-center gap-4 text-lg font-bold">
+                <span className="font-mono bg-white border-2 border-black px-4 py-2 rounded text-black shadow-[4px_4px_0px_0px_#000]">{result.url || url}</span>
+                <span>{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              </div>
             </div>
           </div>
 
@@ -688,7 +696,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
 
                 {/* PRINT VIEW: All Sessions List */}
-                <div className="hidden print-only p-6 bg-white">
+                <div className="hidden print-only p-6 bg-white page-break-before">
+                  <h2 className="text-2xl font-bold mb-6">Detailed User Sessions</h2>
                   {result.userSessions.map((res, idx) => {
                     const userSection = res.analysis || '';
                     const parts = userSection.split('|||USER_DETAILS|||') || ['', ''];
@@ -729,14 +738,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
             {/* RIGHT COLUMN: Expert Report (Span 7) */}
             <div className="lg:col-span-7 h-full expert-report-column">
               <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
-                <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
+                <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4 break-inside-avoid">
                   <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
-                  <button 
-                    onClick={handlePrintClick}
-                    className="no-print text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition-colors"
-                  >
+                  <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<FileText size={16} />}>
                     Download PDF
-                  </button>
+                  </NeoButton>
                 </div>
 
                 {/* Render Test Result First for Prominence */}
@@ -746,7 +752,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 
                 {/* Charts Section */}
                 {result.scores && (result.scores.usability > 0 || result.scores.desirability > 0) ? (
-                  <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+                  <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
                     <h3 className="text-lg font-bold text-black mb-4">Performance Metrics</h3>
                     <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -759,8 +765,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       <XAxis dataKey="name" />
                       <YAxis domain={[0, 100]} />
                       <Tooltip />
-                      <Bar dataKey="score" fill="#ff1493" radius={[4, 4, 0, 0]}>
-                        {/* Optional: Color bars differently based on score */}
+                      <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                        <Cell fill="#ff8c00" /> {/* Usability: Orange */}
+                        <Cell fill="#ff1493" /> {/* Desirability: Pink */}
+                        <Cell fill="#00bfff" /> {/* Clarity: Cyan */}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>

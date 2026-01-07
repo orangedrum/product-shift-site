@@ -7,6 +7,9 @@ import { supabase } from '../lib/supabase';
 
 const StyleGuide: React.FC = () => {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [secretKey, setSecretKey] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
   const [session, setSession] = useState<any>(null);
   const [bgGradient, setBgGradient] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,6 +52,64 @@ const StyleGuide: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Shared Admin Auth Logic
+  useEffect(() => {
+    const storedKey = localStorage.getItem('adminSecretKey');
+    if (storedKey) {
+      setSecretKey(storedKey);
+      verifyKey(storedKey);
+    }
+  }, []);
+
+  const verifyKey = async (key: string) => {
+    try {
+      // We use the stats endpoint just to verify the key is valid
+      const response = await fetch('/api/admin/stats', {
+        headers: { 'Authorization': `Bearer ${key}` }
+      });
+      if (response.ok) {
+        setIsAuthenticated(true);
+        localStorage.setItem('adminSecretKey', key);
+      } else {
+        throw new Error('Invalid Key');
+      }
+    } catch (e) {
+      setIsAuthenticated(false);
+      setAuthError('Invalid admin key');
+    }
+  };
+
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    verifyKey(secretKey);
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <NeoCard className="max-w-md w-full">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-black text-black mb-2">Restricted Access</h1>
+            <p className="text-gray-600">Enter the Admin Key to view the Style Guide.</p>
+          </div>
+          <form onSubmit={handleAuthSubmit} className="space-y-4">
+            <input
+              type="password"
+              value={secretKey}
+              onChange={(e) => setSecretKey(e.target.value)}
+              className="w-full p-3 border-2 border-black rounded-lg focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] transition-all"
+              placeholder="Secret Key"
+            />
+            {authError && <p className="text-red-600 font-bold text-sm">{authError}</p>}
+            <NeoButton type="submit" className="w-full">
+              Unlock Style Guide
+            </NeoButton>
+          </form>
+        </NeoCard>
+      </div>
+    );
+  }
 
   return (
     <div 
