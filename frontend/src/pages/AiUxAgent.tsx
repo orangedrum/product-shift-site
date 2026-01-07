@@ -669,7 +669,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       <div className="animate-fade-in">
                         <div className="flex items-center gap-3 mb-4">
                           <h3 className="text-lg font-bold text-black">{res.persona}</h3>
-                          <span className="text-xs text-black font-bold bg-white px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">{res.description}</span>
+                          <span className="text-xs text-black font-bold bg-white px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+                            {res.description || 'User Persona'}
+                          </span>
                         </div>
                         
                         <div className="bg-white p-4 rounded-xl rounded-tl-none shadow-[4px_4px_0px_0px_#000] border-2 border-black text-black relative mb-6">

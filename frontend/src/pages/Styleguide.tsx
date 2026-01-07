@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
-import { CheckCircle, AlertCircle, User, LogIn, LogOut } from 'lucide-react';
+import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const StyleGuide: React.FC = () => {
@@ -111,6 +111,113 @@ const StyleGuide: React.FC = () => {
             </div>
           </NeoCard>
         </section>
+
+        {/* --- MERGED LEGACY SECTIONS --- */}
+
+        {/* Application Routes Section */}
+        <section>
+          <NeoCard title="Application Routes">
+            <p className="mb-4 text-gray-600">Use these links to navigate to the main pages of the application and avoid URL typos.</p>
+            <ul className="list-disc list-inside space-y-2">
+              <li>
+                <Link to="/" className="text-blue-600 hover:underline font-semibold">Homepage</Link>
+                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/</code>
+              </li>
+              <li>
+                <Link to="/ai-powered-ux" className="text-blue-600 hover:underline font-semibold">AI UX Agent</Link>
+                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/ai-powered-ux</code>
+              </li>
+              <li>
+                <Link to="/landingpg-aiuxagent" className="text-blue-600 hover:underline font-semibold">AI Agent Landing Page</Link>
+                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/landingpg-aiuxagent</code>
+              </li>
+              <li>
+                <Link to="/admin-dashboard" className="text-blue-600 hover:underline font-semibold">Admin Dashboard</Link>
+                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/admin-dashboard</code>
+              </li>
+            </ul>
+          </NeoCard>
+        </section>
+
+        {/* Typography Section */}
+        <section>
+          <NeoCard title="Typography & Fonts">
+            {/* Headings */}
+            <div className="mb-8">
+              <h3 className="text-2xl font-semibold mb-4 text-black">Headings</h3>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Hero Heading</p>
+                  <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff]">
+                    Aa - The quick brown fox
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Hero Heading (Solid)</p>
+                  <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Section Heading</p>
+                  <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Card/Item Title</p>
+                  <p className="text-lg font-semibold text-black">Aa - The quick brown fox</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Body Text */}
+            <div className="mb-8">
+              <h3 className="text-2xl font-semibold mb-4 text-black">Body & Paragraphs</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">XL Body (Sub-heading)</p>
+                  <p className="text-xl text-gray-500">The quick brown fox jumps over the lazy dog. A versatile paragraph style for introductory content.</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Base Body (Standard)</p>
+                  <p className="text-base text-gray-600">The quick brown fox jumps over the lazy dog. This is the default paragraph style.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <h3 className="text-2xl font-semibold mb-4 text-black">Tags & Pills</h3>
+              <div className="flex flex-wrap gap-4 items-center">
+                <span className="px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-full">Primary Tag</span>
+                <span className="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">Secondary Tag</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                  <Sparkles size={14} />
+                  Icon Badge
+                </div>
+              </div>
+            </div>
+          </NeoCard>
+        </section>
+
+        {/* Legacy Buttons Section */}
+        <section>
+          <NeoCard title="Legacy Buttons & CTAs">
+            <div>
+              <h3 className="font-semibold mb-4 text-black">Standard Buttons</h3>
+              <div className="flex flex-wrap gap-4 items-center">
+                  <button className="inline-flex items-center justify-center bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff] text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
+                    Primary Gradient
+                  </button>
+                  <button className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Primary Solid
+                  </button>
+                  <button className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-5 rounded-lg border border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                    Secondary
+                  </button>
+              </div>
+            </div>
+          </NeoCard>
+        </section>
+
+        {/* --- END MERGED SECTIONS --- */}
 
         <section>
           <NeoCard>
