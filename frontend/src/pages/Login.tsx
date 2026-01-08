@@ -9,6 +9,7 @@ const LoginPage: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginMessage, setLoginMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
+  const [bgGradient, setBgGradient] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -28,6 +29,18 @@ const LoginPage: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Set background gradient to match the main app
+  useEffect(() => {
+    const r = () => Math.floor(Math.random() * 100);
+    setBgGradient(`
+      radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+      radial-gradient(at ${r()}% ${r()}%, #ff8c00 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
+      #ffffff
+    `);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginMessage(null);
@@ -44,11 +57,16 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 transition-colors duration-500"
+      style={{
+        background: bgGradient || '#f3f4f6'
+      }}
+    >
       <div className="max-w-md w-full">
         <NeoCard>
           <h2 className="text-2xl font-black mb-4 text-black">Sign In / Sign Up</h2>
-          <p className="text-gray-600 mb-6 font-medium">Enter your email to receive a magic link. No password required.</p>
+          <p className="text-gray-600 mb-6 font-medium">Enter your email to sign in or create an account. We'll send you a secure magic link.</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
