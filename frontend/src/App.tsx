@@ -17,7 +17,12 @@ const App: React.FC = () => {
       
       <main className="flex-grow">
         <Routes>
+          {/* Homepage */}
           <Route path="/" element={<MarketingLandingPage />} />
+          
+          {/* Specific Landing Page Route (Fixes the "Try Demo" link) */}
+          <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
+          
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           
