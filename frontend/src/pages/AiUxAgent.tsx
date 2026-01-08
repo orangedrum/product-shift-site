@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -203,6 +203,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0); // Index of the active tab
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
+  const [showRefillModal, setShowRefillModal] = useState(false);
   const [bgGradient, setBgGradient] = useState('');
 
   // Mouse tracking for interactive background
@@ -418,12 +419,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const text = contentConfig[userSegment] || contentConfig.tech;
   const pricingLink = userSegment === 'smb' ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
 
-  const handleSubscriptionUpgrade = async () => {
+  const handleCheckout = async (planId: string) => {
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: 'starter', email: session?.user?.email }),
+        body: JSON.stringify({ planId: planId, email: session?.user?.email }),
       });
       const data = await response.json();
       if (data.url) window.location.href = data.url;
@@ -513,7 +514,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
             {/* Action Button */}
             <button 
-              onClick={() => navigate(pricingLink)}
+              onClick={() => setShowRefillModal(true)}
               className="flex flex-col items-center justify-center group/btn bg-gray-900 hover:bg-gray-800 p-2 rounded-lg border border-gray-700 hover:border-gray-500 transition-all"
               title="Add Credits"
             >
@@ -526,11 +527,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
         {planStatus !== 'active' && credits !== null && credits < 2 && (
           <div className="text-right text-xs font-medium bg-white/90 backdrop-blur-sm p-2 rounded-lg border border-gray-200 shadow-sm animate-fade-in">
             <span className="text-gray-600">Low on Credits. </span>
-            <a href={pricingLink} className="text-indigo-600 hover:text-indigo-800 font-bold underline decoration-indigo-300 hover:decoration-indigo-800 transition-all">
+            <button onClick={() => setShowRefillModal(true)} className="text-indigo-600 hover:text-indigo-800 font-bold underline decoration-indigo-300 hover:decoration-indigo-800 transition-all">
               Refill your Account
-            </a>
+            </button>
             <span className="text-gray-400 mx-1">or</span>
-            <button onClick={handleSubscriptionUpgrade} className="text-pink-600 hover:text-pink-800 font-bold underline decoration-pink-300 hover:decoration-pink-800 transition-all">Switch to a Monthly Plan</button>
+            <button onClick={() => handleCheckout('starter')} className="text-pink-600 hover:text-pink-800 font-bold underline decoration-pink-300 hover:decoration-pink-800 transition-all">Switch to a Monthly Plan</button>
           </div>
         )}
       </div>
@@ -706,6 +707,52 @@ const AiPoweredUxHealthtech: React.FC = () => {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Refill Credits Modal */}
+      {showRefillModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
+          <div className="max-w-md w-full relative">
+            <NeoCard title="Refill Credits" className="relative">
+              <button 
+                onClick={() => setShowRefillModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
+              >
+                <X size={24} />
+              </button>
+              
+              <p className="text-gray-600 mb-6 font-medium">Select a credit pack to continue testing immediately.</p>
+              
+              <div className="space-y-4">
+                <button 
+                  onClick={() => handleCheckout('pack-3')}
+                  className="w-full flex items-center justify-between p-4 border-2 border-black rounded-xl hover:bg-gray-50 transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
+                >
+                  <span className="font-bold text-lg text-black">3 Tests</span>
+                  <span className="font-black text-xl text-black">$14</span>
+                </button>
+
+                <button 
+                  onClick={() => handleCheckout('pack-15')}
+                  className="w-full flex items-center justify-between p-4 border-2 border-black bg-[#ff8c00] rounded-xl hover:bg-[#ffa500] transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
+                >
+                  <div className="text-left">
+                    <span className="block font-bold text-lg text-black">15 Tests</span>
+                    <span className="text-xs text-black font-medium">Best Value</span>
+                  </div>
+                  <span className="font-black text-xl text-black">$69</span>
+                </button>
+              </div>
+
+              <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
+                <p className="text-sm text-gray-600">
+                  Need consistent testing? <br/>
+                  Keeping your existing test credits and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
+                </p>
+              </div>
+            </NeoCard>
           </div>
         </div>
       )}
