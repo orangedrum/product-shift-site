@@ -121,3 +121,5 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
     </header>
   );
 };
+
+export default Header;
