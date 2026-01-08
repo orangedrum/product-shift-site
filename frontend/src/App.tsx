@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import HomePage from './pages/HomePage';
 import MarketingLandingPage from './pages/MarketingLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
 import AdminDashboard from './pages/AdminDashboard';
@@ -18,7 +19,7 @@ const App: React.FC = () => {
       <main className="flex-grow">
         <Routes>
           {/* Homepage */}
-          <Route path="/" element={<MarketingLandingPage />} />
+          <Route path="/" element={<HomePage />} />
           
           {/* Specific Landing Page Route (Fixes the "Try Demo" link) */}
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
