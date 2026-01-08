@@ -421,36 +421,40 @@ const AiPoweredUxHealthtech: React.FC = () => {
             <p className="text-lg text-black font-medium">Select 3-5 personas and define their goal to run a simulated usability analysis.</p>
           </div>
       
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-gray-100 p-3 rounded-lg border border-gray-300 text-xs text-gray-600">
-              <strong className="font-bold text-gray-800">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
-              We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
-              <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            
+            {/* Card 1: The What */}
+            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+              <h2 className="text-2xl font-black text-black mb-1">The What</h2>
+              <p className="text-gray-600 font-medium mb-6">What url are we testing today?</p>
+              
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                  <span className="text-black font-bold text-lg">https://</span>
+                </div>
+                <input
+                  type="text"
+                  id="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value.replace(/^https?:\/\//, ''))}
+                  className="block w-full pl-24 pr-6 py-6 text-xl font-normal text-gray-900 bg-white border-2 border-black rounded-lg shadow-[2.5px_3px_0px_0px_#000] focus:shadow-[5.5px_7px_0px_0px_#000] focus:outline-none transition-all duration-200 placeholder-gray-500"
+                  placeholder="example.com"
+                  required
+                />
+              </div>
             </div>
 
-            <fieldset>
-              <div>
-                <label htmlFor="url" className="block text-sm font-bold text-black">
-                  Website URL
-                </label>
-                <div className="mt-2 relative">
-                  <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                    <span className="text-black font-bold text-lg">https://</span>
-                  </div>
-                  <input
-                    type="text"
-                    id="url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value.replace(/^https?:\/\//, ''))}
-                    className="block w-full pl-24 pr-6 py-6 text-xl font-normal text-gray-900 bg-white border-2 border-black rounded-lg shadow-[2.5px_3px_0px_0px_#000] focus:shadow-[5.5px_7px_0px_0px_#000] focus:outline-none transition-all duration-200 placeholder-gray-500"
-                    placeholder="example.com"
-                    required
-                  />
-                </div>
+            {/* Card 2: The Who */}
+            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+              <h2 className="text-2xl font-black text-black mb-1">The Who</h2>
+              <p className="text-gray-600 font-medium mb-6">Who would be most likely to visit this URL</p>
+
+              <div className="bg-gray-100 p-3 rounded-lg border border-gray-300 text-xs text-gray-600 mb-6">
+                <strong className="font-bold text-gray-800">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+                We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
+                <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
               </div>
-            </fieldset>
-            <fieldset>
-              <legend className="block text-sm font-bold text-black mb-3 uppercase tracking-wide">Select Personas</legend>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {availablePersonas.map((persona) => (
                   <div 
@@ -481,23 +485,25 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   <strong>Action Required:</strong> Please select between 3 and 5 personas to run the analysis.
                 </div>
               )}
-            </fieldset>
+            </div>
 
-            <fieldset>
-              <legend className="block text-sm font-bold text-black mb-2 uppercase tracking-wide">
-                User Goal / Task
-              </legend>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black" />
-                  <label htmlFor="task-understand" className="ml-2 block text-sm text-black font-medium">Quickly understand what this page is about</label>
+            {/* Card 3: The Why */}
+            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+              <h2 className="text-2xl font-black text-black mb-1">The Why</h2>
+              <p className="text-gray-600 font-medium mb-2">Why are you testing this site today?</p>
+              <p className="text-sm text-gray-500 mb-6 italic">it's recommended you pass the initial "understanding my site" task/objective before you move on to any other objective.</p>
+
+              <div className="space-y-3">
+                <div className="flex items-center p-3 border-2 border-transparent hover:bg-gray-50 rounded-lg transition-colors">
+                  <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black cursor-pointer" />
+                  <label htmlFor="task-understand" className="ml-3 block text-base text-black font-bold cursor-pointer">Quickly understand what this page is about</label>
                 </div>
-                <div className="flex items-center">
-                  <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black" />
-                  <label htmlFor="task-purchase" className="ml-2 block text-sm text-black font-medium">Make a purchase / Sign up (Think Aloud)</label>
+                <div className="flex items-center p-3 border-2 border-transparent hover:bg-gray-50 rounded-lg transition-colors">
+                  <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black cursor-pointer" />
+                  <label htmlFor="task-purchase" className="ml-3 block text-base text-black font-bold cursor-pointer">Make a purchase / Sign up (Think Aloud)</label>
                 </div>
               </div>
-            </fieldset>
+            </div>
 
             <button
               type="submit"
