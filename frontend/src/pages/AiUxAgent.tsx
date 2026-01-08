@@ -636,7 +636,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
-                <div className="p-4 border-b-2 border-black bg-gray-50">
+                <div className="p-4 border-b-2 border-black bg-gray-50 no-print">
                   <h2 className="text-lg font-bold text-black">User Sessions</h2>
                   <p className="text-xs text-black font-medium">Click a user to view their detailed feedback</p>
                 </div>
@@ -702,7 +702,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 {/* PRINT VIEW: All Sessions List */}
                 <div className="hidden print-only mb-8">
                   <div className="bg-white p-4 mb-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
-                    <h2 className="text-2xl font-black text-black m-0">Detailed User Sessions</h2>
+                    <h2 className="text-2xl font-black text-black m-0" style={{ borderBottom: 'none', paddingBottom: 0 }}>Detailed User Sessions</h2>
                   </div>
 
                   {result.userSessions.map((res, idx) => {
@@ -757,7 +757,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
 
               <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
-                <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4 break-inside-avoid">
+                <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4 break-inside-avoid no-print">
                   <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
                   <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<FileText size={16} />}>
                     Download PDF

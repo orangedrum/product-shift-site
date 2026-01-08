@@ -360,7 +360,7 @@ const personas: Record<string, Persona> = {
     id: 'elizabeth-wealthy-elite',
     name: 'Elizabeth',
     description: 'a highly educated and wealthy individual with deep connections',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Victoria&backgroundColor=c0ebd7&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Katherine&backgroundColor=c0ebd7&mouth=smile',
   },
 };
 
