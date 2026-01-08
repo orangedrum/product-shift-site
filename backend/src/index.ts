@@ -330,49 +330,49 @@ const personas: Record<string, Persona> = {
     id: 'alex-busy-pro',
     name: 'Alex',
     description: 'a busy professional with two kids under 5',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alexandra&backgroundColor=b6e3f4&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra&backgroundColor=b6e3f4',
   },
   'sam-college-student': {
     id: 'sam-college-student',
     name: 'Sam',
     description: 'a budget-conscious college student',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam&backgroundColor=ffdfbf',
   },
   'charlie-family-worker': {
     id: 'charlie-family-worker',
     name: 'Charlie',
     description: 'a masculine, patriotic blue-collar worker',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie&backgroundColor=c0ebd7',
   },
   'beth-homemaker': {
     id: 'beth-homemaker',
     name: 'Beth',
     description: 'a 45+ family-oriented homemaker with poor eyesight',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Beth&backgroundColor=ffdfbf&glasses=prescription02&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth&backgroundColor=ffdfbf',
   },
   'sarah-social-shopper': {
     id: 'sarah-social-shopper',
     name: 'Sarah',
     description: 'a social influencer and avid shopper',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&backgroundColor=ffdfbf&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah&backgroundColor=ffdfbf',
   },
   'elizabeth-wealthy-elite': {
     id: 'elizabeth-wealthy-elite',
     name: 'Elizabeth',
     description: 'a highly educated and wealthy individual with deep connections',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Katherine&backgroundColor=c0ebd7&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine&backgroundColor=c0ebd7',
   },
   'marcus-c-suite': {
     id: 'marcus-c-suite',
     name: 'Marcus',
     description: 'a C-level executive of a Fortune 500 company',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus&backgroundColor=c0ebd7&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus&backgroundColor=c0ebd7',
   },
   'linda-business-owner': {
     id: 'linda-business-owner',
     name: 'Linda',
     description: 'a business owner with 10 employees',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Linda&backgroundColor=ffdfbf&mouth=smile',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda&backgroundColor=ffdfbf',
   },
 };
 
@@ -430,24 +430,24 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         userSessions: [
             {
                 persona: 'Alex',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alexandra&backgroundColor=b6e3f4&mouth=smile',
+                avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra&backgroundColor=b6e3f4',
                 analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||I instantly get what this is. The value prop is super clear.|||USER_DETAILS|||### 1. My Experience\nI landed on the page and immediately understood the offering. The headline "AI-Powered UX Audits" is punchy. I feel confident this tool could save me time.\n\n### 2. Points of Friction\nI\'m not sure about the pricing structure. It says "Pro" but doesn\'t list a price upfront. That\'s a bit annoying.\n\n### 3. What I Think This Is\nIt\'s an automated user testing tool that uses AI agents instead of real people to give quick feedback.',
                 description: 'a busy professional with two kids under 5',
-                personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alexandra&backgroundColor=b6e3f4&mouth=smile' }
+                personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra&backgroundColor=b6e3f4' }
             },
             {
                 persona: 'Sam',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile',
+                avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam&backgroundColor=ffdfbf',
                 analysis: '|||USER_MOOD|||Neutral|||USER_BUBBLE|||It looks cool, but is it free?|||USER_DETAILS|||### 1. My Experience\nThe design is clean. I like the robot illustrations. But as a student, I need to know if there\'s a free tier immediately.\n\n### 2. Points of Friction\nThe "Join Waitlist" button is everywhere. I just want to try it now.\n\n### 3. What I Think This Is\nA SaaS platform for UX designers.',
                 description: 'a budget-conscious college student',
-                personaObj: { id: 'sam-college-student', name: 'Sam', description: 'a budget-conscious college student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam&backgroundColor=ffdfbf&mouth=smile' }
+                personaObj: { id: 'sam-college-student', name: 'Sam', description: 'a budget-conscious college student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam&backgroundColor=ffdfbf' }
             },
             {
                 persona: 'Charlie',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile',
+                avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie&backgroundColor=c0ebd7',
                 analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||Straightforward. No fluff.|||USER_DETAILS|||### 1. My Experience\nSolid layout. I like the step-by-step breakdown. It feels professional and robust.\n\n### 2. Points of Friction\nNone really. Maybe the font size could be a tad larger on the features list.\n\n### 3. What I Think This Is\nA tool to automate website testing.',
                 description: 'a masculine, patriotic blue-collar worker',
-                personaObj: { id: 'charlie-family-worker', name: 'Charlie', description: 'a masculine, patriotic blue-collar worker', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=c0ebd7&mouth=smile' }
+                personaObj: { id: 'charlie-family-worker', name: 'Charlie', description: 'a masculine, patriotic blue-collar worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie&backgroundColor=c0ebd7' }
             }
         ],
         expertReport: '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability. The value proposition is communicated effectively above the fold.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct and draw attention immediately.\n- **Trust Signals:** [Neutral] While the design is professional, adding social proof or testimonials would boost credibility.\n- **Navigation:** [Positive] Simple and intuitive.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking for the Pro tier.\n- **FIX:** Add a "starting at" price or a comparison table to the pricing section.\n- **ISSUE:** The "Join Waitlist" CTA is repetitive.\n- **FIX:** Vary the CTA text (e.g., "Get Early Access", "Secure Your Spot") to reduce fatigue.\n\n|||SCORES_JSON|||\n{ "usability": 88, "desirability": 92, "clarity": 95 }',

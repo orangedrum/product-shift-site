@@ -67,7 +67,7 @@ const FeaturesSection = () => (
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">1. Select Personas</h3>
-            <p className="mt-1 text-base text-gray-600">Choose from a panel of 6 diverse AI-powered user personas to match your target audience.</p>
+            <p className="mt-1 text-base text-gray-600">Choose from a panel of 8 distinct AI user personas to match your target audience.</p>
           </div>
         </div>
         <div className="flex items-start gap-4">

@@ -23,7 +23,7 @@ const MarketingHero: React.FC = () => {
           Powered by AI Personas
         </h1>
         <p className="text-lg md:text-xl mb-8 text-gray-100 max-w-2xl mx-auto">
-          Stop guessing. Get an expert-level usability report, complete with feedback from 5 distinct AI user personas, for a fraction of the cost of traditional testing.
+          Stop guessing. Get an expert-level usability report, complete with feedback from 8 distinct AI user personas, for a fraction of the cost of traditional testing.
         </p>
         
         <div className="flex flex-col sm:flex-row justify-center gap-4">
