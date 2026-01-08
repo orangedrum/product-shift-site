@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
+import { Loader2 } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const segmentParam = searchParams.get('segment'); // e.g. ?segment=smb
   const [session, setSession] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginMessage, setLoginMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
   const [bgGradient, setBgGradient] = useState('');
@@ -46,6 +48,7 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginMessage(null);
+    setIsSubmitting(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: loginEmail,
@@ -58,6 +61,8 @@ const LoginPage: React.FC = () => {
       setLoginMessage({ type: 'success', text: 'Check your email for the magic link!' });
     } catch (error: any) {
       setLoginMessage({ type: 'error', text: error.message });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -95,7 +100,16 @@ const LoginPage: React.FC = () => {
             </div>
             
             {loginMessage && <div className={`p-3 rounded-lg text-sm font-bold border-2 border-black ${loginMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{loginMessage.text}</div>}
-            <NeoButton type="submit" variant="primary" className="w-full py-3">Send Magic Link</NeoButton>
+            
+            <NeoButton type="submit" variant="primary" className="w-full py-3" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin mr-2" size={18} /> Sending...
+                </>
+              ) : (
+                'Send Magic Link'
+              )}
+            </NeoButton>
             
             <div className="text-center mt-2">
                <button onClick={handleForgotPassword} className="text-sm text-gray-500 hover:text-black font-medium underline decoration-gray-300 hover:decoration-black transition-all">

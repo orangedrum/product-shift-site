@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, LogIn, LogOut, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { NeoButton } from './NeoButton';
@@ -13,6 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [internalSession, setInternalSession] = useState<any>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Self-Healing: If no session prop is passed (Global Header), fetch it ourselves.
   useEffect(() => {
@@ -38,7 +39,12 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
   ];
 
   const handleLogin = () => {
-    navigate('/login');
+    // Smart Redirect: If on the SMB landing page, pass the segment param to the login page
+    if (location.pathname.includes('instantinsights')) {
+      navigate('/login?segment=smb');
+    } else {
+      navigate('/login');
+    }
   };
 
   const handleLogout = async () => {
