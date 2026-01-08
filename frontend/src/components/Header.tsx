@@ -41,6 +41,11 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
     navigate('/login');
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   return (
     <header className={`${displaySession ? 'bg-black' : 'bg-white shadow-sm'} sticky top-0 z-50 ${className}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -74,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
                   <User size={20} />
                   My Account
                 </button>
-                <button onClick={() => supabase.auth.signOut()} className={`${displaySession ? 'text-white hover:text-red-400' : 'text-gray-600 hover:text-red-600'} font-medium flex items-center gap-2`}>
+                <button onClick={handleLogout} className={`${displaySession ? 'text-white hover:text-red-400' : 'text-gray-600 hover:text-red-600'} font-medium flex items-center gap-2`}>
                   <LogOut size={20} />
                 </button>
               </div>
@@ -120,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
                 <button onClick={() => navigate('/account')} className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>
                   My Account
                 </button>
-                <button onClick={() => supabase.auth.signOut()} className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:text-red-700 hover:bg-red-50'}`}>
+                <button onClick={handleLogout} className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:text-red-700 hover:bg-red-50'}`}>
                   Sign Out
                 </button>
               </div>

@@ -61,6 +61,14 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLoginMessage({ 
+      type: 'success', 
+      text: 'Good news! We use secure Magic Links, so there is no password to forget. Just enter your email above to sign in.' 
+    });
+  };
+
   return (
     <div 
       className="min-h-screen flex items-center justify-center p-4 transition-colors duration-500"
@@ -88,6 +96,12 @@ const LoginPage: React.FC = () => {
             
             {loginMessage && <div className={`p-3 rounded-lg text-sm font-bold border-2 border-black ${loginMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{loginMessage.text}</div>}
             <NeoButton type="submit" variant="primary" className="w-full py-3">Send Magic Link</NeoButton>
+            
+            <div className="text-center mt-2">
+               <button onClick={handleForgotPassword} className="text-sm text-gray-500 hover:text-black font-medium underline decoration-gray-300 hover:decoration-black transition-all">
+                 Forgot Password?
+               </button>
+            </div>
           </form>
         </NeoCard>
       </div>
