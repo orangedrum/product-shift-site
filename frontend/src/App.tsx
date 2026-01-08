@@ -10,6 +10,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import StyleGuide from './pages/Styleguide';
 import PaymentConfirmation from './pages/PaymentConfirmation';
+import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
   return (
@@ -38,7 +39,7 @@ const App: React.FC = () => {
           <Route path="/payment-success" element={<PaymentConfirmation />} />
           
           {/* Fallback for unknown routes */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       

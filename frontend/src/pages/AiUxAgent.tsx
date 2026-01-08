@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useNavigatear, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
@@ -187,6 +186,7 @@ type UserSegment = 'tech' | 'smb';
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
@@ -240,6 +240,32 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Reliability Fix: Ensure segment metadata is applied if passed via URL (e.g. from Magic Link)
+  useEffect(() => {
+    const urlSegment = searchParams.get('segment');
+    if (session && urlSegment) {
+      const currentSegment = session.user?.user_metadata?.segment;
+      
+      // Only update if it's different to avoid loops
+      if (currentSegment !== urlSegment) {
+        console.log(`Updating user segment from ${currentSegment} to ${urlSegment}`);
+        supabase.auth.updateUser({
+          data: { segment: urlSegment }
+        }).then(({ data, error }) => {
+          if (!error && data.user) {
+            // Force session update to reflect new metadata immediately
+            setSession((prev: any) => ({ ...prev, user: data.user }));
+          }
+        });
+      }
+      // Clean up URL so the param doesn't linger
+      setSearchParams(params => {
+        params.delete('segment');
+        return params;
+      }, { replace: true });
+    }
+  }, [session, searchParams, setSearchParams]);
 
   // Simulated progress bar effect
   useEffect(() => {

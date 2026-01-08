@@ -53,7 +53,8 @@ const LoginPage: React.FC = () => {
       const { error } = await supabase.auth.signInWithOtp({
         email: loginEmail,
         options: { 
-          emailRedirectTo: `${window.location.origin}/ai-powered-ux`,
+          // Pass the segment through the magic link so we can enforce it on the other side
+          emailRedirectTo: `${window.location.origin}/ai-powered-ux${segmentParam ? `?segment=${segmentParam}` : ''}`,
           data: { segment: segmentParam || 'tech' } // Store the segment in the user's metadata
         }, 
       });
