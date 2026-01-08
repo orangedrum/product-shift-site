@@ -1,14 +1,30 @@
 import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, X, LogIn, LogOut, User } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
-const Header = () => {
+interface HeaderProps {
+  session?: any;
+  onLoginClick?: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: 'Services', href: '#' },
     { name: 'About', href: '#' },
     { name: 'Blog', href: '#' }
   ];
+
+  const handleLogin = () => {
+    if (onLoginClick) {
+      onLoginClick();
+    } else {
+      navigate('/');
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -34,9 +50,29 @@ const Header = () => {
             </nav>
           </div>
           <div className="hidden md:flex">
-            <button className="inline-flex items-center justify-center bg-gradient-to-br from-brand-orange via-brand-pink to-brand-lightblue text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
-              Book Free Consultation
-            </button>
+            {session ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-700 hidden lg:block">
+                  {session.user.email}
+                </span>
+                <button onClick={() => navigate('/account')} className="text-gray-600 hover:text-indigo-600 font-medium flex items-center gap-2">
+                  <User size={20} />
+                  My Account
+                </button>
+                <button onClick={() => supabase.auth.signOut()} className="text-gray-600 hover:text-red-600 font-medium flex items-center gap-2">
+                  <LogOut size={20} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <button onClick={handleLogin} className="text-gray-600 hover:text-gray-900 font-medium">
+                  Sign In
+                </button>
+                <button className="inline-flex items-center justify-center bg-gradient-to-br from-brand-orange via-brand-pink to-brand-lightblue text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
+                  Book Free Consultation
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -57,14 +93,31 @@ const Header = () => {
             </a>
           ))}
           <div className="mt-2 px-2 pt-2 pb-2 border-t border-gray-200">
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-              Book a Call
-            </button>
+            {session ? (
+              <div className="space-y-3">
+                <div className="px-3 py-2 text-sm font-medium text-gray-500 break-all">
+                  {session.user.email}
+                </div>
+                <button onClick={() => navigate('/account')} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
+                  My Account
+                </button>
+                <button onClick={() => supabase.auth.signOut()} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50">
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <button onClick={handleLogin} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
+                  Sign In
+                </button>
+                <button className="w-full bg-gradient-to-br from-brand-orange via-brand-pink to-brand-lightblue text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-sm">
+                  Book Free Consultation
+                </button>
+              </div>
+            )}
           </div>
         </nav>
       )}
     </header>
   );
 };
-
-export default Header;

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
+import { Header } from '../components/Header';
 import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
