@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, LogIn, LogOut, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { NeoButton } from './NeoButton';
 
 interface HeaderProps {
   session?: any;
@@ -84,11 +85,15 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick, className
               </div>
             ) : (
               <>
-                <button onClick={handleLogin} className="text-gray-600 hover:text-gray-900 font-medium">
+                <NeoButton variant="secondary" onClick={handleLogin} className="mr-4">
                   Sign In
-                </button>
-                <button className="inline-flex items-center justify-center bg-gradient-to-br from-brand-orange via-brand-pink to-brand-lightblue text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
-                  Book Free Consultation
+                </NeoButton>
+                <button 
+                  onClick={() => navigate('/landingpg-aiuxagent')}
+                  className="inline-flex items-center justify-center gap-2 font-bold border-2 border-black rounded-lg transition-all focus:outline-none py-2 px-4 text-white shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000]"
+                  style={{ background: 'linear-gradient(to right, #ff8c00, #ff1493)' }}
+                >
+                  Try Demo
                 </button>
               </>
             )}
@@ -129,8 +134,12 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick, className
                 <button onClick={handleLogin} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
                   Sign In
                 </button>
-                <button className="w-full bg-gradient-to-br from-brand-orange via-brand-pink to-brand-lightblue text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-sm">
-                  Book Free Consultation
+                <button 
+                  onClick={() => navigate('/landingpg-aiuxagent')}
+                  className="w-full text-white font-bold py-2 px-4 rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000]"
+                  style={{ background: 'linear-gradient(to right, #ff8c00, #ff1493)' }}
+                >
+                  Try Demo
                 </button>
               </div>
             )}
