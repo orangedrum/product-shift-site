@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
       <div className="max-w-md w-full">
         <NeoCard>
           <h2 className="text-2xl font-black mb-4 text-black">Sign In / Sign Up</h2>
-          <p className="text-gray-600 mb-6 font-medium">Enter your email to sign in or create an account. We'll send you a secure magic link.</p>
+          <p className="text-gray-600 mb-6 font-medium">Enter your email to sign in or create an account. We'll send you a secure magic link and go from there.</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div>

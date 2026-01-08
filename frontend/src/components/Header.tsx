@@ -42,13 +42,13 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
   };
 
   return (
-    <header className={`bg-white shadow-sm sticky top-0 z-50 ${className}`}>
+    <header className={`${displaySession ? 'bg-black' : 'bg-white shadow-sm'} sticky top-0 z-50 ${className}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0">
+          <div className={`flex-shrink-0 ${displaySession ? 'bg-white rounded-xl px-3 py-1' : ''}`}>
             <a href="https://www.theproductshift.com" title="Product Shift Home" className="flex items-center gap-3">
               <img className="h-8 w-auto" src="/logo.png" alt="Product Shift" />
-              <span className="text-xl font-bold text-gray-900 tracking-tight">
+              <span className={`text-xl font-bold tracking-tight ${displaySession ? 'text-black' : 'text-gray-900'}`}>
                 Product Shift
               </span>
             </a>
@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
           <div className="hidden md:flex flex-1 items-center justify-center">
             <nav className="flex space-x-10">
               {navLinks.map((link) => (
-                <a key={link.name} href={link.href} className="text-gray-500 hover:text-gray-900 font-normal transition-colors">
+                <a key={link.name} href={link.href} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-500 hover:text-gray-900'} font-normal transition-colors`}>
                   {link.name}
                 </a>
               ))}
@@ -67,14 +67,14 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
           <div className="hidden md:flex">
             {displaySession ? (
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-700 hidden lg:block">
+                <span className={`text-sm font-medium hidden lg:block ${displaySession ? 'text-white' : 'text-gray-700'}`}>
                   {displaySession.user.email}
                 </span>
-                <button onClick={() => navigate('/account')} className="text-gray-600 hover:text-indigo-600 font-medium flex items-center gap-2">
+                <button onClick={() => navigate('/account')} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-indigo-600'} font-medium flex items-center gap-2`}>
                   <User size={20} />
                   My Account
                 </button>
-                <button onClick={() => supabase.auth.signOut()} className="text-gray-600 hover:text-red-600 font-medium flex items-center gap-2">
+                <button onClick={() => supabase.auth.signOut()} className={`${displaySession ? 'text-white hover:text-red-400' : 'text-gray-600 hover:text-red-600'} font-medium flex items-center gap-2`}>
                   <LogOut size={20} />
                 </button>
               </div>
@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`inline-flex items-center justify-center p-2 rounded-md ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} focus:outline-none`}>
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
@@ -105,22 +105,22 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <nav className="md:hidden bg-white px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <nav className={`md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3 ${displaySession ? 'bg-black' : 'bg-white'}`}>
           {navLinks.map((link) => (
-            <a key={link.name} href={link.href} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
+            <a key={link.name} href={link.href} className={`block px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>
               {link.name}
             </a>
           ))}
           <div className="mt-2 px-2 pt-2 pb-2 border-t border-gray-200">
             {displaySession ? (
               <div className="space-y-3">
-                <div className="px-3 py-2 text-sm font-medium text-gray-500 break-all">
+                <div className={`px-3 py-2 text-sm font-medium break-all ${displaySession ? 'text-gray-400' : 'text-gray-500'}`}>
                   {displaySession.user.email}
                 </div>
-                <button onClick={() => navigate('/account')} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
+                <button onClick={() => navigate('/account')} className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>
                   My Account
                 </button>
-                <button onClick={() => supabase.auth.signOut()} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50">
+                <button onClick={() => supabase.auth.signOut()} className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:text-red-700 hover:bg-red-50'}`}>
                   Sign Out
                 </button>
               </div>
