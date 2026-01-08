@@ -279,12 +279,15 @@ app.post('/api/verify-payment', async (req, res) => {
       const stripeSubscriptionId = session.subscription as string;
 
       if (customerEmail) {
-        await supabase.from('customers').upsert({ 
-          email: customerEmail,
-          stripe_customer_id: stripeCustomerId,
-          stripe_subscription_id: stripeSubscriptionId,
-          plan_status: 'active'
-        }, { onConflict: 'email' });
+        // Only activate subscription status if the user actually bought a subscription
+        if (session.mode === 'subscription') {
+          await supabase.from('customers').upsert({ 
+            email: customerEmail,
+            stripe_customer_id: stripeCustomerId,
+            stripe_subscription_id: stripeSubscriptionId,
+            plan_status: 'active'
+          }, { onConflict: 'email' });
+        }
         
         return res.json({ status: 'active', verified: true });
       }
