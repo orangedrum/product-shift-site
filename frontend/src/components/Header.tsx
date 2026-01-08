@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, LogIn, LogOut, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -10,7 +10,25 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [internalSession, setInternalSession] = useState<any>(null);
   const navigate = useNavigate();
+
+  // Self-Healing: If no session prop is passed (Global Header), fetch it ourselves.
+  useEffect(() => {
+    if (session !== undefined) return; // Prop takes precedence
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setInternalSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setInternalSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [session]);
+
+  const displaySession = session !== undefined ? session : internalSession;
 
   const navLinks = [
     { name: 'Services', href: '#' },
@@ -22,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
     if (onLoginClick) {
       onLoginClick();
     } else {
-      navigate('/');
+      navigate('/ai-powered-ux'); // Redirect to the tool where the modal lives
     }
   };
 
@@ -50,10 +68,10 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
             </nav>
           </div>
           <div className="hidden md:flex">
-            {session ? (
+            {displaySession ? (
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-gray-700 hidden lg:block">
-                  {session.user.email}
+                  {displaySession.user.email}
                 </span>
                 <button onClick={() => navigate('/account')} className="text-gray-600 hover:text-indigo-600 font-medium flex items-center gap-2">
                   <User size={20} />
@@ -93,10 +111,10 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
             </a>
           ))}
           <div className="mt-2 px-2 pt-2 pb-2 border-t border-gray-200">
-            {session ? (
+            {displaySession ? (
               <div className="space-y-3">
                 <div className="px-3 py-2 text-sm font-medium text-gray-500 break-all">
-                  {session.user.email}
+                  {displaySession.user.email}
                 </div>
                 <button onClick={() => navigate('/account')} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
                   My Account

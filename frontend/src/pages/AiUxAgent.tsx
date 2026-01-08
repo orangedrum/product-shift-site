@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
+import { Header } from '../components/Header';
 
 // Define types for the API response and error
 type UserSession = {
@@ -351,25 +352,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
     >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       {/* Header / Auth Bar */}
-      <div className="flex justify-end mb-4 no-print relative z-20">
-        {session ? (
-          <div className="flex items-center gap-4">
-            <span className="hidden sm:inline-block text-sm font-bold text-black bg-white px-3 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-              {session.user.email}
-            </span>
-            <NeoButton variant="secondary" onClick={() => navigate('/account')} icon={<User size={16} />}>
-              My Account
-            </NeoButton>
-            <NeoButton variant="secondary" onClick={() => supabase.auth.signOut()} icon={<LogOut size={16} />}>
-              Sign Out
-            </NeoButton>
-          </div>
-        ) : (
-          <NeoButton variant="secondary" onClick={() => setShowLoginModal(true)} icon={<LogIn size={18} />}>
-            Sign In
-          </NeoButton>
-        )}
-      </div>
+      <Header session={session} onLoginClick={() => setShowLoginModal(true)} />
 
       <style>{`
         @media print {
