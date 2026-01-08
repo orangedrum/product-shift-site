@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, LogIn, LogOut, User, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -151,11 +151,7 @@ const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = 
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginMessage, setLoginMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
   const [taskType, setTaskType] = useState('understand');
@@ -208,29 +204,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  // Listen for login trigger from Global Header
-  useEffect(() => {
-    if (searchParams.get('login') === 'true') {
-      setShowLoginModal(true);
-      setSearchParams({}, { replace: true }); // Clear the param so refresh doesn't reopen
-    }
-  }, [searchParams, setSearchParams]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginMessage(null);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: loginEmail,
-        options: { emailRedirectTo: window.location.href },
-      });
-      if (error) throw error;
-      setLoginMessage({ type: 'success', text: 'Check your email for the magic link!' });
-    } catch (error: any) {
-      setLoginMessage({ type: 'error', text: error.message });
-    }
-  };
 
   // Simulated progress bar effect
   useEffect(() => {
@@ -511,49 +484,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </span>
             </button>
           </form>
-        </div>
-      )}
-
-      {/* Login Modal */}
-      {showLoginModal && !session && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 no-print">
-          <div className="max-w-md w-full relative animate-fade-in">
-            <NeoCard className="relative">
-              <button 
-                onClick={() => setShowLoginModal(false)}
-                className="absolute top-4 right-4 text-black hover:text-gray-600"
-              >
-                <X size={24} />
-              </button>
-              
-              <h2 className="text-2xl font-black mb-4 text-black">Sign In</h2>
-              <p className="text-gray-600 mb-6 font-medium">Enter your email to receive a magic link. No password required.</p>
-              
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-bold text-black mb-1">Email Address</label>
-                  <input 
-                    type="email" 
-                    required
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    className="w-full p-3 border-2 border-black rounded-lg focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] transition-all font-medium"
-                    placeholder="you@example.com"
-                  />
-                </div>
-                
-                {loginMessage && (
-                  <div className={`p-3 rounded-lg text-sm font-bold border-2 border-black ${loginMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {loginMessage.text}
-                  </div>
-                )}
-
-                <NeoButton type="submit" variant="primary" className="w-full py-3">
-                  Send Magic Link
-                </NeoButton>
-              </form>
-            </NeoCard>
-          </div>
         </div>
       )}
 

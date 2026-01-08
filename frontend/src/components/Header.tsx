@@ -6,11 +6,10 @@ import { NeoButton } from './NeoButton';
 
 interface HeaderProps {
   session?: any;
-  onLoginClick?: () => void;
   className?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ session, onLoginClick, className = '' }) => {
+export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [internalSession, setInternalSession] = useState<any>(null);
   const navigate = useNavigate();
@@ -39,11 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick, className
   ];
 
   const handleLogin = () => {
-    if (onLoginClick) {
-      onLoginClick();
-    } else {
-      navigate('/ai-powered-ux?login=true'); // Redirect to the tool and trigger modal
-    }
+    navigate('/login');
   };
 
   return (
