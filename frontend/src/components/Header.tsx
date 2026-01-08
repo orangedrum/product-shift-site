@@ -80,6 +80,9 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
               </div>
             ) : (
               <>
+                <NeoButton variant="secondary" onClick={handleLogin} className="mr-4">
+                  Sign In
+                </NeoButton>
                 <button 
                   onClick={() => navigate('/landingpg-aiuxagent')}
                   className="inline-flex items-center justify-center font-bold rounded-lg transition-transform transform hover:scale-105 hover:shadow-md py-2 px-5 text-white shadow-sm"
@@ -87,9 +90,6 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
                 >
                   Try Our Instant Insights Tool
                 </button>
-                <NeoButton variant="secondary" onClick={handleLogin} className="ml-4">
-                  Sign In
-                </NeoButton>
               </>
             )}
           </div>
