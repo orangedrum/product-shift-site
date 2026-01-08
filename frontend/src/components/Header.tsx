@@ -93,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick, className
                   className="inline-flex items-center justify-center font-bold rounded-lg transition-transform transform hover:scale-105 hover:shadow-md py-2 px-5 text-white shadow-sm"
                   style={{ background: 'linear-gradient(to right, #ff8c00, #ff1493)' }}
                 >
-                  Try Demo
+                  Try Our Instant Insights Tool
                 </button>
               </>
             )}
@@ -139,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick, className
                   className="w-full text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-sm"
                   style={{ background: 'linear-gradient(to right, #ff8c00, #ff1493)' }}
                 >
-                  Try Demo
+                  Try Our Instant Insights Tool
                 </button>
               </div>
             )}
