@@ -353,7 +353,7 @@ const personas: Record<string, Persona> = {
   'sarah-social-shopper': {
     id: 'sarah-social-shopper',
     name: 'Sarah',
-    description: 'an avid shopper in her 20s with an active social media following',
+    description: 'a social influencer and avid shopper',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&backgroundColor=ffdfbf&mouth=smile',
   },
   'elizabeth-wealthy-elite': {
@@ -361,6 +361,18 @@ const personas: Record<string, Persona> = {
     name: 'Elizabeth',
     description: 'a highly educated and wealthy individual with deep connections',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Katherine&backgroundColor=c0ebd7&mouth=smile',
+  },
+  'marcus-c-suite': {
+    id: 'marcus-c-suite',
+    name: 'Marcus',
+    description: 'a C-level executive of a Fortune 500 company',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus&backgroundColor=c0ebd7&mouth=smile',
+  },
+  'linda-business-owner': {
+    id: 'linda-business-owner',
+    name: 'Linda',
+    description: 'a business owner with 10 employees',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Linda&backgroundColor=ffdfbf&mouth=smile',
   },
 };
 
