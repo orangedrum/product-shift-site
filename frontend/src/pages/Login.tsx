@@ -18,20 +18,34 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) {
-        navigate('/ai-powered-ux'); // Redirect if already logged in
-      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) {
-        navigate('/ai-powered-ux');
-      }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Handle redirects for logged-in users (e.g. purchasing a plan)
+  useEffect(() => {
+    if (session) {
+      const plan = searchParams.get('plan');
+      if (plan) {
+        // If user is logged in and has a plan param, initiate checkout immediately
+        fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId: plan, email: session.user.email }),
+        })
+        .then(res => res.json())
+        .then(data => { if (data.url) window.location.href = data.url; })
+        .catch(err => console.error('Checkout redirect failed:', err));
+      } else {
+        navigate('/ai-powered-ux');
+      }
+    }
+  }, [session, searchParams, navigate]);
 
   // Set background gradient to match the main app
   useEffect(() => {
@@ -49,12 +63,16 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setLoginMessage(null);
     setIsSubmitting(true);
+    
+    const redirectUrl = `${window.location.origin}/ai-powered-ux${segmentParam ? `?segment=${segmentParam}` : ''}`;
+    console.log('🔐 Attempting login with redirect URL:', redirectUrl);
+
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: loginEmail,
         options: { 
           // Pass the segment through the magic link so we can enforce it on the other side
-          emailRedirectTo: `${window.location.origin}/ai-powered-ux${segmentParam ? `?segment=${segmentParam}` : ''}`,
+          emailRedirectTo: redirectUrl,
           data: { segment: segmentParam || 'tech' } // Store the segment in the user's metadata
         }, 
       });

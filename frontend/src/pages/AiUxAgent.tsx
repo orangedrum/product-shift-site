@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -190,6 +190,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [planStatus, setPlanStatus] = useState<string | null>(null);
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
   const [taskType, setTaskType] = useState('understand');
@@ -242,6 +244,27 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Fetch Credits & Plan Status
+  useEffect(() => {
+    if (session?.user?.email) {
+      const fetchCustomerData = async () => {
+        const { data } = await supabase
+          .from('customers')
+          .select('credits, plan_status')
+          .eq('email', session.user.email)
+          .single();
+        
+        if (data) {
+          setCredits(data.credits ?? 0);
+          setPlanStatus(data.plan_status);
+        } else {
+          setCredits(0);
+        }
+      };
+      fetchCustomerData();
+    }
+  }, [session]);
 
   // Reliability Fix: Ensure segment metadata is applied if passed via URL (e.g. from Magic Link)
   useEffect(() => {
@@ -338,7 +361,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: fullUrl, personaIds: selectedPersonas, goal: finalGoal }), 
+        body: JSON.stringify({ url: fullUrl, personaIds: selectedPersonas, goal: finalGoal, email: session?.user?.email }), 
       });
 
       let data;
@@ -355,6 +378,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
       }
 
       setResult(data);
+      
+      // Optimistic update for gamification: Decrement credit counter visually
+      if (planStatus !== 'active' && credits !== null && credits > 0) {
+        setCredits(credits - 1);
+      }
     } catch (err: any) {
       console.error('Failed to connect to the backend:', err);
       setError({
@@ -388,6 +416,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
   // Determine Segment: Default to 'tech', but check user metadata if logged in
   const userSegment: UserSegment = (session?.user?.user_metadata?.segment as UserSegment) || 'tech';
   const text = contentConfig[userSegment] || contentConfig.tech;
+  const pricingLink = userSegment === 'smb' ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
+
+  const handleSubscriptionUpgrade = async () => {
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: 'starter', email: session?.user?.email }),
+      });
+      const data = await response.json();
+      if (data.url) window.location.href = data.url;
+    } catch (e) {
+      console.error("Upgrade failed", e);
+    }
+  };
 
   return (
     <div 
@@ -444,6 +487,53 @@ const AiPoweredUxHealthtech: React.FC = () => {
           .border-2 { border-width: 2px !important; border-color: #000 !important; }
         }
       `}</style>
+
+      {/* Gamified Credit Scoreboard - Always visible on screen */}
+      <div className="no-print flex flex-col items-end mb-8 gap-2">
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+          <div className="relative bg-black p-3 sm:p-4 rounded-xl border-2 border-gray-800 flex items-center gap-4 sm:gap-5 shadow-2xl">
+            
+            {/* Label & Score */}
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Available Credits</span>
+              <div className="flex items-baseline gap-1">
+                {planStatus === 'active' ? (
+                  <span className="text-3xl sm:text-4xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
+                ) : (
+                  <span className="text-3xl sm:text-4xl font-black text-[#ffb300] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(255, 179, 0, 0.5)' }}>
+                    {(credits ?? 0).toString().padStart(2, '0')}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-10 w-px bg-gray-800"></div>
+
+            {/* Action Button */}
+            <button 
+              onClick={() => navigate(pricingLink)}
+              className="flex flex-col items-center justify-center group/btn bg-gray-900 hover:bg-gray-800 p-2 rounded-lg border border-gray-700 hover:border-gray-500 transition-all"
+              title="Add Credits"
+            >
+              <Plus className="text-white" size={20} />
+            </button>
+          </div>
+        </div>
+        
+        {/* Low Balance Warning (Under Scoreboard) */}
+        {planStatus !== 'active' && credits !== null && credits < 2 && (
+          <div className="text-right text-xs font-medium bg-white/90 backdrop-blur-sm p-2 rounded-lg border border-gray-200 shadow-sm animate-fade-in">
+            <span className="text-gray-600">Low on Credits. </span>
+            <a href={pricingLink} className="text-indigo-600 hover:text-indigo-800 font-bold underline decoration-indigo-300 hover:decoration-indigo-800 transition-all">
+              Refill your Account
+            </a>
+            <span className="text-gray-400 mx-1">or</span>
+            <button onClick={handleSubscriptionUpgrade} className="text-pink-600 hover:text-pink-800 font-bold underline decoration-pink-300 hover:decoration-pink-800 transition-all">Switch to a Monthly Plan</button>
+          </div>
+        )}
+      </div>
 
       {!result && !error && (
         <div className="no-print max-w-3xl mx-auto">
@@ -551,6 +641,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 {isLoading ? `${text.analyzing} ${Math.round(progress)}%` : text.runButton}
               </span>
             </button>
+
+            {/* Low Balance Warning */}
+            {planStatus !== 'active' && credits !== null && credits < 2 && (
+              <div className="mt-4 p-4 bg-amber-100 border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in">
+                <div className="flex items-center gap-3 text-black font-bold">
+                  <AlertCircle className="text-amber-600" size={24} />
+                  <span>Running low! You have {credits} credit{credits !== 1 ? 's' : ''} left.</span>
+                </div>
+                <NeoButton type="button" variant="secondary" onClick={() => navigate(pricingLink)} className="text-xs w-full sm:w-auto">Replenish</NeoButton>
+              </div>
+            )}
           </form>
         </div>
       )}

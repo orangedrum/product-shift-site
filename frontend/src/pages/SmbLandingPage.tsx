@@ -236,20 +236,57 @@ const PricingSection = () => (
   <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
     <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
       <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Simple Pricing</h2>
-      <div className="mt-12 max-w-md mx-auto">
-        <div className="pricing-card bg-white p-8 border-2 border-indigo-500 rounded-xl shadow-2xl text-left flex flex-col relative">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Starter</div>
-          <div className="text-center">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        
+        {/* Pack 3 */}
+        <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
+          <h3 className="text-xl font-bold text-center text-gray-900">Quick Check</h3>
+          <div className="text-center mt-4">
+            <p className="text-4xl font-extrabold text-gray-900">$14</p>
+            <p className="text-gray-500">one-time</p>
+          </div>
+          <hr className="my-6" />
+          <ul className="space-y-3 text-gray-600 flex-grow">
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>3 Credits</strong></li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Credits never expire</li>
+          </ul>
+          <Link to="/login?plan=pack-3&segment=smb" className="mt-8 block w-full text-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition-colors">
+            Buy Pack
+          </Link>
+        </div>
+
+        {/* Pack 15 */}
+        <div className="pricing-card bg-white p-6 border-2 border-indigo-500 rounded-xl shadow-xl text-left flex flex-col relative transform md:-translate-y-4">
+          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Best Value</div>
+          <h3 className="text-xl font-bold text-center text-gray-900 mt-2">Pro Pack</h3>
+          <div className="text-center mt-4">
+            <p className="text-4xl font-extrabold text-gray-900">$69</p>
+            <p className="text-gray-500">one-time</p>
+          </div>
+          <hr className="my-6" />
+          <ul className="space-y-3 text-gray-600 flex-grow">
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>15 Credits</strong></li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Save $1.40 per test</li>
+          </ul>
+          <Link to="/login?plan=pack-15&segment=smb" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+            Buy Pack
+          </Link>
+        </div>
+
+        {/* Subscription */}
+        <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
+          <h3 className="text-xl font-bold text-center text-gray-900">Monthly</h3>
+          <div className="text-center mt-4">
             <p className="text-4xl font-extrabold text-gray-900">$29</p>
             <p className="text-gray-500">per month</p>
           </div>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Website Checks / month</strong></li>
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Simple PDF Reports</li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Credits / mo</strong></li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Consistent testing</li>
           </ul>
-          <Link to="/login?plan=starter&segment=smb" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-            Get Started
+          <Link to="/login?plan=starter&segment=smb" className="mt-8 block w-full text-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors">
+            Subscribe
           </Link>
         </div>
       </div>

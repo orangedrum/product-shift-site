@@ -7,6 +7,7 @@ import MarketingLandingPage from './pages/MarketingLandingPage';
 import SmbLandingPage from './pages/SmbLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
 import AdminDashboard from './pages/AdminDashboard';
+import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
 import StyleGuide from './pages/Styleguide';
 import PaymentConfirmation from './pages/PaymentConfirmation';
@@ -31,6 +32,7 @@ const App: React.FC = () => {
           
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/account" element={<MyAccount />} />
           
           {/* This connects the /login URL to your new Neo-styled Login.tsx */}
           <Route path="/login" element={<Login />} />

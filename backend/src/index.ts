@@ -209,25 +209,45 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
       const session = event.data.object as Stripe.Checkout.Session;
       
       console.log(`💰 Processing checkout session: ${session.id}`);
-      // This is where we provision the user's account.
-      // We find the user by the email they entered at checkout.
       const customerEmail = session.customer_details?.email;
-      const stripeCustomerId = session.customer as string;
-      const stripeSubscriptionId = session.subscription as string;
 
       if (customerEmail) {
-        const { error } = await supabase.from('customers').upsert({ 
-          email: customerEmail,
-          stripe_customer_id: stripeCustomerId,
-          stripe_subscription_id: stripeSubscriptionId,
-          plan_status: 'active'
-        }, { onConflict: 'email' });
+        // Scenario A: Subscription (Tech / Starter Plan)
+        if (session.mode === 'subscription') {
+          const stripeCustomerId = session.customer as string;
+          const stripeSubscriptionId = session.subscription as string;
 
-        if (error) {
-            console.error('Supabase upsert error:', error);
-        } else {
-            console.log(`✅ Successfully provisioned subscription for ${customerEmail}`);
+          const { error } = await supabase.from('customers').upsert({ 
+            email: customerEmail,
+            stripe_customer_id: stripeCustomerId,
+            stripe_subscription_id: stripeSubscriptionId,
+            plan_status: 'active'
+          }, { onConflict: 'email' });
+
+          if (error) console.error('Supabase subscription error:', error);
+          else console.log(`✅ Activated subscription for ${customerEmail}`);
+        } 
+        
+        // Scenario B: One-Time Payment (SMB / Credit Packs)
+        else if (session.mode === 'payment') {
+          const creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
+          
+          if (creditsToAdd > 0) {
+            // Use our secure RPC function to increment credits atomically
+            const { error } = await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
+            
+            if (error) console.error('Supabase credit add error:', error);
+            else console.log(`✅ Added ${creditsToAdd} credits for ${customerEmail}`);
+          }
         }
+
+        // Log transaction to payments table for history
+        await supabase.from('payments').insert({
+          email: customerEmail,
+          amount_total: session.amount_total,
+          currency: session.currency,
+          status: session.payment_status
+        });
       }
       break;
     // TODO: Handle other events like `customer.subscription.deleted` to downgrade users.
@@ -315,6 +335,23 @@ app.get('/api/test-pages/db-log', async (req, res) => {
 });
 // --- End Test Routes ---
 
+// --- User Data Routes ---
+app.get('/api/user/transactions', async (req, res) => {
+  const { email } = req.query;
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  
+  const { data, error } = await supabase
+    .from('payments')
+    .select('*')
+    .eq('email', email)
+    .order('created_at', { ascending: false });
+    
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -377,7 +414,7 @@ const personas: Record<string, Persona> = {
 };
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  const { url, personaIds, goal } = req.body;
+  const { url, personaIds, goal, email } = req.body;
   const isDemo = personaIds.length === 1;
 
   // Check for "test-mode" to bypass expensive calls for UI testing
@@ -508,13 +545,36 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   const today = new Date().toISOString().split('T')[0];
   const GLOBAL_DAILY_LIMIT = 25; // Set a conservative global limit of 25 free tests per day
 
+  let useFreeTier = true;
+  let shouldDeductCredit = false;
+
+  // --- CREDIT & SUBSCRIPTION CHECK ---
+  // If user is logged in, check if they have a plan or credits
+  if (email && supabaseUrl && supabaseServiceKey) {
+    const { data: customer } = await supabase
+        .from('customers')
+        .select('plan_status, credits')
+        .eq('email', email)
+        .single();
+    
+    if (customer) {
+        if (customer.plan_status === 'active') {
+            useFreeTier = false; // Subscriber: Bypass limits
+        } else if ((customer.credits || 0) > 0) {
+            useFreeTier = false; // Credit Holder: Bypass limits
+            shouldDeductCredit = true;
+        }
+    }
+  }
+
   // --- BYPASS LOGIC ---
   // 1. Automatically bypass limits on Preview branches or Local Development
   const isNonProduction = process.env.VERCEL_ENV === 'preview' || process.env.VERCEL_ENV === 'development' || process.env.NODE_ENV === 'development';
   // 2. Allow manual bypass via Environment Variable (The "Switch")
   const isManualBypass = process.env.SKIP_USAGE_LIMITS === 'true';
 
-  const shouldCheckLimits = !isNonProduction && !isManualBypass;
+  // Only check free limits if they aren't a subscriber/credit-holder AND we aren't manually bypassing
+  const shouldCheckLimits = useFreeTier && !isNonProduction && !isManualBypass;
 
   // Only run usage checks if Supabase is configured AND we aren't bypassing limits
   if (shouldCheckLimits && supabaseUrl && supabaseServiceKey) {
@@ -713,6 +773,20 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
       }
 
+      // --- DEDUCT CREDIT (If applicable) ---
+      if (shouldDeductCredit && email && supabaseUrl && supabaseServiceKey) {
+        const { data: current } = await supabase.from('customers').select('credits').eq('email', email).single();
+        if (current && current.credits > 0) {
+            const newBalance = current.credits - 1;
+            await supabase.from('customers').update({ credits: newBalance }).eq('email', email);
+            
+            if (newBalance === 0) {
+                console.log(`📧 [Email Trigger] User ${email} has run out of credits.`);
+                // TODO: Call your email service here (e.g. Resend.com, SendGrid)
+            }
+        }
+      }
+
       // --- MVP Plan & Revenue Logging ---
       const isStarterPlan = url.includes('plan=starter');
       const planType = isStarterPlan ? 'starter' : (isDemo ? 'demo' : 'free');
@@ -853,33 +927,54 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 
   try {
-    // Determine price based on planId (For MVP, we define price inline)
-    // In a full app, you might fetch this from a database or Stripe Product ID
-    const unitAmount = planId === 'starter' ? 2900 : 0; // $29.00 in cents
-    const planName = planId === 'starter' ? 'Starter Plan' : 'Unknown Plan';
+    let mode: Stripe.Checkout.SessionCreateParams.Mode = 'subscription';
+    let lineItems = [];
+    let metadata = {};
 
-    if (unitAmount === 0) {
-      return res.status(400).json({ error: 'Invalid Plan ID' });
+    // Define Products & Prices (In a real app, these would be in Stripe Dashboard)
+    if (planId === 'starter') {
+      mode = 'subscription';
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Starter Plan', description: '10 AI UX Audits per month' },
+          unit_amount: 2900, // $29.00
+          recurring: { interval: 'month' },
+        },
+        quantity: 1,
+      });
+    } else if (planId === 'pack-3') {
+      mode = 'payment';
+      metadata = { credits: '3' };
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: '3 Credit Pack', description: '3 AI UX Audits (No Expiry)' },
+          unit_amount: 1400, // $14.00
+        },
+        quantity: 1,
+      });
+    } else if (planId === 'pack-15') {
+      mode = 'payment';
+      metadata = { credits: '15' };
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: '15 Credit Pack', description: '15 AI UX Audits (No Expiry)' },
+          unit_amount: 6900, // $69.00
+        },
+        quantity: 1,
+      });
+    } else {
+      return res.status(400).json({ error: 'Invalid Plan ID' }); 
     }
 
     const session = await stripe.checkout.sessions.create({
       customer_email: userEmail, // Pass the user's email to pre-fill and link the customer
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: planName,
-              description: '10 AI UX Audits per month',
-            },
-            unit_amount: unitAmount,
-            recurring: { interval: 'month' }, // Subscription mode
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
+      line_items: lineItems,
+      mode: mode,
+      metadata: metadata, // Pass credits info to webhook
       success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/landingpg-aiuxagent`,
     });
