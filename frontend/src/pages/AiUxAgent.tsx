@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, LogIn, LogOut, User, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
-import { Header } from '../components/Header';
 
 // Define types for the API response and error
 type UserSession = {
@@ -152,6 +151,7 @@ const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = 
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
@@ -208,6 +208,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Listen for login trigger from Global Header
+  useEffect(() => {
+    if (searchParams.get('login') === 'true') {
+      setShowLoginModal(true);
+      setSearchParams({}, { replace: true }); // Clear the param so refresh doesn't reopen
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -351,9 +359,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
       }}
     >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
-      {/* Header / Auth Bar */}
-      <Header session={session} onLoginClick={() => setShowLoginModal(true)} />
-
       <style>{`
         @media print {
           @page { margin: 1.5cm; size: auto; }

@@ -120,28 +120,22 @@ const StyleGuide: React.FC = () => {
         background: bgGradient || '#ffffff'
       }}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
-        {/* Header / Auth Bar */}
-        <div className="flex justify-end mb-12 relative z-20">
-          {session ? (
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:inline-block text-sm font-bold text-black bg-white px-3 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-                {session.user.email}
-              </span>
-              <NeoButton variant="secondary" onClick={() => navigate('/account')} icon={<User size={16} />}>
-                My Account
-              </NeoButton>
-              <NeoButton variant="secondary" onClick={() => supabase.auth.signOut()} icon={<LogOut size={16} />}>
-                Sign Out
-              </NeoButton>
+      {/* Header Demo Section */}
+      <div className="bg-white border-b border-gray-200 mb-12">
+        <div className="container mx-auto px-4 py-4">
+            <h2 className="text-2xl font-bold mb-4">Header: Logged Out</h2>
+            <div className="border border-gray-200 rounded-lg overflow-hidden mb-8">
+                <Header session={null} className="relative" />
             </div>
-          ) : (
-            <NeoButton variant="secondary" onClick={() => navigate('/')} icon={<LogIn size={18} />}>
-              Sign In
-            </NeoButton>
-          )}
-        </div>
 
+            <h2 className="text-2xl font-bold mb-4">Header: Logged In</h2>
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <Header session={{ user: { email: 'demo@productshift.com' } }} className="relative" />
+            </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         <div className="max-w-4xl mx-auto space-y-12">
         
         <section>

@@ -6,9 +6,10 @@ import { supabase } from '../lib/supabase';
 interface HeaderProps {
   session?: any;
   onLoginClick?: () => void;
+  className?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
+export const Header: React.FC<HeaderProps> = ({ session, onLoginClick, className = '' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [internalSession, setInternalSession] = useState<any>(null);
   const navigate = useNavigate();
@@ -40,12 +41,12 @@ export const Header: React.FC<HeaderProps> = ({ session, onLoginClick }) => {
     if (onLoginClick) {
       onLoginClick();
     } else {
-      navigate('/ai-powered-ux'); // Redirect to the tool where the modal lives
+      navigate('/ai-powered-ux?login=true'); // Redirect to the tool and trigger modal
     }
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className={`bg-white shadow-sm sticky top-0 z-50 ${className}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
