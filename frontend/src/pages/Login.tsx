@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const segmentParam = searchParams.get('segment'); // e.g. ?segment=smb
   const [session, setSession] = useState<any>(null);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginMessage, setLoginMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
@@ -47,7 +49,10 @@ const LoginPage: React.FC = () => {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: loginEmail,
-        options: { emailRedirectTo: `${window.location.origin}/ai-powered-ux` }, // Redirect to tool after login
+        options: { 
+          emailRedirectTo: `${window.location.origin}/ai-powered-ux`,
+          data: { segment: segmentParam || 'tech' } // Store the segment in the user's metadata
+        }, 
       });
       if (error) throw error;
       setLoginMessage({ type: 'success', text: 'Check your email for the magic link!' });

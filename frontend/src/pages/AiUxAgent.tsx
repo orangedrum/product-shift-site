@@ -149,6 +149,42 @@ const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = 
   </div>
 );
 
+// --- Content Configuration (The "Chameleon" Logic) ---
+const contentConfig = {
+  tech: {
+    title: "AI-Powered UX Agent",
+    subtitle: "Select 3-5 personas and define their goal to run a simulated usability analysis.",
+    card1Title: "The What",
+    card1Subtitle: "What url are we testing today?",
+    card2Title: "The Who",
+    card2Subtitle: "Who would be most likely to visit this URL",
+    card3Title: "The Why",
+    card3Subtitle: "Why are you testing this site today?",
+    card3Hint: "it's recommended you pass the initial \"understanding my site\" task/objective before you move on to any other objective.",
+    task1: "Quickly understand what this page is about",
+    task2: "Make a purchase / Sign up (Think Aloud)",
+    runButton: "Run Analysis",
+    analyzing: "Analyzing..."
+  },
+  smb: {
+    title: "Small Business Website Tester",
+    subtitle: "See your website through the eyes of different customers to find what's confusing.",
+    card1Title: "Your Website",
+    card1Subtitle: "Which website do you want to check?",
+    card2Title: "Your Customers",
+    card2Subtitle: "Who usually buys from you?",
+    card3Title: "Your Goal",
+    card3Subtitle: "What do you want to check?",
+    card3Hint: "We recommend starting with the 'First Impression' check to ensure customers get what you do.",
+    task1: "Check my First Impression (Do they get it?)",
+    task2: "Test my Checkout/Signup Process",
+    runButton: "Check My Site",
+    analyzing: "Checking..."
+  }
+};
+
+type UserSegment = 'tech' | 'smb';
+
 const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<any>(null);
@@ -321,6 +357,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
     setTimeout(() => window.print(), 100);
   };
 
+  // Determine Segment: Default to 'tech', but check user metadata if logged in
+  const userSegment: UserSegment = (session?.user?.user_metadata?.segment as UserSegment) || 'tech';
+  const text = contentConfig[userSegment] || contentConfig.tech;
+
   return (
     <div 
       ref={containerRef}
@@ -380,16 +420,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
       {!result && !error && (
         <div className="no-print max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">AI-Powered UX Agent</h1>
-            <p className="text-lg text-black font-medium">Select 3-5 personas and define their goal to run a simulated usability analysis.</p>
+            <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
+            <p className="text-lg text-black font-medium">{text.subtitle}</p>
           </div>
       
           <form onSubmit={handleSubmit} className="space-y-8">
             
             {/* Card 1: The What */}
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-              <h2 className="text-2xl font-black text-black mb-1">The What</h2>
-              <p className="text-gray-600 font-medium mb-6">What url are we testing today?</p>
+              <h2 className="text-2xl font-black text-black mb-1">{text.card1Title}</h2>
+              <p className="text-gray-600 font-medium mb-6">{text.card1Subtitle}</p>
               
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
@@ -409,8 +449,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
             {/* Card 2: The Who */}
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-              <h2 className="text-2xl font-black text-black mb-1">The Who</h2>
-              <p className="text-gray-600 font-medium mb-6">Who would be most likely to visit this URL</p>
+              <h2 className="text-2xl font-black text-black mb-1">{text.card2Title}</h2>
+              <p className="text-gray-600 font-medium mb-6">{text.card2Subtitle}</p>
 
               <div className="bg-gray-100 p-3 rounded-lg border border-gray-300 text-xs text-gray-600 mb-6">
                 <strong className="font-bold text-gray-800">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
@@ -452,18 +492,18 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
             {/* Card 3: The Why */}
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-              <h2 className="text-2xl font-black text-black mb-1">The Why</h2>
-              <p className="text-gray-600 font-medium mb-2">Why are you testing this site today?</p>
-              <p className="text-sm text-gray-500 mb-6 italic">it's recommended you pass the initial "understanding my site" task/objective before you move on to any other objective.</p>
+              <h2 className="text-2xl font-black text-black mb-1">{text.card3Title}</h2>
+              <p className="text-gray-600 font-medium mb-2">{text.card3Subtitle}</p>
+              <p className="text-sm text-gray-500 mb-6 italic">{text.card3Hint}</p>
 
               <div className="space-y-3">
                 <div className="flex items-center p-3 border-2 border-transparent hover:bg-gray-50 rounded-lg transition-colors">
                   <input id="task-understand" name="task" type="radio" checked={taskType === 'understand'} onChange={() => setTaskType('understand')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black cursor-pointer" />
-                  <label htmlFor="task-understand" className="ml-3 block text-base text-black font-bold cursor-pointer">Quickly understand what this page is about</label>
+                  <label htmlFor="task-understand" className="ml-3 block text-base text-black font-bold cursor-pointer">{text.task1}</label>
                 </div>
                 <div className="flex items-center p-3 border-2 border-transparent hover:bg-gray-50 rounded-lg transition-colors">
                   <input id="task-purchase" name="task" type="radio" checked={taskType === 'purchase'} onChange={() => setTaskType('purchase')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black cursor-pointer" />
-                  <label htmlFor="task-purchase" className="ml-3 block text-base text-black font-bold cursor-pointer">Make a purchase / Sign up (Think Aloud)</label>
+                  <label htmlFor="task-purchase" className="ml-3 block text-base text-black font-bold cursor-pointer">{text.task2}</label>
                 </div>
               </div>
             </div>
@@ -480,7 +520,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 />
               )}
               <span className="relative z-10">
-                {isLoading ? `Analyzing... ${Math.round(progress)}%` : 'Run Analysis'}
+                {isLoading ? `${text.analyzing} ${Math.round(progress)}%` : text.runButton}
               </span>
             </button>
           </form>

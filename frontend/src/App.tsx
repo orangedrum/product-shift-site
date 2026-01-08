@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import MarketingLandingPage from './pages/MarketingLandingPage';
+import SmbLandingPage from './pages/SmbLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
@@ -23,6 +24,9 @@ const App: React.FC = () => {
           
           {/* Specific Landing Page Route (Fixes the "Try Demo" link) */}
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
+          
+          {/* SMB Landing Page Route */}
+          <Route path="/landingpg-instantinsights" element={<SmbLandingPage />} />
           
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
