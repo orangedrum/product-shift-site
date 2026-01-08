@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Users, AlertTriangle, DollarSign, CreditCard, LogOut, RefreshCw, Palette, Check, X } from 'lucide-react';
+import { NeoButton } from '../components/NeoButton';
+import { NeoCard } from '../components/NeoCard';
 
 type Stats = {
   dailyUsage: number;
@@ -94,23 +96,30 @@ const AdminDashboard: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto max-w-md py-24 px-4 text-center">
-        <h1 className="text-2xl font-bold mb-4">Admin Access</h1>
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <label htmlFor="secret" className="sr-only">Secret Key</label>
-            <input
-              type="password"
-              id="secret"
-              value={secretKey}
-              onChange={(e) => setSecretKey(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="Enter admin secret key"
-            />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <NeoCard className="max-w-md w-full">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-black text-black mb-2">Admin Access</h1>
+            <p className="text-gray-600">Enter the Admin Key to view the Dashboard.</p>
           </div>
-          <button type="submit" className="w-full px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md">Authenticate</button>
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-        </form>
+          <form onSubmit={handleAuth} className="space-y-4">
+            <div>
+              <label htmlFor="secret" className="sr-only">Secret Key</label>
+              <input
+                type="password"
+                id="secret"
+                value={secretKey}
+                onChange={(e) => setSecretKey(e.target.value)}
+                className="w-full p-3 border-2 border-black rounded-lg focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] transition-all"
+                placeholder="Enter admin secret key"
+              />
+            </div>
+            {error && <p className="text-red-600 font-bold text-sm">{error}</p>}
+            <NeoButton type="submit" className="w-full">
+              Authenticate
+            </NeoButton>
+          </form>
+        </NeoCard>
       </div>
     );
   }
