@@ -1,45 +1,40 @@
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Styleguide from './pages/Styleguide';
-import AiUxAgent from './pages/AiUxAgent'; 
-import MarketingLandingPage from './pages/MarketingLandingPage'; 
-import HomePage from './pages/HomePage';
-import WaitlistPage from './pages/WaitlistPage';
+import MarketingLandingPage from './pages/MarketingLandingPage';
+import AiUxAgent from './pages/AiUxAgent';
 import AdminDashboard from './pages/AdminDashboard';
+import Login from './pages/Login';
+import StyleGuide from './pages/Styleguide';
 import PaymentConfirmation from './pages/PaymentConfirmation';
-import LoginPage from './pages/LoginPage';
-import AccountPage from './pages/AccountPage';
-import { RequireSubscription } from './components/RequireSubscription';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="bg-white text-gray-900">
+    <div className="flex flex-col min-h-screen">
+      {/* We pass session={undefined} so Header fetches it internally */}
       <Header />
-      <main>
+      
+      <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/styleguide" element={<Styleguide />} />
-          <Route path="/ai-powered-ux" element={
-            <RequireSubscription>
-              <AiUxAgent />
-            </RequireSubscription>
-          } /> 
-          <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} /> 
-          <Route path="/waitlist" element={<WaitlistPage />} />
+          <Route path="/" element={<MarketingLandingPage />} />
+          <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/account" element={<AccountPage />} />
+          
+          {/* This connects the /login URL to your new Neo-styled Login.tsx */}
+          <Route path="/login" element={<Login />} />
+          
+          <Route path="/styleguide" element={<StyleGuide />} />
           <Route path="/payment-success" element={<PaymentConfirmation />} />
           
-          {/* Redirects & Fallbacks */}
-          <Route path="/ai-powered-ux-healthtech" element={<Navigate to="/ai-powered-ux" replace />} />
-          <Route path="*" element={<div className="text-center py-20"><h1 className="text-4xl font-bold">404</h1><p>Page not found</p></div>} />
+          {/* Fallback for unknown routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
