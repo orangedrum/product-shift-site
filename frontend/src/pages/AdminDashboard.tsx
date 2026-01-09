@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
-import { NeoButton } from './NeoButton';
-import { NeoCard } from './NeoCard';
+import { NeoButton } from '../components/NeoButton';
+import { NeoCard } from '../components/NeoCard';
 
 interface AdminDashboardProps {
   secretKey: string;
