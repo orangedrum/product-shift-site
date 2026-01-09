@@ -226,15 +226,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
   // Randomize background on mount
   useEffect(() => {
+    const container = containerRef.current;
     const updateGradient = () => {
-      const r = () => Math.floor(Math.random() * 100);
-      setBgGradient(`
-        radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
-        radial-gradient(at ${r()}% ${r()}%, #ff8c00 0%, transparent 50%),
-        radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
-        radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
-        #ffffff
-      `);
+      if (container) {
+        const r = () => Math.floor(Math.random() * 100);
+        container.style.setProperty('--pos-x-1', `${r()}%`);
+        container.style.setProperty('--pos-y-1', `${r()}%`);
+        container.style.setProperty('--pos-x-2', `${r()}%`);
+        container.style.setProperty('--pos-y-2', `${r()}%`);
+        container.style.setProperty('--pos-x-3', `${r()}%`);
+        container.style.setProperty('--pos-y-3', `${r()}%`);
+      }
     };
 
     updateGradient();
@@ -527,12 +529,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen transition-all duration-[3000ms] ease-in-out"
+      className="min-h-screen"
       style={{
-        background: bgGradient || `
-          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff0000 60%, transparent 80%), #ffffff
+        background: `
+          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+          radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
+          #ffffff
         `,
-        backgroundSize: '100% 100%'
+        backgroundSize: '100% 100%',
+        transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
       }}
     >
     {authLoading ? (
@@ -540,6 +547,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
     ) : (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <style>{`
+        @property --pos-x-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+        @property --pos-y-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+        @property --pos-x-2 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+        @property --pos-y-2 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+        @property --pos-x-3 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+        @property --pos-y-3 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+        
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SmbHero from '../components/SmbHero';
 import { Link, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
@@ -298,11 +299,33 @@ const SmbLandingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    // 1. Capture from URL
     const ref = searchParams.get('ref');
     if (ref) {
       localStorage.setItem('pendingReferral', ref);
       // We don't clear the URL here to avoid jarring redirects on the landing page
     }
+
+    // 2. Check for pending referral & Claim if logged in
+    const checkAndClaim = async () => {
+      const pendingRef = localStorage.getItem('pendingReferral');
+      if (pendingRef) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          fetch('/api/user/claim-referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: session.user.email, referralCode: pendingRef })
+          }).then(res => res.json()).then(data => {
+            if (data.success) {
+              localStorage.removeItem('pendingReferral');
+              // Optional: Show a toast or notification here
+            }
+          });
+        }
+      }
+    };
+    checkAndClaim();
   }, [searchParams]);
 
   return (
