@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -497,51 +497,50 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="relative max-w-3xl mx-auto">
         
-        {/* Right Column: Status Widget (20%) - Moved to Right */}
-        <div className="w-full lg:w-1/5 no-print order-1 lg:order-2">
+        {/* Widget - Absolute Right on Desktop */}
+        <div className="no-print lg:absolute lg:top-0 lg:-right-[280px] lg:w-64 mb-8 lg:mb-0 z-20">
            <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
-              <div className="p-4 text-center">
-                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Available Tests</span>
-                 <div className="flex justify-center items-baseline gap-1">
+              <div className="p-5 text-center">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Available Tests</span>
+                 <div className="flex justify-center items-center gap-3 mb-1">
                     {planStatus === 'active' ? (
-                      <span className="text-xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
+                      <span className="text-3xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
                     ) : (
-                      <span className="text-xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
+                      <span className="text-5xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
                         {(credits ?? 0).toString().padStart(2, '0')}
                       </span>
                     )}
+                    
+                    <button 
+                      onClick={handleReplenish}
+                      className="text-gray-500 hover:text-white transition-colors transform hover:scale-110 active:scale-95"
+                      title="Add Tests"
+                    >
+                      <PlusCircle size={28} />
+                    </button>
                  </div>
               </div>
               
-              {(planStatus !== 'active' && credits !== null && credits < 2) ? (
-                 <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
-                    <p className="text-xs font-bold text-white leading-relaxed">
-                      Low on Tests?{' '}
-                      <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
-                        Refill Account
-                      </button>
-                      {' '}or{' '}
-                      <button onClick={() => handleCheckout('starter')} className="underline hover:text-gray-300 transition-all">
-                        Switch to Monthly
-                      </button>
-                    </p>
-                 </div>
-              ) : (
-                 <div className="bg-gray-900 p-2 border-t border-gray-800 text-center">
-                    <button onClick={handleReplenish} className="text-xs text-gray-400 hover:text-white flex items-center justify-center gap-1 mx-auto transition-colors py-1">
-                       <Plus size={12} /> Add Tests
-                    </button>
-                 </div>
-              )}
+              <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
+                <p className="text-xs font-bold text-white leading-relaxed">
+                  Low on Tests?{' '}
+                  <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
+                    Refill Account
+                  </button>
+                  {' '}or{' '}
+                  <button onClick={() => handleCheckout('starter')} className="underline hover:text-gray-300 transition-all">
+                    Switch to Monthly
+                  </button>
+                </p>
+              </div>
             </div>
         </div>
 
-      {/* Left Column: Main Content (80%) - Moved to Left */}
-      <div className="w-full lg:w-4/5 order-2 lg:order-1">
+      <div className="w-full">
       {!result && !error && (
-        <div className="no-print max-w-3xl mx-auto">
+        <div className="no-print">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
             <p className="text-lg text-black font-medium">{text.subtitle}</p>
@@ -964,7 +963,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         )
       )}
-      </div>
       </div>
     </div>
     </div>);

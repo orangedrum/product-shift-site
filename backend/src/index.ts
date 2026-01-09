@@ -1055,6 +1055,46 @@ app.post('/api/join-waitlist', async (req, res) => {
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
 
+app.post('/api/admin/refund', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { paymentId, reason } = req.body; // paymentId is the internal DB ID
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    // 1. Get payment details from DB
+    const { data: payment } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('id', paymentId)
+      .single();
+
+    if (!payment) return res.status(404).json({ error: 'Payment not found' });
+    if (!payment.stripe_session_id) return res.status(400).json({ error: 'No Stripe Session ID associated' });
+
+    // 2. Get Stripe Session to find Payment Intent
+    const session = await stripe.checkout.sessions.retrieve(payment.stripe_session_id);
+    const paymentIntentId = session.payment_intent as string;
+
+    // 3. Issue Refund via Stripe
+    const refund = await stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      reason: reason || 'requested_by_customer',
+    });
+
+    // 4. Update DB Status
+    await supabase.from('payments').update({ status: 'refunded' }).eq('id', paymentId);
+
+    res.json({ success: true, refundId: refund.id });
+  } catch (error: any) {
+    console.error('Refund Error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.delete('/api/admin/errors/:id', async (req, res) => {
   const authHeader = req.headers.authorization;
   const secretKey = process.env.ADMIN_SECRET_KEY;
@@ -1142,7 +1182,29 @@ app.get('/api/admin/stats', async (req, res) => {
 
     if (subscribersError) throw subscribersError;
 
-    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [], recentSubscribers: recentSubscribers || [] });
+    // Get Financial Stats
+    const { data: allPayments } = await supabase
+      .from('payments')
+      .select('amount_total, status, created_at')
+      .eq('status', 'paid'); // Only count successful payments
+    
+    const totalRevenueCents = allPayments?.reduce((acc, curr) => acc + curr.amount_total, 0) || 0;
+    
+    // Breakdown by Plan (Heuristic based on price points)
+    const salesBreakdown = {
+      pack3: allPayments?.filter(p => p.amount_total === 1400).length || 0,
+      pack15: allPayments?.filter(p => p.amount_total === 6900).length || 0,
+      starter: allPayments?.filter(p => p.amount_total === 2900).length || 0,
+    };
+
+    // Get Recent Payments (for Admin Review/Refunds)
+    const { data: recentPayments } = await supabase
+      .from('payments')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [], recentSubscribers: recentSubscribers || [], totalRevenue: totalRevenueCents / 100, salesBreakdown, recentPayments });
   } catch (error: any) {
     console.error('Admin Stats Error:', error);
     res.status(500).json({ error: 'Failed to fetch stats', details: error.message });
