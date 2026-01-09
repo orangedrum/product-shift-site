@@ -397,6 +397,32 @@ app.get('/api/user/transactions', async (req, res) => {
   res.json(data);
 });
 
+// --- Referral Routes ---
+app.post('/api/user/generate-referral', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  // Check if code exists
+  const { data: existing } = await supabase.from('customers').select('referral_code').eq('email', email).single();
+  if (existing?.referral_code) return res.json({ referralCode: existing.referral_code });
+
+  // Generate new code (Simple 6-char alphanumeric)
+  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  
+  const { error } = await supabase
+    .from('customers')
+    .update({ referral_code: code })
+    .eq('email', email);
+
+  if (error) {
+    // If collision (rare), just try again on next call or handle gracefully
+    return res.status(500).json({ error: 'Failed to generate code' });
+  }
+
+  res.json({ referralCode: code });
+});
+
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -459,7 +485,7 @@ const personas: Record<string, Persona> = {
 };
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  const { url, personaIds, goal, email } = req.body;
+  const { url, personaIds, goal, email, referralCode } = req.body;
   const isDemo = personaIds.length === 1;
 
   // Check for "test-mode" to bypass expensive calls for UI testing
@@ -609,6 +635,37 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
             useFreeTier = false; // Credit Holder: Bypass limits
             shouldDeductCredit = true;
         }
+    }
+  }
+
+  // --- REFERRAL PROCESSING ---
+  // If a referral code is present and the user is logged in (has email)
+  if (referralCode && email && supabaseUrl && supabaseServiceKey) {
+    try {
+      // 1. Check if this referral has already been processed
+      const { data: existingRef } = await supabase
+        .from('referrals')
+        .select('id')
+        .eq('referrer_code', referralCode)
+        .eq('referee_email', email)
+        .single();
+
+      if (!existingRef) {
+        // 2. Find the referrer
+        const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
+        
+        if (referrer && referrer.email !== email) { // Prevent self-referral
+          // 3. Log the referral
+          await supabase.from('referrals').insert({ referrer_code: referralCode, referee_email: email });
+          
+          // 4. Grant Credits (Give 1, Get 1)
+          await supabase.rpc('add_credits', { user_email: referrer.email, amount: 1 });
+          await supabase.rpc('add_credits', { user_email: email, amount: 1 });
+          console.log(`🎁 Referral success: ${referrer.email} referred ${email}`);
+        }
+      }
+    } catch (err) {
+      console.error('Referral processing error:', err);
     }
   }
 
@@ -1157,6 +1214,11 @@ app.get('/api/admin/stats', async (req, res) => {
     
     if (waitlistError) throw waitlistError;
 
+    // Get Referral Count
+    const { count: referralCount } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true });
+
     // Get Recent Errors
     const { data: recentErrors } = await supabase
         .from('error_logs')
@@ -1204,7 +1266,7 @@ app.get('/api/admin/stats', async (req, res) => {
       .order('created_at', { ascending: false })
       .limit(20);
 
-    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [], recentSubscribers: recentSubscribers || [], totalRevenue: totalRevenueCents / 100, salesBreakdown, recentPayments });
+    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, referralCount: referralCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [], recentSubscribers: recentSubscribers || [], totalRevenue: totalRevenueCents / 100, salesBreakdown, recentPayments });
   } catch (error: any) {
     console.error('Admin Stats Error:', error);
     res.status(500).json({ error: 'Failed to fetch stats', details: error.message });

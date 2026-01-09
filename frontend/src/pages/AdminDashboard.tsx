@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -167,6 +167,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             <Users size={24} />
             <span className="text-2xl font-black">{stats.waitlistCount || 0}</span>
             <span className="text-sm text-gray-500 font-normal ml-1">signups</span>
+          </div>
+        </NeoCard>
+
+        <NeoCard title="Referrals">
+          <div className="flex items-center gap-2 text-pink-600">
+            <Gift size={24} />
+            <span className="text-2xl font-black">{stats.referralCount || 0}</span>
+            <span className="text-sm text-gray-500 font-normal ml-1">successful</span>
           </div>
         </NeoCard>
 

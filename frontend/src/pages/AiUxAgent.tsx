@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -205,6 +205,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
   const [showRefillModal, setShowRefillModal] = useState(false);
   const [bgGradient, setBgGradient] = useState('');
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [incomingRef, setIncomingRef] = useState<string | null>(null);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -246,6 +248,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Capture Incoming Referral
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setIncomingRef(ref);
+    }
+  }, [searchParams]);
+
   // Fetch Credits & Plan Status
   useEffect(() => {
     if (session?.user?.email) {
@@ -253,12 +263,24 @@ const AiPoweredUxHealthtech: React.FC = () => {
         const { data } = await supabase
           .from('customers')
           .select('credits, plan_status')
+          .select('credits, plan_status, referral_code')
           .eq('email', session.user.email)
           .single();
         
         if (data) {
           setCredits(data.credits ?? 0);
           setPlanStatus(data.plan_status);
+          
+          if (data.referral_code) {
+            setReferralCode(data.referral_code);
+          } else {
+            // Generate one if missing
+            fetch('/api/user/generate-referral', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: session.user.email })
+            }).then(res => res.json()).then(d => setReferralCode(d.referralCode));
+          }
         } else {
           setCredits(0);
         }
@@ -362,7 +384,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: fullUrl, personaIds: selectedPersonas, goal: finalGoal, email: session?.user?.email }), 
+        body: JSON.stringify({ url: fullUrl, personaIds: selectedPersonas, goal: finalGoal, email: session?.user?.email, referralCode: incomingRef }), 
       });
 
       let data;
@@ -452,18 +474,33 @@ const AiPoweredUxHealthtech: React.FC = () => {
     }
   };
 
+  const copyReferralLink = () => {
+    const link = `${window.location.origin}/ai-powered-ux?ref=${referralCode}`;
+    navigator.clipboard.writeText(link);
+    alert('Referral link copied!');
+  };
+
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen transition-colors duration-500"
+      className="min-h-screen transition-colors duration-500 animated-bg"
       style={{
         background: bgGradient || `
           radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff0000 60%, transparent 80%), #ffffff
-        `
+        `,
+        backgroundSize: '200% 200%'
       }}
     >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <style>{`
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animated-bg {
+          animation: gradient-shift 15s ease infinite;
+        }
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
@@ -508,41 +545,71 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      {/* Reusable Horizontal Status Widget */}
-      {(() => {
-        const StatusWidget = () => (
-          <div className="no-print bg-black text-white p-3 rounded-xl border-2 border-gray-800 shadow-lg flex items-center justify-between gap-4 max-w-md mx-auto mb-8">
-             <div className="flex items-center gap-4">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available Tests</span>
-                {planStatus === 'active' ? (
-                   <span className="text-xl font-black text-[#39ff14] font-mono" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
-                ) : (
-                   <span className="text-xl font-black text-[#00bfff] font-mono tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>{(credits ?? 0).toString().padStart(2, '0')}</span>
-                )}
-             </div>
-             
-             <div className="flex items-center gap-3">
-                {(planStatus !== 'active' && credits !== null && credits < 2) && (
-                   <span className="text-[10px] font-bold text-red-400 hidden sm:inline animate-pulse">Low Balance</span>
-                )}
-                <button onClick={handleReplenish} className="text-xs bg-gray-900 hover:bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg transition-colors font-bold flex items-center gap-1.5 group">
-                   <PlusCircle size={14} className="group-hover:text-[#00bfff] transition-colors" /> 
-                   <span>Refill</span>
-                </button>
-             </div>
-          </div>
-        );
-
-        return (
-        <>
+      <div className="relative max-w-3xl mx-auto">
+        
+        {/* --- BEFORE RESULTS: Vertical Widgets --- */}
         {!result && !error && (
-        <div className="no-print max-w-3xl mx-auto">
+          <div className="no-print lg:absolute lg:top-0 lg:-right-[160px] lg:w-32 mb-8 lg:mb-0 z-20 flex flex-col gap-4">
+             
+             {/* 1. Available Tests (Vertical) */}
+             <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
+                <div className="p-5 text-center">
+                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Available Tests</span>
+                   <div className="flex justify-center items-center gap-3 mb-1">
+                      {planStatus === 'active' ? (
+                        <span className="text-3xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
+                      ) : (
+                        <span className="text-5xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
+                          {(credits ?? 0).toString().padStart(2, '0')}
+                        </span>
+                      )}
+                      
+                      <button 
+                        onClick={handleReplenish}
+                        className="text-gray-500 hover:text-white transition-colors transform hover:scale-110 active:scale-95"
+                        title="Add Tests"
+                      >
+                        <PlusCircle size={28} />
+                      </button>
+                   </div>
+                </div>
+                
+                <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
+                  <p className="text-[10px] font-bold text-white leading-relaxed">
+                    Low on Tests?{' '}
+                    <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
+                      Refill
+                    </button>
+                  </p>
+                </div>
+              </div>
+
+              {/* 2. Referral Card (Vertical) */}
+              {referralCode && (
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white">
+                  <div className="p-4 text-center">
+                    <div className="flex justify-center mb-2 text-2xl">🎁</div>
+                    <h3 className="text-xs font-black uppercase tracking-widest mb-1">Give 1, Get 1</h3>
+                    <p className="text-[10px] leading-tight mb-3 opacity-90">Share a free test, get a free test when they use it.</p>
+                    <button 
+                      onClick={copyReferralLink}
+                      className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
+                    >
+                      <Copy size={12} /> Copy Link
+                    </button>
+                  </div>
+                </div>
+              )}
+          </div>
+        )}
+
+      <div className="w-full">
+      {!result && !error && (
+        <div className="no-print">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
             <p className="text-lg text-black font-medium">{text.subtitle}</p>
           </div>
-          
-          <StatusWidget />
       
           <form onSubmit={handleSubmit} className="space-y-8">
             
@@ -648,13 +715,31 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {result && (
-        <div className="no-print text-center mb-12 animate-fade-in max-w-3xl mx-auto">
+        <div className="no-print text-center mb-12 animate-fade-in">
            <h1 className="text-4xl font-black mb-2 text-black">Analysis Complete</h1>
            <p className="text-black font-medium text-lg">Review the user sessions and the aggregated research report below.</p>
            <button onClick={resetState} className="mt-6 mb-8 bg-black text-white font-bold py-3 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">
              Run Another Test
            </button>
-           <StatusWidget />
+           
+           {/* --- AFTER RESULTS: Horizontal Widget --- */}
+           <div className="bg-black text-white p-3 rounded-xl border-2 border-gray-800 shadow-lg flex items-center justify-between gap-4 max-w-md mx-auto mb-8">
+             <div className="flex items-center gap-4">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available Tests</span>
+                {planStatus === 'active' ? (
+                   <span className="text-xl font-black text-[#39ff14] font-mono" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
+                ) : (
+                   <span className="text-xl font-black text-[#00bfff] font-mono tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>{(credits ?? 0).toString().padStart(2, '0')}</span>
+                )}
+             </div>
+             
+             <div className="flex items-center gap-3">
+                <button onClick={handleReplenish} className="text-xs bg-gray-900 hover:bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg transition-colors font-bold flex items-center gap-1.5 group">
+                   <PlusCircle size={14} className="group-hover:text-[#00bfff] transition-colors" /> 
+                   <span>Refill</span>
+                </button>
+             </div>
+          </div>
         </div>)}
 
       {/* Download Dialog */}
@@ -917,7 +1002,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       <XAxis dataKey="name" />
                       <YAxis domain={[0, 100]} />
                       <Tooltip />
-                      <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                      <Bar dataKey="score" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                         <Cell fill="#ff8c00" /> {/* Usability: Orange */}
                         <Cell fill="#ff1493" /> {/* Desirability: Pink */}
                         <Cell fill="#00bfff" /> {/* Clarity: Cyan */}
@@ -962,9 +1047,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         )
       )}
-      </>
-      );
-    })()}
+      </div>
     </div>
     </div>);
 };
