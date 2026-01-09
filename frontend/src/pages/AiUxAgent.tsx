@@ -965,6 +965,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
       </div>
     </div>
+    </div>
     </div>);
 };
 
