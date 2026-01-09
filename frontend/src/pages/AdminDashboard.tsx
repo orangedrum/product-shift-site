@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -18,7 +17,7 @@ interface Payment {
   stripe_session_id: string;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey }) => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +68,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey }) => 
       // Refresh Stats & Clear Selection
       const data = await res.json();
       console.log('Refund successful:', data);
-      setStats(prevStats => ({
+      setStats((prevStats: any) => ({
         ...prevStats,
         recentPayments: prevStats.recentPayments.map((p: Payment) =>
           p.id === selectedPayment.id ? { ...p, status: 'refunded' } : p
@@ -167,3 +166,5 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey }) => 
     </div>
   );
 };
+
+export default AdminDashboard;
