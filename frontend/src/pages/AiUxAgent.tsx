@@ -226,14 +226,20 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
   // Randomize background on mount
   useEffect(() => {
-    const r = () => Math.floor(Math.random() * 100);
-    setBgGradient(`
-      radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
-      radial-gradient(at ${r()}% ${r()}%, #ff8c00 0%, transparent 50%),
-      radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
-      radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
-      #ffffff
-    `);
+    const updateGradient = () => {
+      const r = () => Math.floor(Math.random() * 100);
+      setBgGradient(`
+        radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+        radial-gradient(at ${r()}% ${r()}%, #ff8c00 0%, transparent 50%),
+        radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
+        radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
+        #ffffff
+      `);
+    };
+
+    updateGradient();
+    const interval = setInterval(updateGradient, 3000); // Animate every 3 seconds
+    return () => clearInterval(interval);
   }, []);
 
   // Auth Listener
@@ -508,10 +514,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   const copyReferralLink = () => {
-    const baseUrl = userSegment === 'smb' 
-      ? `${window.location.origin}/landingpg-instantinsights`
-      : `${window.location.origin}/ai-powered-ux`;
-    const link = `${baseUrl}?ref=${referralCode}`;
+    // Direct to Login page first, preserving the ref and segment
+    const segmentParam = userSegment === 'smb' ? '&segment=smb' : '';
+    const link = `${window.location.origin}/login?ref=${referralCode}${segmentParam}`;
     
     navigator.clipboard.writeText(link).then(() => {
       setCopyButtonText('Link Copied!');
@@ -522,24 +527,19 @@ const AiPoweredUxHealthtech: React.FC = () => {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen transition-colors duration-500 animated-bg"
+      className="min-h-screen transition-all duration-[3000ms] ease-in-out"
       style={{
         background: bgGradient || `
           radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff0000 60%, transparent 80%), #ffffff
         `,
-        backgroundSize: '200% 200%'
+        backgroundSize: '100% 100%'
       }}
     >
+    {authLoading ? (
+      <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div></div>
+    ) : (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <style>{`
-        @keyframes gradient-shift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animated-bg {
-          animation: gradient-shift 15s ease infinite;
-        }
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
@@ -588,7 +588,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         
         {/* --- BEFORE RESULTS: Vertical Widgets --- */}
         {!result && !error && (
-          <div className="no-print lg:absolute lg:top-0 lg:-right-[160px] lg:w-32 mb-8 lg:mb-0 z-20 flex flex-col gap-4">
+          <div className="no-print lg:absolute lg:top-32 lg:-right-[160px] lg:w-32 mb-8 lg:mb-0 z-20 flex flex-col gap-4">
              
              {/* 1. Available Tests (Vertical) */}
              <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
@@ -628,7 +628,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white">
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🎁</div>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest mb-1">Give 1, Get 1</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 whitespace-nowrap">Give 1, Get 1</h3>
                     <p className="text-[10px] leading-tight mb-3 opacity-90">Share a free test, get a free test when a new user uses it.</p>
                     <button 
                       onClick={copyReferralLink}
@@ -1089,6 +1089,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       </div>
     </div>
     </div>
+    )}
     </div>);
 };
 

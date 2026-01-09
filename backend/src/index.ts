@@ -456,14 +456,16 @@ app.post('/api/user/claim-referral', async (req, res) => {
     if (referrer && referrer.email !== email) { // Prevent self-referral
       // 3. Log as PENDING & Grant Credit ONLY to Referee (so they can run the test)
       // Referrer gets nothing yet.
-      await supabase.from('referrals').insert({ 
+      const { error: insertError } = await supabase.from('referrals').insert({ 
         referrer_code: referralCode, 
         referee_email: email,
         status: 'pending' 
       });
       
-      await supabase.rpc('add_credits', { user_email: email, amount: 1 });
-      return res.json({ success: true, message: 'Referral claimed. Run a test to unlock the reward for your friend!' });
+      if (!insertError) {
+        await supabase.rpc('add_credits', { user_email: email, amount: 1 });
+        return res.json({ success: true, message: 'Referral claimed. Run a test to unlock the reward for your friend!' });
+      }
     }
     return res.status(400).json({ error: 'Invalid referral' });
   } catch (err: any) {
