@@ -55,7 +55,7 @@ const MyAccount: React.FC = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-black text-black">My Account</h1>
         <NeoButton onClick={() => navigate('/ai-powered-ux')} variant="secondary">
-          Back to Tool
+          Back to Testing
         </NeoButton>
       </div>
 

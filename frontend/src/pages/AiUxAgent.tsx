@@ -433,6 +433,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
     }
   };
 
+  const handleReplenish = () => {
+    if (userSegment === 'smb') {
+      setShowRefillModal(true);
+    } else {
+      handleCheckout('starter');
+    }
+  };
+
   return (
     <div 
       ref={containerRef}
@@ -489,8 +497,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      {/* Gamified Credit Scoreboard - Always visible on screen */}
-      <div className="no-print flex flex-col items-end mb-8 gap-2">
+      {/* Gamified Credit Scoreboard - Floating Widget */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 w-72 no-print">
         <div className="relative group">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
           <div className="relative bg-black p-3 sm:p-4 rounded-xl border-2 border-gray-800 flex items-center gap-4 sm:gap-5 shadow-2xl">
@@ -514,7 +522,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
             {/* Action Button */}
             <button 
-              onClick={() => setShowRefillModal(true)}
+              onClick={handleReplenish}
               className="flex flex-col items-center justify-center group/btn bg-gray-900 hover:bg-gray-800 p-2 rounded-lg border border-gray-700 hover:border-gray-500 transition-all"
               title="Add Tests"
             >
@@ -525,13 +533,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
         
         {/* Low Balance Warning (Under Scoreboard) */}
         {planStatus !== 'active' && credits !== null && credits < 2 && (
-          <div className="text-right text-xs font-medium bg-white/90 backdrop-blur-sm p-2 rounded-lg border border-gray-200 shadow-sm animate-fade-in">
-            <span className="text-gray-600">Low on Tests. </span>
-            <button onClick={() => setShowRefillModal(true)} className="text-indigo-600 hover:text-indigo-800 font-bold underline decoration-indigo-300 hover:decoration-indigo-800 transition-all">
-              Refill your Account
-            </button>
-            <span className="text-gray-400 mx-1">or</span>
-            <button onClick={() => handleCheckout('starter')} className="text-pink-600 hover:text-pink-800 font-bold underline decoration-pink-300 hover:decoration-pink-800 transition-all">Switch to a Monthly Plan</button>
+          <div className="w-full text-right text-xs font-medium bg-white/90 backdrop-blur-sm p-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] animate-fade-in flex flex-col gap-2">
+            <span className="text-gray-600 font-bold block">Low on Tests.</span>
+            <div className="flex flex-col gap-1">
+              <button onClick={handleReplenish} className="text-indigo-600 hover:text-indigo-800 font-bold underline decoration-indigo-300 hover:decoration-indigo-800 transition-all text-right">
+                Refill your Account
+              </button>
+              <div className="text-gray-400 text-[10px] text-right">or</div>
+              <button onClick={() => handleCheckout('starter')} className="text-pink-600 hover:text-pink-800 font-bold underline decoration-pink-300 hover:decoration-pink-800 transition-all text-right">Switch to a Monthly Plan</button>
+            </div>
           </div>
         )}
       </div>
