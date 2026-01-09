@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
@@ -18,18 +17,27 @@ interface Payment {
   stripe_session_id: string;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }) => {
+  const [secretKey, setSecretKey] = useState(initialKey);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [refundReason, setRefundReason] = useState<string>('');
   const [refunding, setRefunding] = useState(false);
+  const [inputKey, setInputKey] = useState('');
 
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
       setError(null);
+      
+      if (!secretKey) {
+        setLoading(false);
+        setError('Unauthorized: Key missing');
+        return;
+      }
+
       try {
         const res = await fetch('/api/admin/stats', {
           headers: { Authorization: `Bearer ${secretKey}` },
@@ -84,16 +92,34 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey }) => {
   };
 
   if (loading) return <div className="p-4">Loading admin dashboard... <Loader2 className="inline-block ml-2 animate-spin" /></div>;
-  if (error) {
+  
+  if (error && (error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('missing'))) {
     return (
-      <div className="p-8 text-center">
-        <div className="text-red-500 font-bold mb-4">Error: {error}</div>
-        <Link to="/admin" className="inline-block px-6 py-2 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors">
-          Go to Admin Login
-        </Link>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full">
+          <NeoCard title="Admin Access">
+            <form onSubmit={(e) => { e.preventDefault(); setSecretKey(inputKey); }}>
+              <div className="mb-4">
+                <label className="block text-sm font-bold mb-2">Enter Secret Key</label>
+                <input 
+                  type="password" 
+                  value={inputKey}
+                  onChange={(e) => setInputKey(e.target.value)}
+                  className="w-full p-3 border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+                  placeholder="sk_..."
+                />
+              </div>
+              <NeoButton type="submit" className="w-full">
+                Access Dashboard
+              </NeoButton>
+            </form>
+          </NeoCard>
+        </div>
       </div>
     );
   }
+
+  if (error) return <div className="p-4 text-red-500 font-bold">Error: {error}</div>;
 
   return (
     <div className="p-4">
