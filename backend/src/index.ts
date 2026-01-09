@@ -952,7 +952,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       lineItems.push({
         price_data: {
           currency: 'usd',
-          product_data: { name: '3 Credit Pack', description: '3 AI UX Audits (No Expiry)' },
+          product_data: { name: '3 Test Pack', description: '3 AI UX Audits (No Expiry)' },
           unit_amount: 1400, // $14.00
         },
         quantity: 1,
@@ -963,7 +963,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       lineItems.push({
         price_data: {
           currency: 'usd',
-          product_data: { name: '15 Credit Pack', description: '15 AI UX Audits (No Expiry)' },
+          product_data: { name: '15 Test Pack', description: '15 AI UX Audits (No Expiry)' },
           unit_amount: 6900, // $69.00
         },
         quantity: 1,

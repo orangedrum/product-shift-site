@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Menu, X, LogIn, LogOut, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { NeoButton } from './NeoButton';
@@ -32,7 +32,9 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
   const displaySession = session !== undefined ? session : internalSession;
 
-  const navLinks = [
+  const navLinks = displaySession ? [
+    { name: 'AI Tester Tool', href: '/ai-powered-ux' }
+  ] : [
     { name: 'Services', href: '#' },
     { name: 'About', href: '#' },
     { name: 'Blog', href: '#' }
@@ -69,9 +71,15 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
           <div className="hidden md:flex flex-1 items-center justify-center">
             <nav className="flex space-x-10">
               {navLinks.map((link) => (
-                <a key={link.name} href={link.href} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-500 hover:text-gray-900'} font-normal transition-colors`}>
-                  {link.name}
-                </a>
+                link.href.startsWith('/') ? (
+                  <Link key={link.name} to={link.href} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-500 hover:text-gray-900'} font-normal transition-colors`}>
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a key={link.name} href={link.href} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-500 hover:text-gray-900'} font-normal transition-colors`}>
+                    {link.name}
+                  </a>
+                )
               ))}
             </nav>
           </div>
@@ -118,9 +126,15 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
       {isMenuOpen && (
         <nav className={`md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3 ${displaySession ? 'bg-black' : 'bg-white'}`}>
           {navLinks.map((link) => (
-            <a key={link.name} href={link.href} className={`block px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>
-              {link.name}
-            </a>
+            link.href.startsWith('/') ? (
+              <Link key={link.name} to={link.href} className={`block px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>
+                {link.name}
+              </Link>
+            ) : (
+              <a key={link.name} href={link.href} className={`block px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>
+                {link.name}
+              </a>
+            )
           ))}
           <div className="mt-2 px-2 pt-2 pb-2 border-t border-gray-200">
             {displaySession ? (

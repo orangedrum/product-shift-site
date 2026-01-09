@@ -497,7 +497,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             
             {/* Label & Score */}
             <div className="flex flex-col items-end">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Available Credits</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Available Tests</span>
               <div className="flex items-baseline gap-1">
                 {planStatus === 'active' ? (
                   <span className="text-3xl sm:text-4xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
@@ -516,7 +516,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             <button 
               onClick={() => setShowRefillModal(true)}
               className="flex flex-col items-center justify-center group/btn bg-gray-900 hover:bg-gray-800 p-2 rounded-lg border border-gray-700 hover:border-gray-500 transition-all"
-              title="Add Credits"
+              title="Add Tests"
             >
               <Plus className="text-white" size={20} />
             </button>
@@ -526,7 +526,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         {/* Low Balance Warning (Under Scoreboard) */}
         {planStatus !== 'active' && credits !== null && credits < 2 && (
           <div className="text-right text-xs font-medium bg-white/90 backdrop-blur-sm p-2 rounded-lg border border-gray-200 shadow-sm animate-fade-in">
-            <span className="text-gray-600">Low on Credits. </span>
+            <span className="text-gray-600">Low on Tests. </span>
             <button onClick={() => setShowRefillModal(true)} className="text-indigo-600 hover:text-indigo-800 font-bold underline decoration-indigo-300 hover:decoration-indigo-800 transition-all">
               Refill your Account
             </button>
@@ -715,7 +715,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       {showRefillModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
           <div className="max-w-md w-full relative">
-            <NeoCard title="Refill Credits" className="relative">
+            <NeoCard title="Refill Tests" className="relative">
               <button 
                 onClick={() => setShowRefillModal(false)}
                 className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
@@ -723,7 +723,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <X size={24} />
               </button>
               
-              <p className="text-gray-600 mb-6 font-medium">Select a credit pack to continue testing immediately.</p>
+              <p className="text-gray-600 mb-6 font-medium">Select a test pack to continue testing immediately.</p>
               
               <div className="space-y-4">
                 <button 
@@ -749,7 +749,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
                 <p className="text-sm text-gray-600">
                   Need consistent testing? <br/>
-                  Keeping your existing test credits and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
+                  Keeping your existing tests and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
                 </p>
               </div>
             </NeoCard>

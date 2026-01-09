@@ -52,7 +52,12 @@ const MyAccount: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <h1 className="text-4xl font-black mb-8 text-black">My Account</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-black text-black">My Account</h1>
+        <NeoButton onClick={() => navigate('/ai-powered-ux')} variant="secondary">
+          Back to Tool
+        </NeoButton>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8 mb-12">
         <NeoCard title="Current Plan">
@@ -72,13 +77,13 @@ const MyAccount: React.FC = () => {
               <CreditCard className="text-amber-600" size={32} />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-bold uppercase">Available Credits</p>
+              <p className="text-sm text-gray-500 font-bold uppercase">Available Tests</p>
               <p className="text-2xl font-black text-black">{customer?.credits || 0}</p>
             </div>
           </div>
           <div className="mt-6">
             <NeoButton onClick={() => navigate(pricingLink)} className="w-full">
-              Add More Credits <ArrowRight size={16} />
+              Add More Tests <ArrowRight size={16} />
             </NeoButton>
           </div>
         </NeoCard>
