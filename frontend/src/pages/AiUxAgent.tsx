@@ -410,8 +410,19 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const confirmPrint = (mode: 'full' | 'summary') => {
     setPrintMode(mode);
     setShowDownloadDialog(false);
+
+    // Set custom title for PDF filename
+    const originalTitle = document.title;
+    if (result?.title) {
+      const dateStr = new Date().toISOString().split('T')[0];
+      document.title = `${result.title} - ${dateStr}`;
+    }
+
     // Small delay to allow React to update the DOM classes before the print dialog opens
-    setTimeout(() => window.print(), 100);
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => { document.title = originalTitle; }, 500);
+    }, 100);
   };
 
   // Determine Segment: Default to 'tech', but check user metadata if logged in
@@ -497,54 +508,41 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      <div className="relative max-w-3xl mx-auto">
-        
-        {/* Widget - Absolute Right on Desktop */}
-        <div className="no-print lg:absolute lg:top-0 lg:-right-[160px] lg:w-32 mb-8 lg:mb-0 z-20">
-           <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
-              <div className="p-5 text-center">
-                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Available Tests</span>
-                 <div className="flex justify-center items-center gap-3 mb-1">
-                    {planStatus === 'active' ? (
-                      <span className="text-3xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
-                    ) : (
-                      <span className="text-5xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
-                        {(credits ?? 0).toString().padStart(2, '0')}
-                      </span>
-                    )}
-                    
-                    <button 
-                      onClick={handleReplenish}
-                      className="text-gray-500 hover:text-white transition-colors transform hover:scale-110 active:scale-95"
-                      title="Add Tests"
-                    >
-                      <PlusCircle size={28} />
-                    </button>
-                 </div>
-              </div>
-              
-              <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
-                <p className="text-[10px] font-bold text-white leading-relaxed">
-                  Low on Tests?{' '}
-                  <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
-                    Refill Account
-                  </button>
-                  {' '}or{' '}
-                  <button onClick={() => handleCheckout('starter')} className="underline hover:text-gray-300 transition-all">
-                    Switch to Monthly
-                  </button>
-                </p>
-              </div>
-            </div>
-        </div>
+      {/* Reusable Horizontal Status Widget */}
+      {(() => {
+        const StatusWidget = () => (
+          <div className="no-print bg-black text-white p-3 rounded-xl border-2 border-gray-800 shadow-lg flex items-center justify-between gap-4 max-w-md mx-auto mb-8">
+             <div className="flex items-center gap-4">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available Tests</span>
+                {planStatus === 'active' ? (
+                   <span className="text-xl font-black text-[#39ff14] font-mono" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
+                ) : (
+                   <span className="text-xl font-black text-[#00bfff] font-mono tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>{(credits ?? 0).toString().padStart(2, '0')}</span>
+                )}
+             </div>
+             
+             <div className="flex items-center gap-3">
+                {(planStatus !== 'active' && credits !== null && credits < 2) && (
+                   <span className="text-[10px] font-bold text-red-400 hidden sm:inline animate-pulse">Low Balance</span>
+                )}
+                <button onClick={handleReplenish} className="text-xs bg-gray-900 hover:bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg transition-colors font-bold flex items-center gap-1.5 group">
+                   <PlusCircle size={14} className="group-hover:text-[#00bfff] transition-colors" /> 
+                   <span>Refill</span>
+                </button>
+             </div>
+          </div>
+        );
 
-      <div className="w-full">
-      {!result && !error && (
-        <div className="no-print">
+        return (
+        <>
+        {!result && !error && (
+        <div className="no-print max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
             <p className="text-lg text-black font-medium">{text.subtitle}</p>
           </div>
+          
+          <StatusWidget />
       
           <form onSubmit={handleSubmit} className="space-y-8">
             
@@ -650,12 +648,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {result && (
-        <div className="no-print text-center mb-12 animate-fade-in">
+        <div className="no-print text-center mb-12 animate-fade-in max-w-3xl mx-auto">
            <h1 className="text-4xl font-black mb-2 text-black">Analysis Complete</h1>
            <p className="text-black font-medium text-lg">Review the user sessions and the aggregated research report below.</p>
-           <button onClick={resetState} className="mt-6 bg-black text-white font-bold py-3 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">
+           <button onClick={resetState} className="mt-6 mb-8 bg-black text-white font-bold py-3 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">
              Run Another Test
            </button>
+           <StatusWidget />
         </div>)}
 
       {/* Download Dialog */}
@@ -750,7 +749,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {result && (
-        <div id="report-section" className={`animate-fade-in ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
+        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
@@ -963,8 +962,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         )
       )}
-      </div>
-    </div>
+      </>
+      );
+    })()}
     </div>
     </div>);
 };
