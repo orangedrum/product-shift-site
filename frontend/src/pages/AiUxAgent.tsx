@@ -500,7 +500,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       <div className="relative max-w-3xl mx-auto">
         
         {/* Widget - Absolute Right on Desktop */}
-        <div className="no-print lg:absolute lg:top-0 lg:-right-[280px] lg:w-64 mb-8 lg:mb-0 z-20">
+        <div className="no-print lg:absolute lg:top-0 lg:-right-[160px] lg:w-32 mb-8 lg:mb-0 z-20">
            <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
               <div className="p-5 text-center">
                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Available Tests</span>
@@ -524,7 +524,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
               
               <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
-                <p className="text-xs font-bold text-white leading-relaxed">
+                <p className="text-[10px] font-bold text-white leading-relaxed">
                   Low on Tests?{' '}
                   <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
                     Refill Account

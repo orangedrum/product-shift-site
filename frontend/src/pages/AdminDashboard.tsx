@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
@@ -83,7 +84,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey }) => {
   };
 
   if (loading) return <div className="p-4">Loading admin dashboard... <Loader2 className="inline-block ml-2 animate-spin" /></div>;
-  if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-red-500 font-bold mb-4">Error: {error}</div>
+        <Link to="/admin" className="inline-block px-6 py-2 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors">
+          Go to Admin Login
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
