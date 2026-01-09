@@ -262,7 +262,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
       const fetchCustomerData = async () => {
         const { data } = await supabase
           .from('customers')
-          .select('credits, plan_status')
           .select('credits, plan_status, referral_code')
           .eq('email', session.user.email)
           .single();
@@ -1048,6 +1047,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         )
       )}
       </div>
+    </div>
     </div>
     </div>);
 };
