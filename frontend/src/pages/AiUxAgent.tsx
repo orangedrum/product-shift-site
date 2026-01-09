@@ -206,7 +206,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [showRefillModal, setShowRefillModal] = useState(false);
   const [bgGradient, setBgGradient] = useState('');
   const [referralCode, setReferralCode] = useState<string | null>(null);
-  const [incomingRef, setIncomingRef] = useState<string | null>(null);
+  const [copyButtonText, setCopyButtonText] = useState('Copy Link');
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -239,22 +240,55 @@ const AiPoweredUxHealthtech: React.FC = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setAuthLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      setAuthLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  // Capture Incoming Referral
+  // --- Referral Logic: Capture, Redirect, Claim ---
   useEffect(() => {
+    if (authLoading) return;
+
+    // 1. Capture from URL
     const ref = searchParams.get('ref');
     if (ref) {
-      setIncomingRef(ref);
+      localStorage.setItem('pendingReferral', ref);
+      // Clean URL
+      setSearchParams(params => {
+        params.delete('ref');
+        return params;
+      }, { replace: true });
     }
-  }, [searchParams]);
+
+    // 2. Check for pending referral
+    const pendingRef = localStorage.getItem('pendingReferral');
+
+    if (pendingRef) {
+      if (!session) {
+        // Not logged in? Send to login page
+        navigate('/login');
+      } else {
+        // Logged in? Claim it!
+        fetch('/api/user/claim-referral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: session.user.email, referralCode: pendingRef })
+        }).then(res => res.json()).then(data => {
+          if (data.success) {
+            localStorage.removeItem('pendingReferral');
+            // Refresh credits (simple reload for now, or re-fetch customer data)
+            window.location.reload();
+          }
+        });
+      }
+    }
+  }, [searchParams, session, authLoading, navigate, setSearchParams]);
 
   // Fetch Credits & Plan Status
   useEffect(() => {
@@ -383,7 +417,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: fullUrl, personaIds: selectedPersonas, goal: finalGoal, email: session?.user?.email, referralCode: incomingRef }), 
+        body: JSON.stringify({ url: fullUrl, personaIds: selectedPersonas, goal: finalGoal, email: session?.user?.email }), 
       });
 
       let data;
@@ -475,8 +509,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
   const copyReferralLink = () => {
     const link = `${window.location.origin}/ai-powered-ux?ref=${referralCode}`;
-    navigator.clipboard.writeText(link);
-    alert('Referral link copied!');
+    navigator.clipboard.writeText(link).then(() => {
+      setCopyButtonText('Link Copied!');
+      setTimeout(() => setCopyButtonText('Copy Link'), 2000);
+    });
   };
 
   return (
@@ -594,7 +630,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       onClick={copyReferralLink}
                       className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
                     >
-                      <Copy size={12} /> Copy Link
+                      {copyButtonText === 'Link Copied!' ? <CheckCircle size={12} /> : <Copy size={12} />} {copyButtonText}
                     </button>
                   </div>
                 </div>

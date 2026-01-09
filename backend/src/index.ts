@@ -422,6 +422,39 @@ app.post('/api/user/generate-referral', async (req, res) => {
   res.json({ referralCode: code });
 });
 
+// --- Claim Referral Endpoint ---
+app.post('/api/user/claim-referral', async (req, res) => {
+  const { email, referralCode } = req.body;
+  if (!email || !referralCode) return res.status(400).json({ error: 'Missing requirements' });
+
+  if (!supabaseUrl || !supabaseServiceKey) return res.status(500).json({ error: 'Server config error' });
+
+  try {
+    // 1. Check if this referral has already been processed
+    const { data: existingRef } = await supabase
+      .from('referrals')
+      .select('id')
+      .eq('referrer_code', referralCode)
+      .eq('referee_email', email)
+      .single();
+
+    if (existingRef) return res.json({ message: 'Referral already claimed' });
+
+    // 2. Find the referrer
+    const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
+    
+    if (referrer && referrer.email !== email) { // Prevent self-referral
+      // 3. Log & Grant Credits
+      await supabase.from('referrals').insert({ referrer_code: referralCode, referee_email: email });
+      await supabase.rpc('add_credits', { user_email: referrer.email, amount: 1 });
+      await supabase.rpc('add_credits', { user_email: email, amount: 1 });
+      return res.json({ success: true, message: 'Credits granted' });
+    }
+    return res.status(400).json({ error: 'Invalid referral' });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -485,7 +518,7 @@ const personas: Record<string, Persona> = {
 };
 
 const runTestHandler = async (req: express.Request, res: express.Response) => {
-  const { url, personaIds, goal, email, referralCode } = req.body;
+  const { url, personaIds, goal, email } = req.body;
   const isDemo = personaIds.length === 1;
 
   // Check for "test-mode" to bypass expensive calls for UI testing
@@ -635,37 +668,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
             useFreeTier = false; // Credit Holder: Bypass limits
             shouldDeductCredit = true;
         }
-    }
-  }
-
-  // --- REFERRAL PROCESSING ---
-  // If a referral code is present and the user is logged in (has email)
-  if (referralCode && email && supabaseUrl && supabaseServiceKey) {
-    try {
-      // 1. Check if this referral has already been processed
-      const { data: existingRef } = await supabase
-        .from('referrals')
-        .select('id')
-        .eq('referrer_code', referralCode)
-        .eq('referee_email', email)
-        .single();
-
-      if (!existingRef) {
-        // 2. Find the referrer
-        const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
-        
-        if (referrer && referrer.email !== email) { // Prevent self-referral
-          // 3. Log the referral
-          await supabase.from('referrals').insert({ referrer_code: referralCode, referee_email: email });
-          
-          // 4. Grant Credits (Give 1, Get 1)
-          await supabase.rpc('add_credits', { user_email: referrer.email, amount: 1 });
-          await supabase.rpc('add_credits', { user_email: email, amount: 1 });
-          console.log(`🎁 Referral success: ${referrer.email} referred ${email}`);
-        }
-      }
-    } catch (err) {
-      console.error('Referral processing error:', err);
     }
   }
 
