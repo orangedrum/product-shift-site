@@ -11,6 +11,7 @@ import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
 import StyleGuide from './pages/Styleguide';
 import PaymentConfirmation from './pages/PaymentConfirmation';
+import ReferralClaim from './pages/ReferralClaim';
 import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
@@ -39,6 +40,7 @@ const App: React.FC = () => {
           
           <Route path="/styleguide" element={<StyleGuide />} />
           <Route path="/payment-success" element={<PaymentConfirmation />} />
+          <Route path="/claim-test" element={<ReferralClaim />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
