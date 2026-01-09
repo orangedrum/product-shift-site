@@ -497,55 +497,47 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      {/* Gamified Credit Scoreboard - Floating Widget */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 w-72 no-print">
-        <div className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-          <div className="relative bg-black p-3 sm:p-4 rounded-xl border-2 border-gray-800 flex items-center gap-4 sm:gap-5 shadow-2xl">
-            
-            {/* Label & Score */}
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Available Tests</span>
-              <div className="flex items-baseline gap-1">
-                {planStatus === 'active' ? (
-                  <span className="text-3xl sm:text-4xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
-                ) : (
-                  <span className="text-3xl sm:text-4xl font-black text-[#ffb300] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(255, 179, 0, 0.5)' }}>
-                    {(credits ?? 0).toString().padStart(2, '0')}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-10 w-px bg-gray-800"></div>
-
-            {/* Action Button */}
-            <button 
-              onClick={handleReplenish}
-              className="flex flex-col items-center justify-center group/btn bg-gray-900 hover:bg-gray-800 p-2 rounded-lg border border-gray-700 hover:border-gray-500 transition-all"
-              title="Add Tests"
-            >
-              <Plus className="text-white" size={20} />
-            </button>
-          </div>
-        </div>
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
         
-        {/* Low Balance Warning (Under Scoreboard) */}
-        {planStatus !== 'active' && credits !== null && credits < 2 && (
-          <div className="w-full text-right text-xs font-medium bg-white/90 backdrop-blur-sm p-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] animate-fade-in flex flex-col gap-2">
-            <span className="text-gray-600 font-bold block">Low on Tests.</span>
-            <div className="flex flex-col gap-1">
-              <button onClick={handleReplenish} className="text-indigo-600 hover:text-indigo-800 font-bold underline decoration-indigo-300 hover:decoration-indigo-800 transition-all text-right">
-                Refill your Account
-              </button>
-              <div className="text-gray-400 text-[10px] text-right">or</div>
-              <button onClick={() => handleCheckout('starter')} className="text-pink-600 hover:text-pink-800 font-bold underline decoration-pink-300 hover:decoration-pink-800 transition-all text-right">Switch to a Monthly Plan</button>
+        {/* Left Column: Status Widget (20%) */}
+        <div className="w-full lg:w-1/5 no-print order-2 lg:order-1">
+           <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
+              <div className="p-4 text-center">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Available Tests</span>
+                 <div className="flex justify-center items-baseline gap-1">
+                    {planStatus === 'active' ? (
+                      <span className="text-xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
+                    ) : (
+                      <span className="text-xl font-black text-[#ffb300] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(255, 179, 0, 0.5)' }}>
+                        {(credits ?? 0).toString().padStart(2, '0')}
+                      </span>
+                    )}
+                 </div>
+              </div>
+              
+              {(planStatus !== 'active' && credits !== null && credits < 2) ? (
+                 <div className="bg-gray-900 p-3 border-t border-gray-800 text-center flex flex-col gap-2">
+                    <span className="text-xs font-bold text-white">Low on Tests</span>
+                    <button onClick={handleReplenish} className="text-xs text-indigo-400 hover:text-indigo-300 font-bold underline transition-all">
+                      Refill Account
+                    </button>
+                    <div className="text-[10px] text-gray-500">or</div>
+                    <button onClick={() => handleCheckout('starter')} className="text-xs text-pink-500 hover:text-pink-400 font-bold underline transition-all">
+                      Switch to Monthly
+                    </button>
+                 </div>
+              ) : (
+                 <div className="bg-gray-900 p-2 border-t border-gray-800 text-center">
+                    <button onClick={handleReplenish} className="text-xs text-gray-400 hover:text-white flex items-center justify-center gap-1 mx-auto transition-colors py-1">
+                       <Plus size={12} /> Add Tests
+                    </button>
+                 </div>
+              )}
             </div>
-          </div>
-        )}
-      </div>
+        </div>
 
+      {/* Right Column: Main Content (80%) */}
+      <div className="w-full lg:w-4/5 order-1 lg:order-2">
       {!result && !error && (
         <div className="no-print max-w-3xl mx-auto">
           <div className="text-center mb-10">
@@ -651,18 +643,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               <span className="relative z-10">
                 {isLoading ? `${text.analyzing} ${Math.round(progress)}%` : text.runButton}
               </span>
-            </button>
-
-            {/* Low Balance Warning */}
-            {planStatus !== 'active' && credits !== null && credits < 2 && (
-              <div className="mt-4 p-4 bg-amber-100 border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in">
-                <div className="flex items-center gap-3 text-black font-bold">
-                  <AlertCircle className="text-amber-600" size={24} />
-                  <span>Running low! You have {credits} credit{credits !== 1 ? 's' : ''} left.</span>
-                </div>
-                <NeoButton type="button" variant="secondary" onClick={() => navigate(pricingLink)} className="text-xs w-full sm:w-auto">Replenish</NeoButton>
-              </div>
-            )}
+              </button>
           </form>
         </div>
       )}
@@ -981,6 +962,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         )
       )}
+      </div>
+      </div>
     </div>
     </div>);
 };
