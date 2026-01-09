@@ -208,6 +208,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [copyButtonText, setCopyButtonText] = useState('Copy Link');
   const [authLoading, setAuthLoading] = useState(true);
+  const [highlightCredits, setHighlightCredits] = useState(false);
+  const prevCreditsRef = useRef<number | null>(null);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -258,6 +260,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Animation Effect: Watch for credit increases
+  useEffect(() => {
+    if (credits !== null && prevCreditsRef.current !== null) {
+      if (credits > prevCreditsRef.current) {
+        setHighlightCredits(true);
+        setTimeout(() => setHighlightCredits(false), 2000);
+      }
+    }
+    prevCreditsRef.current = credits;
+  }, [credits]);
 
   // --- Referral Logic: Capture, Redirect, Claim ---
   useEffect(() => {
@@ -633,7 +646,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                         credits === null ? (
                           <span className="text-5xl font-black text-gray-600 font-mono leading-none animate-pulse">--</span>
                         ) : (
-                          <span className="text-5xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
+                          <span className={`text-5xl font-black font-mono leading-none tabular-nums transition-all duration-500 ${highlightCredits ? 'text-[#39ff14] scale-110' : 'text-[#00bfff]'}`} style={{ textShadow: highlightCredits ? '0 0 20px rgba(57, 255, 20, 0.8)' : '0 0 10px rgba(0, 191, 255, 0.5)' }}>
                             {credits.toString().padStart(2, '0')}
                           </span>
                         )
@@ -807,7 +820,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                    credits === null ? (
                      <span className="text-xl font-black text-gray-500 font-mono animate-pulse">--</span>
                    ) : (
-                     <span className="text-xl font-black text-[#00bfff] font-mono tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>{credits.toString().padStart(2, '0')}</span>
+                     <span className={`text-xl font-black font-mono tabular-nums transition-all duration-500 ${highlightCredits ? 'text-[#39ff14] scale-110' : 'text-[#00bfff]'}`} style={{ textShadow: highlightCredits ? '0 0 20px rgba(57, 255, 20, 0.8)' : '0 0 10px rgba(0, 191, 255, 0.5)' }}>{credits.toString().padStart(2, '0')}</span>
                    )
                 )}
              </div>

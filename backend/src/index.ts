@@ -490,31 +490,28 @@ app.post('/api/user/claim-referral', async (req, res) => {
       return res.status(400).json({ error: 'Existing customers are not eligible for new user referrals.' });
     }
 
-    // 3. Check if user already has credits (Prevent stacking with welcome packs)
-    const { data: currentCredits } = await supabase
+    // 3. Strict New User Check: If customer row exists, they are not new.
+    const { data: existingCustomer } = await supabase
       .from('customers')
-      .select('credits')
+      .select('id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
-    // If they already have credits (e.g. > 0), we assume they are already set up.
-    // We only grant the +1 if they are at 0.
-    const shouldGrantCredit = !currentCredits || (currentCredits.credits || 0) === 0;
-
-    // Robustness: Ensure customer row exists before granting credit
-    // This fixes the issue where a brand new user (just logged in) might not have a row yet.
-    if (!currentCredits) {
-      await supabase.from('customers').upsert({ 
-        email: email,
-        credits: 0,
-        plan_status: null 
-      }, { onConflict: 'email' });
+    if (existingCustomer) {
+      return res.status(400).json({ error: 'Existing accounts are not eligible for new user referrals.' });
     }
+
+    // 4. Initialize New Customer
+    await supabase.from('customers').upsert({ 
+      email: email,
+      credits: 0,
+      plan_status: null 
+    }, { onConflict: 'email' });
 
     const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
     
     if (referrer && referrer.email !== email) { // Prevent self-referral
-      // 4. Log as PENDING & Grant Credit ONLY to Referee (so they can run the test)
+      // 5. Log as PENDING & Grant Credit ONLY to Referee
       // Referrer gets nothing yet.
       const { error: insertError } = await supabase.from('referrals').insert({ 
         referrer_code: referralCode, 
@@ -523,9 +520,7 @@ app.post('/api/user/claim-referral', async (req, res) => {
       });
       
       if (!insertError) {
-        if (shouldGrantCredit) {
-          await supabase.rpc('add_credits', { user_email: email, amount: 1 });
-        }
+        await supabase.rpc('add_credits', { user_email: email, amount: 1 });
         return res.json({ success: true, message: 'Referral claimed. Run a test to unlock the reward for your friend!' });
       }
     }
