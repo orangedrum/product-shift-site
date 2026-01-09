@@ -272,16 +272,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
     prevCreditsRef.current = credits;
   }, [credits]);
 
-  // Animation Effect: Check URL for forced animation (from Referral Claim)
-  useEffect(() => {
-    if (searchParams.get('new_credit') === 'true') {
-      setHighlightCredits(true);
-      setTimeout(() => setHighlightCredits(false), 3000);
-      // Clean URL
-      setSearchParams(params => { params.delete('new_credit'); return params; }, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
-
   // --- Referral Logic: Capture, Redirect, Claim ---
   useEffect(() => {
     if (authLoading) return;
