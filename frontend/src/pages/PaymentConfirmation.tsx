@@ -29,8 +29,7 @@ const PaymentConfirmation = () => {
       .then(res => res.json())
       .then(data => {
         if (data.verified) {
-          setStatus('success');
-          setTimeout(() => navigate('/ai-powered-ux'), 1500);
+          console.log('Payment verified via API, waiting for DB sync...');
         }
       })
       .catch(err => console.error('Verification fallback failed:', err));
@@ -42,13 +41,15 @@ const PaymentConfirmation = () => {
 
       const poll = setInterval(async () => {
         attempts++;
-        const { data } = await supabase
-          .from('customers')
-          .select('plan_status')
-          .eq('email', session.user.email)
+        
+        // Check if the payment has been logged in our DB (Webhook completed)
+        const { data: payment } = await supabase
+          .from('payments')
+          .select('id')
+          .eq('stripe_session_id', sessionId)
           .single();
-
-        if (data && data.plan_status === 'active') {
+          
+        if (payment) {
           clearInterval(poll);
           setStatus('success');
           // Short delay to show the success state before redirecting

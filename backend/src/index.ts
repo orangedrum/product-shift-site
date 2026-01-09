@@ -246,7 +246,8 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           email: customerEmail,
           amount_total: session.amount_total,
           currency: session.currency,
-          status: session.payment_status
+          status: session.payment_status,
+          stripe_session_id: session.id
         });
       }
       break;
@@ -289,7 +290,12 @@ app.post('/api/verify-payment', async (req, res) => {
           }, { onConflict: 'email' });
         }
         
-        return res.json({ status: 'active', verified: true });
+        return res.json({ 
+          status: 'paid', 
+          verified: true, 
+          mode: session.mode,
+          credits: session.metadata?.credits 
+        });
       }
     }
     
