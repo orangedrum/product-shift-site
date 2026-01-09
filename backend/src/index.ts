@@ -212,6 +212,18 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
       const customerEmail = session.customer_details?.email;
 
       if (customerEmail) {
+        // 1. Idempotency Check: Has this session already been processed?
+        const { data: existingPayment } = await supabase
+          .from('payments')
+          .select('id')
+          .eq('stripe_session_id', session.id)
+          .single();
+
+        if (existingPayment) {
+          console.log(`⚠️ Session ${session.id} already processed. Skipping.`);
+          break;
+        }
+
         // Scenario A: Subscription (Tech / Starter Plan)
         if (session.mode === 'subscription') {
           const stripeCustomerId = session.customer as string;
@@ -280,14 +292,38 @@ app.post('/api/verify-payment', async (req, res) => {
       const stripeSubscriptionId = session.subscription as string;
 
       if (customerEmail) {
-        // Only activate subscription status if the user actually bought a subscription
-        if (session.mode === 'subscription') {
-          await supabase.from('customers').upsert({ 
+        // 1. Idempotency Check: Check if DB is already updated
+        const { data: existingPayment } = await supabase
+          .from('payments')
+          .select('id')
+          .eq('stripe_session_id', session.id)
+          .single();
+
+        // 2. If NOT in DB, process it now (Self-Healing)
+        if (!existingPayment) {
+          console.log(`🩹 Self-healing payment for session: ${session.id}`);
+          
+          if (session.mode === 'subscription') {
+            await supabase.from('customers').upsert({ 
+              email: customerEmail,
+              stripe_customer_id: stripeCustomerId,
+              stripe_subscription_id: stripeSubscriptionId,
+              plan_status: 'active'
+            }, { onConflict: 'email' });
+          } else if (session.mode === 'payment') {
+            const creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
+            if (creditsToAdd > 0) {
+              await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
+            }
+          }
+
+          await supabase.from('payments').insert({
             email: customerEmail,
-            stripe_customer_id: stripeCustomerId,
-            stripe_subscription_id: stripeSubscriptionId,
-            plan_status: 'active'
-          }, { onConflict: 'email' });
+            amount_total: session.amount_total,
+            currency: session.currency,
+            status: session.payment_status,
+            stripe_session_id: session.id
+          });
         }
         
         return res.json({ 
