@@ -12,6 +12,7 @@ const ReferralClaim: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isExisting, setIsExisting] = useState(false);
 
   const refCode = searchParams.get('ref');
   const segment = searchParams.get('segment');
@@ -26,16 +27,34 @@ const ReferralClaim: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setIsExisting(false);
+
+    // 0. Check Eligibility (Prevent existing users from claiming)
+    try {
+      const checkRes = await fetch('/api/user/check-referral-eligibility', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const checkData = await checkRes.json();
+      
+      if (checkData.eligible === false) {
+        setIsExisting(true);
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.error("Eligibility check failed", err);
+      // Proceeding cautiously if check fails, backend claim will still block if needed
+    }
 
     // 1. Save referral code to localStorage so it persists after magic link redirect
     if (refCode) {
       localStorage.setItem('pendingReferral', refCode);
     }
 
-    // 2. Determine redirect URL based on segment (SMB vs Tech)
-    const redirectTo = segment === 'smb' 
-      ? `${window.location.origin}/landingpg-instantinsights`
-      : `${window.location.origin}/ai-powered-ux`;
+    // 2. Always redirect to the tool so they can use their free test immediately
+    const redirectTo = `${window.location.origin}/ai-powered-ux`;
 
     // 3. Send Magic Link
     const { error } = await supabase.auth.signInWithOtp({
@@ -83,6 +102,11 @@ const ReferralClaim: React.FC = () => {
                     required
                   />
                 </div>
+                {isExisting && (
+                  <div className="text-red-600 text-sm font-bold bg-red-50 p-3 rounded-lg border border-red-200">
+                    We're sorry. You already have an account with us. You can <a href="/login" className="underline text-red-800 hover:text-red-900">add more tests to your account here</a>.
+                  </div>
+                )}
                 {error && <p className="text-red-500 text-sm font-bold">{error}</p>}
                 <NeoButton type="submit" className="w-full justify-center" disabled={loading}>
                   {loading ? 'Sending...' : 'Claim Free Test'} <ArrowRight size={16} />
