@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SmbHero from '../components/SmbHero';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
@@ -295,6 +295,16 @@ const PricingSection = () => (
 );
 
 const SmbLandingPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      localStorage.setItem('pendingReferral', ref);
+      // We don't clear the URL here to avoid jarring redirects on the landing page
+    }
+  }, [searchParams]);
+
   return (
       <main>
         <SmbHero />

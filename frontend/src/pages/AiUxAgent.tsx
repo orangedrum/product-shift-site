@@ -228,7 +228,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
   useEffect(() => {
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
-      linear-gradient(-45deg, #ff1493, #ff8c00, #00bfff, #ff0000)
+      radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+      radial-gradient(at ${r()}% ${r()}%, #ff8c00 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
+      radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
+      #ffffff
     `);
   }, []);
 
@@ -504,7 +508,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   const copyReferralLink = () => {
-    const link = `${window.location.origin}/ai-powered-ux?ref=${referralCode}`;
+    const baseUrl = userSegment === 'smb' 
+      ? `${window.location.origin}/landingpg-instantinsights`
+      : `${window.location.origin}/ai-powered-ux`;
+    const link = `${baseUrl}?ref=${referralCode}`;
+    
     navigator.clipboard.writeText(link).then(() => {
       setCopyButtonText('Link Copied!');
       setTimeout(() => setCopyButtonText('Copy Link'), 2000);
@@ -517,9 +525,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       className="min-h-screen transition-colors duration-500 animated-bg"
       style={{
         background: bgGradient || `
-          linear-gradient(-45deg, #ff1493, #ff8c00, #00bfff, #ff0000)
+          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff0000 60%, transparent 80%), #ffffff
         `,
-        backgroundSize: '400% 400%'
+        backgroundSize: '200% 200%'
       }}
     >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
@@ -620,8 +628,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white">
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🎁</div>
-                    <h3 className="text-xs font-black uppercase tracking-widest mb-1">Give 1, Get 1</h3>
-                    <p className="text-[10px] leading-tight mb-3 opacity-90">Share a free test, get a free test when they use it.</p>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest mb-1">Give 1, Get 1</h3>
+                    <p className="text-[10px] leading-tight mb-3 opacity-90">Share a free test, get a free test when a new user uses it.</p>
                     <button 
                       onClick={copyReferralLink}
                       className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
