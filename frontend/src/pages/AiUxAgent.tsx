@@ -278,10 +278,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
     const pendingRef = localStorage.getItem('pendingReferral');
 
     if (pendingRef) {
-      if (!session) {
-        // Not logged in? Send to login page
-        navigate('/login');
-      } else {
+      if (session) {
         // Logged in? Claim it!
         fetch('/api/user/claim-referral', {
           method: 'POST',
@@ -516,9 +513,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   const copyReferralLink = () => {
-    // Direct to Login page first, preserving the ref and segment
+    // Direct to Claim page first, preserving the ref and segment
     const segmentParam = userSegment === 'smb' ? '&segment=smb' : '';
-    const link = `${window.location.origin}/login?ref=${referralCode}${segmentParam}`;
+    const link = `${window.location.origin}/claim-test?ref=${referralCode}${segmentParam}`;
     
     navigator.clipboard.writeText(link).then(() => {
       setCopyButtonText('Link Copied!');

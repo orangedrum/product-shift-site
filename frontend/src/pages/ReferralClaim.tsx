@@ -1,0 +1,110 @@
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { NeoCard } from '../components/NeoCard';
+import { NeoButton } from '../components/NeoButton';
+import { Gift, ArrowRight, CheckCircle } from 'lucide-react';
+
+const ReferralClaim: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refCode = searchParams.get('ref');
+  const segment = searchParams.get('segment');
+
+  useEffect(() => {
+    if (!refCode) {
+      navigate('/'); // Redirect home if no code provided
+    }
+  }, [refCode, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    // 1. Save referral code to localStorage so it persists after magic link redirect
+    if (refCode) {
+      localStorage.setItem('pendingReferral', refCode);
+    }
+
+    // 2. Determine redirect URL based on segment (SMB vs Tech)
+    const redirectTo = segment === 'smb' 
+      ? `${window.location.origin}/landingpg-instantinsights`
+      : `${window.location.origin}/ai-powered-ux`;
+
+    // 3. Send Magic Link
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      setSent(true);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="max-w-md w-full">
+        <NeoCard className="text-center">
+          {!sent ? (
+            <>
+              <div className="flex justify-center mb-4">
+                <div className="bg-pink-100 p-4 rounded-full">
+                  <Gift className="text-pink-600" size={48} />
+                </div>
+              </div>
+              <h1 className="text-2xl font-black text-gray-900 mb-2">You've been gifted a free test!</h1>
+              <p className="text-gray-600 mb-6">
+                Please provide your email to receive your free website test. We'll send you a magic link to sign in instantly.
+              </p>
+
+              <form onSubmit={handleLogin} className="space-y-4 text-left">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-3 border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_#000] focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    placeholder="you@example.com"
+                    required
+                  />
+                </div>
+                {error && <p className="text-red-500 text-sm font-bold">{error}</p>}
+                <NeoButton type="submit" className="w-full justify-center" disabled={loading}>
+                  {loading ? 'Sending...' : 'Claim Free Test'} <ArrowRight size={16} />
+                </NeoButton>
+              </form>
+            </>
+          ) : (
+            <div className="py-8 animate-fade-in">
+              <div className="flex justify-center mb-4">
+                <CheckCircle className="text-green-500" size={64} />
+              </div>
+              <h2 className="text-2xl font-black text-gray-900 mb-2">Check your email</h2>
+              <p className="text-gray-600">
+                We sent a magic link to <strong>{email}</strong>.<br/>
+                Click it to sign in and start your free test!
+              </p>
+            </div>
+          )}
+        </NeoCard>
+      </div>
+    </div>
+  );
+};
+
+export default ReferralClaim;
