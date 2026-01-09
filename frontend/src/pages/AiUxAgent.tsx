@@ -190,7 +190,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
-  const [credits, setCredits] = useState<number | null>(null);
+  const [credits, setCredits] = useState<number | null>(() => {
+    // Optimistic init: If claiming a referral, start at 0 to allow "0 -> 1" animation
+    return new URLSearchParams(window.location.search).get('new_credit') === 'true' ? 0 : null;
+  });
   const [planStatus, setPlanStatus] = useState<string | null>(null);
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
@@ -271,6 +274,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
     }
     prevCreditsRef.current = credits;
   }, [credits]);
+
+  // Animation Effect: Check URL for forced animation (from Referral Claim)
+  useEffect(() => {
+    if (searchParams.get('new_credit') === 'true') {
+      // Clean URL
+      setSearchParams(params => { params.delete('new_credit'); return params; }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // --- Referral Logic: Capture, Redirect, Claim ---
   useEffect(() => {
