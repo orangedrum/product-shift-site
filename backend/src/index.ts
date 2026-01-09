@@ -431,24 +431,39 @@ app.post('/api/user/claim-referral', async (req, res) => {
 
   try {
     // 1. Check if this referral has already been processed
+    // We check if this email has EVER been a referee (limit 1 lifetime claim)
     const { data: existingRef } = await supabase
       .from('referrals')
       .select('id')
-      .eq('referrer_code', referralCode)
       .eq('referee_email', email)
       .single();
 
-    if (existingRef) return res.json({ message: 'Referral already claimed' });
+    if (existingRef) return res.status(400).json({ error: 'User has already claimed a referral.' });
 
-    // 2. Find the referrer
+    // 2. Check if user is actually new (Has never paid)
+    const { data: existingPayment } = await supabase
+      .from('payments')
+      .select('id')
+      .eq('email', email)
+      .limit(1);
+    
+    if (existingPayment && existingPayment.length > 0) {
+      return res.status(400).json({ error: 'Existing customers are not eligible for new user referrals.' });
+    }
+
     const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
     
     if (referrer && referrer.email !== email) { // Prevent self-referral
-      // 3. Log & Grant Credits
-      await supabase.from('referrals').insert({ referrer_code: referralCode, referee_email: email });
-      await supabase.rpc('add_credits', { user_email: referrer.email, amount: 1 });
+      // 3. Log as PENDING & Grant Credit ONLY to Referee (so they can run the test)
+      // Referrer gets nothing yet.
+      await supabase.from('referrals').insert({ 
+        referrer_code: referralCode, 
+        referee_email: email,
+        status: 'pending' 
+      });
+      
       await supabase.rpc('add_credits', { user_email: email, amount: 1 });
-      return res.json({ success: true, message: 'Credits granted' });
+      return res.json({ success: true, message: 'Referral claimed. Run a test to unlock the reward for your friend!' });
     }
     return res.status(400).json({ error: 'Invalid referral' });
   } catch (err: any) {
@@ -888,6 +903,28 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
                 console.log(`📧 [Email Trigger] User ${email} has run out of credits.`);
                 // TODO: Call your email service here (e.g. Resend.com, SendGrid)
             }
+        }
+      }
+
+      // --- REFERRAL COMPLETION CHECK ---
+      // If this user was referred and just ran a test, complete the referral and reward the referrer.
+      if (email && supabaseUrl && supabaseServiceKey) {
+        const { data: pendingReferral } = await supabase
+          .from('referrals')
+          .select('id, referrer_code')
+          .eq('referee_email', email)
+          .eq('status', 'pending')
+          .single();
+
+        if (pendingReferral) {
+          // 1. Mark as completed
+          await supabase.from('referrals').update({ status: 'completed' }).eq('id', pendingReferral.id);
+          // 2. Reward the Referrer
+          const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', pendingReferral.referrer_code).single();
+          if (referrer) {
+             await supabase.rpc('add_credits', { user_email: referrer.email, amount: 1 });
+             console.log(`🎁 Referral Completed: ${referrer.email} rewarded for ${email}'s first test.`);
+          }
         }
       }
 

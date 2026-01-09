@@ -228,11 +228,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   useEffect(() => {
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
-      radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
-      radial-gradient(at ${r()}% ${r()}%, #ff8c00 0%, transparent 50%),
-      radial-gradient(at ${r()}% ${r()}%, #ff1493 0%, transparent 50%),
-      radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
-      #ffffff
+      linear-gradient(-45deg, #ff1493, #ff8c00, #00bfff, #ff0000)
     `);
   }, []);
 
@@ -521,9 +517,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       className="min-h-screen transition-colors duration-500 animated-bg"
       style={{
         background: bgGradient || `
-          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff0000 60%, transparent 80%), #ffffff
+          linear-gradient(-45deg, #ff1493, #ff8c00, #00bfff, #ff0000)
         `,
-        backgroundSize: '200% 200%'
+        backgroundSize: '400% 400%'
       }}
     >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
@@ -580,7 +576,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       `}</style>
 
-      <div className="relative max-w-3xl mx-auto">
+      <div className={`relative mx-auto transition-all duration-500 ${result ? 'max-w-7xl' : 'max-w-3xl'}`}>
         
         {/* --- BEFORE RESULTS: Vertical Widgets --- */}
         {!result && !error && (
@@ -750,7 +746,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {result && (
-        <div className="no-print text-center mb-12 animate-fade-in">
+        <div className="no-print text-center mb-12 animate-fade-in max-w-3xl mx-auto">
            <h1 className="text-4xl font-black mb-2 text-black">Analysis Complete</h1>
            <p className="text-black font-medium text-lg">Review the user sessions and the aggregated research report below.</p>
            <button onClick={resetState} className="mt-6 mb-8 bg-black text-white font-bold py-3 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">
@@ -1023,7 +1019,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
                 
                 {/* Charts Section */}
-                {result.scores && (result.scores.usability > 0 || result.scores.desirability > 0) ? (
+                {result.scores ? (
                   <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
                     <h3 className="text-lg font-bold text-black mb-4">Performance Metrics</h3>
                     <div className="h-64 w-full">
