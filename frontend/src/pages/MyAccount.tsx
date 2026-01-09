@@ -25,13 +25,33 @@ const MyAccount: React.FC = () => {
     if (!email) return;
     
     // Fetch Customer Details
-    const { data: custData } = await supabase
+    const { data: custData, error } = await supabase
       .from('customers')
       .select('credits, plan_status')
       .eq('email', email)
       .single();
-    setCustomer(custData);
+    
+    if (!error && custData) {
+      setCustomer(custData);
+    }
 
+    // Subscribe to Realtime Changes
+    const channel = supabase
+      .channel('my-account-credits')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'customers',
+          filter: `email=eq.${email}`,
+        },
+        (payload) => {
+          setCustomer((prev: any) => ({ ...prev, ...payload.new }));
+        }
+      )
+      .subscribe();
+      
     // Fetch Transactions via API
     try {
       const res = await fetch(`/api/user/transactions?email=${encodeURIComponent(email)}`);
@@ -93,7 +113,7 @@ const MyAccount: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500 font-bold uppercase">Available Tests</p>
-              <p className="text-2xl font-black text-black">{customer?.credits || 0}</p>
+              <p className="text-2xl font-black text-black">{customer?.credits ?? '--'}</p>
             </div>
           </div>
           <div className="mt-6">

@@ -298,32 +298,53 @@ const AiPoweredUxHealthtech: React.FC = () => {
   // Fetch Credits & Plan Status
   useEffect(() => {
     if (session?.user?.email) {
+      // 1. Initial Fetch
       const fetchCustomerData = async () => {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('customers')
           .select('credits, plan_status, referral_code')
           .eq('email', session.user.email)
           .single();
         
+        if (error) {
+          console.error('Error fetching customer data:', error);
+          // Don't set to 0 immediately on error, keep it null to show loading or retry
+          return;
+        }
+
         if (data) {
           setCredits(data.credits ?? 0);
           setPlanStatus(data.plan_status);
           
           if (data.referral_code) {
             setReferralCode(data.referral_code);
-          } else {
-            // Generate one if missing
-            fetch('/api/user/generate-referral', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: session.user.email })
-            }).then(res => res.json()).then(d => setReferralCode(d.referralCode));
           }
-        } else {
-          setCredits(0);
         }
       };
       fetchCustomerData();
+
+      // 2. Real-time Subscription (The Robust Fix)
+      const channel = supabase
+        .channel('customer-credits-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'customers',
+            filter: `email=eq.${session.user.email}`,
+          },
+          (payload) => {
+            const newData = payload.new;
+            if (newData.credits !== undefined) setCredits(newData.credits);
+            if (newData.plan_status !== undefined) setPlanStatus(newData.plan_status);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [session]);
 
@@ -609,9 +630,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       {planStatus === 'active' ? (
                         <span className="text-3xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
                       ) : (
-                        <span className="text-5xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
-                          {(credits ?? 0).toString().padStart(2, '0')}
-                        </span>
+                        credits === null ? (
+                          <span className="text-5xl font-black text-gray-600 font-mono leading-none animate-pulse">--</span>
+                        ) : (
+                          <span className="text-5xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
+                            {credits.toString().padStart(2, '0')}
+                          </span>
+                        )
                       )}
                       
                       <button 
@@ -779,7 +804,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 {planStatus === 'active' ? (
                    <span className="text-xl font-black text-[#39ff14] font-mono" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
                 ) : (
-                   <span className="text-xl font-black text-[#00bfff] font-mono tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>{(credits ?? 0).toString().padStart(2, '0')}</span>
+                   credits === null ? (
+                     <span className="text-xl font-black text-gray-500 font-mono animate-pulse">--</span>
+                   ) : (
+                     <span className="text-xl font-black text-[#00bfff] font-mono tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>{credits.toString().padStart(2, '0')}</span>
+                   )
                 )}
              </div>
              
