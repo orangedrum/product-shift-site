@@ -499,8 +499,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         
-        {/* Left Column: Status Widget (20%) */}
-        <div className="w-full lg:w-1/5 no-print order-2 lg:order-1">
+        {/* Right Column: Status Widget (20%) - Moved to Right */}
+        <div className="w-full lg:w-1/5 no-print order-1 lg:order-2">
            <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
               <div className="p-4 text-center">
                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Available Tests</span>
@@ -508,7 +508,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     {planStatus === 'active' ? (
                       <span className="text-xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
                     ) : (
-                      <span className="text-xl font-black text-[#ffb300] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(255, 179, 0, 0.5)' }}>
+                      <span className="text-xl font-black text-[#00bfff] font-mono leading-none tabular-nums" style={{ textShadow: '0 0 10px rgba(0, 191, 255, 0.5)' }}>
                         {(credits ?? 0).toString().padStart(2, '0')}
                       </span>
                     )}
@@ -516,15 +516,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
               
               {(planStatus !== 'active' && credits !== null && credits < 2) ? (
-                 <div className="bg-gray-900 p-3 border-t border-gray-800 text-center flex flex-col gap-2">
-                    <span className="text-xs font-bold text-white">Low on Tests</span>
-                    <button onClick={handleReplenish} className="text-xs text-indigo-400 hover:text-indigo-300 font-bold underline transition-all">
-                      Refill Account
-                    </button>
-                    <div className="text-[10px] text-gray-500">or</div>
-                    <button onClick={() => handleCheckout('starter')} className="text-xs text-pink-500 hover:text-pink-400 font-bold underline transition-all">
-                      Switch to Monthly
-                    </button>
+                 <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
+                    <p className="text-xs font-bold text-white leading-relaxed">
+                      Low on Tests?{' '}
+                      <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
+                        Refill Account
+                      </button>
+                      {' '}or{' '}
+                      <button onClick={() => handleCheckout('starter')} className="underline hover:text-gray-300 transition-all">
+                        Switch to Monthly
+                      </button>
+                    </p>
                  </div>
               ) : (
                  <div className="bg-gray-900 p-2 border-t border-gray-800 text-center">
@@ -536,8 +538,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
         </div>
 
-      {/* Right Column: Main Content (80%) */}
-      <div className="w-full lg:w-4/5 order-1 lg:order-2">
+      {/* Left Column: Main Content (80%) - Moved to Left */}
+      <div className="w-full lg:w-4/5 order-2 lg:order-1">
       {!result && !error && (
         <div className="no-print max-w-3xl mx-auto">
           <div className="text-center mb-10">
