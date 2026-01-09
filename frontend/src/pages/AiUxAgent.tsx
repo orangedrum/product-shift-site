@@ -1082,9 +1082,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       <YAxis domain={[0, 100]} />
                       <Tooltip />
                       <Bar dataKey="score" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                        <Cell fill="#ff8c00" /> {/* Usability: Orange */}
-                        <Cell fill="#ff1493" /> {/* Desirability: Pink */}
-                        <Cell fill="#00bfff" /> {/* Clarity: Cyan */}
+                        <Cell key="usability" fill="#ff8c00" /> {/* Usability: Orange */}
+                        <Cell key="desirability" fill="#ff1493" /> {/* Desirability: Pink */}
+                        <Cell key="clarity" fill="#00bfff" /> {/* Clarity: Cyan */}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>

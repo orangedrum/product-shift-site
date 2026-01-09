@@ -429,6 +429,9 @@ app.post('/api/user/check-referral-eligibility', async (req, res) => {
 
   if (!supabaseUrl || !supabaseServiceKey) return res.status(500).json({ error: 'Server config error' });
 
+  // Security: Add random delay to prevent rapid email enumeration/scraping
+  await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+
   try {
     // Check if user exists in customers table (broadest check for "has account")
     const { data: customer } = await supabase
@@ -497,6 +500,16 @@ app.post('/api/user/claim-referral', async (req, res) => {
     // If they already have credits (e.g. > 0), we assume they are already set up.
     // We only grant the +1 if they are at 0.
     const shouldGrantCredit = !currentCredits || (currentCredits.credits || 0) === 0;
+
+    // Robustness: Ensure customer row exists before granting credit
+    // This fixes the issue where a brand new user (just logged in) might not have a row yet.
+    if (!currentCredits) {
+      await supabase.from('customers').upsert({ 
+        email: email,
+        credits: 0,
+        plan_status: null 
+      }, { onConflict: 'email' });
+    }
 
     const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
     
