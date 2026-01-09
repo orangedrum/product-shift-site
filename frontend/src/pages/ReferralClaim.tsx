@@ -53,8 +53,13 @@ const ReferralClaim: React.FC = () => {
       localStorage.setItem('pendingReferral', refCode);
     }
 
-    // 2. Always redirect to the tool so they can use their free test immediately
-    const redirectTo = `${window.location.origin}/ai-powered-ux`;
+    // 2. Determine redirect URL based on segment (SMB vs Tech)
+    const baseUrl = segment === 'smb' 
+      ? `${window.location.origin}/landingpg-instantinsights`
+      : `${window.location.origin}/ai-powered-ux`;
+    
+    // Append flag to trigger animation on arrival
+    const redirectTo = `${baseUrl}?new_credit=true`;
 
     // 3. Send Magic Link
     const { error } = await supabase.auth.signInWithOtp({

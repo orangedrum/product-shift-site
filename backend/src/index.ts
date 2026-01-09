@@ -229,6 +229,14 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           const stripeCustomerId = session.customer as string;
           const stripeSubscriptionId = session.subscription as string;
 
+          // Check if this subscription comes with initial credits (e.g. Starter Plan)
+          const creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
+          if (creditsToAdd > 0) {
+             const { error: creditError } = await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
+             if (creditError) console.error('Supabase credit add error (sub):', creditError);
+             else console.log(`✅ Added ${creditsToAdd} credits for subscription ${customerEmail}`);
+          }
+
           const { error } = await supabase.from('customers').upsert({ 
             email: customerEmail,
             stripe_customer_id: stripeCustomerId,
@@ -310,6 +318,12 @@ app.post('/api/verify-payment', async (req, res) => {
               stripe_subscription_id: stripeSubscriptionId,
               plan_status: 'active'
             }, { onConflict: 'email' });
+            
+            // Also add credits for subscription if needed (Self-healing)
+            const creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
+            if (creditsToAdd > 0) {
+              await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
+            }
           } else if (session.mode === 'payment') {
             const creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
             if (creditsToAdd > 0) {
@@ -1134,6 +1148,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     // Define Products & Prices (In a real app, these would be in Stripe Dashboard)
     if (planId === 'starter') {
       mode = 'subscription';
+      metadata = { credits: '10' }; // Starter plan gets 10 credits
       lineItems.push({
         price_data: {
           currency: 'usd',

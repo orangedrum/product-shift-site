@@ -272,6 +272,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
     prevCreditsRef.current = credits;
   }, [credits]);
 
+  // Animation Effect: Check URL for forced animation (from Referral Claim)
+  useEffect(() => {
+    if (searchParams.get('new_credit') === 'true') {
+      setHighlightCredits(true);
+      setTimeout(() => setHighlightCredits(false), 3000);
+      // Clean URL
+      setSearchParams(params => { params.delete('new_credit'); return params; }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   // --- Referral Logic: Capture, Redirect, Claim ---
   useEffect(() => {
     if (authLoading) return;
@@ -640,16 +650,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 <div className="p-5 text-center">
                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Available Tests</span>
                    <div className="flex justify-center items-center gap-3 mb-1">
-                      {planStatus === 'active' ? (
-                        <span className="text-3xl font-black text-[#39ff14] font-mono leading-none" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
+                      {credits === null ? (
+                        <span className="text-5xl font-black text-gray-600 font-mono leading-none animate-pulse">--</span>
                       ) : (
-                        credits === null ? (
-                          <span className="text-5xl font-black text-gray-600 font-mono leading-none animate-pulse">--</span>
-                        ) : (
-                          <span className={`text-5xl font-black font-mono leading-none tabular-nums transition-all duration-500 ${highlightCredits ? 'text-[#39ff14] scale-110' : 'text-[#00bfff]'}`} style={{ textShadow: highlightCredits ? '0 0 20px rgba(57, 255, 20, 0.8)' : '0 0 10px rgba(0, 191, 255, 0.5)' }}>
-                            {credits.toString().padStart(2, '0')}
-                          </span>
-                        )
+                        <span className={`text-5xl font-black font-mono leading-none tabular-nums transition-all duration-500 ${highlightCredits ? 'text-[#39ff14] scale-110' : 'text-[#00bfff]'}`} style={{ textShadow: highlightCredits ? '0 0 20px rgba(57, 255, 20, 0.8)' : '0 0 10px rgba(0, 191, 255, 0.5)' }}>
+                          {credits.toString().padStart(2, '0')}
+                        </span>
                       )}
                       
                       <button 
@@ -814,14 +820,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
            <div className="bg-black text-white p-3 rounded-xl border-2 border-gray-800 shadow-lg flex items-center justify-between gap-4 max-w-md mx-auto mb-8">
              <div className="flex items-center gap-4">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available Tests</span>
-                {planStatus === 'active' ? (
-                   <span className="text-xl font-black text-[#39ff14] font-mono" style={{ textShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>UNLTD</span>
-                ) : (
-                   credits === null ? (
-                     <span className="text-xl font-black text-gray-500 font-mono animate-pulse">--</span>
-                   ) : (
-                     <span className={`text-xl font-black font-mono tabular-nums transition-all duration-500 ${highlightCredits ? 'text-[#39ff14] scale-110' : 'text-[#00bfff]'}`} style={{ textShadow: highlightCredits ? '0 0 20px rgba(57, 255, 20, 0.8)' : '0 0 10px rgba(0, 191, 255, 0.5)' }}>{credits.toString().padStart(2, '0')}</span>
-                   )
+                {credits === null ? (
+                   <span className="text-xl font-black text-gray-500 font-mono animate-pulse">--</span>
+                 ) : (
+                   <span className={`text-xl font-black font-mono tabular-nums transition-all duration-500 ${highlightCredits ? 'text-[#39ff14] scale-110' : 'text-[#00bfff]'}`} style={{ textShadow: highlightCredits ? '0 0 20px rgba(57, 255, 20, 0.8)' : '0 0 10px rgba(0, 191, 255, 0.5)' }}>{credits.toString().padStart(2, '0')}</span>
                 )}
              </div>
              
