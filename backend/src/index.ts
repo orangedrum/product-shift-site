@@ -679,16 +679,28 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         .single();
     
     if (customer) {
-        if (customer.plan_status === 'active') {
-            useFreeTier = false; // Subscriber: Bypass limits
-        } else if ((customer.credits || 0) > 0) {
+        const hasCredits = (customer.credits || 0) > 0;
+        const isSubscriber = customer.plan_status === 'active';
+
+        if (isSubscriber || hasCredits) {
+            useFreeTier = false; // They are a paying user, not on the free tier.
+            if (hasCredits) {
+                shouldDeductCredit = true; // They have credits to spend.
+            } else {
+                // This is a subscriber with 0 credits. Block them.
+                return res.status(402).json({ 
+                    error: 'Insufficient Credits', 
+                    details: 'You have used all your available tests for this month. Please wait for your plan to renew or purchase a top-up pack.' 
+                });
+            }
+        } else if ((customer.credits || 0) > 0) { // This is now redundant but kept for safety, the logic above handles it.
             useFreeTier = false; // Credit Holder: Bypass limits
             shouldDeductCredit = true;
         } else {
-            // STRICT MODE: Logged in but no credits/plan -> BLOCK
+            // Not a subscriber and no credits.
             return res.status(402).json({ 
                 error: 'Insufficient Credits', 
-                details: 'You have used all your available tests. Please purchase a pack or subscribe to continue.' 
+                details: 'You have no available tests. Please purchase a pack or subscribe to continue.' 
             });
         }
     }

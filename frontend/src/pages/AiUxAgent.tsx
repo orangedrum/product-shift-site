@@ -503,7 +503,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       setResult(data);
       
       // Optimistic update for gamification: Decrement credit counter visually
-      if (planStatus !== 'active' && credits !== null && credits > 0) {
+      if (credits !== null && credits > 0) {
         setCredits(credits - 1);
       }
 
