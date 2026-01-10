@@ -561,10 +561,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   const copyReferralLink = () => {
-    const baseUrl = userSegment === 'smb' 
-      ? `${window.location.origin}/landingpg-instantinsights`
-      : `${window.location.origin}/ai-powered-ux`;
-    const link = `${baseUrl}?ref=${referralCode}`;
+    const segmentParam = userSegment === 'smb' ? '&segment=smb' : '';
+    const link = `${window.location.origin}/claim-test?ref=${referralCode}${segmentParam}`;
     
     navigator.clipboard.writeText(link).then(() => {
       setCopyButtonText('Link Copied!');
