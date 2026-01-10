@@ -268,7 +268,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [highlightCredits, setHighlightCredits] = useState(false);
   const prevCreditsRef = useRef<number | null>(null);
   const shouldAnimateOnMount = useRef(false);
-  const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -653,21 +652,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
     });
   };
 
-  const handleCancelAccount = async () => {
-    if (!session?.user?.email) return;
-    try {
-      await fetch('/api/user/cancel-account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: session.user.email })
-      });
-      await supabase.auth.signOut();
-      navigate('/');
-    } catch (e) {
-      console.error('Cancel failed', e);
-    }
-  };
-
   return (
     <div 
       ref={containerRef}
@@ -771,18 +755,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 
                 <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
                   <p className="text-[10px] font-bold text-white leading-relaxed">
-                    {planStatus === 'active' ? (
-                      <button onClick={() => setShowUnsubscribeModal(true)} className="underline hover:text-gray-300 transition-all text-red-400">
-                        Unsubscribe
-                      </button>
-                    ) : (
-                      <>
-                        Low on Tests?{' '}
-                        <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
-                          Refill
-                        </button>
-                      </>
-                    )}
+                    Low on Tests?{' '}
+                    <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
+                      Refill
+                    </button>
                   </p>
                 </div>
               </div>
@@ -986,42 +962,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
             >
               Cancel
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Unsubscribe / Switch Modal */}
-      {showUnsubscribeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
-          <div className="max-w-md w-full relative">
-            <NeoCard title="Switch & Save?">
-              <button 
-                onClick={() => setShowUnsubscribeModal(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
-              >
-                <X size={24} />
-              </button>
-              
-              <p className="text-gray-600 mb-6 font-medium">
-                Switch to packs? We'll give you a <span className="font-black text-green-600">10% discount</span> on your next pack of tests as a thank you for being with us.
-              </p>
-              
-              <div className="space-y-4">
-                <button 
-                  onClick={() => handleCheckout('pack-15', true)}
-                  className="w-full flex items-center justify-center p-4 border-2 border-black bg-[#39ff14] rounded-xl hover:bg-[#32e612] transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
-                >
-                  <span className="font-bold text-lg text-black">Accept 10% Off Pack</span>
-                </button>
-
-                <button 
-                  onClick={handleCancelAccount}
-                  className="w-full flex items-center justify-center p-4 border-2 border-transparent text-red-600 hover:bg-red-50 rounded-xl transition-all font-bold"
-                >
-                  Decline & Cancel Account
-                </button>
-              </div>
-            </NeoCard>
           </div>
         </div>
       )}

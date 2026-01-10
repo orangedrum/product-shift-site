@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { CreditCard, Package, Clock, ArrowRight, X } from 'lucide-react';
+import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle } from 'lucide-react';
 
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ const MyAccount: React.FC = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRefillModal, setShowRefillModal] = useState(false);
+  const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -71,17 +72,32 @@ const MyAccount: React.FC = () => {
   const isSmb = session?.user?.user_metadata?.segment === 'smb';
   const pricingLink = isSmb ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
 
-  const handleCheckout = async (planId: string) => {
+  const handleCheckout = async (planId: string, applyDiscount = false) => {
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: planId, email: session?.user?.email }),
+        body: JSON.stringify({ planId: planId, email: session?.user?.email, applyDiscount }),
       });
       const data = await response.json();
       if (data.url) window.location.href = data.url;
     } catch (e) {
       console.error("Checkout failed", e);
+    }
+  };
+
+  const handleCancelAccount = async () => {
+    if (!session?.user?.email) return;
+    try {
+      await fetch('/api/user/cancel-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.user.email })
+      });
+      await supabase.auth.signOut();
+      navigate('/');
+    } catch (e) {
+      console.error('Cancel failed', e);
     }
   };
 
@@ -162,6 +178,24 @@ const MyAccount: React.FC = () => {
         )}
       </NeoCard>
 
+      {/* Danger Zone */}
+      {customer?.plan_status === 'active' && (
+        <div className="mt-12 border-2 border-red-100 bg-red-50 rounded-xl p-6">
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-red-100 rounded-full text-red-600">
+              <AlertTriangle size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-red-900">Danger Zone</h3>
+              <p className="text-sm text-red-700 mb-4">Canceling your account forfeits any existing tests available you may have.</p>
+              <button onClick={() => setShowUnsubscribeModal(true)} className="px-4 py-2 bg-white border border-red-200 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors text-sm">
+                Unsubscribe
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Refill Credits Modal */}
       {showRefillModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
@@ -202,6 +236,42 @@ const MyAccount: React.FC = () => {
                   Need consistent testing? <br/>
                   Keeping your existing tests and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
                 </p>
+              </div>
+            </NeoCard>
+          </div>
+        </div>
+      )}
+
+      {/* Unsubscribe / Switch Modal */}
+      {showUnsubscribeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
+          <div className="max-w-md w-full relative">
+            <NeoCard title="Switch & Save?">
+              <button 
+                onClick={() => setShowUnsubscribeModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
+              >
+                <X size={24} />
+              </button>
+              
+              <p className="text-gray-600 mb-6 font-medium">
+                Switch to packs? We'll give you a <span className="font-black text-green-600">10% discount</span> on your next pack of tests as a thank you for being with us.
+              </p>
+              
+              <div className="space-y-4">
+                <button 
+                  onClick={() => handleCheckout('pack-15', true)}
+                  className="w-full flex items-center justify-center p-4 border-2 border-black bg-[#39ff14] rounded-xl hover:bg-[#32e612] transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
+                >
+                  <span className="font-bold text-lg text-black">Accept 10% Off Pack</span>
+                </button>
+
+                <button 
+                  onClick={handleCancelAccount}
+                  className="w-full flex items-center justify-center p-4 border-2 border-transparent text-red-600 hover:bg-red-50 rounded-xl transition-all font-bold"
+                >
+                  Decline & Cancel Account
+                </button>
               </div>
             </NeoCard>
           </div>
