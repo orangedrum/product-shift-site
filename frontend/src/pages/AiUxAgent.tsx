@@ -312,8 +312,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
           if (data.success) {
             localStorage.removeItem('pendingReferral');
             // No reload needed: Realtime subscription will catch the update and trigger animation
+          } else if (data.error) {
+            console.error('Referral Claim Error:', data.error);
           }
-        });
+        }).catch(err => console.error('Referral Claim Network Error:', err));
       }
     }
   }, [searchParams, session, authLoading, navigate, setSearchParams]);
@@ -559,9 +561,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   const copyReferralLink = () => {
-    // Direct to Claim page first, preserving the ref and segment
-    const segmentParam = userSegment === 'smb' ? '&segment=smb' : '';
-    const link = `${window.location.origin}/claim-test?ref=${referralCode}${segmentParam}`;
+    const baseUrl = userSegment === 'smb' 
+      ? `${window.location.origin}/landingpg-instantinsights`
+      : `${window.location.origin}/ai-powered-ux`;
+    const link = `${baseUrl}?ref=${referralCode}`;
     
     navigator.clipboard.writeText(link).then(() => {
       setCopyButtonText('Link Copied!');
