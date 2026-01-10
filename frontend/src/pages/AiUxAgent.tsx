@@ -311,8 +311,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }).then(res => res.json()).then(data => {
           if (data.success) {
             localStorage.removeItem('pendingReferral');
-            // Refresh credits (simple reload for now, or re-fetch customer data)
-            window.location.reload();
+            // No reload needed: Realtime subscription will catch the update and trigger animation
           }
         });
       }
@@ -690,7 +689,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       onClick={copyReferralLink}
                       className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
                     >
-                      {copyButtonText === 'Link Copied!' ? <CheckCircle size={12} /> : <Copy size={12} />} {copyButtonText}
+                      {copyButtonText === 'Link Copied!' ? null : <Copy size={12} />} {copyButtonText}
                     </button>
                   </div>
                 </div>
