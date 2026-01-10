@@ -40,7 +40,7 @@ const Login: React.FC = () => {
             const res = await fetch('/api/create-checkout-session', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ planId: plan, email: session.user.email }),
+                body: JSON.stringify({ planId: plan, email: session.user.email, segment }),
             });
             const data = await res.json();
             if (data.url) {

@@ -625,7 +625,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: planId, email: session?.user?.email }),
+        body: JSON.stringify({ planId: planId, email: session?.user?.email, segment: userSegment }),
       });
       const data = await response.json();
       if (data.url) window.location.href = data.url;

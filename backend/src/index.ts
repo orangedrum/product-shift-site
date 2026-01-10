@@ -210,6 +210,7 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
       
       console.log(`💰 Processing checkout session: ${session.id}`);
       const customerEmail = session.customer_details?.email;
+      const segment = session.metadata?.segment;
 
       if (customerEmail) {
         // 1. Idempotency Check: Has this session already been processed?
@@ -241,7 +242,8 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             email: customerEmail,
             stripe_customer_id: stripeCustomerId,
             stripe_subscription_id: stripeSubscriptionId,
-            plan_status: 'active'
+            plan_status: 'active',
+            ...(segment ? { segment } : {}) // Stamp segment if present
           }, { onConflict: 'email' });
 
           if (error) console.error('Supabase subscription error:', error);
@@ -258,6 +260,15 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             
             if (error) console.error('Supabase credit add error:', error);
             else console.log(`✅ Added ${creditsToAdd} credits for ${customerEmail}`);
+          }
+
+          // Ensure segment is stamped for one-time buyers (especially new ones)
+          if (segment) {
+            // We use update here. If the user doesn't exist, add_credits (RPC) likely handled creation,
+            // or we might miss it. To be safe, we can upsert or just update.
+            // Since add_credits is atomic, let's just update the segment if the user exists now.
+            const { error: segError } = await supabase.from('customers').update({ segment }).eq('email', customerEmail);
+            if (segError) console.error('Failed to stamp segment:', segError);
           }
         }
 
@@ -1168,7 +1179,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
 // --- Stripe Checkout Route ---
 app.post('/api/create-checkout-session', async (req, res) => {
-  const { planId } = req.body;
+  const { planId, segment } = req.body;
   const userEmail = req.body.email; // We'll get this from the user later
 
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -1179,12 +1190,16 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     let mode: Stripe.Checkout.SessionCreateParams.Mode = 'subscription';
     let lineItems = [];
-    let metadata = {};
+    let metadata: any = {};
+    
+    if (segment) {
+      metadata.segment = segment;
+    }
 
     // Define Products & Prices (In a real app, these would be in Stripe Dashboard)
     if (planId === 'starter') {
       mode = 'subscription';
-      metadata = { credits: '10' }; // Starter plan gets 10 credits
+      metadata = { ...metadata, credits: '10' }; // Starter plan gets 10 credits
       lineItems.push({
         price_data: {
           currency: 'usd',
@@ -1196,7 +1211,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       });
     } else if (planId === 'pack-3') {
       mode = 'payment';
-      metadata = { credits: '3' };
+      metadata = { ...metadata, credits: '3' };
       lineItems.push({
         price_data: {
           currency: 'usd',
@@ -1207,7 +1222,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       });
     } else if (planId === 'pack-15') {
       mode = 'payment';
-      metadata = { credits: '15' };
+      metadata = { ...metadata, credits: '15' };
       lineItems.push({
         price_data: {
           currency: 'usd',
