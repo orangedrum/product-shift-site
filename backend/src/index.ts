@@ -450,12 +450,15 @@ app.post('/api/user/check-referral-eligibility', async (req, res) => {
     // Check if user exists in customers table (broadest check for "has account")
     const { data: customer } = await supabase
       .from('customers')
-      .select('id')
+      .select('id, credits, plan_status')
       .eq('email', email)
       .maybeSingle();
 
     if (customer) {
-      return res.json({ eligible: false, reason: 'existing_user' });
+      // Only block if they actually have credits or an active plan
+      if ((customer.credits || 0) > 0 || customer.plan_status === 'active') {
+        return res.json({ eligible: false, reason: 'existing_user' });
+      }
     }
 
     // Also check payments just in case
@@ -504,23 +507,26 @@ app.post('/api/user/claim-referral', async (req, res) => {
       return res.status(400).json({ error: 'Existing customers are not eligible for new user referrals.' });
     }
 
-    // 3. Strict New User Check: If customer row exists, they are not new.
+    // 3. Smart New User Check: Allow existing rows ONLY if they are empty (0 credits, no plan)
+    // This handles cases where Auth triggers create the row before we get here.
     const { data: existingCustomer } = await supabase
       .from('customers')
-      .select('id')
+      .select('id, credits, plan_status')
       .eq('email', email)
       .maybeSingle();
 
     if (existingCustomer) {
-      return res.status(400).json({ error: 'Existing accounts are not eligible for new user referrals.' });
+      if ((existingCustomer.credits || 0) > 0 || existingCustomer.plan_status === 'active') {
+        return res.status(400).json({ error: 'Existing accounts with activity are not eligible for new user referrals.' });
+      }
     }
 
-    // 4. Initialize New Customer
+    // 4. Ensure Customer Row Exists (Upsert with 0 credits if missing, do nothing if exists)
     await supabase.from('customers').upsert({ 
       email: email,
       credits: 0,
-      plan_status: null 
-    }, { onConflict: 'email' });
+      plan_status: null
+    }, { onConflict: 'email', ignoreDuplicates: true });
 
     const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
     
