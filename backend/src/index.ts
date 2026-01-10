@@ -750,6 +750,22 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         }
     }
 
+    // --- REFERRAL COMPLETION CHECK (Test Mode) ---
+    if (email && supabaseUrl && supabaseServiceKey) {
+        const { data: pendingReferral } = await supabase
+          .from('referrals')
+          .select('id, referrer_code')
+          .eq('referee_email', email)
+          .eq('status', 'pending')
+          .single();
+
+        if (pendingReferral) {
+          await supabase.from('referrals').update({ status: 'completed' }).eq('id', pendingReferral.id);
+          const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', pendingReferral.referrer_code).single();
+          if (referrer) await supabase.rpc('add_credits', { user_email: referrer.email, amount: 1 });
+        }
+    }
+
     // --- SIMULATED ERROR SCENARIOS ---
     if (url.includes('test-mode-ssl')) {
       const sslErrorDetails = `Security Alert: Insecure Connection Detected. Our AI agent detected a security issue with your site's SSL/TLS certificate (net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH).`;
