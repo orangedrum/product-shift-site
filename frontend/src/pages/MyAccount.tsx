@@ -94,8 +94,8 @@ const MyAccount: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: session.user.email })
       });
-      await supabase.auth.signOut();
-      navigate('/');
+      // Don't sign out. Just close modal and refresh data to show "Cancelled" status.
+      setShowUnsubscribeModal(false);
     } catch (e) {
       console.error('Cancel failed', e);
     }
@@ -187,7 +187,7 @@ const MyAccount: React.FC = () => {
             </div>
             <div>
               <h3 className="text-lg font-bold text-red-900">Danger Zone</h3>
-              <p className="text-sm text-red-700 mb-4">Canceling your account forfeits any existing tests available you may have.</p>
+              <p className="text-sm text-red-700 mb-4">Canceling your account forfeits any existing tests available you may have left in your month's subscription.</p>
               <button onClick={() => setShowUnsubscribeModal(true)} className="px-4 py-2 bg-white border border-red-200 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors text-sm">
                 Unsubscribe
               </button>

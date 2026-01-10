@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { Mail, Loader2 } from 'lucide-react';
+import { Mail, Loader2, Briefcase, PenTool } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [bgGradient, setBgGradient] = useState('');
 
   // Capture "Tickets" (URL Params)
@@ -109,6 +110,24 @@ const Login: React.FC = () => {
       }
     }
 
+    // --- ACCOUNT EXISTENCE CHECK (The Gatekeeper) ---
+    // Only check if NOT buying (plan) and NOT claiming referral (ref)
+    if (!plan && !refCode) {
+      try {
+        const accRes = await fetch('/api/user/check-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const accData = await accRes.json();
+        if (!accData.exists) {
+          setLoading(false);
+          setShowOnboardingModal(true);
+          return;
+        }
+      } catch (e) { console.error('Account check failed', e); }
+    }
+
     // Construct the Redirect URL to preserve our "Tickets"
     // This ensures that when they click the email link, they come back with the same params
     const redirectParams = new URLSearchParams();
@@ -172,6 +191,33 @@ const Login: React.FC = () => {
             </div>
           )}
         </NeoCard>
+
+        {/* New User Interception Modal */}
+        {showOnboardingModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+            <div className="max-w-md w-full">
+              <NeoCard title="Welcome!">
+                <p className="text-gray-600 mb-6 font-medium text-center">
+                  It looks like you don't have an account yet. To get started, please tell us about yourself:
+                </p>
+                <div className="space-y-4">
+                  <button 
+                    onClick={() => window.location.href = '/landingpg-instantinsights#pricing'}
+                    className="w-full flex items-center justify-center gap-3 p-4 border-2 border-black bg-white hover:bg-gray-50 rounded-xl transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
+                  >
+                    <Briefcase className="text-indigo-600" /> <span className="font-bold text-black">I'm a Small Business Owner</span>
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = '/landingpg-aiuxagent#pricing'}
+                    className="w-full flex items-center justify-center gap-3 p-4 border-2 border-black bg-white hover:bg-gray-50 rounded-xl transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
+                  >
+                    <PenTool className="text-purple-600" /> <span className="font-bold text-black">I'm a UX Professional</span>
+                  </button>
+                </div>
+              </NeoCard>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

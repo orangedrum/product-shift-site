@@ -443,6 +443,14 @@ app.get('/api/user/transactions', async (req, res) => {
   res.json(data);
 });
 
+// --- Check Account Existence Endpoint ---
+app.post('/api/user/check-account', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  const { data } = await supabase.from('customers').select('id').eq('email', email).maybeSingle();
+  res.json({ exists: !!data });
+});
+
 // --- Referral Routes ---
 app.post('/api/user/generate-referral', async (req, res) => {
   const { email } = req.body;
@@ -1309,8 +1317,8 @@ app.post('/api/user/cancel-account', async (req, res) => {
       }
     }
 
-    // 2. Remove from Database (Graceful Exit)
-    await supabase.from('customers').delete().eq('email', email);
+    // 2. Update Database (Soft Cancel - Keep credits/account, just kill plan)
+    await supabase.from('customers').update({ plan_status: 'cancelled' }).eq('email', email);
     
     res.json({ success: true });
   } catch (error: any) {
