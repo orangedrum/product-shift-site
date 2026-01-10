@@ -34,13 +34,23 @@ const Login: React.FC = () => {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Fetch existing customer data to respect "Source of Truth"
+        const { data: customer } = await supabase
+          .from('customers')
+          .select('segment')
+          .eq('email', session.user.email)
+          .maybeSingle();
+        
+        const dbSegment = customer?.segment;
+
         // 1. BUYER FLOW: If a plan is selected, go straight to Stripe
         if (plan) {
           try {
             const res = await fetch('/api/create-checkout-session', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ planId: plan, email: session.user.email, segment }),
+              // Only use URL segment if DB segment is missing (New User)
+              body: JSON.stringify({ planId: plan, email: session.user.email, segment: dbSegment || segment }),
             });
             const data = await res.json();
             if (data.url) {
@@ -55,15 +65,7 @@ const Login: React.FC = () => {
 
         // Construct destination with all active "tickets" for other flows
         const destParams = new URLSearchParams();
-        
-        // Prioritize existing database segment (Source of Truth) over URL param
-        const { data: customer } = await supabase
-          .from('customers')
-          .select('segment')
-          .eq('email', session.user.email)
-          .maybeSingle();
-          
-        const dbSegment = customer?.segment;
+
         if (dbSegment) destParams.append('segment', dbSegment);
         else if (segment) destParams.append('segment', segment);
         

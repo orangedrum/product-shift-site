@@ -267,8 +267,20 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             // We use update here. If the user doesn't exist, add_credits (RPC) likely handled creation,
             // or we might miss it. To be safe, we can upsert or just update.
             // Since add_credits is atomic, let's just update the segment if the user exists now.
-            const { error: segError } = await supabase.from('customers').update({ segment }).eq('email', customerEmail);
-            if (segError) console.error('Failed to stamp segment:', segError);
+            const { error: segError } = await supabase
+              .from('customers')
+              .update({ segment })
+              .eq('email', customerEmail);
+
+            if (segError) {
+              console.error('Failed to stamp segment:', segError);
+              // Fallback: Try upsert if update failed (e.g. row wasn't ready yet)
+              // We only set the segment, preserving other fields if they exist (though upsert merges)
+              // Note: This is a safety net.
+              await supabase.from('customers').upsert({ email: customerEmail, segment }, { onConflict: 'email' });
+            } else {
+              console.log(`✅ Stamped segment '${segment}' for ${customerEmail}`);
+            }
           }
         }
 
@@ -1241,7 +1253,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       line_items: lineItems,
       mode: mode,
       metadata: metadata, // Pass credits info to webhook
-      success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}${segment ? `&segment=${segment}` : ''}`,
       cancel_url: `${req.headers.origin}/landingpg-aiuxagent`,
     });
 

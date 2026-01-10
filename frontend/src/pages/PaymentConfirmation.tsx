@@ -7,6 +7,7 @@ const PaymentConfirmation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
+  const segment = searchParams.get('segment');
   const [status, setStatus] = useState<'loading' | 'success' | 'timeout'>('loading');
 
   useEffect(() => {
@@ -53,7 +54,7 @@ const PaymentConfirmation = () => {
           clearInterval(poll);
           setStatus('success');
           // Short delay to show the success state before redirecting
-          setTimeout(() => navigate('/ai-powered-ux?new_credit=true'), 1500);
+          setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`), 1500);
         } else if (attempts >= maxAttempts) {
           clearInterval(poll);
           setStatus('timeout');
