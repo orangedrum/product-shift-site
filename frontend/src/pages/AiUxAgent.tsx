@@ -32,12 +32,22 @@ type AnalysisResponse = {
 
 // Helper to format simple markdown to HTML
 const formatText = (text: string) => {
-  if (!text) return null;
-  return text.split('\n')
-    // Filter out JSON blocks if they accidentally leak into the text
-    .filter(line => !line.trim().startsWith('{') && !line.trim().startsWith('}') && !line.includes('"usability":'))
+  if (!text) return <p className="text-gray-500 italic">No analysis text generated. Please try running the test again.</p>;
+  
+  // 1. Targeted Cleanup: Only remove the specific JSON block if it leaks (containing "usability":)
+  // This preserves code snippets or other valid text that might start with {
+  let cleanText = text.replace(/\{[\s\S]*?"usability":[\s\S]*?\}/g, '');
+
+  // 2. Safety Net: If cleanup removed everything (e.g. AI returned ONLY JSON), revert to original
+  if (!cleanText.trim()) cleanText = text;
+
+  const lines = cleanText.split('\n')
     .filter(line => !line.match(/^\|.*\|$/)) // Filter out markdown table separator lines
-    .map((line, index) => {
+    .filter(line => line.trim().length > 0); // Remove empty lines to prevent "ghost" paragraphs
+
+  if (lines.length === 0) return <p className="text-gray-800 whitespace-pre-wrap">{text}</p>; // Fallback: Show raw text if everything was filtered
+
+  return lines.map((line, index) => {
     // Headers
     if (line.includes('TEST RESULT: PASS')) {
       return (
@@ -365,6 +375,20 @@ const AiPoweredUxHealthtech: React.FC = () => {
     };
   }, [searchParams, setSearchParams]); // Re-run if params change (e.g. redirect)
 
+  // Helper to refresh customer data (Used after test runs)
+  const refreshCustomerData = async () => {
+    if (!session?.user?.email) return;
+    const { data } = await supabase
+      .from('customers')
+      .select('credits, plan_status')
+      .eq('email', session.user.email)
+      .maybeSingle();
+    if (data) {
+      setCredits(data.credits);
+      setPlanStatus(data.plan_status);
+    }
+  };
+
   // Animation Effect
   useEffect(() => {
     if (credits !== null) {
@@ -471,6 +495,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
       if (planStatus !== 'active' && credits !== null && credits > 0) {
         setCredits(credits - 1);
       }
+
+      // Sync with backend to ensure accurate count (and trigger any post-test rewards)
+      // Poll a few times to handle potential backend latency for referral rewards
+      const pollSync = async (attempts = 0) => {
+        if (attempts > 3) return;
+        await refreshCustomerData();
+        setTimeout(() => pollSync(attempts + 1), 2500);
+      };
+      pollSync();
     } catch (err: any) {
       console.error('Failed to connect to the backend:', err);
       setError({
