@@ -417,16 +417,17 @@ app.post('/api/user/generate-referral', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email required' });
 
   // Check if code exists
-  const { data: existing } = await supabase.from('customers').select('referral_code').eq('email', email).single();
+  const { data: existing } = await supabase.from('customers').select('referral_code').eq('email', email).maybeSingle();
   if (existing?.referral_code) return res.json({ referralCode: existing.referral_code });
 
   // Generate new code (Simple 6-char alphanumeric)
   const code = Math.random().toString(36).substring(2, 8).toUpperCase();
   
+  // Upsert: Create the customer row if it doesn't exist, or update if it does.
   const { error } = await supabase
     .from('customers')
-    .update({ referral_code: code })
-    .eq('email', email);
+    .upsert({ email, referral_code: code }, { onConflict: 'email' })
+    .select();
 
   if (error) {
     // If collision (rare), just try again on next call or handle gracefully

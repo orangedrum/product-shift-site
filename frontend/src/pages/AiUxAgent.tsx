@@ -329,21 +329,25 @@ const AiPoweredUxHealthtech: React.FC = () => {
           .from('customers')
           .select('credits, plan_status, referral_code')
           .eq('email', session.user.email)
-          .single();
+          .maybeSingle(); // Use maybeSingle to handle missing rows (406 error) gracefully
         
         if (error) {
           console.error('Error fetching customer data:', error);
-          // Don't set to 0 immediately on error, keep it null to show loading or retry
-          return;
         }
 
-        if (data) {
-          setCredits(data.credits ?? 0);
-          setPlanStatus(data.plan_status);
-          
-          if (data.referral_code) {
-            setReferralCode(data.referral_code);
-          }
+        // Default to 0 if no data found (new/reset user)
+        setCredits(data?.credits ?? 0);
+        setPlanStatus(data?.plan_status);
+        
+        if (data?.referral_code) {
+          setReferralCode(data.referral_code);
+        } else {
+          // Generate one if missing (Self-Healing for new/reset users)
+          fetch('/api/user/generate-referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: session.user.email })
+          }).then(res => res.json()).then(d => setReferralCode(d.referralCode));
         }
       };
       fetchCustomerData();
