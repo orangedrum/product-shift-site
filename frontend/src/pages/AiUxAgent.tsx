@@ -210,7 +210,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [highlightCredits, setHighlightCredits] = useState(false);
   const prevCreditsRef = useRef<number | null>(null);
-  const shouldAnimateOnMount = useRef(new URLSearchParams(window.location.search).get('new_credit') === 'true');
+  const shouldAnimateOnMount = useRef(false);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -247,22 +247,125 @@ const AiPoweredUxHealthtech: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Auth Listener
+  // --- UNIFIED BOOT SEQUENCE ---
+  // This replaces scattered useEffects to ensure a deterministic loading order
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    let mounted = true;
+
+    const boot = async () => {
+      // 1. Auth Check
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!mounted) return;
+      setSession(currentSession);
       setAuthLoading(false);
-    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setAuthLoading(false);
-    });
+      if (!currentSession) {
+        // Security: If not logged in, strictly redirect to login
+        navigate('/login');
+        return; 
+      }
 
-    return () => subscription.unsubscribe();
-  }, []);
+      // 2. URL Parsing & Cleanup
+      const urlRef = searchParams.get('ref');
+      const urlSegment = searchParams.get('segment');
+      const urlNewCredit = searchParams.get('new_credit');
 
-  // Animation Effect: Watch for credit increases
+      if (urlNewCredit === 'true') {
+        shouldAnimateOnMount.current = true;
+      }
+
+      // 3. Referral Claiming (Priority)
+      let pendingRef = urlRef || localStorage.getItem('pendingReferral');
+      if (pendingRef) {
+        try {
+          const res = await fetch('/api/user/claim-referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentSession.user.email, referralCode: pendingRef })
+          });
+          const data = await res.json();
+          if (data.success) {
+            localStorage.removeItem('pendingReferral');
+            shouldAnimateOnMount.current = true; // Force animation on successful claim
+          }
+        } catch (err) {
+          console.error('Referral Claim Error:', err);
+        }
+      }
+
+      // 4. Data Fetching (The Source of Truth)
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .select('credits, plan_status, referral_code')
+        .eq('email', currentSession.user.email)
+        .maybeSingle();
+
+      if (!mounted) return;
+
+      if (customerError) {
+        console.error('Error fetching customer data:', customerError);
+      }
+
+      // Initialize State
+      setCredits(customerData?.credits ?? 0);
+      setPlanStatus(customerData?.plan_status);
+      
+      if (customerData?.referral_code) {
+        setReferralCode(customerData.referral_code);
+      } else {
+        // Generate referral code if missing
+        fetch('/api/user/generate-referral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentSession.user.email })
+        }).then(res => res.json()).then(d => {
+          if (mounted) setReferralCode(d.referralCode);
+        });
+      }
+
+      // 5. Update User Metadata (Segment)
+      if (urlSegment) {
+        const currentMetaSegment = currentSession.user?.user_metadata?.segment;
+        if (currentMetaSegment !== urlSegment) {
+          await supabase.auth.updateUser({ data: { segment: urlSegment } });
+        }
+      }
+
+      // 6. Clean URL (Once everything is processed)
+      if (urlRef || urlSegment || urlNewCredit) {
+        setSearchParams({}, { replace: true });
+      }
+    };
+
+    boot();
+
+    // Realtime Subscription for updates
+    const channel = supabase
+      .channel('customer-credits-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'customers',
+          filter: `email=eq.${session?.user?.email}`, // This might be stale in the closure, but boot handles initial load
+        },
+        (payload) => {
+          const newData = payload.new;
+          if (newData.credits !== undefined) setCredits(newData.credits);
+          if (newData.plan_status !== undefined) setPlanStatus(newData.plan_status);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, [searchParams, setSearchParams]); // Re-run if params change (e.g. redirect)
+
+  // Animation Effect
   useEffect(() => {
     if (credits !== null) {
       const isIncrease = prevCreditsRef.current !== null && credits > prevCreditsRef.current;
@@ -271,151 +374,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
       if (isIncrease || isInitialLoadWithFlag) {
         setHighlightCredits(true);
         setTimeout(() => setHighlightCredits(false), 2000);
-        shouldAnimateOnMount.current = false; // Consume the flag so it doesn't run again
+        shouldAnimateOnMount.current = false;
       }
     }
     prevCreditsRef.current = credits;
   }, [credits]);
-
-  // Animation Effect: Check URL for forced animation (from Referral Claim)
-  useEffect(() => {
-    if (searchParams.get('new_credit') === 'true') {
-      // Clean URL
-      setSearchParams(params => { params.delete('new_credit'); return params; }, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
-
-  // --- Referral Logic: Capture, Redirect, Claim ---
-  useEffect(() => {
-    if (authLoading) return;
-
-    // 1. Capture from URL
-    const ref = searchParams.get('ref');
-    if (ref) {
-      localStorage.setItem('pendingReferral', ref);
-      // Clean URL
-      setSearchParams(params => {
-        params.delete('ref');
-        return params;
-      }, { replace: true });
-    }
-
-    // 2. Check for pending referral
-    const pendingRef = localStorage.getItem('pendingReferral');
-
-    if (pendingRef) {
-      if (session) {
-        // Logged in? Claim it!
-        fetch('/api/user/claim-referral', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: session.user.email, referralCode: pendingRef })
-        }).then(res => res.json()).then(data => {
-          if (data.success) {
-            localStorage.removeItem('pendingReferral');
-            // Explicitly re-fetch customer data to ensure UI updates, 
-            // in case Realtime is slow or missed the event.
-            supabase
-              .from('customers')
-              .select('credits, plan_status')
-              .eq('email', session.user.email)
-              .single()
-              .then(({ data: updatedData }) => {
-                if (updatedData) {
-                  setCredits(updatedData.credits);
-                  setPlanStatus(updatedData.plan_status);
-                }
-              });
-          } else if (data.error) {
-            console.error('Referral Claim Error:', data.error);
-          }
-        }).catch(err => console.error('Referral Claim Network Error:', err));
-      }
-    }
-  }, [searchParams, session, authLoading, navigate, setSearchParams]);
-
-  // Fetch Credits & Plan Status
-  useEffect(() => {
-    if (session?.user?.email) {
-      // 1. Initial Fetch
-      const fetchCustomerData = async () => {
-        const { data, error } = await supabase
-          .from('customers')
-          .select('credits, plan_status, referral_code')
-          .eq('email', session.user.email)
-          .maybeSingle(); // Use maybeSingle to handle missing rows (406 error) gracefully
-        
-        if (error) {
-          console.error('Error fetching customer data:', error);
-        }
-
-        // Default to 0 if no data found (new/reset user)
-        setCredits(data?.credits ?? 0);
-        setPlanStatus(data?.plan_status);
-        
-        if (data?.referral_code) {
-          setReferralCode(data.referral_code);
-        } else {
-          // Generate one if missing (Self-Healing for new/reset users)
-          fetch('/api/user/generate-referral', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: session.user.email })
-          }).then(res => res.json()).then(d => setReferralCode(d.referralCode));
-        }
-      };
-      fetchCustomerData();
-
-      // 2. Real-time Subscription (The Robust Fix)
-      const channel = supabase
-        .channel('customer-credits-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'customers',
-            filter: `email=eq.${session.user.email}`,
-          },
-          (payload) => {
-            const newData = payload.new;
-            if (newData.credits !== undefined) setCredits(newData.credits);
-            if (newData.plan_status !== undefined) setPlanStatus(newData.plan_status);
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [session]);
-
-  // Reliability Fix: Ensure segment metadata is applied if passed via URL (e.g. from Magic Link)
-  useEffect(() => {
-    const urlSegment = searchParams.get('segment');
-    if (session && urlSegment) {
-      const currentSegment = session.user?.user_metadata?.segment;
-      
-      // Only update if it's different to avoid loops
-      if (currentSegment !== urlSegment) {
-        console.log(`Updating user segment from ${currentSegment} to ${urlSegment}`);
-        supabase.auth.updateUser({
-          data: { segment: urlSegment }
-        }).then(({ data, error }) => {
-          if (!error && data.user) {
-            // Force session update to reflect new metadata immediately
-            setSession((prev: any) => ({ ...prev, user: data.user }));
-            // Only clean up URL after we confirm session is updated
-            setSearchParams(params => { params.delete('segment'); return params; }, { replace: true });
-          }
-        });
-      } else {
-        // If segments match, we can clean up immediately
-        setSearchParams(params => { params.delete('segment'); return params; }, { replace: true });
-      }
-    }
-  }, [session, searchParams, setSearchParams]);
 
   // Simulated progress bar effect
   useEffect(() => {
@@ -944,207 +907,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </p>
               </div>
             </NeoCard>
-          </div>
-        </div>
-      )}
-
-      {result && (
-        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
-          {/* Conditionally render the SSL warning at the top of the report */}
-          {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
-          
-          {/* Report Header (Visible on Screen & Print) */}
-          <div className="mb-8 report-cover break-inside-avoid">
-            <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left">
-              <h1 className="text-4xl font-black text-black mb-2">{result.title || 'UX Audit Report'}</h1>
-              <div className="text-black flex flex-col gap-1">
-                <span className="font-mono text-gray-700 font-bold text-lg">{result.url || url}</span>
-                <span className="text-sm font-medium">{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* LEFT COLUMN: Persona Summaries (Span 5) */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
-                <div className="p-4 border-b-2 border-black bg-gray-50 no-print">
-                  <h2 className="text-lg font-bold text-black">User Sessions</h2>
-                  <p className="text-xs text-black font-medium">Click a user to view their detailed feedback</p>
-                </div>
-                
-                {/* Tab Bar */}
-                <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b-2 border-black no-scrollbar screen-only">
-                  {result.userSessions.map((res, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveTab(idx)}
-                      className={`flex flex-col items-center p-3 rounded-lg min-w-[110px] transition-all border-2 ${
-                        activeTab === idx 
-                          ? 'bg-[#ff8c00] border-black shadow-[2px_2px_0px_0px_#000]' 
-                          : 'bg-white hover:bg-gray-100 border-transparent'
-                      }`}
-                    >
-                      <img 
-                        src={res.avatar} 
-                        alt={res.persona}
-                        onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/notionists/svg?seed=${res.persona}`; }}
-                        className={`w-16 h-16 rounded-full border-2 border-black bg-white`}
-                      />
-                      <span className={`text-xs mt-1 font-bold truncate w-full text-center text-black`}>
-                        {res.persona}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Active Tab Content */}
-                <div className="p-6 bg-white min-h-[400px] screen-only">
-                  {result.userSessions[activeTab] && (() => {
-                    const res = result.userSessions[activeTab];
-                    const userSection = res.analysis || '';
-                    const parts = userSection.split('|||USER_DETAILS|||') || ['', ''];
-                    const details = parts[1] || 'No detailed feedback provided.';
-                    const moodAndBubble = parts[0] || '';
-                    const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||') || ['', ''];
-                    const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
-
-                    return (
-                      <div className="animate-fade-in">
-                        <div className="flex items-center gap-3 mb-4">
-                          <h3 className="text-lg font-bold text-black">{res.persona}</h3>
-                          <span className="text-xs text-black font-bold bg-white px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-                            {res.description || 'User Persona'}
-                          </span>
-                        </div>
-                        
-                        <div className="bg-white p-4 rounded-xl rounded-tl-none shadow-[4px_4px_0px_0px_#000] border-2 border-black text-black relative mb-6">
-                          <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l-2 border-b-2 border-black transform rotate-45"></div>
-                          <p className="text-lg italic text-black leading-relaxed">"{userBubble}"</p>
-                        </div>
-
-                        <div className="space-y-4 text-sm text-black bg-white p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-                          {formatText(details)}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-
-                {/* PRINT VIEW: All Sessions List */}
-                <div className="hidden print-only mb-8">
-                  <div className="bg-white p-4 mb-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
-                    <h2 className="text-2xl font-black text-black m-0" style={{ borderBottom: 'none', paddingBottom: 0 }}>Detailed User Sessions</h2>
-                  </div>
-
-                  {result.userSessions.map((res, idx) => {
-                    const userSection = res.analysis || '';
-                    const parts = userSection.split('|||USER_DETAILS|||') || ['', ''];
-                    const details = parts[1] || 'No detailed feedback provided.';
-                    const moodAndBubble = parts[0] || '';
-                    const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||') || ['', ''];
-                    const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
-
-                    return (
-                      <div key={idx} className="mb-8 pb-8 border-b border-gray-200 last:border-0 break-inside-avoid">
-                        <div className="flex items-center gap-3 mb-4">
-                          <img 
-                            src={res.avatar} 
-                            alt={res.persona}
-                            className="w-12 h-12 rounded-full border border-gray-200"
-                          />
-                          <div>
-                            <h3 className="text-lg font-bold text-black">{res.persona}</h3>
-                            <span className="text-xs text-black bg-white px-2 py-1 rounded-full border-2 border-black">{res.description}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white p-4 rounded-lg border-2 border-black text-black mb-4 italic">
-                          "{userBubble}"
-                        </div>
-
-                        <div className="space-y-2 text-sm text-black">
-                          {formatText(details)}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-              </div>
-            </div>
-
-            {/* RIGHT COLUMN: Expert Report (Span 7) */}
-            <div className="lg:col-span-7 h-full expert-report-column page-break-before">
-              
-              {/* Print-Only Title Card for Full Report */}
-              <div className="hidden print-only mb-8">
-                <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left">
-                  <h1 className="text-3xl font-black text-black mb-2">Full Report & Analysis</h1>
-                  <div className="text-black flex flex-col gap-1">
-                    <span className="font-mono text-gray-700 font-bold text-lg">{result.url || url}</span>
-                    <span className="text-sm font-medium">{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
-                <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4 break-inside-avoid no-print">
-                  <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
-                  <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<FileText size={16} />}>
-                    Download PDF
-                  </NeoButton>
-                </div>
-
-                {/* Render Test Result First for Prominence */}
-                <div className="prose max-w-none">
-                  {formatText(result.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').find(line => line.includes('TEST RESULT:')) || '')}
-                </div>
-                
-                {/* Charts Section */}
-                {result.scores ? (
-                  <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
-                    <h3 className="text-lg font-bold text-black mb-4">Performance Metrics</h3>
-                    <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={[
-                      { name: 'Usability', score: result.scores.usability },
-                      { name: 'Desirability', score: result.scores.desirability },
-                      { name: 'Clarity', score: result.scores.clarity },
-                    ]}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis domain={[0, 100]} />
-                      <Tooltip />
-                      <Bar dataKey="score" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                        <Cell key="usability" fill="#ff8c00" /> {/* Usability: Orange */}
-                        <Cell key="desirability" fill="#ff1493" /> {/* Desirability: Pink */}
-                        <Cell key="clarity" fill="#00bfff" /> {/* Clarity: Cyan */}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                  </div>
-                ) : null}
-
-                {/* Visual Reference */}
-                {result.screenshot && (
-                  <div className="mb-8 p-4 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
-                    <h3 className="text-sm font-bold text-black uppercase tracking-wider mb-3">Visual Reference</h3>
-                    <img src={`data:image/jpeg;base64,${result.screenshot}`} alt="Page Screenshot" className="w-full rounded shadow-sm border-2 border-black" />
-                    <p className="text-xs text-black mt-2 text-center">Note: This is a full screenshot. Future versions will include contextual highlights.</p>
-                  </div>
-                )}
-
-                <div className="prose max-w-none">
-                  {/* Render the rest of the report, excluding the already-rendered test result */}
-                  {formatText(
-                    result.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').filter(line => !line.includes('TEST RESULT:')).join('\n')
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
