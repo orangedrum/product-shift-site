@@ -162,6 +162,50 @@ const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = 
   </div>
 );
 
+// Custom Card for Insufficient Credits (Sales Opportunity)
+const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void }> = ({ onBuy }) => (
+  <div className="max-w-md mx-auto mt-8 animate-fade-in">
+    <NeoCard title="Insufficient Credits">
+      <div className="text-center mb-6">
+        <div className="bg-amber-100 p-4 rounded-full inline-block mb-4">
+          <AlertCircle className="text-amber-600" size={48} />
+        </div>
+        <h3 className="text-xl font-black text-gray-900 mb-2">Out of Tests</h3>
+        <p className="text-gray-600 font-medium">
+          You have used all your available tests. Top up your account to continue analyzing websites.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <button 
+          onClick={() => onBuy('pack-3')}
+          className="w-full flex items-center justify-between p-4 border-2 border-black rounded-xl hover:bg-gray-50 transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
+        >
+          <span className="font-bold text-black">3 Tests</span>
+          <span className="font-black text-black">$14</span>
+        </button>
+
+        <button 
+          onClick={() => onBuy('pack-15')}
+          className="w-full flex items-center justify-between p-4 border-2 border-black bg-[#ff8c00] rounded-xl hover:bg-[#ffa500] transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
+        >
+          <div className="text-left">
+            <span className="block font-bold text-black">15 Tests</span>
+            <span className="text-xs text-black font-medium">Best Value</span>
+          </div>
+          <span className="font-black text-black">$69</span>
+        </button>
+        
+        <div className="pt-4 border-t border-gray-200 text-center">
+             <button onClick={() => onBuy('starter')} className="text-indigo-600 font-bold hover:underline text-sm">
+                Switch to Monthly Plan ($29/mo)
+             </button>
+        </div>
+      </div>
+    </NeoCard>
+  </div>
+);
+
 // --- Content Configuration (The "Chameleon" Logic) ---
 const contentConfig = {
   tech: {
@@ -289,6 +333,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       // 3. Referral Claiming (Priority)
       let pendingRef = urlRef || localStorage.getItem('pendingReferral');
+      let referralClaimed = false;
       if (pendingRef) {
         try {
           const res = await fetch('/api/user/claim-referral', {
@@ -300,6 +345,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           if (data.success) {
             localStorage.removeItem('pendingReferral');
             shouldAnimateOnMount.current = true; // Force animation on successful claim
+            referralClaimed = true;
           }
         } catch (err) {
           console.error('Referral Claim Error:', err);
@@ -307,17 +353,26 @@ const AiPoweredUxHealthtech: React.FC = () => {
       }
 
       // 4. Data Fetching (The Source of Truth)
-      const { data: customerData, error: customerError } = await supabase
-        .from('customers')
-        .select('credits, plan_status, referral_code')
-        .eq('email', currentSession.user.email)
-        .maybeSingle();
+      // Retry logic: If we just claimed a referral, ensure we see the credit (handle potential DB latency)
+      let customerData = null;
+      for (let i = 0; i < 3; i++) {
+          const { data, error } = await supabase
+            .from('customers')
+            .select('credits, plan_status, referral_code')
+            .eq('email', currentSession.user.email)
+            .maybeSingle();
+          
+          if (error) console.error('Error fetching customer data:', error);
+          customerData = data;
 
-      if (!mounted) return;
-
-      if (customerError) {
-        console.error('Error fetching customer data:', customerError);
+          // If we didn't claim a referral, or if we found credits, stop retrying
+          if (!referralClaimed || (data && data.credits > 0)) break;
+          
+          // If we claimed but found 0 credits, wait and retry
+          if (i < 2) await new Promise(r => setTimeout(r, 500));
       }
+      
+      if (!mounted) return;
 
       // Initialize State
       setCredits(customerData?.credits ?? 0);
@@ -1158,6 +1213,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
       {error && (
         error.error === 'Site Security Error' ? (
           <SecurityAlert isBlocking={true} onReset={resetState} />
+        ) : error.error === 'Insufficient Credits' ? (
+           <InsufficientCreditsCard onBuy={handleCheckout} />
         ) : error.usageCounted === false ? (
           <AnalysisErrorCard error={error} onReset={resetState} />
         ) : (
