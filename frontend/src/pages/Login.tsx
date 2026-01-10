@@ -3,51 +3,22 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { Loader2 } from 'lucide-react';
+import { Mail, Loader2 } from 'lucide-react';
 
-const LoginPage: React.FC = () => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const segmentParam = searchParams.get('segment'); // e.g. ?segment=smb
-  const [session, setSession] = useState<any>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginMessage, setLoginMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const [bgGradient, setBgGradient] = useState('');
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+  // Capture "Tickets" (URL Params)
+  const plan = searchParams.get('plan');
+  const segment = searchParams.get('segment');
+  const refCode = searchParams.get('ref');
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  // Handle redirects for logged-in users (e.g. purchasing a plan)
-  useEffect(() => {
-    if (session) {
-      const plan = searchParams.get('plan');
-      if (plan) {
-        // If user is logged in and has a plan param, initiate checkout immediately
-        fetch('/api/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planId: plan, email: session.user.email }),
-        })
-        .then(res => res.json())
-        .then(data => { if (data.url) window.location.href = data.url; })
-        .catch(err => console.error('Checkout redirect failed:', err));
-      } else {
-        navigate('/ai-powered-ux');
-      }
-    }
-  }, [session, searchParams, navigate]);
-
-  // Set background gradient to match the main app
+  // Set background gradient
   useEffect(() => {
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
@@ -59,87 +30,118 @@ const LoginPage: React.FC = () => {
     `);
   }, []);
 
+  // --- THE TRAFFIC COP ---
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // 1. BUYER FLOW: If a plan is selected, go straight to Stripe
+        if (plan) {
+          try {
+            const res = await fetch('/api/create-checkout-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ planId: plan, email: session.user.email }),
+            });
+            const data = await res.json();
+            if (data.url) {
+              window.location.href = data.url; // Redirect to Stripe
+              return;
+            }
+          } catch (e) {
+            console.error('Checkout Redirect Failed', e);
+            // Fallback to tool if checkout fails
+          }
+        }
+
+        // Construct destination with all active "tickets" for other flows
+        const destParams = new URLSearchParams();
+        if (segment) destParams.append('segment', segment);
+        if (refCode) destParams.append('ref', refCode);
+        
+        const destString = destParams.toString();
+        const destination = destString ? `/ai-powered-ux?${destString}` : '/ai-powered-ux';
+
+        // Navigate to the tool with all context preserved
+        navigate(destination);
+      }
+    });
+
+    return () => authListener.subscription.unsubscribe();
+  }, [navigate, plan, segment, refCode]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginMessage(null);
-    setIsSubmitting(true);
+    setLoading(true);
+    setMessage(null);
     
-    const redirectUrl = `${window.location.origin}/ai-powered-ux${segmentParam ? `?segment=${segmentParam}` : ''}`;
-    console.log('🔐 Attempting login with redirect URL:', redirectUrl);
+    // Construct the Redirect URL to preserve our "Tickets"
+    // This ensures that when they click the email link, they come back with the same params
+    const redirectParams = new URLSearchParams();
+    if (plan) redirectParams.append('plan', plan);
+    if (segment) redirectParams.append('segment', segment);
+    if (refCode) redirectParams.append('ref', refCode);
+    
+    const redirectTo = `${window.location.origin}/login?${redirectParams.toString()}`;
 
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: loginEmail,
-        options: { 
-          // Pass the segment through the magic link so we can enforce it on the other side
-          emailRedirectTo: redirectUrl,
-          data: { segment: segmentParam || 'tech' } // Store the segment in the user's metadata
-        }, 
-      });
-      if (error) throw error;
-      setLoginMessage({ type: 'success', text: 'Check your email for the magic link!' });
-    } catch (error: any) {
-      setLoginMessage({ type: 'error', text: error.message });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleForgotPassword = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setLoginMessage({ 
-      type: 'success', 
-      text: 'Good news! We use secure Magic Links, so there is no password to forget. Just enter your email above to sign in.' 
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { 
+        emailRedirectTo: redirectTo,
+        // Important: Save segment to metadata so it persists even if URL param is lost later
+        data: { segment: segment || 'tech' } 
+      },
     });
+
+    if (error) {
+      setMessage(`Error: ${error.message}`);
+      setLoading(false);
+    } else {
+      setMessage('Check your email for the magic link!');
+      setLoading(false);
+    }
   };
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 transition-colors duration-500"
+      className="min-h-screen flex items-center justify-center bg-gray-50 p-4 transition-colors duration-500"
       style={{
         background: bgGradient || '#f3f4f6'
       }}
     >
       <div className="max-w-md w-full">
-        <NeoCard>
-          <h2 className="text-2xl font-black mb-4 text-black">Sign In / Sign Up</h2>
-          <p className="text-gray-600 mb-6 font-medium">Enter your email to sign in or create an account. We'll send you a secure magic link and go from there.</p>
+        <NeoCard title={plan ? "Complete Your Purchase" : "Sign In"}>
+          <p className="text-gray-600 mb-6">
+            {plan 
+              ? "Sign in or create an account to proceed to checkout." 
+              : "Enter your email to access the AI UX Agent."}
+          </p>
           
-          <form onSubmit={handleLogin} className="space-y-4">
+          {!message ? (
+            <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-black mb-1">Email Address</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
               <input 
                 type="email" 
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full p-3 border-2 border-black rounded-lg focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] transition-all font-medium"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3 border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_#000] focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="you@example.com"
+                  required
               />
             </div>
-            
-            {loginMessage && <div className={`p-3 rounded-lg text-sm font-bold border-2 border-black ${loginMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{loginMessage.text}</div>}
-            
-            <NeoButton type="submit" variant="primary" className="w-full py-3" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="animate-spin mr-2" size={18} /> Sending...
-                </>
-              ) : (
-                'Send Magic Link'
-              )}
+              <NeoButton type="submit" className="w-full justify-center" disabled={loading}>
+                {loading ? <Loader2 className="animate-spin" /> : <><Mail size={18} className="mr-2" /> Send Magic Link</>}
             </NeoButton>
-            
-            <div className="text-center mt-2">
-               <button onClick={handleForgotPassword} className="text-sm text-gray-500 hover:text-black font-medium underline decoration-gray-300 hover:decoration-black transition-all">
-                 Forgot Password?
-               </button>
+            </form>
+          ) : (
+            <div className="p-4 bg-green-50 border-2 border-green-500 rounded-lg text-green-800 font-bold text-center animate-fade-in">
+              {message}
             </div>
-          </form>
+          )}
         </NeoCard>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;
