@@ -462,6 +462,17 @@ app.post('/api/user/check-referral-eligibility', async (req, res) => {
       }
     }
 
+    // Check if user has already claimed a referral (Lifetime limit: 1)
+    const { data: existingRef } = await supabase
+      .from('referrals')
+      .select('id')
+      .eq('referee_email', email)
+      .maybeSingle();
+
+    if (existingRef) {
+      return res.json({ eligible: false, reason: 'already_claimed' });
+    }
+
     // Also check payments just in case
     const { data: payment } = await supabase
       .from('payments')

@@ -74,6 +74,28 @@ const Login: React.FC = () => {
     setLoading(true);
     setMessage(null);
     
+    // --- REFERRAL ELIGIBILITY CHECK (Pre-Flight) ---
+    if (refCode) {
+      try {
+        const checkRes = await fetch('/api/user/check-referral-eligibility', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const checkData = await checkRes.json();
+
+        if (!checkData.eligible) {
+          setLoading(false);
+          setMessage("Existing customers are not eligible for the referral reward. Please sign in without the referral link.");
+          return;
+        }
+      } catch (err) {
+        console.error("Referral check failed:", err);
+        // We continue if the check fails (fail open) to avoid blocking logins if API is down,
+        // but the backend claim process will still enforce rules.
+      }
+    }
+
     // Construct the Redirect URL to preserve our "Tickets"
     // This ensures that when they click the email link, they come back with the same params
     const redirectParams = new URLSearchParams();
