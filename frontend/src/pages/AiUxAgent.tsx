@@ -386,14 +386,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
           if (!error && data.user) {
             // Force session update to reflect new metadata immediately
             setSession((prev: any) => ({ ...prev, user: data.user }));
+            // Only clean up URL after we confirm session is updated
+            setSearchParams(params => { params.delete('segment'); return params; }, { replace: true });
           }
         });
+      } else {
+        // If segments match, we can clean up immediately
+        setSearchParams(params => { params.delete('segment'); return params; }, { replace: true });
       }
-      // Clean up URL so the param doesn't linger
-      setSearchParams(params => {
-        params.delete('segment');
-        return params;
-      }, { replace: true });
     }
   }, [session, searchParams, setSearchParams]);
 
@@ -530,7 +530,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   // Determine Segment: Default to 'tech', but check user metadata if logged in
-  const userSegment: UserSegment = (session?.user?.user_metadata?.segment as UserSegment) || 'tech';
+  // Prioritize URL param for immediate feedback during onboarding/referral flows
+  const urlSegment = searchParams.get('segment');
+  const userSegment: UserSegment = (urlSegment === 'smb' ? 'smb' : null) || (session?.user?.user_metadata?.segment as UserSegment) || 'tech';
   const text = contentConfig[userSegment] || contentConfig.tech;
   const pricingLink = userSegment === 'smb' ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
 

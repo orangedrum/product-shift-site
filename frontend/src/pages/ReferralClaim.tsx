@@ -60,6 +60,7 @@ const ReferralClaim: React.FC = () => {
     const params = new URLSearchParams();
     params.append('new_credit', 'true');
     if (segment) params.append('segment', segment);
+    if (refCode) params.append('ref', refCode); // Critical: Pass ref code through magic link
 
     const redirectTo = `${baseUrl}?${params.toString()}`;
 
