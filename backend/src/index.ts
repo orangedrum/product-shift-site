@@ -321,6 +321,7 @@ app.post('/api/verify-payment', async (req, res) => {
       const customerEmail = session.customer_details?.email;
       const stripeCustomerId = session.customer as string;
       const stripeSubscriptionId = session.subscription as string;
+      const segment = session.metadata?.segment;
 
       if (customerEmail) {
         // 1. Idempotency Check: Check if DB is already updated
@@ -339,7 +340,8 @@ app.post('/api/verify-payment', async (req, res) => {
               email: customerEmail,
               stripe_customer_id: stripeCustomerId,
               stripe_subscription_id: stripeSubscriptionId,
-              plan_status: 'active'
+              plan_status: 'active',
+              ...(segment ? { segment } : {})
             }, { onConflict: 'email' });
             
             // Also add credits for subscription if needed (Self-healing)
@@ -351,6 +353,13 @@ app.post('/api/verify-payment', async (req, res) => {
             const creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
             if (creditsToAdd > 0) {
               await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
+            }
+            
+            // Ensure segment is stamped for one-time buyers in verify-payment as well
+            if (segment) {
+               const { error: segError } = await supabase.from('customers').update({ segment }).eq('email', customerEmail);
+               // Fallback upsert if update missed (safety net)
+               if (segError) await supabase.from('customers').upsert({ email: customerEmail, segment }, { onConflict: 'email' });
             }
           }
 
