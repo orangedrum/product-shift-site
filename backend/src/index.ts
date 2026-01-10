@@ -522,12 +522,15 @@ app.post('/api/user/claim-referral', async (req, res) => {
       }
     }
 
-    // 4. Ensure Customer Row Exists (Upsert with 0 credits if missing, do nothing if exists)
-    await supabase.from('customers').upsert({ 
-      email: email,
-      credits: 0,
-      plan_status: null
-    }, { onConflict: 'email', ignoreDuplicates: true });
+    // 4. Ensure Customer Row Exists & Has Valid Credits
+    // If the user exists but has NULL credits (common with Auth triggers), initialize to 0.
+    if (existingCustomer) {
+      if (existingCustomer.credits === null) {
+        await supabase.from('customers').update({ credits: 0 }).eq('email', email);
+      }
+    } else {
+      await supabase.from('customers').insert({ email, credits: 0 });
+    }
 
     const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
     
