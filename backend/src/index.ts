@@ -524,7 +524,7 @@ app.post('/api/user/check-referral-eligibility', async (req, res) => {
 
 // --- Claim Referral Endpoint ---
 app.post('/api/user/claim-referral', async (req, res) => {
-  const { email, referralCode } = req.body;
+  const { email, referralCode, segment } = req.body;
   if (!email || !referralCode) return res.status(400).json({ error: 'Missing requirements' });
 
   if (!supabaseUrl || !supabaseServiceKey) return res.status(500).json({ error: 'Server config error' });
@@ -568,11 +568,19 @@ app.post('/api/user/claim-referral', async (req, res) => {
     // 4. Ensure Customer Row Exists & Has Valid Credits
     // If the user exists but has NULL credits (common with Auth triggers), initialize to 0.
     if (existingCustomer) {
-      if (existingCustomer.credits === null) {
-        await supabase.from('customers').update({ credits: 0 }).eq('email', email);
+      const updates: any = {};
+      if (existingCustomer.credits === null) updates.credits = 0;
+      if (segment && !existingCustomer.segment) updates.segment = segment; // Stamp segment if missing
+      
+      if (Object.keys(updates).length > 0) {
+        await supabase.from('customers').update(updates).eq('email', email);
       }
     } else {
-      await supabase.from('customers').insert({ email, credits: 0 });
+      await supabase.from('customers').insert({ 
+        email, 
+        credits: 0,
+        ...(segment ? { segment } : {})
+      });
     }
 
     const { data: referrer } = await supabase.from('customers').select('email').eq('referral_code', referralCode).single();
@@ -1200,7 +1208,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
 // --- Stripe Checkout Route ---
 app.post('/api/create-checkout-session', async (req, res) => {
-  const { planId, segment } = req.body;
+  const { planId, segment, applyDiscount } = req.body;
   const userEmail = req.body.email; // We'll get this from the user later
 
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -1212,6 +1220,15 @@ app.post('/api/create-checkout-session', async (req, res) => {
     let mode: Stripe.Checkout.SessionCreateParams.Mode = 'subscription';
     let lineItems = [];
     let metadata: any = {};
+    let discounts = [];
+
+    if (applyDiscount) {
+      const coupon = await stripe.coupons.create({
+        percent_off: 10,
+        duration: 'once',
+      });
+      discounts.push({ coupon: coupon.id });
+    }
     
     if (segment) {
       metadata.segment = segment;
@@ -1261,6 +1278,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: mode,
+      discounts: discounts.length > 0 ? discounts : undefined,
       metadata: metadata, // Pass credits info to webhook
       success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}${segment ? `&segment=${segment}` : ''}`,
       cancel_url: `${req.headers.origin}/landingpg-aiuxagent`,
@@ -1270,6 +1288,33 @@ app.post('/api/create-checkout-session', async (req, res) => {
   } catch (error: any) {
     console.error('Stripe Checkout Error:', error);
     res.status(500).json({ error: 'Failed to create checkout session', details: error.message });
+  }
+});
+
+// --- Cancel Account Endpoint ---
+app.post('/api/user/cancel-account', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  if (!supabaseUrl || !supabaseServiceKey) return res.status(500).json({ error: 'Server config error' });
+
+  try {
+    // 1. Cancel Stripe Subscription if exists
+    const { data: customer } = await supabase.from('customers').select('stripe_subscription_id').eq('email', email).single();
+    if (customer?.stripe_subscription_id) {
+      try {
+        await stripe.subscriptions.cancel(customer.stripe_subscription_id);
+      } catch (e) {
+        console.error('Stripe cancel failed (might already be cancelled):', e);
+      }
+    }
+
+    // 2. Remove from Database (Graceful Exit)
+    await supabase.from('customers').delete().eq('email', email);
+    
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 });
 
