@@ -190,10 +190,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
-  const [credits, setCredits] = useState<number | null>(() => {
-    // Optimistic init: If claiming a referral, start at 0 to allow "0 -> 1" animation
-    return new URLSearchParams(window.location.search).get('new_credit') === 'true' ? 0 : null;
-  });
+  const [credits, setCredits] = useState<number | null>(null);
   const [planStatus, setPlanStatus] = useState<string | null>(null);
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
@@ -213,6 +210,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [highlightCredits, setHighlightCredits] = useState(false);
   const prevCreditsRef = useRef<number | null>(null);
+  const shouldAnimateOnMount = useRef(new URLSearchParams(window.location.search).get('new_credit') === 'true');
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -266,10 +264,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
   // Animation Effect: Watch for credit increases
   useEffect(() => {
-    if (credits !== null && prevCreditsRef.current !== null) {
-      if (credits > prevCreditsRef.current) {
+    if (credits !== null) {
+      const isIncrease = prevCreditsRef.current !== null && credits > prevCreditsRef.current;
+      const isInitialLoadWithFlag = prevCreditsRef.current === null && shouldAnimateOnMount.current;
+
+      if (isIncrease || isInitialLoadWithFlag) {
         setHighlightCredits(true);
         setTimeout(() => setHighlightCredits(false), 2000);
+        shouldAnimateOnMount.current = false; // Consume the flag so it doesn't run again
       }
     }
     prevCreditsRef.current = credits;
@@ -311,7 +313,19 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }).then(res => res.json()).then(data => {
           if (data.success) {
             localStorage.removeItem('pendingReferral');
-            // No reload needed: Realtime subscription will catch the update and trigger animation
+            // Explicitly re-fetch customer data to ensure UI updates, 
+            // in case Realtime is slow or missed the event.
+            supabase
+              .from('customers')
+              .select('credits, plan_status')
+              .eq('email', session.user.email)
+              .single()
+              .then(({ data: updatedData }) => {
+                if (updatedData) {
+                  setCredits(updatedData.credits);
+                  setPlanStatus(updatedData.plan_status);
+                }
+              });
           } else if (data.error) {
             console.error('Referral Claim Error:', data.error);
           }

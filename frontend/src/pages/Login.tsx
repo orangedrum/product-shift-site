@@ -113,7 +113,7 @@ const Login: React.FC = () => {
           <p className="text-gray-600 mb-6">
             {plan 
               ? "Sign in or create an account to proceed to checkout." 
-              : "Enter your email to access the AI UX Agent."}
+              : "Enter your email to sign in."}
           </p>
           
           {!message ? (
