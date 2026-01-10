@@ -55,7 +55,18 @@ const Login: React.FC = () => {
 
         // Construct destination with all active "tickets" for other flows
         const destParams = new URLSearchParams();
-        if (segment) destParams.append('segment', segment);
+        
+        // Prioritize existing database segment (Source of Truth) over URL param
+        const { data: customer } = await supabase
+          .from('customers')
+          .select('segment')
+          .eq('email', session.user.email)
+          .maybeSingle();
+          
+        const dbSegment = customer?.segment;
+        if (dbSegment) destParams.append('segment', dbSegment);
+        else if (segment) destParams.append('segment', segment);
+        
         if (refCode) destParams.append('ref', refCode);
         
         const destString = destParams.toString();
@@ -109,8 +120,6 @@ const Login: React.FC = () => {
       email,
       options: { 
         emailRedirectTo: redirectTo,
-        // Important: Save segment to metadata so it persists even if URL param is lost later
-        data: { segment: segment || 'tech' } 
       },
     });
 

@@ -248,6 +248,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [credits, setCredits] = useState<number | null>(null);
   const [planStatus, setPlanStatus] = useState<string | null>(null);
+  const [savedSegment, setSavedSegment] = useState<string | null>(null);
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
   const [taskType, setTaskType] = useState('understand');
@@ -358,7 +359,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       for (let i = 0; i < 3; i++) {
           const { data, error } = await supabase
             .from('customers')
-            .select('credits, plan_status, referral_code')
+            .select('credits, plan_status, referral_code, segment')
             .eq('email', currentSession.user.email)
             .maybeSingle();
           
@@ -377,25 +378,27 @@ const AiPoweredUxHealthtech: React.FC = () => {
       // Initialize State
       setCredits(customerData?.credits ?? 0);
       setPlanStatus(customerData?.plan_status);
+      setSavedSegment(customerData?.segment || null);
       
       if (customerData?.referral_code) {
         setReferralCode(customerData.referral_code);
       } else {
-        // Generate referral code if missing
-        fetch('/api/user/generate-referral', {
+        // Generate referral code if missing (Await this to ensure row exists before segment update)
+        const genRes = await fetch('/api/user/generate-referral', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: currentSession.user.email })
-        }).then(res => res.json()).then(d => {
-          if (mounted) setReferralCode(d.referralCode);
         });
+        const genData = await genRes.json();
+        if (mounted) setReferralCode(genData.referralCode);
       }
 
-      // 5. Update User Metadata (Segment)
+      // 5. Update Customer Segment (Source of Truth)
       if (urlSegment) {
-        const currentMetaSegment = currentSession.user?.user_metadata?.segment;
-        if (currentMetaSegment !== urlSegment) {
-          await supabase.auth.updateUser({ data: { segment: urlSegment } });
+        // Only provision segment if user doesn't have one yet in the DB
+        if (!customerData?.segment) {
+          await supabase.from('customers').update({ segment: urlSegment }).eq('email', currentSession.user.email);
+          if (mounted) setSavedSegment(urlSegment);
         }
       }
 
@@ -613,7 +616,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   // Determine Segment: Default to 'tech', but check user metadata if logged in
   // Prioritize URL param for immediate feedback during onboarding/referral flows
   const urlSegment = searchParams.get('segment');
-  const userSegment: UserSegment = (urlSegment === 'smb' ? 'smb' : null) || (session?.user?.user_metadata?.segment as UserSegment) || 'tech';
+  const userSegment: UserSegment = (savedSegment === 'smb' || savedSegment === 'tech') ? (savedSegment as UserSegment) : ((urlSegment === 'smb' ? 'smb' : null) || 'tech');
   const text = contentConfig[userSegment] || contentConfig.tech;
   const pricingLink = userSegment === 'smb' ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
 
