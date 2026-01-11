@@ -547,6 +547,25 @@ const SmbLandingPage: React.FC = () => {
       meta.content = "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.";
       document.head.appendChild(meta);
     }
+
+    // Add JSON-LD Structured Data for SoftwareApplication
+    const scriptId = 'json-ld-software-app';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Product Shift Instant Insights",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
+        "description": "AI-powered website usability checkup for small businesses.",
+        "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations"
+      });
+      document.head.appendChild(script);
+    }
   }, []);
 
   // Background Animation Effect
