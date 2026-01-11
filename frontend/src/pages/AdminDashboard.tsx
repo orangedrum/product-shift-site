@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -308,6 +308,66 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
              </ul>
            ) : <p className="text-gray-500 italic">No subscribers yet.</p>}
         </NeoCard>
+      </div>
+
+      {/* --- MISSION CONTROL & DOCS --- */}
+      <div className="mt-12 mb-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><BookOpen size={20} /> Mission Control & Docs</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <NeoCard title="Payment Monitoring Guide">
+            <div className="space-y-4 text-sm text-gray-600">
+              <div>
+                <strong className="block text-gray-900 flex items-center gap-2">
+                  1. The Trigger: Stripe <span className="text-xs font-normal text-gray-500">(The "Sent" Signal)</span>
+                </strong>
+                <p>If Stripe doesn't say "Success," the code never ran.</p>
+                <a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-1 mt-1">
+                  Open Stripe Webhooks <ExternalLink size={12} />
+                </a>
+              </div>
+              <hr />
+              <div>
+                <strong className="block text-gray-900 flex items-center gap-2">
+                  2. The Processor: Vercel <span className="text-xs font-normal text-gray-500">(The "Logic" Signal)</span>
+                </strong>
+                <p>View real-time logic and console logs to debug errors.</p>
+                <a href="https://vercel.com/dashboard" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-1 mt-1">
+                  Open Vercel Logs <ExternalLink size={12} />
+                </a>
+              </div>
+              <hr />
+              <div>
+                <strong className="block text-gray-900 flex items-center gap-2">
+                  3. The Result: Supabase <span className="text-xs font-normal text-gray-500">(The "Saved" Signal)</span>
+                </strong>
+                <p>Confirms the user actually got credits/plan updates.</p>
+                <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-1 mt-1">
+                  Open Database <ExternalLink size={12} />
+                </a>
+              </div>
+            </div>
+          </NeoCard>
+
+          <NeoCard title="Hacker Matrix (Live Logs)">
+            <div className="flex flex-col h-full justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-4">
+                  To watch production logs stream in real-time (The "Hacker Matrix"), use the Vercel CLI on your local machine.
+                </p>
+                <div className="bg-gray-900 rounded-lg p-4 font-mono text-xs text-green-400 mb-4 overflow-x-auto">
+                  <div className="flex items-center gap-2 mb-2 text-gray-500 select-none">
+                    <Terminal size={14} /> terminal
+                  </div>
+                  <p className="mb-2"><span className="text-pink-500"># 1. Install CLI</span><br/>npm i -g vercel</p>
+                  <p><span className="text-pink-500"># 2. Stream Logs</span><br/>vercel logs --prod --follow</p>
+                </div>
+              </div>
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800">
+                <strong>CTO Note:</strong> We don't stream these directly here for security. The CLI is the most robust way to monitor live traffic during a launch.
+              </div>
+            </div>
+          </NeoCard>
+        </div>
       </div>
 
       {/* Refund Modal */}
