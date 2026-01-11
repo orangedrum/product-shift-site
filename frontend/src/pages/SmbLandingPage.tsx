@@ -186,13 +186,31 @@ const DemoSection = () => {
               </div>
               <div className="mt-6 bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative">
                 <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
-                <p className="text-base italic text-gray-700 leading-relaxed">"{userBubble}"</p>
+                <div className="relative">
+                  <p className="text-base italic text-gray-700 leading-relaxed blur-sm select-none">"{userBubble}"</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-transparent">
+                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
+                          <Lock size={12} className="inline-block mr-1" />
+                          Unlock Feedback
+                      </a>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="lg:col-span-8 bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Top Recommendations</h3>
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
+              </div>
+              <div className="mt-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200 text-center relative">
+                <div className="relative z-10">
+                  <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
+                  <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
+                  <p className="text-sm text-indigo-700 mt-1">Get the complete analysis and feedback from 5 more personas.</p>
+                  <a href="#pricing" onClick={scrollToPricing} className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+                    Get Full Access
+                  </a>
+                </div>
               </div>
               <div className="mt-6 text-center">
                 <button onClick={() => setResult(null)} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 transition-colors">
