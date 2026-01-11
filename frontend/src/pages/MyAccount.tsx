@@ -13,6 +13,7 @@ const MyAccount: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showRefillModal, setShowRefillModal] = useState(false);
   const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
+  const [cancelNotification, setCancelNotification] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -89,20 +90,73 @@ const MyAccount: React.FC = () => {
   const handleCancelAccount = async () => {
     if (!session?.user?.email) return;
     try {
+      // Optimistic Update: Update UI immediately before API returns
+      setCustomer((prev: any) => ({ ...prev, plan_status: 'cancelled' }));
+
       await fetch('/api/user/cancel-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: session.user.email })
       });
-      // Don't sign out. Just close modal and refresh data to show "Cancelled" status.
+      // Close modal, show notification, refresh data
       setShowUnsubscribeModal(false);
+      setCancelNotification(true);
+      fetchData(session.user.email);
     } catch (e) {
       console.error('Cancel failed', e);
     }
   };
 
+  const handleUndoCancel = async () => {
+    if (!session?.user?.email) return;
+    try {
+      // Optimistic Update: Update UI immediately
+      setCustomer((prev: any) => ({ ...prev, plan_status: 'active' }));
+
+      await fetch('/api/user/undo-cancel-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.user.email })
+      });
+      setCancelNotification(false);
+      fetchData(session.user.email);
+    } catch (e) {
+      console.error('Undo cancel failed', e);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
+      {/* Cancellation Notification Bar */}
+      {cancelNotification && (
+        <div className="mb-8 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg animate-fade-in shadow-sm">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <AlertTriangle className="h-5 w-5 text-yellow-400" aria-hidden="true" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700">
+                You've successfully unsubscribed. Did you do this by accident?{' '}
+                <button onClick={handleUndoCancel} className="font-bold underline hover:text-yellow-800">
+                  Undo to resubscribe
+                </button>
+              </p>
+            </div>
+            <div className="ml-auto pl-3">
+              <div className="-mx-1.5 -my-1.5">
+                <button
+                  onClick={() => setCancelNotification(false)}
+                  className="inline-flex bg-yellow-50 rounded-md p-1.5 text-yellow-500 hover:bg-yellow-100 focus:outline-none"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  <X className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-black text-black">My Account</h1>
         <NeoButton onClick={() => navigate('/ai-powered-ux')} variant="secondary">
@@ -187,7 +241,7 @@ const MyAccount: React.FC = () => {
             </div>
             <div>
               <h3 className="text-lg font-bold text-red-900">Danger Zone</h3>
-              <p className="text-sm text-red-700 mb-4">Canceling your account forfeits any existing tests available you may have left in your month's subscription.</p>
+              <p className="text-sm text-red-700 mb-4">Cancelling your account will stop $29.00 monthly payments and you will no longer receive 10 tests a month.</p>
               <button onClick={() => setShowUnsubscribeModal(true)} className="px-4 py-2 bg-white border border-red-200 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors text-sm">
                 Unsubscribe
               </button>

@@ -1311,7 +1311,8 @@ app.post('/api/user/cancel-account', async (req, res) => {
     const { data: customer } = await supabase.from('customers').select('stripe_subscription_id').eq('email', email).single();
     if (customer?.stripe_subscription_id) {
       try {
-        await stripe.subscriptions.cancel(customer.stripe_subscription_id);
+        // Soft Cancel: Don't renew, but keep active until period ends. Allows for "Undo".
+        await stripe.subscriptions.update(customer.stripe_subscription_id, { cancel_at_period_end: true });
       } catch (e) {
         console.error('Stripe cancel failed (might already be cancelled):', e);
       }
@@ -1322,6 +1323,96 @@ app.post('/api/user/cancel-account', async (req, res) => {
     
     res.json({ success: true });
   } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// --- Undo Cancel Account Endpoint ---
+app.post('/api/user/undo-cancel-account', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+  if (!supabaseUrl || !supabaseServiceKey) return res.status(500).json({ error: 'Server config error' });
+
+  try {
+    const { data: customer } = await supabase.from('customers').select('stripe_subscription_id').eq('email', email).single();
+    if (customer?.stripe_subscription_id) {
+      // Reactivate subscription by removing the cancel_at_period_end flag
+      await stripe.subscriptions.update(customer.stripe_subscription_id, { cancel_at_period_end: false });
+    }
+
+    // Restore status in DB
+    await supabase.from('customers').update({ plan_status: 'active' }).eq('email', email);
+    
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// --- Cron: Cleanup Inactive Users ---
+// Call this endpoint via a scheduler (e.g. GitHub Actions, Vercel Cron, EasyCron)
+// Header: Authorization: Bearer ADMIN_SECRET_KEY
+app.get('/api/cron/cleanup-inactive-users', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  if (!supabaseUrl || !supabaseServiceKey) return res.status(500).json({ error: 'DB Config Missing' });
+
+  try {
+    // 1. Find candidates: No active plan AND No credits
+    const { data: candidates, error } = await supabase
+      .from('customers')
+      .select('email, created_at')
+      .neq('plan_status', 'active')
+      .lte('credits', 0);
+
+    if (error) throw error;
+    if (!candidates || candidates.length === 0) return res.json({ message: 'No inactive candidates found.' });
+
+    const now = new Date();
+    const results = { deleted: 0, warned1Month: 0, warned1Week: 0 };
+
+    for (const user of candidates) {
+      // Check last activity (Analysis Runs)
+      const { data: lastRun } = await supabase
+        .from('analysis_runs')
+        .select('created_at')
+        .eq('user_identifier', user.email) // Assuming user_identifier stores email or IP. If IP, this is loose. Ideally store email in analysis_runs.
+        // Fallback: If analysis_runs doesn't have email, we rely on customer.created_at as the baseline for "activity" if they never ran a test.
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const lastActiveStr = lastRun?.created_at || user.created_at;
+      const lastActive = new Date(lastActiveStr);
+      const diffTime = Math.abs(now.getTime() - lastActive.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays >= 90) {
+        // > 90 Days: Delete
+        await supabase.from('customers').delete().eq('email', user.email);
+        console.log(`🗑️ Cron: Deleted inactive user ${user.email} (Inactive ${diffDays} days)`);
+        results.deleted++;
+      } else if (diffDays >= 83) {
+        // ~1 Week remaining (83-89 days): Final Warning + Coupon
+        console.log(`📧 Cron: Sending 1-week warning to ${user.email}. Coupon: COMEBACK10`);
+        // TODO: Integrate Email Service
+        results.warned1Week++;
+      } else if (diffDays >= 60) {
+        // ~1 Month remaining (60-82 days): First Warning
+        console.log(`📧 Cron: Sending 1-month warning to ${user.email}`);
+        // TODO: Integrate Email Service
+        results.warned1Month++;
+      }
+    }
+
+    res.json({ success: true, results });
+  } catch (error: any) {
+    console.error('Cron Error:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -163,9 +163,15 @@ const SecurityAlert: React.FC<{ isBlocking?: boolean; onReset?: () => void }> = 
 );
 
 // Custom Card for Insufficient Credits (Sales Opportunity)
-const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void }> = ({ onBuy }) => (
-  <div className="max-w-md mx-auto mt-8 animate-fade-in">
+const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose: () => void }> = ({ onBuy, onClose }) => (
+  <div className="max-w-md mx-auto mt-8 animate-fade-in relative">
     <NeoCard title="Insufficient Credits">
+      <button 
+        onClick={onClose}
+        className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
+      >
+        <X size={24} />
+      </button>
       <div className="text-center mb-6">
         <div className="bg-amber-100 p-4 rounded-full inline-block mb-4">
           <AlertCircle className="text-amber-600" size={48} />
@@ -1217,7 +1223,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         error.error === 'Site Security Error' ? (
           <SecurityAlert isBlocking={true} onReset={resetState} />
         ) : error.error === 'Insufficient Credits' ? (
-           <InsufficientCreditsCard onBuy={handleCheckout} />
+           <InsufficientCreditsCard onBuy={handleCheckout} onClose={resetState} />
         ) : error.usageCounted === false ? (
           <AnalysisErrorCard error={error} onReset={resetState} />
         ) : (

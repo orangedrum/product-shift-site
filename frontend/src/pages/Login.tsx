@@ -13,6 +13,7 @@ const Login: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [bgGradient, setBgGradient] = useState('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Capture "Tickets" (URL Params)
   const plan = searchParams.get('plan');
@@ -46,6 +47,7 @@ const Login: React.FC = () => {
 
         // 1. BUYER FLOW: If a plan is selected, go straight to Stripe
         if (plan) {
+          setIsRedirecting(true); // Show loader immediately to prevent UI flash
           try {
             const res = await fetch('/api/create-checkout-session', {
               method: 'POST',
@@ -152,6 +154,17 @@ const Login: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="text-center animate-fade-in">
+          <Loader2 className="h-12 w-12 text-indigo-600 mx-auto mb-4 animate-spin" />
+          <h2 className="text-2xl font-bold text-gray-900">Redirecting to secure checkout...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
