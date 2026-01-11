@@ -13,6 +13,7 @@ import StyleGuide from './pages/Styleguide';
 import PaymentConfirmation from './pages/PaymentConfirmation';
 import ReferralClaim from './pages/ReferralClaim';
 import NotFound from './pages/NotFound';
+import { BrainCircuit } from 'lucide-react';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -52,8 +53,11 @@ const App: React.FC = () => {
       
       {isLandingPage ? (
         <footer className="py-8 text-center bg-gray-50 border-t border-gray-200">
-          <a href="/" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
-            Instant Insights by The Product Shift
+          <a href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
+            <span className="p-1 bg-indigo-100 rounded text-indigo-600">
+              <BrainCircuit size={16} />
+            </span>
+            <span>Instant Insights by The Product Shift</span>
           </a>
         </footer>
       ) : (
