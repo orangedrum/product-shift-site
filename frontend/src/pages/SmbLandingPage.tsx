@@ -410,6 +410,13 @@ const SmbLandingPage: React.FC = () => {
         <Helmet>
           <title>Instant Website Usability Check for Small Businesses | Product Shift</title>
           <meta name="description" content="Get a free, instant AI UX audit for your small business website. Find out why visitors aren't buying in seconds." />
+          
+          {/* Social Media & SEO Signals (The "Nirvana" Setup) */}
+          <meta property="og:title" content="Instant Website Usability Check for Small Businesses" />
+          <meta property="og:description" content="Stop losing customers. Our AI agent 'Alex' will browse your site and tell you exactly why visitors aren't buying." />
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content={window.location.href} />
+          <meta name="twitter:card" content="summary_large_image" />
         </Helmet>
         <HeroSection />
         <FeaturesSection />
