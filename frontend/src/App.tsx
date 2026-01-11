@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -18,13 +17,6 @@ import NotFound from './pages/NotFound';
 const App: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Global SEO Defaults */}
-      <Helmet>
-        <title>Product Shift</title>
-        <meta name="description" content="AI-Powered UX Research and Website Audits" />
-        <titleTemplate>%s | Product Shift</titleTemplate>
-      </Helmet>
-
       {/* We pass session={undefined} so Header fetches it internally */}
       <Header />
       
