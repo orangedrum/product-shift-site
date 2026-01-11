@@ -91,7 +91,7 @@ const HeroSection = () => (
                {/* Persona */}
                <div className="flex flex-col items-center">
                   <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Alexandra&mouth=sad&brows=frown" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
+                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
                   </div>
                   <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
                      <p className="font-bold text-gray-900 text-sm">Alex (AI Customer)</p>
@@ -126,7 +126,7 @@ const HeroSection = () => (
 );
 
 const FeaturesSection = () => (
-  <section id="how-it-works" className="relative bg-transparent py-24 sm:py-32 z-10">
+  <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
       <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
       <div className="text-center">
@@ -393,9 +393,9 @@ const PricingSection = () => (
 );
 
 const TestimonialsSection = () => (
-  <section className="bg-transparent py-24">
+  <section className="bg-indigo-900 py-24">
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold text-gray-900 mb-12">Trusted by Small Business Owners</h2>
+      <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by Small Business Owners</h2>
       <div className="grid md:grid-cols-3 gap-8">
         {[
           { name: "Sarah J.", role: "Boutique Owner", text: "I thought my site was clear until Alex pointed out I didn't have a buy button above the fold. Fixed it and sales went up." },
@@ -494,6 +494,9 @@ const SmbLandingPage: React.FC = () => {
             <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
             <div className="absolute top-[800px] left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
             <div className="absolute top-[1600px] right-1/3 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+            <div className="absolute top-[400px] left-[-100px] w-72 h-72 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-3000"></div>
+            <div className="absolute top-[1200px] right-[-100px] w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-5000"></div>
+            <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-1000"></div>
         </div>
         <HeroSection />
         <FeaturesSection />
