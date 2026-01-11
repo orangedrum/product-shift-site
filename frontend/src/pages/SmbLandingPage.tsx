@@ -79,38 +79,48 @@ const HeroSection = () => (
     <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-50 flex items-center justify-center">
       <div className="p-8">
          {/* Abstract representation of the AI analyzing */}
-         <div className="relative w-full max-w-lg mx-auto h-96">
+         <div className="relative w-full max-w-lg mx-auto h-[500px]">
             <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
             <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
             <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
             
             {/* Card 1: Alex */}
-            <div className="absolute top-0 left-0 z-20 w-72 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-               <div className="flex items-center gap-4 mb-4">
-                  <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra" className="w-12 h-12 rounded-full bg-indigo-50" alt="AI Agent" />
-                  <div>
-                     <p className="font-bold text-gray-900">Alex (AI Customer)</p>
-                     <p className="text-xs text-green-600 flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing...</p>
-                  </div>
+            <div className="absolute top-0 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+               {/* Speech Bubble */}
+               <div className="relative bg-white p-4 rounded-2xl shadow-xl border border-gray-100 mb-3 w-56 text-center">
+                  <p className="text-sm text-gray-800 font-medium leading-snug">"I can't find the pricing page. I'm frustrated."</p>
+                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b border-r border-gray-100 transform rotate-45 -translate-x-1/2"></div>
                </div>
-               <div className="relative bg-gray-100 p-3 rounded-xl rounded-tl-none text-sm text-gray-700">
-                  "I can't find the pricing page. I'm frustrated."
-                  <div className="absolute -left-2 top-0 w-4 h-4 bg-gray-100 transform skew-x-12"></div>
+               
+               {/* Persona */}
+               <div className="flex flex-col items-center">
+                  <div className="p-1.5 bg-white rounded-full shadow-lg">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
+                  </div>
+                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
+                     <p className="font-bold text-gray-900 text-sm">Alex (AI Customer)</p>
+                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing your site...</p>
+                  </div>
                </div>
             </div>
 
             {/* Card 2: Marcus */}
-            <div className="absolute bottom-10 right-0 z-10 w-72 bg-white p-5 rounded-2xl shadow-xl border border-gray-100 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-               <div className="flex items-center gap-4 mb-4">
-                  <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" className="w-12 h-12 rounded-full bg-indigo-50" alt="AI Agent" />
-                  <div>
-                     <p className="font-bold text-gray-900">Marcus (AI Customer)</p>
-                     <p className="text-xs text-green-600 flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing...</p>
-                  </div>
+            <div className="absolute bottom-10 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
+               {/* Speech Bubble */}
+               <div className="relative bg-white p-4 rounded-2xl shadow-xl border border-gray-100 mb-3 w-56 text-center">
+                  <p className="text-sm text-gray-800 font-medium leading-snug">"This checkout form is asking for way too much info. I'm leaving."</p>
+                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b border-r border-gray-100 transform rotate-45 -translate-x-1/2"></div>
                </div>
-               <div className="relative bg-gray-100 p-3 rounded-xl rounded-tl-none text-sm text-gray-700">
-                  "This checkout form is asking for way too much info. I'm leaving."
-                  <div className="absolute -left-2 top-0 w-4 h-4 bg-gray-100 transform skew-x-12"></div>
+
+               {/* Persona */}
+               <div className="flex flex-col items-center">
+                  <div className="p-1.5 bg-white rounded-full shadow-lg">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
+                  </div>
+                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
+                     <p className="font-bold text-gray-900 text-sm">Marcus (AI Customer)</p>
+                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing your site...</p>
+                  </div>
                </div>
             </div>
          </div>
