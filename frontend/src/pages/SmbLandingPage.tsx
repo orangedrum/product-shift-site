@@ -49,9 +49,10 @@ const formatDemoText = (text: string) => {
 
 const HeroSection = () => (
   <section className="relative bg-transparent overflow-hidden">
+    <div className="max-w-7xl mx-auto">
       <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
         <main className="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
-          <div className="text-center lg:text-left">
+          <div className="text-center lg:text-left lg:w-1/2 px-4 sm:px-6 lg:px-8">
             <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
               <span className="block xl:inline">Stop losing customers.</span>{' '}
               <span className="block text-indigo-600 xl:inline">Fix your website in seconds.</span>
@@ -74,6 +75,7 @@ const HeroSection = () => (
           </div>
         </main>
       </div>
+    </div>
     <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center pointer-events-none">
       <div className="p-8 w-full">
          {/* Abstract representation of the AI analyzing */}
@@ -125,6 +127,7 @@ const HeroSection = () => (
 
 const FeaturesSection = () => (
   <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
       <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative">
       <div className="text-center">
         <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">How It Works</h2>
@@ -165,6 +168,7 @@ const FeaturesSection = () => (
         </div>
       </div>
       </div>
+    </div>
   </section>
 );
 
@@ -243,6 +247,7 @@ const DemoSection = () => {
 
     return (
       <section id="demo" className="bg-gray-50 py-24 sm:py-32">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-extrabold text-gray-900">Demo Result for <span className="text-indigo-600">{result.title}</span></h2>
             <p className="mt-4 text-lg text-gray-600">Here is what our AI customer thought of your site.</p>
@@ -293,6 +298,7 @@ const DemoSection = () => {
               </div>
             </div>
           </div>
+        </div>
       </section>
     );
   }
@@ -326,7 +332,7 @@ const DemoSection = () => {
 
 const PricingSection = () => (
   <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
-    <div className="text-center">
+    <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
       <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Simple Pricing</h2>
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         
@@ -388,7 +394,7 @@ const PricingSection = () => (
 
 const TestimonialsSection = () => (
   <section className="bg-indigo-900 py-24">
-    <div className="text-center">
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
       <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by Small Business Owners</h2>
       <div className="grid md:grid-cols-3 gap-8">
         {[
@@ -413,16 +419,27 @@ const TestimonialsSection = () => (
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  
+  const scrollToDemo = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const faqs = [
-    { q: "Is the free test really free?", a: "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required." },
+    { 
+      q: "Is the free test really free?", 
+      a: (<span>
+          Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required. <a href="#demo" onClick={scrollToDemo} className="text-indigo-600 font-bold hover:underline">Try it now ➡️</a>
+         </span>)
+    },
     { q: "How is this different from Google Analytics?", a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')." },
     { q: "Do I need to install anything?", a: "No. Just enter your URL and we do the rest." },
     { q: "Can I test my competitor's site?", a: "Absolutely. It's a great way to see what they are doing right (or wrong)." }
   ];
 
   return (
-    <section className="bg-white py-24">
-      <div className="max-w-3xl mx-auto">
+    <section className="bg-transparent py-24">
+      <div className="max-w-3xl mx-auto px-4">
         <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
         <div className="space-y-4">
           {faqs.map((faq, i) => (
@@ -435,7 +452,7 @@ const FAQSection = () => {
                 {openIndex === i ? <ChevronUp size={20} className="text-black" /> : <ChevronDown size={20} className="text-black" />}
               </button>
               {openIndex === i && (
-                <div className="p-4 bg-gray-100 border-t border-gray-300 text-gray-800 animate-fade-in">
+                <div className="p-4 bg-gray-200 border-t border-gray-300 text-gray-800 animate-fade-in">
                   {faq.a}
                 </div>
               )}
@@ -520,7 +537,7 @@ const SmbLandingPage: React.FC = () => {
             ))}
         </div>
         
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10">
           <HeroSection />
           <FeaturesSection />
           <hr className="border-t-2 border-black my-0" />
