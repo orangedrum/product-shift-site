@@ -48,15 +48,7 @@ const formatDemoText = (text: string) => {
 // --- Internal Components for Landing Page Sections ---
 
 const HeroSection = () => (
-  <section className="relative bg-white overflow-hidden">
-    {/* Background Blobs - Full Section */}
-    <div className="absolute inset-0 w-full h-[200%] overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-[800px] right-1/3 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-    </div>
-
+  <section className="relative bg-transparent overflow-hidden">
     <div className="max-w-7xl mx-auto">
       <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
         <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
@@ -89,7 +81,7 @@ const HeroSection = () => (
          {/* Abstract representation of the AI analyzing */}
          <div className="relative w-full max-w-lg mx-auto h-[500px]">
             {/* Card 1: Alex */}
-            <div className="absolute top-16 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+            <div className="absolute bottom-10 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
                {/* Speech Bubble */}
                <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
                   <p className="text-sm text-gray-800 font-medium leading-snug">"I can't find the pricing page. I'm frustrated."</p>
@@ -109,7 +101,7 @@ const HeroSection = () => (
             </div>
 
             {/* Card 2: Marcus */}
-            <div className="absolute bottom-32 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <div className="absolute top-10 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
                {/* Speech Bubble */}
                <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
                   <p className="text-sm text-gray-800 font-medium leading-snug">"This checkout form is asking for way too much info. I'm leaving."</p>
@@ -401,22 +393,23 @@ const PricingSection = () => (
 );
 
 const TestimonialsSection = () => (
-  <section className="bg-indigo-900 py-24">
+  <section className="bg-transparent py-24">
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by Small Business Owners</h2>
+      <h2 className="text-3xl font-extrabold text-gray-900 mb-12">Trusted by Small Business Owners</h2>
       <div className="grid md:grid-cols-3 gap-8">
         {[
           { name: "Sarah J.", role: "Boutique Owner", text: "I thought my site was clear until Alex pointed out I didn't have a buy button above the fold. Fixed it and sales went up." },
           { name: "Mike T.", role: "Local Plumber", text: "Simple, fast, and brutal. Exactly what I needed to hear to fix my contact form." },
           { name: "Elena R.", role: "Freelance Designer", text: "I use this for all my clients now before I launch their sites. It catches things I miss." }
         ].map((t, i) => (
-          <div key={i} className="bg-indigo-800 p-6 rounded-xl border border-indigo-700">
+          <div key={i} className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left relative">
+            <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
             <div className="flex justify-center mb-4 text-yellow-400">
               {[...Array(5)].map((_, j) => <Star key={j} size={16} fill="currentColor" />)}
             </div>
-            <p className="text-indigo-100 mb-4 italic">"{t.text}"</p>
-            <p className="text-white font-bold">{t.name}</p>
-            <p className="text-indigo-400 text-sm">{t.role}</p>
+            <p className="text-gray-700 mb-4 italic">"{t.text}"</p>
+            <p className="text-gray-900 font-bold">{t.name}</p>
+            <p className="text-indigo-600 text-sm">{t.role}</p>
           </div>
         ))}
       </div>
@@ -436,16 +429,16 @@ const FAQSection = () => {
   return (
     <section className="bg-white py-24">
       <div className="container mx-auto max-w-3xl px-4">
-        <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Frequently Asked Questions</h2>
+        <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
         <div className="space-y-4">
           {faqs.map((faq, i) => (
-            <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+            <div key={i} className="bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden">
               <button 
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="w-full flex justify-between items-center p-4 text-left bg-white hover:bg-gray-50 transition-colors"
               >
                 <span className="font-bold text-gray-900">{faq.q}</span>
-                {openIndex === i ? <ChevronUp size={20} className="text-gray-500" /> : <ChevronDown size={20} className="text-gray-500" />}
+                {openIndex === i ? <ChevronUp size={20} className="text-black" /> : <ChevronDown size={20} className="text-black" />}
               </button>
               {openIndex === i && (
                 <div className="p-4 bg-white text-gray-600 border-t border-gray-200 animate-fade-in">
@@ -494,7 +487,14 @@ const SmbLandingPage: React.FC = () => {
   }, [searchParams]);
 
   return (
-      <main>
+      <main className="relative bg-white">
+        {/* Global Background Blobs */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+            <div className="absolute top-[800px] left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+            <div className="absolute top-[1600px] right-1/3 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        </div>
         <HeroSection />
         <FeaturesSection />
         <DemoSection />
