@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import SmbHero from '../components/SmbHero';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw } from 'lucide-react';
+import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
+import { Helmet } from 'react-helmet-async';
 
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {
@@ -48,8 +48,67 @@ const formatDemoText = (text: string) => {
 
 // --- Internal Components for Landing Page Sections ---
 
+const HeroSection = () => (
+  <section className="relative bg-white overflow-hidden">
+    <div className="max-w-7xl mx-auto">
+      <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+        <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+          <div className="sm:text-center lg:text-left">
+            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+              <span className="block xl:inline">Stop losing customers.</span>{' '}
+              <span className="block text-indigo-600 xl:inline">Fix your website in seconds.</span>
+            </h1>
+            <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+              Our AI customer "Alex" will browse your site and tell you exactly why visitors aren't buying. No code, no waiting, just actionable fixes.
+            </p>
+            <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+              <div className="rounded-md shadow">
+                <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
+                  Analyze My Site Free
+                </a>
+              </div>
+              <div className="mt-3 sm:mt-0 sm:ml-3">
+                <a href="#how-it-works" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg">
+                  How It Works
+                </a>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-50 flex items-center justify-center">
+      <div className="p-8">
+         {/* Abstract representation of the AI analyzing */}
+         <div className="relative w-full max-w-md mx-auto">
+            <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+            <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+            <div className="relative bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+               <div className="flex items-center gap-4 mb-4">
+                  <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra" className="w-12 h-12 rounded-full bg-indigo-50" alt="AI Agent" />
+                  <div>
+                     <p className="font-bold text-gray-900">Alex (AI Customer)</p>
+                     <p className="text-xs text-green-600 flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing your site...</p>
+                  </div>
+               </div>
+               <div className="space-y-2">
+                  <div className="h-2 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-2 bg-gray-200 rounded w-full"></div>
+                  <div className="h-2 bg-gray-200 rounded w-5/6"></div>
+               </div>
+               <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+                  <p className="text-xs text-red-800 font-medium">"I can't find the pricing page. I'm frustrated."</p>
+               </div>
+            </div>
+         </div>
+      </div>
+    </div>
+  </section>
+);
+
 const FeaturesSection = () => (
-  <section className="bg-white py-24 sm:py-32">
+  <section id="how-it-works" className="bg-white py-24 sm:py-32">
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="text-center">
         <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">How It Works</h2>
@@ -348,10 +407,16 @@ const SmbLandingPage: React.FC = () => {
 
   return (
       <main>
-        <SmbHero />
+        <Helmet>
+          <title>Instant Website Usability Check for Small Businesses | Product Shift</title>
+          <meta name="description" content="Get a free, instant AI UX audit for your small business website. Find out why visitors aren't buying in seconds." />
+        </Helmet>
+        <HeroSection />
         <FeaturesSection />
         <DemoSection />
+        <TestimonialsSection />
         <PricingSection />
+        <FAQSection />
       </main>
   );
 };
