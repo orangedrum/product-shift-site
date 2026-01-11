@@ -371,6 +371,66 @@ const PricingSection = () => (
   </section>
 );
 
+const TestimonialsSection = () => (
+  <section className="bg-indigo-900 py-24">
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+      <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by Small Business Owners</h2>
+      <div className="grid md:grid-cols-3 gap-8">
+        {[
+          { name: "Sarah J.", role: "Boutique Owner", text: "I thought my site was clear until Alex pointed out I didn't have a buy button above the fold. Fixed it and sales went up." },
+          { name: "Mike T.", role: "Local Plumber", text: "Simple, fast, and brutal. Exactly what I needed to hear to fix my contact form." },
+          { name: "Elena R.", role: "Freelance Designer", text: "I use this for all my clients now before I launch their sites. It catches things I miss." }
+        ].map((t, i) => (
+          <div key={i} className="bg-indigo-800 p-6 rounded-xl border border-indigo-700">
+            <div className="flex justify-center mb-4 text-yellow-400">
+              {[...Array(5)].map((_, j) => <Star key={j} size={16} fill="currentColor" />)}
+            </div>
+            <p className="text-indigo-100 mb-4 italic">"{t.text}"</p>
+            <p className="text-white font-bold">{t.name}</p>
+            <p className="text-indigo-400 text-sm">{t.role}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const FAQSection = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const faqs = [
+    { q: "Is the free test really free?", a: "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required." },
+    { q: "How is this different from Google Analytics?", a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')." },
+    { q: "Do I need to install anything?", a: "No. Just enter your URL and we do the rest." },
+    { q: "Can I test my competitor's site?", a: "Absolutely. It's a great way to see what they are doing right (or wrong)." }
+  ];
+
+  return (
+    <section className="bg-white py-24">
+      <div className="container mx-auto max-w-3xl px-4">
+        <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+              <button 
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex justify-between items-center p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <span className="font-bold text-gray-900">{faq.q}</span>
+                {openIndex === i ? <ChevronUp size={20} className="text-gray-500" /> : <ChevronDown size={20} className="text-gray-500" />}
+              </button>
+              {openIndex === i && (
+                <div className="p-4 bg-white text-gray-600 border-t border-gray-200 animate-fade-in">
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const SmbLandingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
