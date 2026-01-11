@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
@@ -49,10 +49,9 @@ const formatDemoText = (text: string) => {
 
 const HeroSection = () => (
   <section className="relative bg-transparent overflow-hidden">
-    <div className="max-w-7xl mx-auto">
-      <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-        <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-          <div className="sm:text-center lg:text-left">
+      <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
+        <main className="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
+          <div className="text-center lg:text-left">
             <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
               <span className="block xl:inline">Stop losing customers.</span>{' '}
               <span className="block text-indigo-600 xl:inline">Fix your website in seconds.</span>
@@ -75,9 +74,8 @@ const HeroSection = () => (
           </div>
         </main>
       </div>
-    </div>
-    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center">
-      <div className="p-8">
+    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center pointer-events-none">
+      <div className="p-8 w-full">
          {/* Abstract representation of the AI analyzing */}
          <div className="relative w-full max-w-lg mx-auto h-[500px]">
             {/* Card 1: Alex */}
@@ -127,8 +125,7 @@ const HeroSection = () => (
 
 const FeaturesSection = () => (
   <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
-    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-      <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+      <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative">
       <div className="text-center">
         <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">How It Works</h2>
         <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
@@ -168,7 +165,6 @@ const FeaturesSection = () => (
         </div>
       </div>
       </div>
-    </div>
   </section>
 );
 
@@ -247,7 +243,6 @@ const DemoSection = () => {
 
     return (
       <section id="demo" className="bg-gray-50 py-24 sm:py-32">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-extrabold text-gray-900">Demo Result for <span className="text-indigo-600">{result.title}</span></h2>
             <p className="mt-4 text-lg text-gray-600">Here is what our AI customer thought of your site.</p>
@@ -298,7 +293,6 @@ const DemoSection = () => {
               </div>
             </div>
           </div>
-        </div>
       </section>
     );
   }
@@ -332,9 +326,9 @@ const DemoSection = () => {
 
 const PricingSection = () => (
   <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
-    <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
+    <div className="text-center">
       <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Simple Pricing</h2>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Pack 3 */}
         <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
@@ -394,7 +388,7 @@ const PricingSection = () => (
 
 const TestimonialsSection = () => (
   <section className="bg-indigo-900 py-24">
-    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+    <div className="text-center">
       <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by Small Business Owners</h2>
       <div className="grid md:grid-cols-3 gap-8">
         {[
@@ -428,7 +422,7 @@ const FAQSection = () => {
 
   return (
     <section className="bg-white py-24">
-      <div className="container mx-auto max-w-3xl px-4">
+      <div className="max-w-3xl mx-auto">
         <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
         <div className="space-y-4">
           {faqs.map((faq, i) => (
@@ -441,7 +435,7 @@ const FAQSection = () => {
                 {openIndex === i ? <ChevronUp size={20} className="text-black" /> : <ChevronDown size={20} className="text-black" />}
               </button>
               {openIndex === i && (
-                <div className="p-4 bg-white text-gray-600 border-t border-gray-200 animate-fade-in">
+                <div className="p-4 bg-gray-100 border-t border-gray-300 text-gray-800 animate-fade-in">
                   {faq.a}
                 </div>
               )}
@@ -455,6 +449,7 @@ const FAQSection = () => {
 
 const SmbLandingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 1. Capture from URL
@@ -486,24 +481,57 @@ const SmbLandingPage: React.FC = () => {
     checkAndClaim();
   }, [searchParams]);
 
+  // Background Animation Effect
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateOrbs = () => {
+      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+      
+      // Update 15 orbs
+      for (let i = 1; i <= 15; i++) {
+        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
+        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
+      }
+    };
+
+    updateOrbs(); // Initial set
+    const interval = setInterval(updateOrbs, 4000); // Move every 4 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-      <main className="relative bg-white">
+      <main className="relative bg-white overflow-hidden" ref={containerRef}>
         {/* Global Background Blobs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-            <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-            <div className="absolute top-[800px] left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-            <div className="absolute top-[1600px] right-1/3 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-            <div className="absolute top-[400px] left-[-100px] w-72 h-72 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-3000"></div>
-            <div className="absolute top-[1200px] right-[-100px] w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-5000"></div>
-            <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-1000"></div>
+            {[...Array(15)].map((_, i) => (
+              <div 
+                key={i}
+                className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
+                style={{
+                  left: `var(--orb-${i+1}-x, 50%)`,
+                  top: `var(--orb-${i+1}-y, 50%)`,
+                  width: `${300 + (i * 20)}px`,
+                  height: `${300 + (i * 20)}px`,
+                  backgroundColor: ['#d8b4fe', '#fde047', '#f9a8d4', '#93c5fd', '#86efac', '#fdba74'][i % 6]
+                }}
+              />
+            ))}
         </div>
-        <HeroSection />
-        <FeaturesSection />
-        <DemoSection />
-        <TestimonialsSection />
-        <PricingSection />
-        <FAQSection />
+        
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+          <HeroSection />
+          <FeaturesSection />
+          <hr className="border-t-2 border-black my-0" />
+          <DemoSection />
+          <hr className="border-t-2 border-black my-0" />
+          <TestimonialsSection />
+          <hr className="border-t-2 border-black my-0" />
+          <PricingSection />
+          <hr className="border-t-2 border-black my-0" />
+          <FAQSection />
+        </div>
       </main>
   );
 };
