@@ -50,10 +50,11 @@ const formatDemoText = (text: string) => {
 const HeroSection = () => (
   <section className="relative bg-white overflow-hidden">
     {/* Background Blobs - Full Section */}
-    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 w-full h-[200%] overflow-hidden pointer-events-none z-0">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-[800px] right-1/3 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
     </div>
 
     <div className="max-w-7xl mx-auto">
@@ -65,7 +66,7 @@ const HeroSection = () => (
               <span className="block text-indigo-600 xl:inline">Fix your website in seconds.</span>
             </h1>
             <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-              Our AI customer "Alex" will browse your site and tell you exactly why visitors aren't buying. No code, no waiting, just actionable fixes.
+              Our AI customers will browse your site and tell you exactly why visitors aren't buying. No code, no waiting, just actionable fixes.
             </p>
             <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
               <div className="rounded-md shadow">
@@ -98,7 +99,7 @@ const HeroSection = () => (
                {/* Persona */}
                <div className="flex flex-col items-center">
                   <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra&mouth=sad&brows=frown" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
+                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Alexandra&mouth=sad&brows=frown" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
                   </div>
                   <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
                      <p className="font-bold text-gray-900 text-sm">Alex (AI Customer)</p>
@@ -133,8 +134,9 @@ const HeroSection = () => (
 );
 
 const FeaturesSection = () => (
-  <section id="how-it-works" className="bg-white py-24 sm:py-32">
-    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+  <section id="how-it-works" className="relative bg-transparent py-24 sm:py-32 z-10">
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+      <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
       <div className="text-center">
         <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">How It Works</h2>
         <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
@@ -172,6 +174,7 @@ const FeaturesSection = () => (
             <p className="mt-1 text-base text-gray-600">Get a simple report showing exactly what to fix to help more visitors become customers.</p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </section>
