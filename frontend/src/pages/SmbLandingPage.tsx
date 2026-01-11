@@ -49,16 +49,16 @@ const formatDemoText = (text: string) => {
 
 const HeroSection = () => (
   <section className="relative bg-transparent overflow-hidden">
-    <div className="max-w-7xl mx-auto">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
         <main className="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
-          <div className="text-center lg:text-left lg:w-1/2 px-4 sm:px-6 lg:px-8">
+          <div className="text-center lg:text-left lg:w-1/2">
             <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              <span className="block xl:inline">Stop losing customers.</span>{' '}
-              <span className="block text-indigo-600 xl:inline">Fix your website in seconds.</span>
+              <span className="block xl:inline">Simple Website Checkup</span>{' '}
+              <span className="block text-indigo-600 xl:inline">for Small Businesses.</span>
             </h1>
             <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-              Our AI customers will browse your site and tell you exactly why visitors aren't buying. No code, no waiting, just actionable fixes.
+              Stop losing customers. Our AI customers perform a simple website checkup to tell you exactly why visitors aren't buying. No code, no waiting.
             </p>
             <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
               <div className="rounded-md shadow">
@@ -91,7 +91,7 @@ const HeroSection = () => (
                {/* Persona */}
                <div className="flex flex-col items-center">
                   <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
+                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent performing a simple website checkup" />
                   </div>
                   <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
                      <p className="font-bold text-gray-900 text-sm">Alex (AI Customer)</p>
@@ -111,7 +111,7 @@ const HeroSection = () => (
                {/* Persona */}
                <div className="flex flex-col items-center">
                   <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent analyzing small business website" />
                   </div>
                   <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
                      <p className="font-bold text-gray-900 text-sm">Marcus (AI Customer)</p>
@@ -127,7 +127,7 @@ const HeroSection = () => (
 
 const FeaturesSection = () => (
   <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
-    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative">
       <div className="text-center">
         <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">How It Works</h2>
@@ -306,7 +306,7 @@ const DemoSection = () => {
   return (
     <section id="demo" className="bg-gray-800 text-white py-24 sm:py-32">
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Try It Now: Free Website Check</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Try It Now: Free Simple Website Checkup</h2>
         {error && error.usageCounted === false ? (
           <div className="mt-8 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} theme="dark" /></div>
         ) : (
@@ -498,6 +498,10 @@ const SmbLandingPage: React.FC = () => {
     checkAndClaim();
   }, [searchParams]);
 
+  useEffect(() => {
+    document.title = "Simple Website Checkup for Small Businesses | Product Shift";
+  }, []);
+
   // Background Animation Effect
   useEffect(() => {
     const container = containerRef.current;
@@ -539,9 +543,10 @@ const SmbLandingPage: React.FC = () => {
         
         <div className="relative z-10">
           <HeroSection />
-          <FeaturesSection />
           <hr className="border-t-2 border-black my-0" />
           <DemoSection />
+          <hr className="border-t-2 border-black my-0" />
+          <FeaturesSection />
           <hr className="border-t-2 border-black my-0" />
           <TestimonialsSection />
           <hr className="border-t-2 border-black my-0" />
