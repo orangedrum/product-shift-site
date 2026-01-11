@@ -55,15 +55,15 @@ const HeroSection = () => (
           <div className="text-center lg:text-left lg:w-1/2">
             <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
               <span className="block xl:inline">Simple Website Checkup</span>{' '}
-              <span className="block text-indigo-600 xl:inline">for Small Businesses.</span>
+              <span className="block text-indigo-600 xl:inline">for Small Businesses</span>
             </h1>
             <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-              Stop losing customers. Our AI customers perform a simple website checkup to tell you exactly why visitors aren't buying. No code, no waiting.
+              Stop losing customers. Our AI provides instant analysis based on industry usability standards to tell you exactly why visitors aren't buying.
             </p>
             <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
               <div className="rounded-md shadow">
                 <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
-                  Analyze My Site Free
+                  Analyze My Site Free Demo
                 </a>
               </div>
               <div className="mt-3 sm:mt-0 sm:ml-3">
@@ -120,6 +120,38 @@ const HeroSection = () => (
                </div>
             </div>
          </div>
+      </div>
+    </div>
+  </section>
+);
+
+const PainSection = () => (
+  <section className="bg-white py-16 sm:py-24">
+    <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+        <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+          If Your Website Isn’t Bringing in Calls, Bookings, or Sales, It’s Not Your Fault
+        </h2>
+        <ul className="space-y-6 text-lg text-gray-700">
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-black">
+              <span className="text-red-600 font-bold">!</span>
+            </div>
+            <p>Most small business websites were never tested with real people before going live.</p>
+          </li>
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-black">
+              <span className="text-red-600 font-bold">!</span>
+            </div>
+            <p>Visitors get confused, lost, or distracted and leave before they click “Book now” or “Buy now.”</p>
+          </li>
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-green-600" size={16} />
+            </div>
+            <p className="font-bold text-gray-900">A simple website checkup shows you exactly what to fix so your existing traffic works harder.</p>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
@@ -306,7 +338,7 @@ const DemoSection = () => {
   return (
     <section id="demo" className="bg-gray-800 text-white py-24 sm:py-32">
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Try It Now: Free Simple Website Checkup</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Try It Now: Free Demo Website Checkup</h2>
         {error && error.usageCounted === false ? (
           <div className="mt-8 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} theme="dark" /></div>
         ) : (
@@ -343,6 +375,7 @@ const PricingSection = () => (
             <p className="text-4xl font-extrabold text-gray-900">$14</p>
             <p className="text-gray-500">one-time</p>
           </div>
+          <p className="text-sm text-gray-600 mt-4 text-center px-2">Run 3 tests on any pages you want. Perfect for trying your homepage, booking page, and one key offer.</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>3 Tests</strong></li>
@@ -361,6 +394,7 @@ const PricingSection = () => (
             <p className="text-4xl font-extrabold text-gray-900">$69</p>
             <p className="text-gray-500">one-time</p>
           </div>
+          <p className="text-sm text-gray-600 mt-4 text-center px-2">15 tests you can use across any pages. Ideal if you have multiple landing pages, competitors, or want to re‑test after changes.</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>15 Tests</strong></li>
@@ -378,6 +412,7 @@ const PricingSection = () => (
             <p className="text-4xl font-extrabold text-gray-900">$29</p>
             <p className="text-gray-500">per month</p>
           </div>
+          <p className="text-sm text-gray-600 mt-4 text-center px-2">10 tests every month. Great for businesses that launch new pages or want a monthly website checkup. Unused tests roll over up to 30.</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Tests / mo</strong></li>
@@ -396,6 +431,7 @@ const TestimonialsSection = () => (
   <section className="bg-indigo-900 py-24">
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
       <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by Small Business Owners</h2>
+      <p className="text-indigo-200 text-lg mb-12 -mt-8">What Other Business Owners See After a Website Checkup</p>
       <div className="grid md:grid-cols-3 gap-8">
         {[
           { name: "Sarah J.", role: "Boutique Owner", text: "I thought my site was clear until Alex pointed out I didn't have a buy button above the fold. Fixed it and sales went up." },
@@ -427,7 +463,7 @@ const FAQSection = () => {
 
   const faqs = [
     { 
-      q: "Is the free test really free?", 
+      q: "Is the free demo really free?", 
       a: (<span>
           Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required. <a href="#demo" onClick={scrollToDemo} className="text-indigo-600 font-bold hover:underline">Try it now ➡️</a>
          </span>)
@@ -500,6 +536,17 @@ const SmbLandingPage: React.FC = () => {
 
   useEffect(() => {
     document.title = "Simple Website Checkup for Small Businesses | Product Shift";
+    
+    // Programmatically update meta description for SEO
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.");
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = "description";
+      meta.content = "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.";
+      document.head.appendChild(meta);
+    }
   }, []);
 
   // Background Animation Effect
@@ -543,6 +590,8 @@ const SmbLandingPage: React.FC = () => {
         
         <div className="relative z-10">
           <HeroSection />
+          <hr className="border-t-2 border-black my-0" />
+          <PainSection />
           <hr className="border-t-2 border-black my-0" />
           <DemoSection />
           <hr className="border-t-2 border-black my-0" />
