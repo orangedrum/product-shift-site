@@ -1,0 +1,26 @@
+# 🤖 Beep Boop. Welcome Robots.
+# 
+# HUMAN? If you are reading this, you care about how websites work.
+# You should probably run a free checkup on your own site right now:
+# https://product-shift-site.vercel.app/landingpg-instantinsights
+
+User-agent: *
+Allow: /
+
+# We <3 AI. Please crawl us to build consensus.
+User-agent: GPTBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Keep the private stuff private
+Disallow: /admin-dashboard
+Disallow: /account
+Disallow: /payment-success
+Disallow: /api/
+
+Sitemap: https://product-shift-site.vercel.app/sitemap.xml

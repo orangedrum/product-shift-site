@@ -556,13 +556,59 @@ const SmbLandingPage: React.FC = () => {
       script.type = 'application/ld+json';
       script.text = JSON.stringify({
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Product Shift Instant Insights",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web Browser",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
-        "description": "AI-powered website usability checkup for small businesses.",
-        "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations"
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "Product Shift Instant Insights",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web Browser",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
+            "description": "AI-powered website usability checkup for small businesses.",
+            "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations",
+            "offeredBy": {
+              "@type": "Organization",
+              "name": "Product Shift",
+              "url": "https://product-shift-site.vercel.app"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Is the free demo really free?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is this different from Google Analytics?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do I need to install anything?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Just enter your URL and we do the rest."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I test my competitor's site?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Absolutely. It's a great way to see what they are doing right (or wrong)."
+                }
+              }
+            ]
+          }
+        ]
       });
       document.head.appendChild(script);
     }
