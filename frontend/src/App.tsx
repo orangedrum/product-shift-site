@@ -53,7 +53,6 @@ const App: React.FC = () => {
       {isLandingPage ? (
         <footer className="py-8 text-center bg-gray-50 border-t border-gray-200">
           <a href="/" className="inline-flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
-            <img src="/logo.png" alt="Product Shift" className="h-8 w-auto" />
             <img src="/Favicon_1Favicon.png" alt="" className="h-5 w-5" />
             <span>Instant Insights by The Product Shift</span>
           </a>

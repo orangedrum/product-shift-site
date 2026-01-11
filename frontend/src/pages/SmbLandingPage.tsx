@@ -49,8 +49,15 @@ const formatDemoText = (text: string) => {
 
 const HeroSection = () => (
   <section className="relative bg-white overflow-hidden">
+    {/* Background Blobs - Full Section */}
+    <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    </div>
+
     <div className="max-w-7xl mx-auto">
-      <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+      <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
         <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
           <div className="sm:text-center lg:text-left">
             <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
@@ -76,26 +83,22 @@ const HeroSection = () => (
         </main>
       </div>
     </div>
-    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-50 flex items-center justify-center">
+    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center">
       <div className="p-8">
          {/* Abstract representation of the AI analyzing */}
          <div className="relative w-full max-w-lg mx-auto h-[500px]">
-            <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-            <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-            
             {/* Card 1: Alex */}
-            <div className="absolute top-0 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+            <div className="absolute top-16 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
                {/* Speech Bubble */}
-               <div className="relative bg-white p-4 rounded-2xl shadow-xl border border-gray-100 mb-3 w-56 text-center">
+               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
                   <p className="text-sm text-gray-800 font-medium leading-snug">"I can't find the pricing page. I'm frustrated."</p>
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b border-r border-gray-100 transform rotate-45 -translate-x-1/2"></div>
+                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
                </div>
                
                {/* Persona */}
                <div className="flex flex-col items-center">
                   <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra&mouth=sad&brows=frown" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
                   </div>
                   <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
                      <p className="font-bold text-gray-900 text-sm">Alex (AI Customer)</p>
@@ -105,11 +108,11 @@ const HeroSection = () => (
             </div>
 
             {/* Card 2: Marcus */}
-            <div className="absolute bottom-10 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <div className="absolute bottom-32 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
                {/* Speech Bubble */}
-               <div className="relative bg-white p-4 rounded-2xl shadow-xl border border-gray-100 mb-3 w-56 text-center">
+               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
                   <p className="text-sm text-gray-800 font-medium leading-snug">"This checkout form is asking for way too much info. I'm leaving."</p>
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b border-r border-gray-100 transform rotate-45 -translate-x-1/2"></div>
+                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
                </div>
 
                {/* Persona */}
