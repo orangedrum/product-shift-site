@@ -34,9 +34,6 @@ const App: React.FC = () => {
           {/* SMB Landing Page Route (SEO Optimized) */}
           <Route path="/simple-website-checkup" element={<SmbLandingPage />} />
 
-          {/* Startup/SaaS Landing Page Route (New Variation) */}
-          <Route path="/startup-ux-audit" element={<StartupLandingPage />} />
-          
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/account" element={<MyAccount />} />
