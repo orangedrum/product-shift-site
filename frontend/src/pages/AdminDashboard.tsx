@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -26,6 +26,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [refundReason, setRefundReason] = useState<string>('');
   const [refunding, setRefunding] = useState(false);
   const [inputKey, setInputKey] = useState('');
+  const [hideTestUsers, setHideTestUsers] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -111,6 +112,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     }
   };
 
+  // Helper to filter test users
+  const isTestUser = (email: string) => {
+    if (!email) return false;
+    const lower = email.toLowerCase();
+    return lower.includes('test') || lower.includes('demo') || lower.includes('example') || lower.includes('localhost');
+  };
+
   if (loading) return <div className="p-4">Loading admin dashboard... <Loader2 className="inline-block ml-2 animate-spin" /></div>;
   
   if (error && (error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('missing'))) {
@@ -143,7 +151,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Admin Dashboard</h2>
+        <button 
+          onClick={() => setHideTestUsers(!hideTestUsers)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold transition-all ${hideTestUsers ? 'bg-indigo-100 border-indigo-600 text-indigo-800' : 'bg-white border-gray-300 text-gray-600'}`}
+        >
+          <Filter size={16} />
+          {hideTestUsers ? 'Test Data Hidden' : 'Show All Data'}
+        </button>
+      </div>
 
       {/* --- TOP METRICS ROW --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -203,7 +220,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 </tr>
               </thead>
               <tbody>
-                {stats.recentPayments.map((payment: Payment) => (
+                {stats.recentPayments
+                  .filter((p: Payment) => !hideTestUsers || !isTestUser(p.email))
+                  .map((payment: Payment) => (
                   <tr key={payment.id}>
                     <td>{payment.email}</td>
                     <td>${(payment.amount_total / 100).toFixed(2)}</td>
@@ -268,7 +287,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {stats.recentRuns.map((run: any) => (
+                    {stats.recentRuns
+                      .filter((r: any) => !hideTestUsers || !r.url.includes('localhost')) // Basic URL filter
+                      .map((run: any) => (
                       <tr key={run.id}>
                         <td className="py-2 max-w-[150px] truncate" title={run.url}>{run.url}</td>
                         <td className="py-2">
@@ -299,7 +320,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         <NeoCard title="New Customers">
            {stats.recentSubscribers && stats.recentSubscribers.length > 0 ? (
              <ul className="divide-y">
-               {stats.recentSubscribers.map((sub: any) => (
+               {stats.recentSubscribers
+                 .filter((s: any) => !hideTestUsers || !isTestUser(s.email))
+                 .map((sub: any) => (
                  <li key={sub.id} className="py-2 flex justify-between text-sm">
                    <span>{sub.email}</span>
                    <span className="font-bold text-green-600">{sub.plan_status}</span>

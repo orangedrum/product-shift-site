@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import MarketingLandingPage from './pages/MarketingLandingPage';
 import SmbLandingPage from './pages/SmbLandingPage';
+import StartupLandingPage from './pages/StartupLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
@@ -20,7 +21,7 @@ const App: React.FC = () => {
   const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
     ? location.pathname.slice(0, -1) 
     : location.pathname;
-  const isLandingPage = ['/simple-website-checkup', '/landingpg-aiuxagent'].includes(normalizedPath);
+  const isLandingPage = ['/simple-website-checkup', '/landingpg-aiuxagent', '/startup-ux-audit'].includes(normalizedPath);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -37,6 +38,9 @@ const App: React.FC = () => {
           
           {/* SMB Landing Page Route (SEO Optimized) */}
           <Route path="/simple-website-checkup" element={<SmbLandingPage />} />
+
+          {/* Startup/SaaS Landing Page Route (New Variation) */}
+          <Route path="/startup-ux-audit" element={<StartupLandingPage />} />
           
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
