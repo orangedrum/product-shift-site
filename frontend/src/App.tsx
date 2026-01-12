@@ -16,7 +16,11 @@ import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
   const location = useLocation();
-  const isLandingPage = ['/simple-website-checkup', '/landingpg-aiuxagent'].includes(location.pathname);
+  // Normalize path to handle optional trailing slashes (e.g. /simple-website-checkup/)
+  const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
+    ? location.pathname.slice(0, -1) 
+    : location.pathname;
+  const isLandingPage = ['/simple-website-checkup', '/landingpg-aiuxagent'].includes(normalizedPath);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -52,7 +56,7 @@ const App: React.FC = () => {
       
       {isLandingPage ? (
         <footer className="py-8 text-center bg-gray-50 border-t border-gray-200">
-          <a href="/" className="inline-flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
+          <a href="https://www.theproductshift.com" className="inline-flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
             <img src="/Favicon_1Favicon.png" alt="" className="h-5 w-5" />
             <span>Instant Insights by The Product Shift</span>
           </a>

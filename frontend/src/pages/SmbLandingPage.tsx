@@ -592,7 +592,22 @@ const SmbLandingPage: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', 'https://product-shift-site.vercel.app/simple-website-checkup');
+    canonical.setAttribute('href', 'https://app.theproductshift.com/simple-website-checkup'); // Strictly enforces HTTPS and the correct subdomain
+
+    // Add Open Graph Tags for Social SEO (Facebook, LinkedIn, Twitter)
+    const setMeta = (prop: string, content: string) => {
+      let m = document.querySelector(`meta[property="${prop}"]`);
+      if (!m) {
+        m = document.createElement('meta');
+        m.setAttribute('property', prop);
+        document.head.appendChild(m);
+      }
+      m.setAttribute('content', content);
+    };
+    setMeta('og:title', 'Simple Website Checkup for Small Businesses');
+    setMeta('og:description', 'Stop losing customers. Get an instant AI website analysis based on industry usability standards.');
+    setMeta('og:url', 'https://app.theproductshift.com/simple-website-checkup');
+    setMeta('og:type', 'website');
 
     // Add JSON-LD Structured Data for SoftwareApplication
     const scriptId = 'json-ld-software-app';
