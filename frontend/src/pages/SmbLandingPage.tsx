@@ -63,12 +63,12 @@ const HeroSection = () => (
             <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
               <div className="rounded-md shadow">
                 <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
-                  Analyze My Site Free Demo
+                  Try Our Free Demo
                 </a>
               </div>
               <div className="mt-3 sm:mt-0 sm:ml-3">
-                <a href="#how-it-works" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg">
-                  How It Works
+                <a href="#pricing" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg">
+                  See Our Simple Pricing
                 </a>
               </div>
             </div>
@@ -140,16 +140,16 @@ const PainSection = () => (
             <p>Most small business websites were never tested with expensive tests with real people before going live.</p>
           </li>
           <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-indigo-600" size={16} />
+            </div>
+            <p>Use our specially trained synthesized users to review your page at a fraction of the cost with no set up.</p>
+          </li>
+          <li className="flex items-start gap-4">
             <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-black">
               <span className="text-gray-600 font-bold">!</span>
             </div>
             <p>Visitors get confused, lost, or distracted and leave before they click “Book now” or “Buy now.”</p>
-          </li>
-          <li className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
-              <Check className="text-indigo-600" size={16} />
-            </div>
-            <p>Use our specially trained synthesized users to review your page at a fraction of the cost.</p>
           </li>
         </ul>
         <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
@@ -684,7 +684,7 @@ const SmbLandingPage: React.FC = () => {
                   top: `var(--orb-${i+1}-y, 50%)`,
                   width: `${300 + (i * 20)}px`,
                   height: `${300 + (i * 20)}px`,
-                  backgroundColor: ['#d8b4fe', '#fde047', '#f9a8d4', '#93c5fd', '#86efac', '#fdba74'][i % 6]
+                  backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
                 }}
               />
             ))}
