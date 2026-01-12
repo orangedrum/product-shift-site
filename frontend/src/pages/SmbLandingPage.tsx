@@ -592,7 +592,7 @@ const SmbLandingPage: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', 'https://app.theproductshift.com/simple-website-checkup');
+    canonical.setAttribute('href', 'https://product-shift-site.vercel.app/simple-website-checkup');
 
     // Add JSON-LD Structured Data for SoftwareApplication
     const scriptId = 'json-ld-software-app';
@@ -614,7 +614,7 @@ const SmbLandingPage: React.FC = () => {
             "offeredBy": {
               "@type": "Organization",
               "name": "Product Shift",
-              "url": "https://app.theproductshift.com"
+              "url": "https://product-shift-site.vercel.app"
             }
           },
           {
