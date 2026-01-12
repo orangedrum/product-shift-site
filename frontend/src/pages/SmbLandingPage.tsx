@@ -62,12 +62,12 @@ const HeroSection = () => (
             </p>
             <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
               <div className="rounded-md shadow">
-                <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg">
+                <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-sm font-bold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-base">
                   Try Our Free Demo
                 </a>
               </div>
               <div className="mt-3 sm:mt-0 sm:ml-3">
-                <a href="#pricing" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg">
+                <a href="#pricing" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-sm font-bold rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-base">
                   See Our Simple Pricing
                 </a>
               </div>
@@ -188,7 +188,7 @@ const FeaturesSection = () => (
             <Users size={28} className="text-indigo-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">1. Pick Your Customers</h3>
+            <h3 className="text-lg font-semibold text-gray-900">1. Choose Who Tests</h3>
             <p className="mt-1 text-base text-gray-600">Choose from 8 different types of customers (like "Busy Mom" or "College Student") to see who matches your audience.</p>
           </div>
         </div>
@@ -592,7 +592,7 @@ const SmbLandingPage: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', 'https://product-shift-site.vercel.app/simple-website-checkup');
+    canonical.setAttribute('href', 'https://app.theproductshift.com/simple-website-checkup');
 
     // Add JSON-LD Structured Data for SoftwareApplication
     const scriptId = 'json-ld-software-app';
@@ -614,7 +614,7 @@ const SmbLandingPage: React.FC = () => {
             "offeredBy": {
               "@type": "Organization",
               "name": "Product Shift",
-              "url": "https://product-shift-site.vercel.app"
+              "url": "https://app.theproductshift.com"
             }
           },
           {
