@@ -4,7 +4,6 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import SmbLandingPage from './pages/SmbLandingPage';
-import StartupLandingPage from './pages/StartupLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
@@ -20,7 +19,7 @@ const App: React.FC = () => {
   const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
     ? location.pathname.slice(0, -1) 
     : location.pathname;
-  const isLandingPage = ['/simple-website-checkup', '/startup-ux-audit'].includes(normalizedPath);
+  const isLandingPage = ['/simple-website-checkup'].includes(normalizedPath);
 
   return (
     <div className="flex flex-col min-h-screen">
