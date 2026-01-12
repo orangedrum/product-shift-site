@@ -235,7 +235,7 @@ const contentConfig = {
     card1Title: "The What",
     card1Subtitle: "Which website or URL do you want to check?",
     card2Title: "The Who",
-    card2Subtitle: "Who usually buys from you?",
+    card2Subtitle: "Choose 3-5 synthesized users who most likely buy from you.",
     card3Title: "The Why",
     card3Subtitle: "Think about why you are doing this.",
     card3Hint: "Before users can do anything, they need to understand what your website is. We recommend only after passing this the first impression test to then move to the conversion test.",
@@ -624,7 +624,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const urlSegment = searchParams.get('segment');
   const userSegment: UserSegment = (savedSegment === 'smb' || savedSegment === 'tech') ? (savedSegment as UserSegment) : ((urlSegment === 'smb' ? 'smb' : null) || 'tech');
   const text = contentConfig[userSegment] || contentConfig.tech;
-  const pricingLink = userSegment === 'smb' ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
+  const pricingLink = userSegment === 'smb' ? '/simple-website-checkup#pricing' : '/landingpg-aiuxagent#pricing';
 
   const handleCheckout = async (planId: string, applyDiscount = false) => {
     try {
@@ -820,7 +820,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
 
             {/* Card 2: The Who */}
-            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+            <div id="card-who" className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <h2 className="text-2xl font-black text-black mb-1">{text.card2Title}</h2>
               <p className="text-gray-600 font-medium mb-6">{text.card2Subtitle}</p>
 
@@ -895,6 +895,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 {isLoading ? `${text.analyzing} ${Math.round(progress)}%` : text.runButton}
               </span>
               </button>
+              {(selectedPersonas.length < 3 || selectedPersonas.length > 5) && (
+                <p 
+                  className="text-center text-red-600 font-bold mt-2 cursor-pointer hover:underline animate-pulse" 
+                  onClick={() => document.getElementById('card-who')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  pick between 3-5 users
+                </p>
+              )}
           </form>
         </div>
       )}

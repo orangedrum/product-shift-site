@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -15,10 +15,13 @@ import ReferralClaim from './pages/ReferralClaim';
 import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
+  const location = useLocation();
+  const isLandingPage = ['/simple-website-checkup', '/landingpg-aiuxagent'].includes(location.pathname);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* We pass session={undefined} so Header fetches it internally */}
-      <Header />
+      {!isLandingPage && <Header />}
       
       <main className="flex-grow">
         <Routes>
@@ -28,8 +31,8 @@ const App: React.FC = () => {
           {/* Specific Landing Page Route (Fixes the "Try Demo" link) */}
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
           
-          {/* SMB Landing Page Route */}
-          <Route path="/landingpg-instantinsights" element={<SmbLandingPage />} />
+          {/* SMB Landing Page Route (SEO Optimized) */}
+          <Route path="/simple-website-checkup" element={<SmbLandingPage />} />
           
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
@@ -47,7 +50,16 @@ const App: React.FC = () => {
         </Routes>
       </main>
       
-      <Footer />
+      {isLandingPage ? (
+        <footer className="py-8 text-center bg-gray-50 border-t border-gray-200">
+          <a href="/" className="inline-flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
+            <img src="/Favicon_1Favicon.png" alt="" className="h-5 w-5" />
+            <span>Instant Insights by The Product Shift</span>
+          </a>
+        </footer>
+      ) : (
+        <Footer />
+      )}
     </div>
   );
 };

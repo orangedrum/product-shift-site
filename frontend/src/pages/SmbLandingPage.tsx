@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import SmbHero from '../components/SmbHero';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw } from 'lucide-react';
+import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
 // --- Helper to format results ---
@@ -48,9 +47,132 @@ const formatDemoText = (text: string) => {
 
 // --- Internal Components for Landing Page Sections ---
 
+const HeroSection = () => (
+  <section className="relative bg-transparent overflow-hidden">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
+        <main className="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
+          <div className="text-center lg:text-left lg:w-1/2">
+            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+              <span className="block xl:inline">Simple Website Checkup</span>{' '}
+              <span className="block text-indigo-600 xl:inline">for Small Businesses</span>
+            </h1>
+            <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+              Stop losing customers. Our AI provides instant analysis based on industry usability standards to tell you exactly why visitors aren't buying.
+            </p>
+            <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+              <div className="rounded-md shadow">
+                <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-sm font-bold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-base">
+                  Try Our Free Demo
+                </a>
+              </div>
+              <div className="mt-3 sm:mt-0 sm:ml-3">
+                <a href="#pricing" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-sm font-bold rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-base">
+                  See Our Simple Pricing
+                </a>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center pointer-events-none">
+      <div className="p-8 w-full">
+         {/* Abstract representation of the AI analyzing */}
+         <div className="relative w-full max-w-lg mx-auto h-[500px]">
+            {/* Card 1: Alex */}
+            <div className="absolute bottom-10 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+               {/* Speech Bubble */}
+               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
+                  <p className="text-sm text-gray-800 font-medium leading-snug">"I can't find the pricing page. I'm frustrated."</p>
+                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
+               </div>
+               
+               {/* Persona */}
+               <div className="flex flex-col items-center">
+                  <div className="p-1.5 bg-white rounded-full shadow-lg">
+                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent performing a simple website checkup" />
+                  </div>
+                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
+                     <p className="font-bold text-gray-900 text-sm">Alex (AI Customer)</p>
+                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing your site...</p>
+                  </div>
+               </div>
+            </div>
+
+            {/* Card 2: Marcus */}
+            <div className="absolute top-10 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
+               {/* Speech Bubble */}
+               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
+                  <p className="text-sm text-gray-800 font-medium leading-snug">"This checkout form is asking for way too much info. I'm leaving."</p>
+                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
+               </div>
+
+               {/* Persona */}
+               <div className="flex flex-col items-center">
+                  <div className="p-1.5 bg-white rounded-full shadow-lg">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent analyzing small business website" />
+                  </div>
+                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
+                     <p className="font-bold text-gray-900 text-sm">Marcus (AI Customer)</p>
+                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing your site...</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+    </div>
+  </section>
+);
+
+const PainSection = () => (
+  <section className="bg-transparent py-16 sm:py-24">
+    <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+        <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+          If Your Website Isn’t Bringing in Calls, Bookings, or Sales, It’s Not Your Fault
+        </h2>
+        <ul className="space-y-6 text-lg text-gray-700">
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-black">
+              <span className="text-gray-600 font-bold">!</span>
+            </div>
+            <p>Most small business websites were never tested with expensive tests with real people before going live.</p>
+          </li>
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-black">
+              <span className="text-gray-600 font-bold">!</span>
+            </div>
+            <p>Visitors get confused, lost, or distracted and leave before they click “Book now” or “Buy now.”</p>
+          </li>
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-indigo-600" size={16} />
+            </div>
+            <p>Use our specially trained synthesized users to review your page at a fraction of the cost with no set up.</p>
+          </li>
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-indigo-600" size={16} />
+            </div>
+            <p>A simple website checkup shows you exactly what to fix so your existing traffic works harder.</p>
+          </li>
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-indigo-600" size={16} />
+            </div>
+            <p>Receive a prioritized checklist of fixes from a downloadable and comprehensive PDF report.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+);
+
 const FeaturesSection = () => (
-  <section className="bg-white py-24 sm:py-32">
-    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+  <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative">
       <div className="text-center">
         <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">How It Works</h2>
         <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
@@ -66,7 +188,7 @@ const FeaturesSection = () => (
             <Users size={28} className="text-indigo-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">1. Pick Your Customers</h3>
+            <h3 className="text-lg font-semibold text-gray-900">1. Choose Who Tests</h3>
             <p className="mt-1 text-base text-gray-600">Choose from 8 different types of customers (like "Busy Mom" or "College Student") to see who matches your audience.</p>
           </div>
         </div>
@@ -88,6 +210,7 @@ const FeaturesSection = () => (
             <p className="mt-1 text-base text-gray-600">Get a simple report showing exactly what to fix to help more visitors become customers.</p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </section>
@@ -227,7 +350,7 @@ const DemoSection = () => {
   return (
     <section id="demo" className="bg-gray-800 text-white py-24 sm:py-32">
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Try It Now: Free Website Check</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Try It Now: Free Demo Website Checkup</h2>
         {error && error.usageCounted === false ? (
           <div className="mt-8 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} theme="dark" /></div>
         ) : (
@@ -255,7 +378,7 @@ const PricingSection = () => (
   <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
     <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
       <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Simple Pricing</h2>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Pack 3 */}
         <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
@@ -264,6 +387,7 @@ const PricingSection = () => (
             <p className="text-4xl font-extrabold text-gray-900">$14</p>
             <p className="text-gray-500">one-time</p>
           </div>
+          <p className="text-sm text-gray-600 mt-4 text-center px-2">Run 3 tests on any pages you want. Perfect for trying your homepage, booking page, and one key offer.</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>3 Tests</strong></li>
@@ -282,6 +406,7 @@ const PricingSection = () => (
             <p className="text-4xl font-extrabold text-gray-900">$69</p>
             <p className="text-gray-500">one-time</p>
           </div>
+          <p className="text-sm text-gray-600 mt-4 text-center px-2">15 tests you can use across any pages. Ideal if you have multiple landing pages, competitors, or want to re‑test after changes.</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>15 Tests</strong></li>
@@ -299,6 +424,7 @@ const PricingSection = () => (
             <p className="text-4xl font-extrabold text-gray-900">$29</p>
             <p className="text-gray-500">per month</p>
           </div>
+          <p className="text-sm text-gray-600 mt-4 text-center px-2">10 tests every month. Great for businesses that launch new pages or want a monthly website checkup. Unused tests roll over up to 30.</p>
           <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Tests / mo</strong></li>
@@ -313,8 +439,107 @@ const PricingSection = () => (
   </section>
 );
 
+const TestimonialsSection = () => (
+  <section className="bg-indigo-900 py-24">
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+      <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by Small Business Owners</h2>
+      <p className="text-indigo-200 text-lg mb-12 -mt-8">What Other Business Owners See After a Website Checkup</p>
+      <div className="grid md:grid-cols-3 gap-8">
+        {[
+          { name: "Sarah J.", role: "Boutique Owner", text: "I thought my site was clear until Alex pointed out I didn't have a buy button above the fold. Fixed it and sales went up." },
+          { name: "Mike T.", role: "Local Plumber", text: "Simple, fast, and brutal. Exactly what I needed to hear to fix my contact form." },
+          { name: "Elena R.", role: "Freelance Designer", text: "I use this for all my clients now before I launch their sites. It catches things I miss." }
+        ].map((t, i) => (
+          <div key={i} className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left relative">
+            <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
+            <div className="flex justify-center mb-4 text-yellow-400">
+              {[...Array(5)].map((_, j) => <Star key={j} size={16} fill="currentColor" />)}
+            </div>
+            <p className="text-gray-700 mb-4 italic">"{t.text}"</p>
+            <p className="text-gray-900 font-bold">{t.name}</p>
+            <p className="text-indigo-600 text-sm">{t.role}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const FAQSection = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  
+  const scrollToDemo = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const faqs = [
+    { 
+      q: "Is the free demo really free?", 
+      a: (<span>
+          Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required. <a href="#demo" onClick={scrollToDemo} className="text-indigo-600 font-bold hover:underline">Try it now ➡️</a>
+         </span>)
+    },
+    { 
+      q: "How can I test if my website works for customers?", 
+      a: "You paste your website link, pick who you want to test as (new visitor, potential client, etc.), and the tool walks through your page like a visitor would. You get a short report showing where they’d get confused and what to fix first." 
+    },
+    { 
+      q: "Do I need to be technical to use this website checkup?", 
+      a: "No. Everything is written in plain language. You don’t need to know UX or analytics—just read the suggestions and decide which fixes to try." 
+    },
+    { 
+      q: "Can I use tests across multiple landing pages?", 
+      a: "Yes. You can use your tests on any pages you own: homepages, booking pages, sales pages, or link‑in‑bio landing pages." 
+    },
+    { 
+      q: "What’s the difference between packs and the monthly plan?", 
+      a: "Packs are one‑time purchases you can use whenever you want. The monthly plan gives you fresh tests every month so you can stay on top of new pages, campaigns, and changes." 
+    },
+    { 
+      q: "How is this different from Google Analytics?", 
+      a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')." 
+    },
+    { 
+      q: "Do I need to install anything?", 
+      a: "No. Just enter your URL and we do the rest." 
+    },
+    { 
+      q: "Can I test my competitor's site?", 
+      a: "Absolutely. It's a great way to see what they are doing right (or wrong)." 
+    }
+  ];
+
+  return (
+    <section className="bg-transparent py-24">
+      <div className="max-w-3xl mx-auto px-4">
+        <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <div key={i} className="bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden">
+              <button 
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex justify-between items-center p-4 text-left bg-white hover:bg-gray-50 transition-colors"
+              >
+                <span className="font-bold text-gray-900">{faq.q}</span>
+                {openIndex === i ? <ChevronUp size={20} className="text-black" /> : <ChevronDown size={20} className="text-black" />}
+              </button>
+              {openIndex === i && (
+                <div className="p-4 bg-gray-200 border-t border-gray-300 text-gray-800 animate-fade-in">
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const SmbLandingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 1. Capture from URL
@@ -346,12 +571,148 @@ const SmbLandingPage: React.FC = () => {
     checkAndClaim();
   }, [searchParams]);
 
+  useEffect(() => {
+    document.title = "Simple Website Checkup for Small Businesses | Product Shift";
+    
+    // Programmatically update meta description for SEO
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.");
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = "description";
+      meta.content = "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.";
+      document.head.appendChild(meta);
+    }
+
+    // Add Canonical Link (Critical for SEO to prevent duplicate content issues)
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://app.theproductshift.com/simple-website-checkup');
+
+    // Add JSON-LD Structured Data for SoftwareApplication
+    const scriptId = 'json-ld-software-app';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "Product Shift Instant Insights",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web Browser",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
+            "description": "AI-powered website usability checkup for small businesses.",
+            "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations",
+            "offeredBy": {
+              "@type": "Organization",
+              "name": "Product Shift",
+              "url": "https://app.theproductshift.com"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Is the free demo really free?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is this different from Google Analytics?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do I need to install anything?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Just enter your URL and we do the rest."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I test my competitor's site?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Absolutely. It's a great way to see what they are doing right (or wrong)."
+                }
+              }
+            ]
+          }
+        ]
+      });
+      document.head.appendChild(script);
+    }
+  }, []);
+
+  // Background Animation Effect
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateOrbs = () => {
+      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+      
+      // Update 15 orbs
+      for (let i = 1; i <= 15; i++) {
+        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
+        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
+      }
+    };
+
+    updateOrbs(); // Initial set
+    const interval = setInterval(updateOrbs, 4000); // Move every 4 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-      <main>
-        <SmbHero />
-        <FeaturesSection />
-        <DemoSection />
-        <PricingSection />
+      <main className="relative bg-white overflow-hidden" ref={containerRef}>
+        {/* Global Background Blobs */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+            {[...Array(15)].map((_, i) => (
+              <div 
+                key={i}
+                className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
+                style={{
+                  left: `var(--orb-${i+1}-x, 50%)`,
+                  top: `var(--orb-${i+1}-y, 50%)`,
+                  width: `${300 + (i * 20)}px`,
+                  height: `${300 + (i * 20)}px`,
+                  backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
+                }}
+              />
+            ))}
+        </div>
+        
+        <div className="relative z-10">
+          <HeroSection />
+          <PainSection />
+          <hr className="border-t-2 border-black my-0" />
+          <DemoSection />
+          <hr className="border-t-2 border-black my-0" />
+          <FeaturesSection />
+          <hr className="border-t-2 border-black my-0" />
+          <TestimonialsSection />
+          <hr className="border-t-2 border-black my-0" />
+          <PricingSection />
+          <hr className="border-t-2 border-black my-0" />
+          <FAQSection />
+        </div>
       </main>
   );
 };

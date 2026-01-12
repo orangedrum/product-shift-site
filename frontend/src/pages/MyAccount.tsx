@@ -71,7 +71,7 @@ const MyAccount: React.FC = () => {
   if (loading) return <div className="p-8 text-center">Loading account details...</div>;
 
   const isSmb = session?.user?.user_metadata?.segment === 'smb';
-  const pricingLink = isSmb ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
+  const pricingLink = isSmb ? '/simple-website-checkup#pricing' : '/landingpg-aiuxagent#pricing';
 
   const handleCheckout = async (planId: string, applyDiscount = false) => {
     try {
