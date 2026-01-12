@@ -140,21 +140,30 @@ const PainSection = () => (
             <p>Most small business websites were never tested with expensive tests with real people before going live.</p>
           </li>
           <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-black">
+              <span className="text-gray-600 font-bold">!</span>
+            </div>
+            <p>Visitors get confused, lost, or distracted and leave before they click “Book now” or “Buy now.”</p>
+          </li>
+          <li className="flex items-start gap-4">
             <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
               <Check className="text-indigo-600" size={16} />
             </div>
             <p>Use our specially trained synthesized users to review your page at a fraction of the cost with no set up.</p>
           </li>
           <li className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-black">
-              <span className="text-gray-600 font-bold">!</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-indigo-600" size={16} />
             </div>
-            <p>Visitors get confused, lost, or distracted and leave before they click “Book now” or “Buy now.”</p>
+            <p>A simple website checkup shows you exactly what to fix so your existing traffic works harder.</p>
+          </li>
+          <li className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-indigo-600" size={16} />
+            </div>
+            <p>Receive a prioritized checklist of fixes from a downloadable and comprehensive PDF report.</p>
           </li>
         </ul>
-        <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
-            <p className="font-bold text-gray-900 text-xl">A simple website checkup shows you exactly what to fix so your existing traffic works harder.</p>
-        </div>
       </div>
     </div>
   </section>
