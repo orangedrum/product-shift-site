@@ -595,19 +595,28 @@ const SmbLandingPage: React.FC = () => {
     canonical.setAttribute('href', 'https://app.theproductshift.com/simple-website-checkup'); // Strictly enforces HTTPS and the correct subdomain
 
     // Add Open Graph Tags for Social SEO (Facebook, LinkedIn, Twitter)
-    const setMeta = (prop: string, content: string) => {
-      let m = document.querySelector(`meta[property="${prop}"]`);
+    const setMeta = (attr: string, key: string, content: string) => {
+      let m = document.querySelector(`meta[${attr}="${key}"]`);
       if (!m) {
         m = document.createElement('meta');
-        m.setAttribute('property', prop);
+        m.setAttribute(attr, key);
         document.head.appendChild(m);
       }
       m.setAttribute('content', content);
     };
-    setMeta('og:title', 'Simple Website Checkup for Small Businesses');
-    setMeta('og:description', 'Stop losing customers. Get an instant AI website analysis based on industry usability standards.');
-    setMeta('og:url', 'https://app.theproductshift.com/simple-website-checkup');
-    setMeta('og:type', 'website');
+    
+    // Open Graph (Facebook/LinkedIn)
+    setMeta('property', 'og:title', 'Simple Website Checkup for Small Businesses');
+    setMeta('property', 'og:description', 'Stop losing customers. Get an instant AI website analysis based on industry usability standards.');
+    setMeta('property', 'og:url', 'https://app.theproductshift.com/simple-website-checkup');
+    setMeta('property', 'og:type', 'website');
+    setMeta('property', 'og:image', 'https://app.theproductshift.com/social-share.png'); // Ensure this file exists in public/
+
+    // Twitter Card
+    setMeta('name', 'twitter:card', 'summary_large_image');
+    setMeta('name', 'twitter:title', 'Simple Website Checkup for Small Businesses');
+    setMeta('name', 'twitter:description', 'Stop losing customers. Get an instant AI website analysis.');
+    setMeta('name', 'twitter:image', 'https://app.theproductshift.com/social-share.png');
 
     // Add JSON-LD Structured Data for SoftwareApplication
     const scriptId = 'json-ld-software-app';
