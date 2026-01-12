@@ -588,12 +588,6 @@ const SmbLandingPage: React.FC = () => {
     // Add JSON-LD Structured Data for SoftwareApplication
     const scriptId = 'json-ld-software-app';
     if (!document.getElementById(scriptId)) {
-      document.head.appendChild(meta);
-    }
-
-    // Add JSON-LD Structured Data for SoftwareApplication
-    const scriptId = 'json-ld-software-app';
-    if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.id = scriptId;
       script.type = 'application/ld+json';
