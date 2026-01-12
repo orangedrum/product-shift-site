@@ -27,16 +27,6 @@
     </image:image>
   </url>
   <url>
-    <loc>https://app.theproductshift.com/landingpg-aiuxagent</loc>
-    <lastmod>2024-01-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra</image:loc>
-      <image:title>AI UX Researcher Persona</image:title>
-    </image:image>
-  </url>
-  <url>
     <loc>https://app.theproductshift.com/ai-powered-ux</loc>
     <lastmod>2024-01-28</lastmod>
     <changefreq>monthly</changefreq>

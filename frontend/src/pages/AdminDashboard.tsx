@@ -18,7 +18,9 @@ interface Payment {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }) => {
-  const [secretKey, setSecretKey] = useState(initialKey);
+  const [secretKey, setSecretKey] = useState(() => {
+    return initialKey || localStorage.getItem('productShiftAdminKey') || '';
+  });
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +128,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="max-w-md w-full">
           <NeoCard title="Admin Access">
-            <form onSubmit={(e) => { e.preventDefault(); setSecretKey(inputKey); }}>
+            <form onSubmit={(e) => { 
+              e.preventDefault(); 
+              setSecretKey(inputKey);
+              localStorage.setItem('productShiftAdminKey', inputKey);
+            }}>
               <div className="mb-4">
                 <label className="block text-sm font-bold mb-2">Enter Secret Key</label>
                 <input 

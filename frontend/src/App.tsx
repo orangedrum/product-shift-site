@@ -3,7 +3,6 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
-import MarketingLandingPage from './pages/MarketingLandingPage';
 import SmbLandingPage from './pages/SmbLandingPage';
 import StartupLandingPage from './pages/StartupLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
@@ -21,7 +20,7 @@ const App: React.FC = () => {
   const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
     ? location.pathname.slice(0, -1) 
     : location.pathname;
-  const isLandingPage = ['/simple-website-checkup', '/landingpg-aiuxagent', '/startup-ux-audit'].includes(normalizedPath);
+  const isLandingPage = ['/simple-website-checkup', '/startup-ux-audit'].includes(normalizedPath);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -32,9 +31,6 @@ const App: React.FC = () => {
         <Routes>
           {/* Homepage */}
           <Route path="/" element={<HomePage />} />
-          
-          {/* Specific Landing Page Route (Fixes the "Try Demo" link) */}
-          <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
           
           {/* SMB Landing Page Route (SEO Optimized) */}
           <Route path="/simple-website-checkup" element={<SmbLandingPage />} />
