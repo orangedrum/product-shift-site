@@ -215,7 +215,7 @@ const Login: React.FC = () => {
                 </p>
                 <div className="space-y-4">
                   <button 
-                    onClick={() => window.location.href = '/landingpg-instantinsights#pricing'}
+                    onClick={() => window.location.href = '/simple-website-checkup#pricing'}
                     className="w-full flex items-center justify-center gap-3 p-4 border-2 border-black bg-white hover:bg-gray-50 rounded-xl transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
                   >
                     <Briefcase className="text-indigo-600" /> <span className="font-bold text-black">I'm a Small Business Owner</span>

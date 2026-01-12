@@ -2,7 +2,7 @@
 # 
 # HUMAN? If you are reading this, you care about how websites work.
 # You should probably run a free checkup on your own site right now:
-# https://product-shift-site.vercel.app/landingpg-instantinsights
+# https://product-shift-site.vercel.app/simple-website-checkup
 
 User-agent: *
 Allow: /

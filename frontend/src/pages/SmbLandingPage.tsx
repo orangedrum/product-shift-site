@@ -126,7 +126,7 @@ const HeroSection = () => (
 );
 
 const PainSection = () => (
-  <section className="bg-white py-16 sm:py-24">
+  <section className="bg-transparent py-16 sm:py-24">
     <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
       <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
         <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
@@ -134,24 +134,27 @@ const PainSection = () => (
         </h2>
         <ul className="space-y-6 text-lg text-gray-700">
           <li className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-black">
-              <span className="text-red-600 font-bold">!</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-black">
+              <span className="text-gray-600 font-bold">!</span>
             </div>
-            <p>Most small business websites were never tested with real people before going live.</p>
+            <p>Most small business websites were never tested with expensive tests with real people before going live.</p>
           </li>
           <li className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-black">
-              <span className="text-red-600 font-bold">!</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-black">
+              <span className="text-gray-600 font-bold">!</span>
             </div>
             <p>Visitors get confused, lost, or distracted and leave before they click “Book now” or “Buy now.”</p>
           </li>
           <li className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-black">
-              <Check className="text-green-600" size={16} />
+            <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-black">
+              <Check className="text-indigo-600" size={16} />
             </div>
-            <p className="font-bold text-gray-900">A simple website checkup shows you exactly what to fix so your existing traffic works harder.</p>
+            <p>Use our specially trained synthesized users to review your page at a fraction of the cost.</p>
           </li>
         </ul>
+        <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
+            <p className="font-bold text-gray-900 text-xl">A simple website checkup shows you exactly what to fix so your existing traffic works harder.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -468,9 +471,34 @@ const FAQSection = () => {
           Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required. <a href="#demo" onClick={scrollToDemo} className="text-indigo-600 font-bold hover:underline">Try it now ➡️</a>
          </span>)
     },
-    { q: "How is this different from Google Analytics?", a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')." },
-    { q: "Do I need to install anything?", a: "No. Just enter your URL and we do the rest." },
-    { q: "Can I test my competitor's site?", a: "Absolutely. It's a great way to see what they are doing right (or wrong)." }
+    { 
+      q: "How can I test if my website works for customers?", 
+      a: "You paste your website link, pick who you want to test as (new visitor, potential client, etc.), and the tool walks through your page like a visitor would. You get a short report showing where they’d get confused and what to fix first." 
+    },
+    { 
+      q: "Do I need to be technical to use this website checkup?", 
+      a: "No. Everything is written in plain language. You don’t need to know UX or analytics—just read the suggestions and decide which fixes to try." 
+    },
+    { 
+      q: "Can I use tests across multiple landing pages?", 
+      a: "Yes. You can use your tests on any pages you own: homepages, booking pages, sales pages, or link‑in‑bio landing pages." 
+    },
+    { 
+      q: "What’s the difference between packs and the monthly plan?", 
+      a: "Packs are one‑time purchases you can use whenever you want. The monthly plan gives you fresh tests every month so you can stay on top of new pages, campaigns, and changes." 
+    },
+    { 
+      q: "How is this different from Google Analytics?", 
+      a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')." 
+    },
+    { 
+      q: "Do I need to install anything?", 
+      a: "No. Just enter your URL and we do the rest." 
+    },
+    { 
+      q: "Can I test my competitor's site?", 
+      a: "Absolutely. It's a great way to see what they are doing right (or wrong)." 
+    }
   ];
 
   return (
@@ -545,6 +573,21 @@ const SmbLandingPage: React.FC = () => {
       const meta = document.createElement('meta');
       meta.name = "description";
       meta.content = "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.";
+      document.head.appendChild(meta);
+    }
+
+    // Add Canonical Link (Critical for SEO to prevent duplicate content issues)
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://product-shift-site.vercel.app/simple-website-checkup');
+
+    // Add JSON-LD Structured Data for SoftwareApplication
+    const scriptId = 'json-ld-software-app';
+    if (!document.getElementById(scriptId)) {
       document.head.appendChild(meta);
     }
 
@@ -655,7 +698,6 @@ const SmbLandingPage: React.FC = () => {
         
         <div className="relative z-10">
           <HeroSection />
-          <hr className="border-t-2 border-black my-0" />
           <PainSection />
           <hr className="border-t-2 border-black my-0" />
           <DemoSection />

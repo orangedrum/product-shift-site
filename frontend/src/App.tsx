@@ -16,7 +16,7 @@ import NotFound from './pages/NotFound';
 
 const App: React.FC = () => {
   const location = useLocation();
-  const isLandingPage = ['/landingpg-instantinsights', '/landingpg-aiuxagent'].includes(location.pathname);
+  const isLandingPage = ['/simple-website-checkup', '/landingpg-aiuxagent'].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -31,8 +31,8 @@ const App: React.FC = () => {
           {/* Specific Landing Page Route (Fixes the "Try Demo" link) */}
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
           
-          {/* SMB Landing Page Route */}
-          <Route path="/landingpg-instantinsights" element={<SmbLandingPage />} />
+          {/* SMB Landing Page Route (SEO Optimized) */}
+          <Route path="/simple-website-checkup" element={<SmbLandingPage />} />
           
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

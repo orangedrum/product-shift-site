@@ -624,7 +624,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const urlSegment = searchParams.get('segment');
   const userSegment: UserSegment = (savedSegment === 'smb' || savedSegment === 'tech') ? (savedSegment as UserSegment) : ((urlSegment === 'smb' ? 'smb' : null) || 'tech');
   const text = contentConfig[userSegment] || contentConfig.tech;
-  const pricingLink = userSegment === 'smb' ? '/landingpg-instantinsights#pricing' : '/landingpg-aiuxagent#pricing';
+  const pricingLink = userSegment === 'smb' ? '/simple-website-checkup#pricing' : '/landingpg-aiuxagent#pricing';
 
   const handleCheckout = async (planId: string, applyDiscount = false) => {
     try {
