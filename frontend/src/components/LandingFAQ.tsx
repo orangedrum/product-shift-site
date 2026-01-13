@@ -1,4 +1,3 @@
-// frontend/src/components/LandingFAQ.tsx
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -19,27 +18,27 @@ export const LandingFAQ: React.FC = () => {
     },
     { 
       q: "How can I test if my website works for customers?", 
-      a: "There is no technical setup or learning curve. Simply enter your URL, pick your most likely site visitor, and we take care of the rest." 
+      a: "You paste your website link, pick who you want to test as (new visitor, potential client, etc.), and the tool walks through your page like a visitor would. You get a short report showing where they’d get confused and what to fix first." 
     },
     { 
       q: "Do I need to be technical to use this website checkup?", 
-      a: "No. We take care of that. You just enter your URL, choose who you want insights from, hit enter and you'll have individual insights and a full report in seconds.  Everything is written in plain language. You don’t need to know UX or analytics. We provide clear suggestions and fixes to take action on." 
+      a: "No. Everything is written in plain language. You don’t need to know UX or analytics—just read the suggestions and decide which fixes to try." 
     },
     { 
       q: "Can I use tests across multiple landing pages?", 
-      a: "Yes. You can use your tests on any pages you own: homepages, booking pages, sales pages, or link‑in‑bio landing pages. You could even run it against high performing sites, your favorite sites, or even competitor sites to learn what works, what doesn't, and why." 
+      a: "Yes. You can use your tests on any pages you own: homepages, booking pages, sales pages, or link‑in‑bio landing pages." 
     },
     { 
       q: "What’s the difference between packs and the monthly plan?", 
-      a: "Packs are one‑time purchases you can use whenever you want and never expire. They can be bought as you go or used on top of monthly credits. The monthly plan gives you fresh tests every month so you can stay on top of new pages, campaigns, and changes." 
+      a: "Packs are one‑time purchases you can use whenever you want. The monthly plan gives you fresh tests every month so you can stay on top of new pages, campaigns, and changes." 
     },
     { 
       q: "How is this different from Google Analytics?", 
-      a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). But knowing 'the what' doesn't usually tell you how to fix it. Our AI Agent tells you WHY (e.g., 'The pricing is confusing') so you know exactly how to take action towards improvement." 
+      a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')." 
     },
     { 
       q: "Do I need to install anything?", 
-      a: "No. No setup, no learning curve, no consultant costs. Just enter your URL and we do the rest." 
+      a: "No. Just enter your URL and we do the rest." 
     },
     { 
       q: "Can I test my competitor's site?", 
