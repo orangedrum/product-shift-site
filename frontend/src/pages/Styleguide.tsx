@@ -195,6 +195,36 @@ const StyleGuide: React.FC = () => {
           </NeoCard>
         </section>
 
+        {/* Landing Page Links Section */}
+        <section>
+          <NeoCard title="Landing Pages (SEO)">
+            <p className="mb-4 text-gray-600">Direct links to the new industry-specific landing pages.</p>
+            <div className="flex flex-col gap-4 items-start">
+              <a 
+                href="/increase-ecommerce-conversion-rates" 
+                target="_blank"
+                className="text-xl text-indigo-600 hover:text-indigo-800 hover:underline font-bold flex items-center gap-2"
+              >
+                E-commerce Landing Page ↗
+              </a>
+              <a 
+                href="/convert-more-real-estate-website-visitors" 
+                target="_blank"
+                className="text-xl text-indigo-600 hover:text-indigo-800 hover:underline font-bold flex items-center gap-2"
+              >
+                Real Estate Landing Page ↗
+              </a>
+               <a 
+                href="/simple-website-checkup" 
+                target="_blank"
+                className="text-xl text-indigo-600 hover:text-indigo-800 hover:underline font-bold flex items-center gap-2"
+              >
+                SMB Landing Page ↗
+              </a>
+            </div>
+          </NeoCard>
+        </section>
+
         {/* Typography Section */}
         <section>
           <NeoCard title="Typography & Fonts">
