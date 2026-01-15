@@ -1238,7 +1238,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
 // --- Stripe Checkout Route ---
 app.post('/api/create-checkout-session', async (req, res) => {
-  const { planId, segment, applyDiscount } = req.body;
+  const { planId, segment, applyDiscount, promotekit_referral } = req.body;
   const userEmail = req.body.email; // We'll get this from the user later
 
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -1308,6 +1308,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: mode,
+      client_reference_id: promotekit_referral, // Pass PromoteKit referral ID to Stripe
       discounts: discounts.length > 0 ? discounts : undefined,
       metadata: metadata, // Pass credits info to webhook
       success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}${segment ? `&segment=${segment}` : ''}`,
