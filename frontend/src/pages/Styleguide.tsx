@@ -170,57 +170,61 @@ const StyleGuide: React.FC = () => {
 
         {/* --- MERGED LEGACY SECTIONS --- */}
 
-        {/* Application Routes Section */}
+        {/* Application Routes (Site Map) Section */}
         <section>
-          <NeoCard title="Application Routes">
-            <p className="mb-4 text-gray-600">Use these links to navigate to the main pages of the application and avoid URL typos.</p>
-            <ul className="list-disc list-inside space-y-2">
-              <li>
-                <Link to="/" className="text-blue-600 hover:underline font-semibold">Homepage</Link>
-                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/</code>
-              </li>
-              <li>
-                <Link to="/ai-powered-ux" className="text-blue-600 hover:underline font-semibold">AI UX Agent</Link>
-                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/ai-powered-ux</code>
-              </li>
-              <li>
-                <Link to="/landingpg-aiuxagent" className="text-blue-600 hover:underline font-semibold">AI Agent Landing Page</Link>
-                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/landingpg-aiuxagent</code>
-              </li>
-              <li>
-                <Link to="/admin-dashboard" className="text-blue-600 hover:underline font-semibold">Admin Dashboard</Link>
-                <code className="text-sm text-gray-500 ml-2 bg-gray-100 p-1 rounded">/admin-dashboard</code>
-              </li>
-            </ul>
-          </NeoCard>
-        </section>
+          <NeoCard title="Application Routes (Site Map)">
+            <p className="mb-4 text-gray-600">Full directory of application pages and landing pages.</p>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="font-bold text-black mb-2 border-b-2 border-gray-200 pb-1">Core App</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <Link to="/" className="text-blue-600 hover:underline font-semibold">Homepage</Link>
+                    <code className="text-xs text-gray-500 ml-2 bg-gray-100 p-1 rounded">/</code>
+                  </li>
+                  <li>
+                    <Link to="/ai-powered-ux" className="text-blue-600 hover:underline font-semibold">AI UX Agent (Tool)</Link>
+                    <code className="text-xs text-gray-500 ml-2 bg-gray-100 p-1 rounded">/ai-powered-ux</code>
+                  </li>
+                  <li>
+                    <Link to="/login" className="text-blue-600 hover:underline font-semibold">Login / Sign Up</Link>
+                    <code className="text-xs text-gray-500 ml-2 bg-gray-100 p-1 rounded">/login</code>
+                  </li>
+                  <li>
+                    <Link to="/account" className="text-blue-600 hover:underline font-semibold">My Account</Link>
+                    <code className="text-xs text-gray-500 ml-2 bg-gray-100 p-1 rounded">/account</code>
+                  </li>
+                  <li>
+                    <Link to="/admin-dashboard" className="text-blue-600 hover:underline font-semibold">Admin Dashboard</Link>
+                    <code className="text-xs text-gray-500 ml-2 bg-gray-100 p-1 rounded">/admin-dashboard</code>
+                  </li>
+                </ul>
+              </div>
 
-        {/* Landing Page Links Section */}
-        <section>
-          <NeoCard title="Landing Pages (SEO)">
-            <p className="mb-4 text-gray-600">Direct links to the new industry-specific landing pages.</p>
-            <div className="flex flex-col gap-4 items-start">
-              <a 
-                href="/increase-ecommerce-conversion-rates" 
-                target="_blank"
-                className="text-xl text-indigo-600 hover:text-indigo-800 hover:underline font-bold flex items-center gap-2"
-              >
-                E-commerce Landing Page ↗
-              </a>
-              <a 
-                href="/convert-more-real-estate-website-visitors" 
-                target="_blank"
-                className="text-xl text-indigo-600 hover:text-indigo-800 hover:underline font-bold flex items-center gap-2"
-              >
-                Real Estate Landing Page ↗
-              </a>
-               <a 
-                href="/simple-website-checkup" 
-                target="_blank"
-                className="text-xl text-indigo-600 hover:text-indigo-800 hover:underline font-bold flex items-center gap-2"
-              >
-                SMB Landing Page ↗
-              </a>
+              <div>
+                <h3 className="font-bold text-black mb-2 border-b-2 border-gray-200 pb-1">Marketing Landing Pages</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <a href="/simple-website-checkup" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      SMB Checkup ↗
+                    </a>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/simple-website-checkup</code>
+                  </li>
+                  <li>
+                    <a href="/convert-more-real-estate-website-visitors" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      Real Estate ↗
+                    </a>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/convert-more-real-estate-website-visitors</code>
+                  </li>
+                  <li>
+                    <a href="/increase-ecommerce-conversion-rates" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      E-commerce ↗
+                    </a>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/increase-ecommerce-conversion-rates</code>
+                  </li>
+                </ul>
+              </div>
             </div>
           </NeoCard>
         </section>

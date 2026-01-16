@@ -631,7 +631,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: planId, email: session?.user?.email, segment: userSegment, applyDiscount }),
+        body: JSON.stringify({ 
+          planId: planId, 
+          email: session?.user?.email, 
+          segment: userSegment, 
+          applyDiscount,
+          promotekit_referral: (window as any).promotekit_referral 
+        }),
       });
       const data = await response.json();
       if (data.url) window.location.href = data.url;
@@ -770,8 +776,24 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
 
               {/* 2. Referral Card (Vertical) */}
-              {referralCode && (
-                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white">
+              {userSegment === 'tech' ? (
+                <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl border-2 border-gray-700 shadow-lg overflow-hidden text-white">
+                  <div className="p-4 text-center">
+                    <div className="flex justify-center mb-2 text-2xl">🤝</div>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 whitespace-nowrap">Partner Program</h3>
+                    <p className="text-[10px] leading-tight mb-3 opacity-90">Earn cash by referring others.</p>
+                    <a 
+                      href="https://promotekit.com" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-white text-black text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-200 transition-colors"
+                    >
+                      Join Affiliate Program
+                    </a>
+                  </div>
+                </div>
+              ) : (referralCode && (
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white animate-fade-in">
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🎁</div>
                     <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 whitespace-nowrap">Give 1, Get 1</h3>
@@ -784,7 +806,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              )}
+              ))}
           </div>
         )}
 
