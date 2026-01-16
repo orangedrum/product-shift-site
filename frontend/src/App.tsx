@@ -7,6 +7,7 @@ import SmbLandingPage from './pages/SmbLandingPage';
 import RealtorLandingPage from './pages/RealtorLandingPage';
 import EcommerceLandingPage from './pages/EcommerceLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
+import MarketingLandingPage from './pages/MarketingLandingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
@@ -21,7 +22,7 @@ const App: React.FC = () => {
   const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
     ? location.pathname.slice(0, -1) 
     : location.pathname;
-  const isLandingPage = ['/simple-website-checkup', '/convert-more-real-estate-website-visitors', '/increase-ecommerce-conversion-rates'].includes(normalizedPath);
+  const isLandingPage = ['/simple-website-checkup', '/convert-more-real-estate-website-visitors', '/increase-ecommerce-conversion-rates', '/landingpg-aiuxagent'].includes(normalizedPath);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -38,6 +39,7 @@ const App: React.FC = () => {
           <Route path="/convert-more-real-estate-website-visitors" element={<RealtorLandingPage />} />
           <Route path="/increase-ecommerce-conversion-rates" element={<EcommerceLandingPage />} />
 
+          <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/account" element={<MyAccount />} />
