@@ -11,6 +11,7 @@ import MarketingLandingPage from './pages/MarketingLandingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
+import WaitlistPage from './pages/WaitlistPage';
 import StyleGuide from './pages/Styleguide';
 import PaymentConfirmation from './pages/PaymentConfirmation';
 import ReferralClaim from './pages/ReferralClaim';
@@ -46,6 +47,7 @@ const App: React.FC = () => {
           
           {/* This connects the /login URL to your new Neo-styled Login.tsx */}
           <Route path="/login" element={<Login />} />
+          <Route path="/waitlist" element={<WaitlistPage />} />
           
           <Route path="/styleguide" element={<StyleGuide />} />
           <Route path="/payment-success" element={<PaymentConfirmation />} />

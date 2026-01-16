@@ -1277,6 +1277,30 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       });
+    } else if (planId === 'pro') {
+      mode = 'subscription';
+      metadata = { ...metadata, credits: '40' }; // Pro plan gets 40 credits
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Pro Plan', description: '40 AI UX Audits per month' },
+          unit_amount: 7900, // $79.00
+          recurring: { interval: 'month' },
+        },
+        quantity: 1,
+      });
+    } else if (planId === 'agency') {
+      mode = 'subscription';
+      metadata = { ...metadata, credits: '100' }; // Agency plan gets 100 credits
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Agency Plan', description: '100 AI UX Audits per month' },
+          unit_amount: 19900, // $199.00
+          recurring: { interval: 'month' },
+        },
+        quantity: 1,
+      });
     } else if (planId === 'pack-3') {
       mode = 'payment';
       metadata = { ...metadata, credits: '3' };
