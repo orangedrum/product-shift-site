@@ -1334,6 +1334,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       mode: mode,
       client_reference_id: promotekit_referral, // Pass PromoteKit referral ID to Stripe
       discounts: discounts.length > 0 ? discounts : undefined,
+      allow_promotion_codes: discounts.length === 0, // Enable promo codes if no auto-discount is applied
       metadata: metadata, // Pass credits info to webhook
       success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}${segment ? `&segment=${segment}` : ''}`,
       cancel_url: `${req.headers.origin}/landingpg-aiuxagent`,

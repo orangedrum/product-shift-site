@@ -776,7 +776,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
 
               {/* 2. Referral Card (Vertical) */}
-              {userSegment === 'tech' ? (
+              {planStatus === 'active' ? (
                 <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl border-2 border-gray-700 shadow-lg overflow-hidden text-white">
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🤝</div>

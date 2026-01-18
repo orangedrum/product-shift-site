@@ -53,7 +53,12 @@ const Login: React.FC = () => {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               // Only use URL segment if DB segment is missing (New User)
-              body: JSON.stringify({ planId: plan, email: session.user.email, segment: dbSegment || segment }),
+              body: JSON.stringify({ 
+                planId: plan, 
+                email: session.user.email, 
+                segment: dbSegment || segment,
+                promotekit_referral: (window as any).promotekit_referral 
+              }),
             });
             const data = await res.json();
             if (data.url) {

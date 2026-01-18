@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle } from 'lucide-react';
+import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake } from 'lucide-react';
 
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
@@ -78,7 +78,12 @@ const MyAccount: React.FC = () => {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: planId, email: session?.user?.email, applyDiscount }),
+        body: JSON.stringify({ 
+          planId: planId, 
+          email: session?.user?.email, 
+          applyDiscount,
+          promotekit_referral: (window as any).promotekit_referral 
+        }),
       });
       const data = await response.json();
       if (data.url) window.location.href = data.url;
@@ -193,6 +198,26 @@ const MyAccount: React.FC = () => {
           </div>
         </NeoCard>
       </div>
+
+      {/* Affiliate Program (Subscribers Only) */}
+      {customer?.plan_status === 'active' && (
+        <div className="mb-12">
+          <NeoCard title="Partner Program">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="p-4 bg-gray-900 rounded-full text-white">
+                <Handshake size={32} />
+              </div>
+              <div className="flex-grow text-center md:text-left">
+                <h3 className="text-lg font-bold text-black">Earn 30% Recurring Commissions</h3>
+                <p className="text-gray-600">You are eligible for our Partner Program. Refer others and earn cash for every month they stay subscribed.</p>
+              </div>
+              <a href="https://promotekit.com" target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
+                <NeoButton className="w-full">Join Program</NeoButton>
+              </a>
+            </div>
+          </NeoCard>
+        </div>
+      )}
 
       <NeoCard title="Transaction History">
         {transactions.length === 0 ? (

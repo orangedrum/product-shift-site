@@ -409,7 +409,7 @@ const PricingSection = () => (
           </div>
           <p className="text-sm text-gray-600 mt-4 text-center px-2">15 audits you can use across any pages. Ideal if you have multiple landing pages, competitors, or want to re‑audit after changes.</p>
           <hr className="my-6" />
-          <u{/>
+          <ul/>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Save $1.40 per audit</li>
           </ul>
           <Link to={`/login?plan=pack-15&segment=${CONFIG.
