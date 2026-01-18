@@ -209,6 +209,10 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
       const session = event.data.object as Stripe.Checkout.Session;
       
       console.log(`💰 Processing checkout session: ${session.id}`);
+      if (session.total_details?.breakdown?.discounts && session.total_details.breakdown.discounts.length > 0) {
+        console.log(`🎟️ Discount Applied: ${JSON.stringify(session.total_details.breakdown.discounts)}`);
+      }
+
       const customerEmail = session.customer_details?.email;
       const segment = session.metadata?.segment;
 
@@ -1344,9 +1348,16 @@ app.post('/api/create-checkout-session', async (req, res) => {
     };
 
     // Only add optional fields if they are valid
-    if (promotekit_referral) sessionParams.client_reference_id = promotekit_referral;
-    if (discounts.length > 0) sessionParams.discounts = discounts;
-    else sessionParams.allow_promotion_codes = true; // Only enable promo codes if no internal discount is active
+    if (promotekit_referral) {
+      console.log(`🔗 Attaching PromoteKit Referral ID: ${promotekit_referral}`);
+      sessionParams.client_reference_id = promotekit_referral;
+    }
+    
+    if (discounts.length > 0) {
+      sessionParams.discounts = discounts;
+    } else {
+      sessionParams.allow_promotion_codes = true; // Only enable promo codes if no internal discount is active
+    }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
     res.json({ url: session.url });
