@@ -211,7 +211,7 @@ const MyAccount: React.FC = () => {
                 <h3 className="text-lg font-bold text-black">Earn 30% Recurring Commissions</h3>
                 <p className="text-gray-600">You are eligible for our Partner Program. Refer others and earn cash for every month they stay subscribed.</p>
               </div>
-              <a href="https://promotekit.com" target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
+              <a href="https://theproductshift.promotekit.com" target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
                 <NeoButton className="w-full">Join Program</NeoButton>
               </a>
             </div>

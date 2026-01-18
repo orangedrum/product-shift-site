@@ -464,7 +464,7 @@ const AffiliateSection = () => (
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="https://promotekit.com" 
+              href="https://theproductshift.promotekit.com" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-8 py-3 bg-white text-indigo-900 font-bold rounded-lg hover:bg-indigo-50 transition-colors"
