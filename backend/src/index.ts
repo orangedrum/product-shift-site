@@ -1327,19 +1327,28 @@ app.post('/api/create-checkout-session', async (req, res) => {
       return res.status(400).json({ error: 'Invalid Plan ID' }); 
     }
 
-    const session = await stripe.checkout.sessions.create({
+    // Determine cancel URL based on segment
+    let cancelPath = '/';
+    if (segment === 'smb') cancelPath = '/simple-website-checkup';
+    else if (segment === 'tech') cancelPath = '/landingpg-aiuxagent';
+
+    // Construct session parameters defensively
+    const sessionParams: any = {
       customer_email: userEmail, // Pass the user's email to pre-fill and link the customer
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: mode,
-      client_reference_id: promotekit_referral, // Pass PromoteKit referral ID to Stripe
-      discounts: discounts.length > 0 ? discounts : undefined,
-      allow_promotion_codes: discounts.length === 0, // Enable promo codes if no auto-discount is applied
       metadata: metadata, // Pass credits info to webhook
       success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}${segment ? `&segment=${segment}` : ''}`,
-      cancel_url: `${req.headers.origin}/landingpg-aiuxagent`,
-    });
+      cancel_url: `${req.headers.origin}${cancelPath}`,
+    };
 
+    // Only add optional fields if they are valid
+    if (promotekit_referral) sessionParams.client_reference_id = promotekit_referral;
+    if (discounts.length > 0) sessionParams.discounts = discounts;
+    else sessionParams.allow_promotion_codes = true; // Only enable promo codes if no internal discount is active
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
     res.json({ url: session.url });
   } catch (error: any) {
     console.error('Stripe Checkout Error:', error);

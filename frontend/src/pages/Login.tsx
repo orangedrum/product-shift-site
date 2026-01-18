@@ -64,10 +64,14 @@ const Login: React.FC = () => {
             if (data.url) {
               window.location.href = data.url; // Redirect to Stripe
               return;
+            } else {
+              throw new Error('No checkout URL returned');
             }
           } catch (e) {
             console.error('Checkout Redirect Failed', e);
-            // Fallback to tool if checkout fails
+            setIsRedirecting(false);
+            setMessage('Unable to start checkout. Please try again.');
+            return; // Stop execution here. Do NOT fall through to the tool.
           }
         }
 
