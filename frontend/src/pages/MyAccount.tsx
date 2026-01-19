@@ -74,6 +74,8 @@ const MyAccount: React.FC = () => {
   const pricingLink = isSmb ? '/simple-website-checkup#pricing' : '/landingpg-aiuxagent#pricing';
 
   const handleCheckout = async (planId: string, applyDiscount = false) => {
+    const referralId = (window as any).promotekit_referral;
+    console.log('🛒 Account Checkout - Referral ID:', referralId);
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',

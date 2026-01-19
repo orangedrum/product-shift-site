@@ -48,6 +48,8 @@ const Login: React.FC = () => {
         // 1. BUYER FLOW: If a plan is selected, go straight to Stripe
         if (plan) {
           setIsRedirecting(true); // Show loader immediately to prevent UI flash
+          const referralId = (window as any).promotekit_referral;
+          console.log('🛒 Login Checkout - Referral ID:', referralId);
           try {
             const res = await fetch('/api/create-checkout-session', {
               method: 'POST',

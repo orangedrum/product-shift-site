@@ -627,6 +627,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const pricingLink = userSegment === 'smb' ? '/simple-website-checkup#pricing' : '/landingpg-aiuxagent#pricing';
 
   const handleCheckout = async (planId: string, applyDiscount = false) => {
+    const referralId = (window as any).promotekit_referral;
+    console.log('🛒 Dashboard Checkout - Referral ID:', referralId);
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',

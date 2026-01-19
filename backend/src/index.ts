@@ -1357,6 +1357,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       sessionParams.discounts = discounts;
     } else {
       sessionParams.allow_promotion_codes = true; // Only enable promo codes if no internal discount is active
+      console.log('🎟️ Promo codes enabled for this session');
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
