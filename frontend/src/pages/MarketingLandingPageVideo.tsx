@@ -13,7 +13,7 @@ const CONFIG = {
   industryName: "UX Professionals & Product Teams",
   pageTitle: "AI-Powered UX Research Agent | Product Shift",
   metaDescription: "Instant usability testing with AI personas. Get feedback on your designs in seconds, not days.",
-  urlSlug: "landingpg-aiuxagent",
+  urlSlug: "landingpg-aiuxagent-video",
   
   // Hero Section
   heroTitle: "AI-Powered UX Research",
@@ -109,41 +109,19 @@ const HeroSection = () => (
         </main>
       </div>
     </div>
-    {/* Visual Element (AI Agents) */}
+    {/* Visual Element (Video Replacement) */}
     <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center pointer-events-none">
       <div className="p-8 w-full">
-         <div className="relative w-full max-w-lg mx-auto h-[500px]">
-            {/* Card 1 */}
-            <div className="absolute bottom-10 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
-                  <p className="text-sm text-gray-800 font-medium leading-snug">"The value prop isn't clear above the fold."</p>
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
-               </div>
-               <div className="flex flex-col items-center">
-                  <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
-                  </div>
-                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
-                     <p className="font-bold text-gray-900 text-sm">Alex (Busy Pro)</p>
-                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Analyzing...</p>
-                  </div>
-               </div>
-            </div>
-            {/* Card 2 */}
-            <div className="absolute top-10 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
-               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
-                  <p className="text-sm text-gray-800 font-medium leading-snug">"I need to see pricing before I commit."</p>
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
-               </div>
-               <div className="flex flex-col items-center">
-                  <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
-                  </div>
-                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
-                     <p className="font-bold text-gray-900 text-sm">Marcus (Exec)</p>
-                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Analyzing...</p>
-                  </div>
-               </div>
+         <div className="relative w-full max-w-lg mx-auto">
+            <div className="rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden bg-white">
+                <video 
+                  src="/silentscreenrecaiuxdemo.mov" 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline 
+                  className="w-full h-auto block"
+                />
             </div>
          </div>
       </div>
@@ -449,7 +427,7 @@ const PricingSection = () => (
   </section>
 );
 
-const MarketingLandingPage: React.FC = () => {
+const MarketingLandingPageVideo: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -549,4 +527,4 @@ const MarketingLandingPage: React.FC = () => {
   );
 };
 
-export default MarketingLandingPage;
+export default MarketingLandingPageVideo;

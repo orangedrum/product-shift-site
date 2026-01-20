@@ -8,6 +8,10 @@ import RealtorLandingPage from './pages/RealtorLandingPage';
 import EcommerceLandingPage from './pages/EcommerceLandingPage';
 import AiUxAgent from './pages/AiUxAgent';
 import MarketingLandingPage from './pages/MarketingLandingPage';
+import SmbLandingPageVideo from './pages/SmbLandingPageVideo';
+import RealtorLandingPageVideo from './pages/RealtorLandingPageVideo';
+import EcommerceLandingPageVideo from './pages/EcommerceLandingPageVideo';
+import MarketingLandingPageVideo from './pages/MarketingLandingPageVideo';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
@@ -23,7 +27,16 @@ const App: React.FC = () => {
   const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
     ? location.pathname.slice(0, -1) 
     : location.pathname;
-  const isLandingPage = ['/simple-website-checkup', '/convert-more-real-estate-website-visitors', '/increase-ecommerce-conversion-rates', '/landingpg-aiuxagent'].includes(normalizedPath);
+  const isLandingPage = [
+    '/simple-website-checkup', 
+    '/convert-more-real-estate-website-visitors', 
+    '/increase-ecommerce-conversion-rates', 
+    '/landingpg-aiuxagent',
+    '/simple-website-checkup-video',
+    '/convert-more-real-estate-website-visitors-video',
+    '/increase-ecommerce-conversion-rates-video',
+    '/landingpg-aiuxagent-video'
+  ].includes(normalizedPath);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -41,6 +54,13 @@ const App: React.FC = () => {
           <Route path="/increase-ecommerce-conversion-rates" element={<EcommerceLandingPage />} />
 
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
+          
+          {/* Video Landing Page Variants */}
+          <Route path="/simple-website-checkup-video" element={<SmbLandingPageVideo />} />
+          <Route path="/convert-more-real-estate-website-visitors-video" element={<RealtorLandingPageVideo />} />
+          <Route path="/increase-ecommerce-conversion-rates-video" element={<EcommerceLandingPageVideo />} />
+          <Route path="/landingpg-aiuxagent-video" element={<MarketingLandingPageVideo />} />
+
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/account" element={<MyAccount />} />

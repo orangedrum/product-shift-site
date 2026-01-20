@@ -229,6 +229,25 @@ const StyleGuide: React.FC = () => {
                     </Link>
                     <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/landingpg-aiuxagent</code>
                   </li>
+                  <li className="mt-4 border-t pt-2">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Video Variants</span>
+                  </li>
+                  <li>
+                    <a href="/simple-website-checkup-video" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">SMB Video ↗</a>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/simple-website-checkup-video</code>
+                  </li>
+                  <li>
+                    <a href="/convert-more-real-estate-website-visitors-video" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">Real Estate Video ↗</a>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/convert-more-real-estate-website-visitors-video</code>
+                  </li>
+                  <li>
+                    <a href="/increase-ecommerce-conversion-rates-video" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">E-commerce Video ↗</a>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/increase-ecommerce-conversion-rates-video</code>
+                  </li>
+                  <li>
+                    <a href="/landingpg-aiuxagent-video" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">Tech Video ↗</a>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/landingpg-aiuxagent-video</code>
+                  </li>
                 </ul>
               </div>
             </div>
