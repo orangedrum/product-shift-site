@@ -17,3 +17,7 @@ npm-debug.log*
 .DS_Store
 .vercel
 .env
+
+# Large media files
+*.mov
+*.mp4

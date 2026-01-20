@@ -115,7 +115,7 @@ const HeroSection = () => (
          <div className="relative w-full max-w-lg mx-auto">
             <div className="rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden bg-white">
                 <video 
-                  src="/silentscreenrecaiuxdemo.mov" 
+                  src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/silentscreenrecaiuxdemo.mov" 
                   autoPlay 
                   loop 
                   muted 
