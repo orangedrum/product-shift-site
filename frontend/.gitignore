@@ -1,4 +1,23 @@
-# Ignore Dropbox-specific files
-.dropbox/
-.dropbox.attr
-.dropbox.cache/
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build output
+frontend/dist/
+backend/dist/
+
+# Logs
+npm-debug.log*
+
+# Environment variables
+.env*
+
+# macOS system files
+.DS_Store
+.vercel
+.env
+
+# Large media files
+*.mov
+*.mp4
