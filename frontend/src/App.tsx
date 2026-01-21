@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
+import { GoogleAnalytics } from './components/GoogleAnalytics';
 import SmbLandingPage from './pages/SmbLandingPage';
 import RealtorLandingPage from './pages/RealtorLandingPage';
 import EcommerceLandingPage from './pages/EcommerceLandingPage';
@@ -50,6 +51,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <GoogleAnalytics />
       {/* We pass session={undefined} so Header fetches it internally */}
       {!isLandingPage && <Header />}
       
