@@ -118,7 +118,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const isTestUser = (email: string) => {
     if (!email) return false;
     const lower = email.toLowerCase();
-    return lower.includes('test') || lower.includes('demo') || lower.includes('example') || lower.includes('localhost');
+    return lower.includes('test') || 
+           lower.includes('demo') || 
+           lower.includes('example') || 
+           lower.includes('localhost') ||
+           lower.includes('+smb'); // Catch specific test aliases
   };
 
   if (loading) return <div className="p-4">Loading admin dashboard... <Loader2 className="inline-block ml-2 animate-spin" /></div>;
@@ -230,7 +234,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                   .filter((p: Payment) => !hideTestUsers || !isTestUser(p.email))
                   .map((payment: Payment) => (
                   <tr key={payment.id}>
-                    <td>{payment.email}</td>
+                    <td>
+                      {payment.email}
+                      {isTestUser(payment.email) && (
+                        <span className="ml-2 px-1.5 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase">TEST</span>
+                      )}
+                    </td>
                     <td>${(payment.amount_total / 100).toFixed(2)}</td>
                     <td>{payment.status}</td>
                     <td>{new Date(payment.created_at).toLocaleDateString()}</td>
@@ -330,7 +339,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                  .filter((s: any) => !hideTestUsers || !isTestUser(s.email))
                  .map((sub: any) => (
                  <li key={sub.id} className="py-2 flex justify-between text-sm">
-                   <span>{sub.email}</span>
+                   <span>
+                     {sub.email}
+                     {isTestUser(sub.email) && (
+                        <span className="ml-2 px-1.5 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase">TEST</span>
+                      )}
+                   </span>
                    <span className="font-bold text-green-600">{sub.plan_status}</span>
                  </li>
                ))}

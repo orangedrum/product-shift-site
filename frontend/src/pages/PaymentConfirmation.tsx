@@ -9,6 +9,7 @@ const PaymentConfirmation = () => {
   const sessionId = searchParams.get('session_id');
   const segment = searchParams.get('segment');
   const [status, setStatus] = useState<'loading' | 'success' | 'timeout'>('loading');
+  const [verifiedViaApi, setVerifiedViaApi] = useState(false);
 
   useEffect(() => {
     if (!sessionId) {
@@ -30,7 +31,7 @@ const PaymentConfirmation = () => {
       .then(res => res.json())
       .then(data => {
         if (data.verified) {
-          console.log('Payment verified via API, waiting for DB sync...');
+          setVerifiedViaApi(true);
         }
       })
       .catch(err => console.error('Verification fallback failed:', err));
@@ -38,7 +39,7 @@ const PaymentConfirmation = () => {
       // 2. Passive Polling (The "Safety Net")
       // Poll for subscription activation (Webhook latency is usually 1-3 seconds)
       let attempts = 0;
-      const maxAttempts = 30; // ~30 seconds max wait (1s interval)
+      const maxAttempts = 60; // Increased to 60s to handle cold starts
 
       const poll = setInterval(async () => {
         attempts++;
@@ -57,7 +58,14 @@ const PaymentConfirmation = () => {
           setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`), 1500);
         } else if (attempts >= maxAttempts) {
           clearInterval(poll);
-          setStatus('timeout');
+          
+          // DEDUCTIVE FIX: If API verified it, trust it even if DB is slow.
+          if (verifiedViaApi) {
+            setStatus('success');
+            setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`), 1500);
+          } else {
+            setStatus('timeout');
+          }
         }
       }, 1000);
 
@@ -65,7 +73,7 @@ const PaymentConfirmation = () => {
     };
 
     checkSubscription();
-  }, [navigate, sessionId]);
+  }, [navigate, sessionId, verifiedViaApi]); // Added verifiedViaApi dependency
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
