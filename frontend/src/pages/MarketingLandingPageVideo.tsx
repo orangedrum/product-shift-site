@@ -109,7 +109,6 @@ const HeroSection = () => (
         </main>
       </div>
     </div>
-    {/* Visual Element (Video Replacement) */}
     <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center">
       <div className="p-8 w-full">
          <VideoPlayer />
@@ -144,16 +143,16 @@ const VideoPlayer = () => {
           playsInline 
           className="w-full h-auto block"
         />
-        {showControls && (
-          <button
-            onClick={() => setIsMuted(!isMuted)}
-            className="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition-colors z-10"
-            aria-label={isMuted ? 'Unmute video' : 'Mute video'}
-          >
-            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-          </button>
-        )}
       </div>
+      {showControls && (
+        <button
+          onClick={() => setIsMuted(!isMuted)}
+          className="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition-colors z-10"
+          aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+        >
+          {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        </button>
+      )}
     </div>
   );
 };
