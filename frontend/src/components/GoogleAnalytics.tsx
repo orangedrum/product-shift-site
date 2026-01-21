@@ -9,7 +9,7 @@ export const GoogleAnalytics: React.FC = () => {
 
   useEffect(() => {
     // If the ID isn't set, don't try to load GA
-    if (GA_MEASUREMENT_ID === 'G-4EWRG56796') {
+    if (GA_MEASUREMENT_ID === 'G-XXXXXXXXXX') {
       console.warn('Google Analytics: Measurement ID is missing. Please update src/components/GoogleAnalytics.tsx');
       return;
     }
@@ -38,7 +38,7 @@ export const GoogleAnalytics: React.FC = () => {
   // Automatically track page views on route change
   useEffect(() => {
     const win = window as any;
-    if (win.gtag && GA_MEASUREMENT_ID !== 'G-4EWRG56796') {
+    if (win.gtag && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
       win.gtag('config', GA_MEASUREMENT_ID, {
         page_path: location.pathname + location.search,
       });
