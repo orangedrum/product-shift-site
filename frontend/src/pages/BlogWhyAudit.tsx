@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Share2, Check } from 'lucide-react';
+import { ArrowRight, CheckCircle, Check, Linkedin, Twitter, Facebook, Link as LinkIcon } from 'lucide-react';
 
 const BlogWhyAudit: React.FC = () => {
   const [copied, setCopied] = useState(false);
@@ -14,24 +14,10 @@ const BlogWhyAudit: React.FC = () => {
     }
   }, []);
 
-  const handleShare = async () => {
-    const shareData = {
-      title: 'Why Small Businesses Need a Website Audit',
-      text: 'Is your website silently losing you money? Learn why every small business needs a usability audit.',
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }
-    } catch (err) {
-      console.error('Error sharing:', err);
-    }
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const trackCtaClick = () => {
@@ -114,14 +100,47 @@ const BlogWhyAudit: React.FC = () => {
             </Link>
           </div>
 
-          <div className="mt-8 pt-8 border-t border-gray-200 flex justify-center">
-            <button 
-              onClick={handleShare}
-              className="inline-flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors font-medium"
-            >
-              {copied ? <Check size={20} className="text-green-500" /> : <Share2 size={20} />}
-              {copied ? 'Link Copied!' : 'Share this article'}
-            </button>
+          <div className="mt-8 pt-8 border-t border-gray-200">
+            <div className="flex flex-col items-center gap-4">
+              <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Share this article</span>
+              <div className="flex gap-3">
+                <a 
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 bg-gray-100 rounded-full text-gray-600 hover:bg-[#0077b5] hover:text-white transition-all"
+                  title="Share on LinkedIn"
+                >
+                  <Linkedin size={20} />
+                </a>
+                <a 
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Is your website silently losing you money? Learn why every small business needs a usability audit.")}&url=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 bg-gray-100 rounded-full text-gray-600 hover:bg-[#1da1f2] hover:text-white transition-all"
+                  title="Share on Twitter"
+                >
+                  <Twitter size={20} />
+                </a>
+                <a 
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 bg-gray-100 rounded-full text-gray-600 hover:bg-[#1877f2] hover:text-white transition-all"
+                  title="Share on Facebook"
+                >
+                  <Facebook size={20} />
+                </a>
+                <button 
+                  onClick={handleCopyLink}
+                  className="p-3 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-800 hover:text-white transition-all"
+                  title="Copy Link"
+                >
+                  {copied ? <Check size={20} className="text-green-500" /> : <LinkIcon size={20} />}
+                </button>
+              </div>
+              {copied && <span className="text-xs text-green-600 font-bold animate-fade-in">Link Copied!</span>}
+            </div>
           </div>
         </div>
       </article>
