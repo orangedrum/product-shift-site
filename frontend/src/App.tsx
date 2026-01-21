@@ -12,6 +12,7 @@ import SmbLandingPageVideo from './pages/SmbLandingPageVideo';
 import RealtorLandingPageVideo from './pages/RealtorLandingPageVideo';
 import EcommerceLandingPageVideo from './pages/EcommerceLandingPageVideo';
 import MarketingLandingPageVideo from './pages/MarketingLandingPageVideo';
+import FreeWebsiteAuditSmb from './pages/FreeWebsiteAuditSmb';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
@@ -35,7 +36,8 @@ const App: React.FC = () => {
     '/simple-website-checkup-video',
     '/convert-more-real-estate-website-visitors-video',
     '/increase-ecommerce-conversion-rates-video',
-    '/landingpg-aiuxagent-video'
+    '/landingpg-aiuxagent-video',
+    '/free-website-audit-for-small-business'
   ].includes(normalizedPath);
 
   return (
@@ -60,6 +62,7 @@ const App: React.FC = () => {
           <Route path="/convert-more-real-estate-website-visitors-video" element={<RealtorLandingPageVideo />} />
           <Route path="/increase-ecommerce-conversion-rates-video" element={<EcommerceLandingPageVideo />} />
           <Route path="/landingpg-aiuxagent-video" element={<MarketingLandingPageVideo />} />
+          <Route path="/free-website-audit-for-small-business" element={<FreeWebsiteAuditSmb />} />
 
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
