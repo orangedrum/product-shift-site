@@ -37,7 +37,7 @@ export const GoogleAnalytics: React.FC = () => {
       // Enable debug_mode to force data into GA DebugView (helps with testing)
       win.gtag('config', GA_MEASUREMENT_ID, {
         debug_mode: true
-      };
+      });
     }
   }, []);
 
