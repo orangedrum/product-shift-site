@@ -45,13 +45,13 @@ const PaymentConfirmation = () => {
         attempts++;
         
         // Check if the payment has been logged in our DB (Webhook completed)
-        const { data: payment } = await supabase
+        const { data: payments } = await supabase
           .from('payments')
           .select('id')
           .eq('stripe_session_id', sessionId)
-          .single();
+          .limit(1);
           
-        if (payment) {
+        if (payments && payments.length > 0) {
           clearInterval(poll);
           setStatus('success');
           // Short delay to show the success state before redirecting
