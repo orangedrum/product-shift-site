@@ -553,32 +553,54 @@ const EcommerceLandingPageVideo: React.FC = () => {
     setMeta('name', 'twitter:image', 'https://app.theproductshift.com/social-share.png');
 
     // Add JSON-LD Structured Data
-    const scriptId = 'json-ld-software-app';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify({
+    const scriptId = 'json-ld-ecommerce-video';
+    document.getElementById(scriptId)?.remove();
+
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
         "@context": "https://schema.org",
         "@graph": [
           {
             "@type": "SoftwareApplication",
             "name": "Product Shift Instant Insights",
             "applicationCategory": "BusinessApplication",
-            "operatingSystem": "Web Browser",
             "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
             "description": CONFIG.metaDescription,
-            "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations",
-            "offeredBy": {
-              "@type": "Organization",
-              "name": "Product Shift",
-              "url": "https://app.theproductshift.com"
-            }
+            "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations"
+          },
+          {
+            "@type": "VideoObject",
+            "name": "Product Shift AI UX Demo for E-commerce",
+            "description": "See how Product Shift's AI provides instant usability feedback for e-commerce stores.",
+            "uploadDate": "2024-01-21T08:00:00+00:00",
+            "thumbnailUrl": "https://app.theproductshift.com/video-thumbnail.jpg",
+            "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
+            "duration": "PT1M30S"
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Is the free demo really free?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required." }
+              },
+              {
+                "@type": "Question",
+                "name": "How is this different from Shopify Analytics?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Shopify Analytics tells you WHAT is happening (e.g., high cart abandonment). Our AI Agent tells you WHY (e.g., 'The shipping cost was a surprise')." }
+              }
+            ]
           }
         ]
       });
-      document.head.appendChild(script);
-    }
+    document.head.appendChild(script);
+
+    return () => {
+      document.getElementById(scriptId)?.remove();
+    };
   }, []);
 
   // Background Animation Effect

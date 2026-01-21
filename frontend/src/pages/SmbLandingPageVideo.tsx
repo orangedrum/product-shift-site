@@ -548,12 +548,13 @@ const SmbLandingPageVideo: React.FC = () => {
     setMeta('name', 'twitter:image', 'https://app.theproductshift.com/social-share.png');
 
     // Add JSON-LD Structured Data for SoftwareApplication
-    const scriptId = 'json-ld-software-app';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify({
+    const scriptId = 'json-ld-smb-video';
+    document.getElementById(scriptId)?.remove(); // Clean up previous script
+
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
         "@context": "https://schema.org",
         "@graph": [
           {
@@ -569,6 +570,15 @@ const SmbLandingPageVideo: React.FC = () => {
               "name": "Product Shift",
               "url": "https://product-shift-site.vercel.app"
             }
+          },
+          {
+            "@type": "VideoObject",
+            "name": "Product Shift AI UX Demo",
+            "description": "See how Product Shift's AI provides instant usability feedback for small business websites.",
+            "uploadDate": "2024-01-21T08:00:00+00:00",
+            "thumbnailUrl": "https://app.theproductshift.com/video-thumbnail.jpg",
+            "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
+            "duration": "PT1M30S"
           },
           {
             "@type": "FAQPage",
@@ -609,8 +619,11 @@ const SmbLandingPageVideo: React.FC = () => {
           }
         ]
       });
-      document.head.appendChild(script);
-    }
+    document.head.appendChild(script);
+
+    return () => {
+      document.getElementById(scriptId)?.remove();
+    };
   }, []);
 
   // Background Animation Effect

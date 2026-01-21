@@ -490,16 +490,67 @@ const MarketingLandingPageVideo: React.FC = () => {
   useEffect(() => {
     document.title = `${CONFIG.pageTitle}`;
     
-    // Programmatically update meta description for SEO
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', CONFIG.metaDescription);
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = "description";
-      meta.content = CONFIG.metaDescription;
-      document.head.appendChild(meta);
     }
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', `https://app.theproductshift.com/${CONFIG.urlSlug}`);
+
+    const scriptId = 'json-ld-marketing-video';
+    document.getElementById(scriptId)?.remove();
+
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "Product Shift AI UX Agent",
+          "applicationCategory": "BusinessApplication",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
+          "description": CONFIG.metaDescription,
+          "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations"
+        },
+        {
+          "@type": "VideoObject",
+          "name": "Product Shift AI UX Demo for Product Teams",
+          "description": "See how Product Shift's AI provides instant usability feedback for product teams and UX professionals.",
+          "uploadDate": "2024-01-21T08:00:00+00:00",
+          "thumbnailUrl": "https://app.theproductshift.com/video-thumbnail.jpg",
+          "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
+          "duration": "PT1M30S"
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Is the free demo really free?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required." }
+            },
+            {
+              "@type": "Question",
+              "name": "How is this different from Hotjar or FullStory?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Session replay tools show you WHAT users did. Our AI Agent tells you WHY they did it, verbalizing their confusion and thought process." }
+            }
+          ]
+        }
+      ]
+    });
+    document.head.appendChild(script);
+
+    return () => {
+      document.getElementById(scriptId)?.remove();
+    };
   }, []);
 
   // Background Animation Effect
