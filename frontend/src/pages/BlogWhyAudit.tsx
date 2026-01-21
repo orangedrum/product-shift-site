@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle } from 'lucide-react';
 
 const BlogWhyAudit: React.FC = () => {
   useEffect(() => {
+    console.log('BlogWhyAudit mounted');
     document.title = "Why Small Businesses Need a Website Audit | Product Shift";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {

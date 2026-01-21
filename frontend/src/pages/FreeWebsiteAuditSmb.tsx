@@ -462,6 +462,7 @@ const FreeWebsiteAuditSmb: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log('FreeWebsiteAuditSmb mounted');
     // 1. Capture from URL
     const ref = searchParams.get('ref');
     if (ref) {

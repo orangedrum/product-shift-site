@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
 import SmbLandingPage from './pages/SmbLandingPage';
 import RealtorLandingPage from './pages/RealtorLandingPage';
@@ -48,6 +49,7 @@ const App: React.FC = () => {
       {!isLandingPage && <Header />}
       
       <main className="flex-grow">
+        <ErrorBoundary>
         <Routes>
           {/* Homepage */}
           <Route path="/" element={<HomePage />} />
@@ -82,6 +84,7 @@ const App: React.FC = () => {
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </ErrorBoundary>
       </main>
       
       {isLandingPage ? (
