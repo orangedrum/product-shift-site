@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Share2, Check } from 'lucide-react';
 
 const BlogWhyAudit: React.FC = () => {
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     console.log('✅ BlogWhyAudit Component Mounted Successfully');
     document.title = "Why Small Businesses Need a Website Audit | Product Shift";
@@ -11,6 +13,35 @@ const BlogWhyAudit: React.FC = () => {
       metaDescription.setAttribute('content', "Is your website silently losing you money? Learn why every small business needs a usability audit to fix hidden friction points.");
     }
   }, []);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Why Small Businesses Need a Website Audit',
+      text: 'Is your website silently losing you money? Learn why every small business needs a usability audit.',
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
+  const trackCtaClick = () => {
+    if ((window as any).gtag) {
+      (window as any).gtag('event', 'click_audit_cta', {
+        event_category: 'engagement',
+        event_label: 'blog_bottom_cta'
+      });
+    }
+  };
 
   return (
     <div className="bg-white min-h-screen font-sans text-gray-900">
@@ -76,10 +107,21 @@ const BlogWhyAudit: React.FC = () => {
             </p>
             <Link 
               to="/free-website-audit-for-small-business" 
+              onClick={trackCtaClick}
               className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               Get Your Free Website Audit Now <ArrowRight className="ml-2" />
             </Link>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-gray-200 flex justify-center">
+            <button 
+              onClick={handleShare}
+              className="inline-flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors font-medium"
+            >
+              {copied ? <Check size={20} className="text-green-500" /> : <Share2 size={20} />}
+              {copied ? 'Link Copied!' : 'Share this article'}
+            </button>
           </div>
         </div>
       </article>

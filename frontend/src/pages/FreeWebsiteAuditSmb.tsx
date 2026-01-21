@@ -385,7 +385,18 @@ const PricingSection = () => (
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>3 Audits</strong></li>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Audits never expire</li>
           </ul>
-          <Link to="/login?plan=pack-3&segment=smb" className="mt-8 block w-full text-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition-colors">
+          <Link 
+            to="/login?plan=pack-3&segment=smb" 
+            onClick={() => {
+              if ((window as any).gtag) {
+                (window as any).gtag('event', 'begin_checkout', {
+                  item_name: 'Quick Audit (3 Pack)',
+                  value: 14.00,
+                  currency: 'USD'
+                });
+              }
+            }}
+            className="mt-8 block w-full text-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition-colors">
             Buy Pack
           </Link>
         </div>
@@ -404,7 +415,18 @@ const PricingSection = () => (
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>15 Audits</strong></li>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Save $1.40 per audit</li>
           </ul>
-          <Link to="/login?plan=pack-15&segment=smb" className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+          <Link 
+            to="/login?plan=pack-15&segment=smb" 
+            onClick={() => {
+              if ((window as any).gtag) {
+                (window as any).gtag('event', 'begin_checkout', {
+                  item_name: 'Pro Audit Pack (15 Pack)',
+                  value: 69.00,
+                  currency: 'USD'
+                });
+              }
+            }}
+            className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
             Buy Pack
           </Link>
         </div>
@@ -422,7 +444,18 @@ const PricingSection = () => (
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Audits / mo</strong></li>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Consistent auditing</li>
           </ul>
-          <Link to="/login?plan=starter&segment=smb" className="mt-8 block w-full text-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors">
+          <Link 
+            to="/login?plan=starter&segment=smb" 
+            onClick={() => {
+              if ((window as any).gtag) {
+                (window as any).gtag('event', 'begin_checkout', {
+                  item_name: 'Monthly Audits',
+                  value: 29.00,
+                  currency: 'USD'
+                });
+              }
+            }}
+            className="mt-8 block w-full text-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors">
             Subscribe
           </Link>
         </div>
