@@ -51,6 +51,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         }
         const data = await res.json();
         setStats(data);
+        
+        // Auto-tag this device as internal for Google Analytics
+        localStorage.setItem('ga_internal_user', 'true');
       } catch (e: any) {
         setError(e.message);
       } finally {

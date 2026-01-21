@@ -34,9 +34,23 @@ export const GoogleAnalytics: React.FC = () => {
 
       win.gtag('js', new Date());
       
-      // Enable debug_mode to force data into GA DebugView (helps with testing)
+      // Detect if we are on localhost
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      // Check for internal user flag (set by Admin Dashboard)
+      const isInternalUser = localStorage.getItem('ga_internal_user') === 'true';
+      
+      const isDevOrInternal = isLocal || isInternalUser;
+
+      if (isDevOrInternal) {
+        console.log('[GA] Internal/Dev traffic detected. Events will be tagged as traffic_type: internal');
+      }
+
+      // Configure GA4
+      // debug_mode: true sends events to DebugView (great for testing)
+      // traffic_type: 'internal' allows you to filter this data out of main reports in GA4 Admin
       win.gtag('config', GA_MEASUREMENT_ID, {
-        debug_mode: true
+        debug_mode: isDevOrInternal,
+        traffic_type: isDevOrInternal ? 'internal' : undefined
       });
     }
   }, []);
