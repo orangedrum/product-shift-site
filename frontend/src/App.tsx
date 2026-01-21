@@ -19,7 +19,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
 import WaitlistPage from './pages/WaitlistPage';
-import StyleGuide from './pages/Styleguide';
+import StyleGuide from './pages/StyleGuide';
 import PaymentConfirmation from './pages/PaymentConfirmation';
 import ReferralClaim from './pages/ReferralClaim';
 import NotFound from './pages/NotFound';
