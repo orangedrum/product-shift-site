@@ -17,12 +17,24 @@ const PaymentConfirmation = () => {
       return;
     }
 
-    const checkSubscription = async () => {
+    // 1. FAST LANE: If API verified it, succeed immediately.
+    // This prevents waiting for the DB polling loop if the API is faster.
+    if (verifiedViaApi) {
+      setStatus('success');
+      const timer = setTimeout(() => {
+        navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+
+    let pollInterval: NodeJS.Timeout;
+
+    const startChecks = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // 1. Active Verification (The "Fast Lane")
-      // Immediately ask the backend to verify with Stripe, in case webhook is slow/missing.
+      // 2. Trigger API Verification (Fire & Forget)
+      // This runs in parallel with DB polling.
       fetch('/api/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,18 +42,15 @@ const PaymentConfirmation = () => {
       })
       .then(res => res.json())
       .then(data => {
-        if (data.verified) {
-          setVerifiedViaApi(true);
-        }
+        if (data.verified) setVerifiedViaApi(true); // Triggers re-render -> Fast Lane
       })
-      .catch(err => console.error('Verification fallback failed:', err));
+      .catch(err => console.error('Verification API failed:', err));
 
-      // 2. Passive Polling (The "Safety Net")
-      // Poll for subscription activation (Webhook latency is usually 1-3 seconds)
+      // 3. Poll DB (The Safety Net)
       let attempts = 0;
-      const maxAttempts = 60; // Increased to 60s to handle cold starts
+      const maxAttempts = 60;
 
-      const poll = setInterval(async () => {
+      pollInterval = setInterval(async () => {
         attempts++;
         
         // Check if the payment has been logged in our DB (Webhook completed)
@@ -52,28 +61,23 @@ const PaymentConfirmation = () => {
           .limit(1);
           
         if (payments && payments.length > 0) {
-          clearInterval(poll);
+          clearInterval(pollInterval);
           setStatus('success');
           // Short delay to show the success state before redirecting
           setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`), 1500);
         } else if (attempts >= maxAttempts) {
-          clearInterval(poll);
-          
-          // DEDUCTIVE FIX: If API verified it, trust it even if DB is slow.
-          if (verifiedViaApi) {
-            setStatus('success');
-            setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`), 1500);
-          } else {
-            setStatus('timeout');
-          }
+          clearInterval(pollInterval);
+          setStatus('timeout');
         }
       }, 1000);
-
-      return () => clearInterval(poll);
     };
 
-    checkSubscription();
-  }, [navigate, sessionId, verifiedViaApi]); // Added verifiedViaApi dependency
+    startChecks();
+
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+    };
+  }, [navigate, sessionId, verifiedViaApi, segment]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
