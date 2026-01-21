@@ -14,7 +14,17 @@ export const GoogleAnalytics: React.FC = () => {
       return;
     }
 
-    // Inject the GA script if it doesn't exist
+    // 1. Initialize window.dataLayer and window.gtag immediately
+    // This ensures the function exists even before the script loads or if the script check fails.
+    const win = window as any;
+    win.dataLayer = win.dataLayer || [];
+    if (!win.gtag) {
+      win.gtag = function(...args: any[]) {
+        win.dataLayer.push(args);
+      };
+    }
+
+    // 2. Inject the GA script if it doesn't exist
     const scriptId = 'ga-script';
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
@@ -23,15 +33,10 @@ export const GoogleAnalytics: React.FC = () => {
       script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
       document.head.appendChild(script);
 
-      // Initialize window.dataLayer
-      const win = window as any;
-      win.dataLayer = win.dataLayer || [];
-      win.gtag = function(...args: any[]) {
-        win.dataLayer.push(args);
-      };
-      
+      // 3. Initial Config
       win.gtag('js', new Date());
       win.gtag('config', GA_MEASUREMENT_ID);
+      console.log(`[GA] Initialized with ID: ${GA_MEASUREMENT_ID}`);
     }
   }, []);
 
@@ -42,6 +47,7 @@ export const GoogleAnalytics: React.FC = () => {
       win.gtag('config', GA_MEASUREMENT_ID, {
         page_path: location.pathname + location.search,
       });
+      console.log(`[GA] Page View Sent: ${location.pathname}`);
     }
   }, [location]);
 
