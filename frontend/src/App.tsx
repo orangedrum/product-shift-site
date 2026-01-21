@@ -89,7 +89,7 @@ const App: React.FC = () => {
               <span>Instant Insights by The Product Shift</span>
             </a>
             <span className="text-gray-300">|</span>
-            <Link to="/simple-website-checkup-video" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Watch Demo</Link>
+            <Link to="/free-website-audit-for-small-business" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Free Website Audit</Link>
           </div>
         </footer>
       ) : (
