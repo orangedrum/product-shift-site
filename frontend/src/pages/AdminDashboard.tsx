@@ -42,7 +42,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       }
 
       try {
-        const res = await fetch('/api/admin/stats', {
+        const res = await fetch(`/api/admin/stats?exclude_test_data=${hideTestUsers}`, {
           headers: { Authorization: `Bearer ${secretKey}` },
         });
         if (!res.ok) {
@@ -59,7 +59,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     };
 
     fetchStats();
-  }, [secretKey]);
+  }, [secretKey, hideTestUsers]);
 
   const handleRefund = async () => {
     if (!selectedPayment) return;

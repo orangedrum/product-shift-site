@@ -1573,6 +1573,13 @@ app.delete('/api/admin/errors/:id', async (req, res) => {
 app.get('/api/admin/stats', async (req, res) => {
   const authHeader = req.headers.authorization;
   const secretKey = process.env.ADMIN_SECRET_KEY;
+  const excludeTestData = req.query.exclude_test_data === 'true';
+
+  const isTestUser = (identifier: string | null) => {
+    if (!identifier) return false;
+    const lower = identifier.toLowerCase();
+    return lower.includes('test') || lower.includes('demo') || lower.includes('example') || lower.includes('localhost') || lower.includes('+smb');
+  };
 
   // 1. Security Check
   if (!secretKey) {
@@ -1599,23 +1606,27 @@ app.get('/api/admin/stats', async (req, res) => {
     // Get Daily Usage (Sum of all counts for today)
     const { data: usageData, error: usageError } = await supabase
         .from('daily_usage')
-        .select('count')
+        .select('count, user_identifier')
         .eq('usage_date', today);
     
     if (usageError) throw usageError;
-    const dailyUsage = usageData?.reduce((acc, curr) => acc + curr.count, 0) || 0;
+    
+    const filteredUsage = excludeTestData ? usageData?.filter(u => !isTestUser(u.user_identifier)) : usageData;
+    const dailyUsage = filteredUsage?.reduce((acc, curr) => acc + curr.count, 0) || 0;
 
     // Get Waitlist Count
-    const { count: waitlistCount, error: waitlistError } = await supabase
+    const { data: waitlistData, error: waitlistError } = await supabase
         .from('waitlist_emails')
-        .select('*', { count: 'exact', head: true });
+        .select('email');
     
     if (waitlistError) throw waitlistError;
+    const filteredWaitlist = excludeTestData ? waitlistData?.filter(w => !isTestUser(w.email)) : waitlistData;
 
     // Get Referral Count
-    const { count: referralCount } = await supabase
+    const { data: referralData } = await supabase
         .from('referrals')
-        .select('*', { count: 'exact', head: true });
+        .select('referee_email');
+    const filteredReferrals = excludeTestData ? referralData?.filter(r => !isTestUser(r.referee_email)) : referralData;
 
     // Get Recent Errors
     const { data: recentErrors } = await supabase
@@ -1645,16 +1656,18 @@ app.get('/api/admin/stats', async (req, res) => {
     // Get Financial Stats
     const { data: allPayments } = await supabase
       .from('payments')
-      .select('amount_total, status, created_at')
+      .select('amount_total, status, created_at, email')
       .eq('status', 'paid'); // Only count successful payments
     
-    const totalRevenueCents = allPayments?.reduce((acc, curr) => acc + curr.amount_total, 0) || 0;
+    const filteredPayments = excludeTestData ? allPayments?.filter(p => !isTestUser(p.email)) : allPayments;
+    
+    const totalRevenueCents = filteredPayments?.reduce((acc, curr) => acc + curr.amount_total, 0) || 0;
     
     // Breakdown by Plan (Heuristic based on price points)
     const salesBreakdown = {
-      pack3: allPayments?.filter(p => p.amount_total === 1400).length || 0,
-      pack15: allPayments?.filter(p => p.amount_total === 6900).length || 0,
-      starter: allPayments?.filter(p => p.amount_total === 2900).length || 0,
+      pack3: filteredPayments?.filter(p => p.amount_total === 1400).length || 0,
+      pack15: filteredPayments?.filter(p => p.amount_total === 6900).length || 0,
+      starter: filteredPayments?.filter(p => p.amount_total === 2900).length || 0,
     };
 
     // Get Recent Payments (for Admin Review/Refunds)
@@ -1664,7 +1677,17 @@ app.get('/api/admin/stats', async (req, res) => {
       .order('created_at', { ascending: false })
       .limit(20);
 
-    res.json({ dailyUsage, waitlistCount: waitlistCount || 0, referralCount: referralCount || 0, recentErrors: recentErrors || [], recentRuns: recentRuns || [], recentSubscribers: recentSubscribers || [], totalRevenue: totalRevenueCents / 100, salesBreakdown, recentPayments });
+    res.json({ 
+        dailyUsage, 
+        waitlistCount: filteredWaitlist?.length || 0, 
+        referralCount: filteredReferrals?.length || 0, 
+        recentErrors: recentErrors || [], 
+        recentRuns: recentRuns || [], 
+        recentSubscribers: recentSubscribers || [], 
+        totalRevenue: totalRevenueCents / 100, 
+        salesBreakdown, 
+        recentPayments 
+    });
   } catch (error: any) {
     console.error('Admin Stats Error:', error);
     res.status(500).json({ error: 'Failed to fetch stats', details: error.message });
