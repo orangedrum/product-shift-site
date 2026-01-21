@@ -77,25 +77,54 @@ const HeroSection = () => (
         </main>
       </div>
     </div>
-    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center pointer-events-none">
+    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center">
       <div className="p-8 w-full">
          {/* Video Demo Replacement */}
-         <div className="relative w-full max-w-lg mx-auto">
-            <div className="rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden bg-white">
-                <video 
-                  src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline 
-                  className="w-full h-auto block"
-                />
-            </div>
-         </div>
+         <VideoPlayer />
       </div>
     </div>
   </section>
 );
+
+const VideoPlayer = () => {
+  const [isMuted, setIsMuted] = useState(true);
+  const [showControls, setShowControls] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  return (
+    <div 
+      className="relative w-full max-w-lg mx-auto"
+      onMouseEnter={() => setShowControls(true)}
+      onMouseLeave={() => setShowControls(false)}
+    >
+      <div className="rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden bg-white">
+        <video 
+          ref={videoRef}
+          src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
+          autoPlay 
+          loop 
+          playsInline 
+          className="w-full h-auto block"
+        />
+        {showControls && (
+          <button
+            onClick={() => setIsMuted(!isMuted)}
+            className="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition-colors z-10"
+            aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+          >
+            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const PainSection = () => (
   <section className="bg-transparent py-16 sm:py-24">
