@@ -43,6 +43,11 @@ const App: React.FC = () => {
     '/blog/why-small-businesses-need-website-audit'
   ].includes(normalizedPath);
 
+  // Debugging: Log current path to ensure router is working
+  React.useEffect(() => {
+    console.log('Current Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
+  }, [location, normalizedPath, isLandingPage]);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* We pass session={undefined} so Header fetches it internally */}
@@ -98,6 +103,7 @@ const App: React.FC = () => {
             <Link to="/free-website-audit-for-small-business" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Free Website Audit</Link>
             <span className="text-gray-300">|</span>
             <Link to="/blog/why-small-businesses-need-website-audit" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Why Audit?</Link>
+            <span className="text-xs text-gray-300 ml-4">v1.1</span>
           </div>
         </footer>
       ) : (
