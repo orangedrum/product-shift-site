@@ -13,6 +13,7 @@ import RealtorLandingPageVideo from './pages/RealtorLandingPageVideo';
 import EcommerceLandingPageVideo from './pages/EcommerceLandingPageVideo';
 import MarketingLandingPageVideo from './pages/MarketingLandingPageVideo';
 import FreeWebsiteAuditSmb from './pages/FreeWebsiteAuditSmb';
+import BlogWhyAudit from './pages/BlogWhyAudit';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
@@ -37,7 +38,8 @@ const App: React.FC = () => {
     '/convert-more-real-estate-website-visitors-video',
     '/increase-ecommerce-conversion-rates-video',
     '/landingpg-aiuxagent-video',
-    '/free-website-audit-for-small-business'
+    '/free-website-audit-for-small-business',
+    '/blog/why-small-businesses-need-website-audit'
   ].includes(normalizedPath);
 
   return (
@@ -63,6 +65,7 @@ const App: React.FC = () => {
           <Route path="/increase-ecommerce-conversion-rates-video" element={<EcommerceLandingPageVideo />} />
           <Route path="/landingpg-aiuxagent-video" element={<MarketingLandingPageVideo />} />
           <Route path="/free-website-audit-for-small-business" element={<FreeWebsiteAuditSmb />} />
+          <Route path="/blog/why-small-businesses-need-website-audit" element={<BlogWhyAudit />} />
 
           <Route path="/ai-powered-ux" element={<AiUxAgent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
@@ -90,6 +93,8 @@ const App: React.FC = () => {
             </a>
             <span className="text-gray-300">|</span>
             <Link to="/free-website-audit-for-small-business" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Free Website Audit</Link>
+            <span className="text-gray-300">|</span>
+            <Link to="/blog/why-small-businesses-need-website-audit" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Why Audit?</Link>
           </div>
         </footer>
       ) : (
