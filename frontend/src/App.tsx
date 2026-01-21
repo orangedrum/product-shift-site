@@ -49,6 +49,11 @@ const App: React.FC = () => {
     console.log('Current Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
   }, [location, normalizedPath, isLandingPage]);
 
+  // Scroll to top on route change
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <GoogleAnalytics />
