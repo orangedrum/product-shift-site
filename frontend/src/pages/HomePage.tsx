@@ -6,6 +6,7 @@ import AgencyPartner from '../components/AgencyPartner';
 import FinalCta from '../components/FinalCta';
 import Speaker from '../components/Speaker';
 import About from '../components/About';
+import Blog from '../components/Blog';
 
 const HomePage = () => {
   return (
@@ -16,6 +17,7 @@ const HomePage = () => {
       <CoreServices />
       <Speaker />
       <About />
+      <Blog />
       <FinalCta />
     </>
   );
