@@ -1,5 +1,7 @@
 import React from 'react';
-import { Quote, PlayCircle, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
+import { VideoThumbnail } from './VideoThumbnail';
+import { QuoteBlock } from './QuoteBlock';
 
 const Speaker = () => {
   const handleVideoPlay = () => {
@@ -12,36 +14,19 @@ const Speaker = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
             Sought After
-            <span className="bg-marketing-gradient bg-clip-text text-transparent"> Tech Speaker</span>
+            <span className="bg-marketing-gradient bg-clip-text text-transparent"> Tech Speaker & Podcast Guest</span>
           </h2>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left - Video */}
           <div className="relative animate-float">
-            <div 
-              className="relative rounded-2xl overflow-hidden shadow-elegant cursor-pointer group border-4 border-white" 
-              onClick={handleVideoPlay}
-            >
-              <img 
-                src="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" 
-                alt="Jean speaking at conference" 
-                className="w-full h-auto transition-transform duration-300 group-hover:scale-105" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/40 to-transparent"></div>
-              
-              {/* Play Button Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 group-hover:bg-white/30 transition-all duration-300">
-                  <PlayCircle className="h-16 w-16 text-white" />
-                </div>
-              </div>
-              
-              {/* Video Label */}
-              <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2">
-                <span className="text-white text-sm font-medium">Watch Speaking Reel</span>
-              </div>
-            </div>
+            <VideoThumbnail 
+              imageSrc="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png"
+              alt="Jean speaking at conference"
+              onPlay={handleVideoPlay}
+              label="Watch Speaking Reel"
+            />
             
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-marketing-gradient rounded-full opacity-20 animate-pulse blur-xl"></div>
             <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-brand-pink rounded-full opacity-30 animate-pulse delay-1000 blur-xl"></div>
@@ -49,22 +34,11 @@ const Speaker = () => {
 
           {/* Right - Testimonial */}
           <div className="text-center lg:text-left">
-            <div className="bg-gradient-subtle border border-gray-200 rounded-lg p-6 mb-8 shadow-sm">
-              <div className="flex items-start space-x-4">
-                <Quote className="h-6 w-6 text-brand-pink flex-shrink-0 mt-1" />
-                <div>
-                  <blockquote className="text-gray-600 italic mb-4 text-left">
-                    "Jean is an incredible member of the User Experience community in Orlando, Florida. She has educated and inspired her colleagues again and again as an engaging speaker for several events and meetups. As an event organizer, she was a pleasure to work with when speaking at the Downtown UX Conference. It is wonderful to see someone contributing great work to their organization and also pouring out into her community as a subject matter expert."
-                  </blockquote>
-                  <div className="flex items-center space-x-3">
-                    <div className="text-left">
-                      <div className="font-semibold text-gray-900">Matt Lavoie</div>
-                      <div className="text-sm text-gray-500">UX Designer at NASA</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <QuoteBlock 
+              quote="Jean is an incredible member of the User Experience community in Orlando, Florida. She has educated and inspired her colleagues again and again as an engaging speaker for several events and meetups. As an event organizer, she was a pleasure to work with when speaking at the Downtown UX Conference. It is wonderful to see someone contributing great work to their organization and also pouring out into her community as a subject matter expert."
+              author="Matt Lavoie"
+              role="UX Designer at NASA"
+            />
 
             <a 
               href="https://orangedrum.com/talks/" 

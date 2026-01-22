@@ -8,6 +8,8 @@ import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles, VolumeX, Volum
 import { MarketingCard } from '../components/MarketingCard';
 import AgencyPartner from '../components/AgencyPartner';
 import { Megaphone, Search, Brain, Zap, Target, TestTube, TrendingUp, Users } from 'lucide-react';
+import { VideoThumbnail } from '../components/VideoThumbnail';
+import { QuoteBlock } from '../components/QuoteBlock';
 import { supabase } from '../lib/supabase';
 
 const StyleGuide: React.FC = () => {
@@ -364,6 +366,22 @@ const StyleGuide: React.FC = () => {
                   </ul>
                 </div>
               </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Video Thumbnail</h2>
+              <div className="max-w-md">
+                <VideoThumbnail imageSrc="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" alt="Example Video" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Quote Block</h2>
+              <QuoteBlock 
+                quote="This is an example quote block used for testimonials. It features a gradient background and consistent typography."
+                author="Jane Doe"
+                role="CEO at TechCorp"
+              />
             </section>
 
             <section>
