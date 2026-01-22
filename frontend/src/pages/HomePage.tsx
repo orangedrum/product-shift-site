@@ -14,11 +14,11 @@ const HomePage = () => {
       <Hero />
       <IncubatorRibbon />
       <AgencyPartner />
+      <FinalCta />
       <CoreServices />
       <Speaker />
       <About />
       <Blog />
-      <FinalCta />
     </>
   );
 };

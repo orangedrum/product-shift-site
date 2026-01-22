@@ -73,7 +73,7 @@ const AnimatedStat = ({ value, label, delay }: { value: string, label: string, d
       </div>
       {/* Floating Orb */}
       <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full opacity-20 blur-xl animate-float -z-0"
+        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float -z-0"
         style={{ 
           background: 'linear-gradient(135deg, #ff8c00, #ff1493)',
           animationDelay: `${delay}s` 

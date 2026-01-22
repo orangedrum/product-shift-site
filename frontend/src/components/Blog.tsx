@@ -11,6 +11,7 @@ const Blog = () => {
       date: "2024-01-25",
       icon: Search,
       featured: true,
+      image: "https://images.unsplash.com/photo-1518183214770-9cffbec72538?auto=format&fit=crop&w=800&q=80",
       link: "/blog/why-small-businesses-need-website-audit"
     },
     {
@@ -67,8 +68,14 @@ const Blog = () => {
             <Link to={featuredArticle.link} className="block group">
               <div className="relative rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 bg-white">
                 <div className="grid md:grid-cols-2 gap-0">
-                  <div className="bg-marketing-gradient p-8 flex items-center justify-center min-h-[240px]">
-                    <featuredArticle.icon className="w-24 h-24 text-white opacity-90 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="relative min-h-[240px] overflow-hidden">
+                    {/* Use image if available, otherwise fallback to gradient/icon */}
+                    <div className="absolute inset-0 bg-marketing-gradient"></div>
+                    <img 
+                      src={featuredArticle.image} 
+                      alt={featuredArticle.title}
+                      className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
                   <div className="p-8 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-4">
