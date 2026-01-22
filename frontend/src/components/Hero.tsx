@@ -15,7 +15,7 @@ const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="text-center lg:text-left">
-            <div className="inline-flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-full text-sm font-medium text-gray-800 mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full mb-6">
               <Brain className="h-4 w-4" />
               <span>Growth, AI UX, & Marketing Strategy Expert</span>
             </div>
@@ -34,7 +34,7 @@ const Hero = () => {
                 href="https://calendly.com/jean-kaluza/media-buyer-op" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-gradient-hero rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-gradient-hero hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
               >
                 Book Free Consultation
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -42,7 +42,7 @@ const Hero = () => {
               
               <button 
                 onClick={scrollToServices}
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 transition-all duration-300"
               >
                 Browse Services
               </button>
@@ -52,21 +52,21 @@ const Hero = () => {
             <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200 animate-fade-in">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="h-5 w-5 text-indigo-600 mr-2" />
+                  <TrendingUp className="h-5 w-5 text-[#ff1493] mr-2" />
                   <span className="text-2xl font-bold text-gray-900">70%</span>
                 </div>
                 <p className="text-sm text-gray-500">Avg ROI Increase</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <Users className="h-5 w-5 text-indigo-600 mr-2" />
+                  <Users className="h-5 w-5 text-[#ff1493] mr-2" />
                   <span className="text-2xl font-bold text-gray-900">50+</span>
                 </div>
                 <p className="text-sm text-gray-500">Successful Launches</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <Brain className="h-5 w-5 text-indigo-600 mr-2" />
+                  <Brain className="h-5 w-5 text-[#ff1493] mr-2" />
                   <span className="text-2xl font-bold text-gray-900">AI</span>
                 </div>
                 <p className="text-sm text-gray-500">Powered Research</p>
@@ -77,7 +77,7 @@ const Hero = () => {
           {/* Right Image */}
           <div className="relative animate-float">
             <div className="relative rounded-2xl overflow-hidden shadow-elegant border-4 border-white">
-              <img src="/lovable-uploads/bc784c47-6a25-401f-a03b-9ddbfb2a30a5.png" alt="Product Shift UX Research Team" className="w-full h-auto" />
+              <img src="/hero-image.png" alt="Product Shift UX Research Team" className="w-full h-auto" />
               <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent"></div>
             </div>
             <div className="text-center mt-4">

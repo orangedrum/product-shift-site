@@ -211,40 +211,82 @@ const StyleGuide: React.FC = () => {
             </section>
 
             <section>
-              <NeoCard title="Typography & Fonts">
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1">Hero Heading</p>
-                    <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff]">
-                      Aa - The quick brown fox
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1">Section Heading</p>
-                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1">Body Text</p>
-                    <p className="text-base text-gray-600">The quick brown fox jumps over the lazy dog. This is the default paragraph style used in marketing sections.</p>
-                  </div>
+              <h2 className="text-2xl font-bold text-black mb-4">Color Palette</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-[#ff8c00] shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-orange (#ff8c00)</p>
                 </div>
-              </NeoCard>
+                <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-[#ff1493] shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-pink (#ff1493)</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-[#00bfff] shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-lightblue (#00bfff)</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-gradient-hero shadow-sm"></div>
+                  <p className="text-xs font-mono">gradient-hero</p>
+                </div>
+              </div>
             </section>
 
             <section>
-              <NeoCard title="Marketing Buttons">
-                <div className="flex flex-wrap gap-4 items-center">
-                    <button className="inline-flex items-center justify-center bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff] text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
-                      Primary Gradient
-                    </button>
-                    <button className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                      Primary Solid
-                    </button>
-                    <button className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-5 rounded-lg border border-gray-200 shadow-sm transition-transform transform hover:scale-105">
-                      Secondary
-                    </button>
+              <h2 className="text-2xl font-bold text-black mb-4">Typography & Fonts</h2>
+              <div className="space-y-6 bg-white p-6 rounded-lg border border-gray-200">
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Hero Heading</p>
+                  <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff]">
+                    Aa - The quick brown fox
+                  </p>
                 </div>
-              </NeoCard>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Section Heading</p>
+                  <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Body Text</p>
+                  <p className="text-base text-gray-600">The quick brown fox jumps over the lazy dog. This is the default paragraph style used in marketing sections.</p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Tags & Pills</h2>
+              <div className="flex flex-wrap gap-4 items-center bg-white p-6 rounded-lg border border-gray-200">
+                <span className="px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-full">Primary Tag</span>
+                <span className="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">Secondary Tag</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                  <Sparkles size={14} />
+                  Icon Badge
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Marketing Buttons</h2>
+              <div className="flex flex-wrap gap-4 items-center bg-white p-6 rounded-lg border border-gray-200">
+                  {/* Primary Gradient (Lovable Style) */}
+                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-gradient-hero hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    Primary Gradient
+                  </button>
+                  
+                  {/* Primary Solid */}
+                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-transform transform hover:scale-105">
+                    Primary Solid
+                  </button>
+                  
+                  {/* Secondary Outline */}
+                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 transition-all duration-300">
+                    Secondary
+                  </button>
+
+                  {/* Ghost */}
+                  <button className="inline-flex items-center justify-center h-10 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                    Ghost Button
+                  </button>
+              </div>
             </section>
 
             <section>
