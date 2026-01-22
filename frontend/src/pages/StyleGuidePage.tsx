@@ -7,9 +7,10 @@ import Footer from '../components/Footer';
 import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles, VolumeX, Volume2 } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AgencyPartner from '../components/AgencyPartner';
-import { Megaphone, Search, Brain, Zap, Target, TestTube, TrendingUp, Users } from 'lucide-react';
+import { Megaphone, Search, Brain, Zap, Target, TestTube, TrendingUp, Users, Building, Award } from 'lucide-react';
 import { VideoThumbnail } from '../components/VideoThumbnail';
 import { QuoteBlock } from '../components/QuoteBlock';
+import { FeatureCard } from '../components/FeatureCard';
 import { supabase } from '../lib/supabase';
 
 const StyleGuide: React.FC = () => {
@@ -292,6 +293,14 @@ const StyleGuide: React.FC = () => {
                   <Brain className="h-8 w-8 text-brand-red mx-auto" />
                   <p className="text-xs text-gray-500">Brain</p>
                 </div>
+                <div className="text-center space-y-2">
+                  <Building className="h-8 w-8 text-brand-red mx-auto" />
+                  <p className="text-xs text-gray-500">Building</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <Award className="h-8 w-8 text-brand-red mx-auto" />
+                  <p className="text-xs text-gray-500">Award</p>
+                </div>
                 {/* Add more as needed */}
               </div>
             </section>
@@ -365,6 +374,17 @@ const StyleGuide: React.FC = () => {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Feature Card</h2>
+              <div className="max-w-md">
+                <FeatureCard 
+                  icon={Zap}
+                  title="Feature Title"
+                  description="This is a feature card used in the About section to highlight key achievements or services."
+                />
               </div>
             </section>
 

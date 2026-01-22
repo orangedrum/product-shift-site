@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Building, Award, Users, Zap } from 'lucide-react';
+import { FeatureCard } from './FeatureCard';
 
 const achievements = [
   {
@@ -23,6 +24,64 @@ const achievements = [
     description: "Our critical research and analysis consistently delivers 300% average ROI improvements"
   }
 ];
+
+const AnimatedStat = ({ value, label, delay }: { value: string, label: string, delay: number }) => {
+  const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  
+  const numericValue = parseInt(value.replace(/\D/g, ''));
+  const suffix = value.replace(/[0-9]/g, '');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    let start = 0;
+    const duration = 2000;
+    const increment = numericValue / (duration / 16);
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= numericValue) {
+        setCount(numericValue);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+    return () => clearInterval(timer);
+  }, [isVisible, numericValue]);
+
+  return (
+    <div ref={ref} className="relative group">
+      <div className="relative z-10">
+        <div className="text-3xl font-bold text-gray-900 mb-2">
+          {count}{suffix}
+        </div>
+        <div className="text-sm text-gray-500">{label}</div>
+      </div>
+      {/* Floating Orb */}
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full opacity-20 blur-xl animate-float -z-0"
+        style={{ 
+          background: 'linear-gradient(135deg, #ff8c00, #ff1493)',
+          animationDelay: `${delay}s` 
+        }}
+      ></div>
+    </div>
+  );
+};
 
 const About = () => {
   return (
@@ -58,43 +117,22 @@ const About = () => {
           {/* Right Grid */}
           <div className="grid gap-6">
             {achievements.map((achievement, index) => (
-              <div key={achievement.title} className="group hover:shadow-lg transition-all duration-300 bg-white rounded-xl p-6 border border-gray-100">
-                <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-marketing-gradient rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <achievement.icon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">
-                      {achievement.title}
-                    </h3>
-                     <p className="text-sm text-gray-500">
-                       {achievement.description}
-                     </p>
-                  </div>
-                </div>
-              </div>
+              <FeatureCard 
+                key={achievement.title}
+                icon={achievement.icon}
+                title={achievement.title}
+                description={achievement.description}
+              />
             ))}
           </div>
         </div>
 
         {/* Bottom Stats */}
         <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">15+</div>
-            <div className="text-sm text-gray-500">Years Experience</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">50+</div>
-            <div className="text-sm text-gray-500">Projects Completed</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">70%</div>
-            <div className="text-sm text-gray-500">Avg ROI Increase</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">90%</div>
-            <div className="text-sm text-gray-500">Success Rate</div>
-          </div>
+          <AnimatedStat value="15+" label="Years Experience" delay={0} />
+          <AnimatedStat value="50+" label="Projects Completed" delay={1} />
+          <AnimatedStat value="70%" label="Avg ROI Increase" delay={2} />
+          <AnimatedStat value="90%" label="Success Rate" delay={3} />
         </div>
       </div>
     </section>
