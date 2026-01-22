@@ -1,71 +1,91 @@
 import React from 'react';
-import { BarChart, Bot, BrainCircuit, Sparkles } from 'lucide-react';
-
-const features = [
-  {
-    icon: <Bot size={28} className="text-brand-blue" />,
-    title: 'AI-Powered Insights',
-    description: 'Leverage AI to analyze user feedback and market data at scale.',
-  },
-  {
-    icon: <BrainCircuit size={28} className="text-brand-blue" />,
-    title: 'Strategic Roadmaps',
-    description: 'Turn research into actionable product roadmaps that drive growth.',
-  },
-  {
-    icon: <BarChart size={28} className="text-brand-blue" />,
-    title: 'Data-Driven Results',
-    description: 'Measure success with clear ROI and data-backed performance metrics.',
-  },
-];
+import { ArrowRight, Brain, TrendingUp, Users } from 'lucide-react';
 
 const Hero = () => {
+  const scrollToServices = () => {
+    const element = document.getElementById('services');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section className="bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 text-center">
-        {/* Main Hero Content */}
-        <div className="inline-flex justify-center items-center bg-blue-100 text-brand-blue text-sm font-semibold py-1 px-4 rounded-full mb-4">
-          <Sparkles size={16} className="mr-2 -ml-1" />
-          Growth, AI UX, & Marketing Strategy Expert
-        </div>
+    <section className="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-subtle">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="text-center lg:text-left">
+            <div className="inline-flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-full text-sm font-medium text-gray-800 mb-6">
+              <Brain className="h-4 w-4" />
+              <span>Growth, AI UX, & Marketing Strategy Expert</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
+              Turn UX Research Into
+              <span className="bg-gradient-hero bg-clip-text text-transparent"> Higher ROIs</span>
+            </h1>
+            
+            <p className="text-xl text-gray-500 mb-8 max-w-2xl animate-fade-in mx-auto lg:mx-0">
+              Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond
+            </p>
 
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-cyan">
-            Turn UX Research
-          </span>
-          <span className="block text-gray-800">Into Higher ROIs</span>
-        </h1>
-        <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
-          AI-powered UX research and market strategy that delivers real data for successful product launches.
-        </p>
-        <div className="mt-8 flex justify-center gap-4">
-          <button className="inline-flex items-center justify-center bg-brand-blue hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
-            Book a Call
-          </button>
-          <button className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg border border-gray-200 shadow-sm transition-transform transform hover:scale-105">
-            View Services
-          </button>
-        </div>
+            <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up justify-center lg:justify-start">
+              <a 
+                href="https://calendly.com/jean-kaluza/media-buyer-op" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-gradient-hero rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              >
+                Book Free Consultation
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
+              
+              <button 
+                onClick={scrollToServices}
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-300"
+              >
+                Browse Services
+              </button>
+            </div>
 
-        {/* Hero Image */}
-        <div className="mt-16 relative w-full max-w-4xl mx-auto">
-          <div className="absolute -inset-2 rounded-lg bg-gradient-to-r from-brand-blue to-brand-cyan opacity-20 blur-2xl"></div>
-          <img src="/hero-image.png" alt="Product Shift Hero" className="relative rounded-xl shadow-2xl w-full" />
-        </div>
-
-        {/* Three-Column Features */}
-        <div className="mt-24 grid md:grid-cols-3 gap-x-8 gap-y-12 text-left">
-          {features.map((feature) => (
-            <div key={feature.title} className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                {feature.icon}
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200 animate-fade-in">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <TrendingUp className="h-5 w-5 text-indigo-600 mr-2" />
+                  <span className="text-2xl font-bold text-gray-900">70%</span>
+                </div>
+                <p className="text-sm text-gray-500">Avg ROI Increase</p>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
-                <p className="mt-1 text-base text-gray-600">{feature.description}</p>
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Users className="h-5 w-5 text-indigo-600 mr-2" />
+                  <span className="text-2xl font-bold text-gray-900">50+</span>
+                </div>
+                <p className="text-sm text-gray-500">Successful Launches</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Brain className="h-5 w-5 text-indigo-600 mr-2" />
+                  <span className="text-2xl font-bold text-gray-900">AI</span>
+                </div>
+                <p className="text-sm text-gray-500">Powered Research</p>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Right Image */}
+          <div className="relative animate-float">
+            <div className="relative rounded-2xl overflow-hidden shadow-elegant border-4 border-white">
+              <img src="/lovable-uploads/bc784c47-6a25-401f-a03b-9ddbfb2a30a5.png" alt="Product Shift UX Research Team" className="w-full h-auto" />
+              <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent"></div>
+            </div>
+            <div className="text-center mt-4">
+              <a href="https://www.orangedrum.com/casestudy_sms.html" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-indigo-600 transition-colors underline">our research built Disney's Omnichannel Platform</a>
+            </div>
+            <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-20 animate-pulse blur-xl"></div>
+            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-pink-500 rounded-full opacity-30 animate-pulse delay-1000 blur-xl"></div>
+          </div>
         </div>
       </div>
     </section>

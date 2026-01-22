@@ -157,9 +157,9 @@ const StyleGuide: React.FC = () => {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen transition-colors duration-500"
+      className={`min-h-screen transition-colors duration-500 ${activeTab === 'public' ? 'bg-gray-50' : ''}`}
       style={{
-        background: bgGradient || '#ffffff'
+        background: activeTab === 'product' ? (bgGradient || '#ffffff') : undefined
       }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
