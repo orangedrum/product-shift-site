@@ -251,6 +251,10 @@ const StyleGuide: React.FC = () => {
                   <div className="h-20 rounded-lg bg-purple-gradient shadow-sm"></div>
                   <p className="text-xs font-mono">purple-gradient</p>
                 </div>
+                <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-orange-purple shadow-sm"></div>
+                  <p className="text-xs font-mono">orange-purple</p>
+                </div>
               </div>
             </section>
 
@@ -259,7 +263,7 @@ const StyleGuide: React.FC = () => {
               <div className="space-y-6 bg-white p-6 rounded-lg border border-gray-200">
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Hero Heading</p>
-                  <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff]">
+                  <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-marketing-gradient">
                     Aa - The quick brown fox
                   </p>
                 </div>

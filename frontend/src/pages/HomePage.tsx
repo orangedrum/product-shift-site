@@ -15,10 +15,10 @@ const HomePage = () => {
       <Hero />
       <IncubatorRibbon />
       <AgencyPartner />
+      <About />
       <ProductLab />
       <CoreServices />
       <Speaker />
-      <About />
       <Blog />
       <CTA />
     </>

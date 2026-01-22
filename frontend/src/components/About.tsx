@@ -97,7 +97,7 @@ const About = () => {
               Thought Leadership in Growth & Strategy
             </h2>
             <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
-              <div className="w-48 h-48 flex-shrink-0 mx-auto sm:mx-0 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              <div className="w-48 h-48 flex-shrink-0 mx-auto sm:mx-0 rounded-full overflow-hidden border border-brand-pink shadow-lg">
                 <img src="/jeankaluza.png" alt="Jean, Product Shift Lead" className="w-full h-full object-cover" />
               </div>
               <div className="space-y-4 text-gray-600">
@@ -129,10 +129,10 @@ const About = () => {
 
         {/* Bottom Stats */}
         <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <AnimatedStat value="15+" label="Years Experience" delay={0} color="linear-gradient(135deg, #ff8c00, #ff1493)" />
-          <AnimatedStat value="50+" label="Projects Completed" delay={1} color="linear-gradient(135deg, #00bfff, #4f46e5)" />
-          <AnimatedStat value="70%" label="Avg ROI Increase" delay={2} color="linear-gradient(135deg, #ff1493, #a855f7)" />
-          <AnimatedStat value="90%" label="Success Rate" delay={3} color="linear-gradient(135deg, #39ff14, #00dfd8)" />
+          <AnimatedStat value="15+" label="Years Experience" delay={0} color="#ff8c00" />
+          <AnimatedStat value="50+" label="Projects Completed" delay={1} color="#ff1493" />
+          <AnimatedStat value="70%" label="Avg ROI Increase" delay={2} color="#4dd2ff" />
+          <AnimatedStat value="90%" label="Success Rate" delay={3} color="#ff8c00" />
         </div>
       </div>
     </section>

@@ -9,19 +9,18 @@ const ProductLab = () => {
 
   useEffect(() => {
     const container = containerRef.current;
-    const updateGradient = () => {
-      if (container) {
-        const r = () => Math.floor(Math.random() * 100);
-        container.style.setProperty('--pos-x-1', `${r()}%`);
-        container.style.setProperty('--pos-y-1', `${r()}%`);
-        container.style.setProperty('--pos-x-2', `${r()}%`);
-        container.style.setProperty('--pos-y-2', `${r()}%`);
-        container.style.setProperty('--pos-x-3', `${r()}%`);
-        container.style.setProperty('--pos-y-3', `${r()}%`);
+    if (!container) return;
+
+    const updateOrbs = () => {
+      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+      for (let i = 1; i <= 6; i++) {
+        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
+        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
       }
     };
-    updateGradient();
-    const interval = setInterval(updateGradient, 3000);
+
+    updateOrbs();
+    const interval = setInterval(updateOrbs, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -29,18 +28,25 @@ const ProductLab = () => {
     <section 
       id="products"
       ref={containerRef}
-      className="py-12 border-y-4 border-black transition-colors duration-500"
-      style={{
-        background: `
-          radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
-          radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
-          radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
-          #ffffff
-        `,
-        backgroundSize: '120% 120%',
-        transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
-      }}
+      className="py-12 border-y-4 border-black relative overflow-hidden bg-white"
     >
+      {/* Animated Orbs Background */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        {[...Array(6)].map((_, i) => (
+          <div 
+            key={i}
+            className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
+            style={{
+              left: `var(--orb-${i+1}-x, 50%)`,
+              top: `var(--orb-${i+1}-y, 50%)`,
+              width: `${300 + (i * 20)}px`,
+              height: `${300 + (i * 20)}px`,
+              backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
+            }}
+          />
+        ))}
+      </div>
+
       <div className="container mx-auto max-w-4xl text-center py-20 px-4">
         <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl mb-8 relative z-10">
           We Also Build Our Services into SaaS Products

@@ -19,6 +19,7 @@ export default {
       backgroundImage: {
         'purple-gradient': 'linear-gradient(to right, #4f46e5, #a855f7)', // indigo-600 to purple-600
         'marketing-gradient': 'linear-gradient(135deg, hsl(20 100% 60%), hsl(300 100% 70%), hsl(195 100% 65%))',
+        'orange-purple': 'linear-gradient(to bottom right, #ff8c00, #ff1493, #00bfff)',
         'orange-pink-gradient': 'linear-gradient(to right, #ff8c00, #ff1493)',
         'gradient-subtle': 'linear-gradient(to bottom, white, #f9fafb)', // white to gray-50
       },
