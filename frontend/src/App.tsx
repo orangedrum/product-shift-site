@@ -65,6 +65,9 @@ const App: React.FC = () => {
         <Routes>
           {/* Homepage */}
           <Route path="/" element={<HomePage />} />
+
+          {/* Marketing Site Pages */}
+          <Route path="/agency-user-testing" element={<AgencyUserTestingPage />} />
           
           {/* SMB Landing Page Route (SEO Optimized) */}
           <Route path="/simple-website-checkup" element={<SmbLandingPage />} />

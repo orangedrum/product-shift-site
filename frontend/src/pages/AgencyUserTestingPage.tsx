@@ -1,19 +1,21 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowRight, BarChart, Users, Zap, FileText, Globe, Lock, TrendingUp, Layout } from 'lucide-react';
+import { CheckCircle, ArrowRight, BarChart, Users, Zap, FileText, Globe, Lock, TrendingUp, Layout, Search, AlertCircle } from 'lucide-react';
 import { Header } from '../components/Header';
 import Footer from '../components/Footer';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
+import { VideoPlayer } from '../components/VideoPlayer';
+import { SpeechBubble } from '../components/SpeechBubble';
 
 const AgencyUserTestingPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "1-Click User Testing for Agencies | Sell More Web Design Services";
+    document.title = "White Label User Testing for Agencies | Sell Web Design Services";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', "Scale your agency with AI-powered user testing. Validate designs instantly, prove ROI to clients, and deliver data-driven websites without the wait.");
+      metaDescription.setAttribute('content', "The automated UX audit tool for agencies. Sell more website redesigns and prove ROI with instant, white-label user testing reports.");
     }
     window.scrollTo(0, 0);
   }, []);
@@ -43,9 +45,67 @@ const AgencyUserTestingPage: React.FC = () => {
             <NeoButton onClick={handleCtaClick} className="px-8 py-4 text-lg">
               Try Our 1-Click User Testing Tool
             </NeoButton>
-            <button onClick={() => document.getElementById('use-cases')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors">
+            <NeoButton 
+              variant="secondary"
+              onClick={() => document.getElementById('use-cases')?.scrollIntoView({ behavior: 'smooth' })} 
+              className="px-8 py-4 text-lg"
+            >
               See How It Works
-            </button>
+            </NeoButton>
+          </div>
+        </div>
+      </section>
+
+      {/* The "WHY" Section - Google Analytics vs Product Shift */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-3xl font-black text-gray-900 mb-6">
+                Google Analytics tells you <span className="text-red-600">WHAT</span> is happening.
+                <br />
+                We tell you <span className="text-green-600">WHY</span>.
+              </h2>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Analytics dashboards show you high bounce rates and abandoned carts, but they don't tell you <em>why</em> users are leaving. 
+                Our AI agents browse your client's site like real humans, verbalizing their confusion and frustration so you can fix it.
+              </p>
+              
+              <div className="space-y-6">
+                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <BarChart className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">The Analytics Way</h4>
+                    <p className="text-sm text-gray-500">"Bounce rate on /checkout is 65%."</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-center">
+                  <ArrowRight className="w-6 h-6 text-gray-300 transform rotate-90 lg:rotate-0" />
+                </div>
+
+                <div className="flex items-start gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                  <div className="p-2 bg-white rounded-lg border border-indigo-100 shadow-sm">
+                    <Zap className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-indigo-900">The Product Shift Way</h4>
+                    <p className="text-sm text-indigo-700">"I can't find the shipping costs. I'm frustrated and leaving."</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Video Player */}
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-20 blur-xl"></div>
+              <VideoPlayer 
+                src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
+                className="relative z-10 shadow-2xl"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -141,6 +201,40 @@ const AgencyUserTestingPage: React.FC = () => {
                   <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Increase client retention and referrals.</span></li>
                 </ul>
               </NeoCard>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Actionable Insights Example */}
+      <section className="py-20 bg-gray-900 text-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-black mb-4">Turn Complaints into Revenue</h2>
+            <p className="text-xl text-gray-400">We don't just find problems. We give you the exact fix to sell to your client.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+            <SpeechBubble 
+              imageSrc="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus"
+              name="Marcus"
+              role="Skeptical Buyer Persona"
+              quote="I'm ready to buy, but I have no idea if this software integrates with Salesforce. I'm not going to risk it."
+              mood="negative"
+            />
+
+            <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-transparent shadow-2xl">
+              <div className="flex items-center gap-2 mb-4 text-red-600 font-bold uppercase tracking-wider text-xs">
+                <AlertCircle size={16} /> Critical Issue Identified
+              </div>
+              <h3 className="text-xl font-bold mb-2">Missing Integration Clarity</h3>
+              <p className="text-gray-600 mb-4">Users are abandoning the pricing page because integration capabilities are buried in the FAQ.</p>
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium flex items-start gap-2">
+                  <CheckCircle className="shrink-0 mt-0.5" size={18} />
+                  <strong>Actionable Fix:</strong> Add a "Works with Salesforce" logo strip immediately below the primary CTA on the pricing page.
+                </p>
+              </div>
             </div>
           </div>
         </div>
