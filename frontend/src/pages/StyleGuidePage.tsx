@@ -5,6 +5,7 @@ import { NeoCard } from '../components/NeoCard';
 import { Header } from '../components/Header';
 import Footer from '../components/Footer';
 import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles, VolumeX, Volume2 } from 'lucide-react';
+import { MarketingCard } from '../components/MarketingCard';
 import { supabase } from '../lib/supabase';
 
 const StyleGuide: React.FC = () => {
@@ -303,6 +304,14 @@ const StyleGuide: React.FC = () => {
                     Ghost Button
                   </button>
               </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Marketing Card</h2>
+              <MarketingCard>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Card Title</h3>
+                <p className="text-gray-600">This is a reusable marketing card component with a subtle gradient background and border.</p>
+              </MarketingCard>
             </section>
 
             <section>
