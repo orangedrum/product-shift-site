@@ -36,13 +36,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-latest', // Highest priority: Stable, generous free tier.
-    'gemini-flash-latest',     // Alias for 1.5 Flash
-    'gemini-2.0-flash',        // Next best option
-    'gemini-2.5-flash',        // Newest flash model
-    'gemini-2.0-flash-lite',   // Lite models as final fallbacks
-    'gemini-2.5-flash-lite',
-    'gemini-flash-lite-latest',
+    'gemini-1.5-flash',        // Stable, production-ready
+    'gemini-2.0-flash',        // Newer, faster
+    'gemini-1.5-pro',          // Higher quality fallback
+    'gemini-1.5-flash-8b',     // Cost-effective fallback
   ];
 
   // Prepare image part if available

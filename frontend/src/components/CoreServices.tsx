@@ -1,84 +1,102 @@
-import React, { useState } from 'react';
-import { IconStrategy } from './icons/IconStrategy'; // Assuming these are in /src/components/icons/
-import { IconGtm } from './icons/IconGtm';
-import { IconGrowth } from './icons/IconGrowth';
+import React from 'react';
+import { Megaphone, Search, Brain, Zap, Target, TestTube, ArrowRight } from 'lucide-react';
 
 const services = [
   {
-    id: 'strategy',
-    icon: IconStrategy,
-    title: 'UX Research & Product Strategy',
-    description: 'Deep-dive user research, competitive analysis, and market positioning to build products that win.',
-    image: '/services-image-1.png',
+    icon: Megaphone,
+    title: "Media Buying",
+    description: "Strategic advertising campaigns that convert based on user research insights",
+    features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"],
+    url: "https://www.fiverr.com/s/EgxKZwY"
   },
   {
-    id: 'gtm',
-    icon: IconGtm,
-    title: 'Go-to-Market Strategy',
-    description: 'Crafting and executing launch plans that capture market attention and drive initial user adoption.',
-    image: '/services-image-2.png',
+    icon: Search,
+    title: "UX Research",
+    description: "Deep user insights through ethnographic research, usability testing, and user interviews",
+    features: ["User Interviews", "Usability Testing", "Ethnographic Research", "Surveys & Analytics"]
   },
   {
-    id: 'growth',
-    icon: IconGrowth,
-    title: 'Growth & Marketing Strategy',
-    description: 'Data-driven strategies to scale your user base and increase market share post-launch.',
-    image: '/services-image-3.png',
+    icon: Brain,
+    title: "GenAI Expertise",
+    description: "Cutting-edge GenAI integration for enhanced user experiences and data-driven insights",
+    features: ["GenAI UX Design", "AI User Testing", "Automated Research", "ML-Driven Insights"]
   },
+  {
+    icon: Zap,
+    title: "Design Sprints",
+    description: "Rapid prototyping and validation to accelerate your product development cycle",
+    features: ["5-Day Sprints", "Rapid Prototyping", "User Validation", "Concept Testing"]
+  },
+  {
+    icon: Target,
+    title: "Customer Personas",
+    description: "Data-driven market positioning and go-to-market strategies for successful launches",
+    features: ["Market Research", "Positioning Strategy", "Competitor Analysis", "Launch Planning"],
+    url: "https://www.fiverr.com/s/jjW7aXa"
+  },
+  {
+    icon: TestTube,
+    title: "A/B Testing",
+    description: "Optimize conversion rates through systematic experimentation and data analysis",
+    features: ["Conversion Testing", "Statistical Analysis", "Performance Metrics", "Optimization"]
+  }
 ];
 
 const CoreServices = () => {
-  const [activeService, setActiveService] = useState(services[0]);
-
   return (
-    <section className="bg-gray-50 py-24 sm:py-32">
+    <section id="services" className="bg-white py-24 sm:py-32">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-x-16 gap-y-12 items-start">
-          <div className="space-y-8">
-            <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl leading-tight">
-              Complete Growth & Strategy Solutions
-            </h2>
-            <p className="text-lg text-gray-600">
-              From initial concept to market leadership, we provide the strategic guidance and hands-on execution needed to ensure your product thrives.
-            </p>
-            <div className="space-y-3">
-              {services.map((service) => {
-                const isActive = activeService.id === service.id;
-                return (
-                  <div
-                    key={service.id}
-                    onClick={() => setActiveService(service)}
-                    className={`p-6 rounded-xl cursor-pointer transition-all duration-200 ${
-                      isActive
-                        ? 'bg-white shadow-glow'
-                        : 'hover:bg-white'
-                    }`}
-                  >
-                    <div className="flex items-start gap-5">
-                      <div className="flex-shrink-0 mt-1"><service.icon /></div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{service.title}</h3>
-                        <p className="mt-1 text-base text-gray-600">{service.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-xs font-medium text-gray-600 mb-4">
+            Our Services
           </div>
-          <div className="hidden lg:block sticky top-28">
-            {/* Browser Frame */}
-            <div className="w-full rounded-lg shadow-2xl bg-white ring-1 ring-gray-200">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200">
-                <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
-                <span className="w-3 h-3 rounded-full bg-green-400"></span>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Complete Growth & Strategy Solutions</h2>
+          <p className="text-xl text-gray-500 max-w-3xl mx-auto">
+            From initial research to successful launch, we provide end-to-end growth strategies that drive results. 
+            Perfect for agencies looking to expand their offerings or marketing teams hungry for high ROIs.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service) => {
+            const CardContent = (
+              <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 group">
+                <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <service.icon className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors">
+                  {service.title}
+                </h3>
+                <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                  {service.description}
+                </p>
+                <ul className="space-y-2">
+                  {service.features.map((feature) => (
+                    <li key={feature} className="flex items-center text-xs text-gray-500 font-medium">
+                      <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-3"></div>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="p-2 bg-gray-100/50">
-                <img src={activeService.image} alt={activeService.title} key={activeService.id} className="rounded-md w-full animate-fade-in" />
+            );
+
+            return service.url ? (
+              <a 
+                key={service.title} 
+                href={service.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block h-full"
+              >
+                {CardContent}
+              </a>
+            ) : (
+              <div key={service.title} className="h-full">
+                {CardContent}
               </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>
