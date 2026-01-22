@@ -10,8 +10,8 @@ const HomePage = () => {
     <>
       <Hero />
       <IncubatorRibbon />
-      <CoreServices />
       <AgencyPartner />
+      <CoreServices />
       <FinalCta />
     </>
   );

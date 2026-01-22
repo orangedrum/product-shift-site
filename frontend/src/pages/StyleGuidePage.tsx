@@ -6,6 +6,7 @@ import { Header } from '../components/Header';
 import Footer from '../components/Footer';
 import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles, VolumeX, Volume2 } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
+import AgencyPartner from '../components/AgencyPartner';
 import { supabase } from '../lib/supabase';
 
 const StyleGuide: React.FC = () => {
@@ -312,6 +313,14 @@ const StyleGuide: React.FC = () => {
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Card Title</h3>
                 <p className="text-gray-600">This is a reusable marketing card component with a subtle gradient background and border.</p>
               </MarketingCard>
+            </section>
+
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-black">Agency Partner Section</h2>
+                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">components/AgencyPartner.tsx</span>
+              </div>
+              <AgencyPartner />
             </section>
 
             <section>
