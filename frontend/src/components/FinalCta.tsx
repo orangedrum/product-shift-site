@@ -27,8 +27,9 @@ const FinalCta = () => {
 
   return (
     <section 
+      id="products"
       ref={containerRef}
-      className="py-24 transition-colors duration-500"
+      className="py-12 border-y-4 border-black transition-colors duration-500"
       style={{
         background: `
           radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),

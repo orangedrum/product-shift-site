@@ -7,6 +7,7 @@ import FinalCta from '../components/FinalCta';
 import Speaker from '../components/Speaker';
 import About from '../components/About';
 import Blog from '../components/Blog';
+import CTA from '../components/CTA';
 
 const HomePage = () => {
   return (
@@ -14,11 +15,11 @@ const HomePage = () => {
       <Hero />
       <IncubatorRibbon />
       <AgencyPartner />
-      <FinalCta />
       <CoreServices />
       <Speaker />
       <About />
       <Blog />
+      <CTA />
     </>
   );
 };

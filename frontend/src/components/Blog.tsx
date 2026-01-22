@@ -150,18 +150,9 @@ const Blog = () => {
                 href="https://medium.com/@product_shift" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm"
               >
                 Visit Our Medium
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-              <a 
-                href="https://dovetail.com/reviewers/jean-kaluza/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-              >
-                Dovetail Consultant Work
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </div>

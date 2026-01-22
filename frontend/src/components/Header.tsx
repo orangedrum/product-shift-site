@@ -35,9 +35,10 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
   const navLinks = displaySession ? [
     { name: 'AI Tester Tool', href: '/ai-powered-ux' }
   ] : [
-    { name: 'Services', href: '#' },
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' }
+    { name: 'Services', href: '#services' },
+    { name: 'Products', href: '#products' },
+    { name: 'About', href: '#about' },
+    { name: 'Blog', href: '#blog' }
   ];
 
   const handleLogin = () => {
@@ -52,6 +53,21 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      if (location.pathname !== '/') {
+        navigate('/' + href);
+      } else {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+      setIsMenuOpen(false);
+    }
   };
 
   return (
@@ -76,7 +92,12 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
                     {link.name}
                   </Link>
                 ) : (
-                  <a key={link.name} href={link.href} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-500 hover:text-gray-900'} font-normal transition-colors`}>
+                  <a 
+                    key={link.name} 
+                    href={link.href} 
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-500 hover:text-gray-900'} font-normal transition-colors`}
+                  >
                     {link.name}
                   </a>
                 )
@@ -130,7 +151,12 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
                 {link.name}
               </Link>
             ) : (
-              <a key={link.name} href={link.href} className={`block px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>
+              <a 
+                key={link.name} 
+                href={link.href} 
+                onClick={(e) => handleNavClick(e, link.href)}
+                className={`block px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}
+              >
                 {link.name}
               </a>
             )

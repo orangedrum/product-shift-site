@@ -1,18 +1,37 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Instagram, Linkedin } from 'lucide-react';
+
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const currentYear = new Date().getFullYear();
+
+  const handleServiceClick = (e: React.MouseEvent, href: string) => {
+    if (href.includes('#services')) {
+      e.preventDefault();
+      if (location.pathname !== '/') {
+        navigate('/#services');
+      } else {
+        const element = document.getElementById('services');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+  };
+
   const tags = [
     'Enterprise Experience',
     'AI, UX Experts',
     'Agency Partners',
   ];
   const serviceLinks = [
-    { name: 'UX Research', href: 'https://www.theproductshift.com/#services' },
-    { name: 'AI-Powered Design Sprints', href: 'https://www.theproductshift.com/#services' },
-    { name: 'Market Strategy', href: 'https://www.theproductshift.com/#services' },
-    { name: 'A/B Testing', href: 'https://www.theproductshift.com/#services' },
-    { name: 'Media Buying', href: 'https://www.theproductshift.com/#services' },
+    { name: 'UX Research', href: '#services' },
+    { name: 'AI-Powered Design Sprints', href: '#services' },
+    { name: 'Market Strategy', href: '#services' },
+    { name: 'A/B Testing', href: '#services' },
+    { name: 'Media Buying', href: '#services' },
   ];
   const companyLinks = [
     { name: 'About', href: '#' },
@@ -81,7 +100,11 @@ const Footer = () => {
               <ul className="space-y-3">
                 {serviceLinks.map((link) => (
                   <li key={link.name}>
-                    <a href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                    <a 
+                      href={link.href} 
+                      onClick={(e) => handleServiceClick(e, link.href)}
+                      className="text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+                    >
                       {link.name}
                     </a>
                   </li>

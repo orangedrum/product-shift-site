@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Check, Linkedin, Twitter, Facebook, Link as LinkIcon } from 'lucide-react';
+import { ArrowRight, CheckCircle, Check, Linkedin, Twitter, Facebook, Link as LinkIcon, ChevronLeft, Brain } from 'lucide-react';
+import { Header } from '../components/Header';
+import Footer from '../components/Footer';
 
 const BlogWhyAudit: React.FC = () => {
   const [copied, setCopied] = useState(false);
@@ -30,7 +32,17 @@ const BlogWhyAudit: React.FC = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen font-sans text-gray-900">
+    <div className="bg-white min-h-screen font-sans text-gray-900 flex flex-col">
+      <Header />
+      
+      <div className="bg-gray-50 border-b border-gray-200 py-4">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link to="/#blog" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
+            <ChevronLeft size={16} className="mr-1" /> Back to Insights
+          </Link>
+        </div>
+      </div>
+
       <article className="max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <header className="mb-10 text-center">
            <div className="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-indigo-600 uppercase bg-indigo-50 rounded-full">
@@ -144,6 +156,27 @@ const BlogWhyAudit: React.FC = () => {
           </div>
         </div>
       </article>
+
+      {/* Next Article Suggestion */}
+      <section className="bg-gray-50 py-16 border-t border-gray-200">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h3 className="text-lg font-bold text-gray-900 mb-6">Read Next</h3>
+          <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Brain className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">The Future of AI-Driven UX Research</h4>
+                <p className="text-gray-600 mb-4">Explore how GenAI is revolutionizing user research methodologies and delivering unprecedented insights for product teams.</p>
+                <span className="text-indigo-600 font-medium text-sm">Coming Soon</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };
