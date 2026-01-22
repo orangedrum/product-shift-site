@@ -24,6 +24,7 @@ import StyleGuide from './pages/StyleGuidePage';
 import PaymentConfirmation from './pages/PaymentConfirmation';
 import ReferralClaim from './pages/ReferralClaim';
 import NotFound from './pages/NotFound';
+import AgencyUserTestingPage from './pages/AgencyUserTestingPage';
 
 const App: React.FC = () => {
   const location = useLocation();
