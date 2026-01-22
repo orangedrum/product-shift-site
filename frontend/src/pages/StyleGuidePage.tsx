@@ -540,6 +540,12 @@ const StyleGuide: React.FC = () => {
                     <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/increase-ecommerce-conversion-rates</code>
                   </li>
                   <li>
+                    <Link to="/agency-user-testing" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      Agency / 1-Click Testing ↗
+                    </Link>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/agency-user-testing</code>
+                  </li>
+                  <li>
                     <Link to="/landingpg-aiuxagent" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
                       Tech / UX Landing (Original) ↗
                     </Link>

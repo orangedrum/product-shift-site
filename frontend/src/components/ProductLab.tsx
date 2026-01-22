@@ -57,10 +57,10 @@ const ProductLab = () => {
           </p>
           <NeoButton 
             variant="primary" 
-            onClick={() => navigate('/landingpg-aiuxagent')}
+            onClick={() => navigate('/agency-user-testing')}
             className="text-lg px-8 py-4"
           >
-            Try Our Instant Insights Tool
+            Try Our 1-Click User Testing Tool
           </NeoButton>
         </NeoCard>
       </div>
