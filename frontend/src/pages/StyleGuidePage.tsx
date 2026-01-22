@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { NeoButton, NeoButtonProps } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import { Header } from '../components/Header';
+import Footer from '../components/Footer';
 import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles, VolumeX, Volume2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -14,6 +15,7 @@ const StyleGuide: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [bgGradient, setBgGradient] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<'public' | 'product'>('public');
 
   // Mouse tracking for interactive background (Shared Logic)
   useEffect(() => {
@@ -160,26 +162,120 @@ const StyleGuide: React.FC = () => {
         background: bgGradient || '#ffffff'
       }}
     >
-      {/* Header Demo Section */}
-      <div className="bg-white border-b border-gray-200 mb-12">
-        <div className="container mx-auto px-4 py-4">
-            <h2 className="text-2xl font-bold mb-4">Header: Logged Out</h2>
-            <div className="border border-gray-200 rounded-lg overflow-hidden mb-8">
-                <Header session={null} className="relative" />
-            </div>
-
-            <h2 className="text-2xl font-bold mb-4">Header: Logged In</h2>
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <Header session={{ user: { email: 'demo@productshift.com' } }} className="relative" />
-            </div>
-        </div>
-      </div>
-
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         <div className="max-w-4xl mx-auto space-y-12">
         
+        <div className="text-center">
+          <h1 className="text-4xl font-black mb-4 text-black">Product Shift Style Guide</h1>
+          <p className="text-gray-600 mb-8">Design systems for our marketing site and application.</p>
+          
+          {/* Tab Navigation */}
+          <div className="inline-flex bg-gray-100 p-1 rounded-xl border border-gray-200">
+            <button
+              onClick={() => setActiveTab('public')}
+              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
+                activeTab === 'public' 
+                  ? 'bg-white text-black shadow-sm ring-1 ring-black/5' 
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Public / Marketing
+            </button>
+            <button
+              onClick={() => setActiveTab('product')}
+              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
+                activeTab === 'product' 
+                  ? 'bg-white text-black shadow-sm ring-1 ring-black/5' 
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              Product / App
+            </button>
+          </div>
+        </div>
+
+        {/* ========================================== */}
+        {/* PUBLIC / MARKETING SECTION                 */}
+        {/* ========================================== */}
+        {activeTab === 'public' && (
+          <div className="space-y-12 animate-fade-in">
+            
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-black">Global Header (Public)</h2>
+                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">components/Header.tsx</span>
+              </div>
+              <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                <Header session={null} className="relative" />
+              </div>
+            </section>
+
+            <section>
+              <NeoCard title="Typography & Fonts">
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Hero Heading</p>
+                    <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff]">
+                      Aa - The quick brown fox
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Section Heading</p>
+                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Body Text</p>
+                    <p className="text-base text-gray-600">The quick brown fox jumps over the lazy dog. This is the default paragraph style used in marketing sections.</p>
+                  </div>
+                </div>
+              </NeoCard>
+            </section>
+
+            <section>
+              <NeoCard title="Marketing Buttons">
+                <div className="flex flex-wrap gap-4 items-center">
+                    <button className="inline-flex items-center justify-center bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff] text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
+                      Primary Gradient
+                    </button>
+                    <button className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                      Primary Solid
+                    </button>
+                    <button className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-5 rounded-lg border border-gray-200 shadow-sm transition-transform transform hover:scale-105">
+                      Secondary
+                    </button>
+                </div>
+              </NeoCard>
+            </section>
+
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-black">Global Footer</h2>
+                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">components/Footer.tsx</span>
+              </div>
+              <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                <Footer />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ========================================== */}
+        {/* PRODUCT / APP SECTION                      */}
+        {/* ========================================== */}
+        {activeTab === 'product' && (
+          <div className="space-y-12 animate-fade-in">
+            
         <section>
-          <h1 className="text-4xl font-black mb-8 text-black">Product Shift Style Guide</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-black">App Header (Logged In)</h2>
+            <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">components/Header.tsx</span>
+          </div>
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <Header session={{ user: { email: 'demo@productshift.com' } }} className="relative" />
+          </div>
+        </section>
+
+        <section>
           <NeoCard title="NeoButton Components">
             <div className="flex flex-wrap gap-4 items-center">
               <NeoButton variant="primary">Primary Action</NeoButton>
@@ -218,9 +314,6 @@ const StyleGuide: React.FC = () => {
           </NeoCard>
         </section>
 
-        {/* --- MERGED LEGACY SECTIONS --- */}
-
-        {/* Application Routes (Site Map) Section */}
         <section>
           <NeoCard title="Application Routes (Site Map)">
             <p className="mb-4 text-gray-600">Full directory of application pages and landing pages.</p>
@@ -315,94 +408,8 @@ const StyleGuide: React.FC = () => {
             </div>
           </NeoCard>
         </section>
-
-        {/* Typography Section */}
-        <section>
-          <NeoCard title="Typography & Fonts">
-            {/* Headings */}
-            <div className="mb-8">
-              <h3 className="text-2xl font-semibold mb-4 text-black">Headings</h3>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Hero Heading</p>
-                  <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff]">
-                    Aa - The quick brown fox
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Hero Heading (Solid)</p>
-                  <p className="text-4xl md:text-5xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Section Heading</p>
-                  <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Card/Item Title</p>
-                  <p className="text-lg font-semibold text-black">Aa - The quick brown fox</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Body Text */}
-            <div className="mb-8">
-              <h3 className="text-2xl font-semibold mb-4 text-black">Body & Paragraphs</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">XL Body (Sub-heading)</p>
-                  <p className="text-xl text-gray-500">The quick brown fox jumps over the lazy dog. A versatile paragraph style for introductory content.</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Base Body (Standard)</p>
-                  <p className="text-base text-gray-600">The quick brown fox jumps over the lazy dog. This is the default paragraph style.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <h3 className="text-2xl font-semibold mb-4 text-black">Tags & Pills</h3>
-              <div className="flex flex-wrap gap-4 items-center">
-                <span className="px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-full">Primary Tag</span>
-                <span className="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">Secondary Tag</span>
-                <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
-                  <Sparkles size={14} />
-                  Icon Badge
-                </div>
-              </div>
-            </div>
-          </NeoCard>
-        </section>
-
-        {/* Legacy Buttons Section */}
-        <section>
-          <NeoCard title="Legacy Buttons & CTAs">
-            <div>
-              <h3 className="font-semibold mb-4 text-black">Standard Buttons</h3>
-              <div className="flex flex-wrap gap-4 items-center">
-                  <button className="inline-flex items-center justify-center bg-gradient-to-br from-[#ff8c00] via-[#ff1493] to-[#00bfff] text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-transform transform hover:scale-105 hover:shadow-md">
-                    Primary Gradient
-                  </button>
-                  <button className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                    Primary Solid
-                  </button>
-                  <button className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-5 rounded-lg border border-gray-200 shadow-sm transition-transform transform hover:scale-105">
-                    Secondary
-                  </button>
-              </div>
-            </div>
-          </NeoCard>
-        </section>
-
-        {/* --- END MERGED SECTIONS --- */}
-
-        <section>
-          <NeoCard>
-            <h3 className="text-xl font-bold mb-2">Card without Title</h3>
-            <p>Sometimes you just need a simple container.</p>
-          </NeoCard>
-        </section>
-
+          </div>
+        )}
       </div>
     </div>
     </div>
