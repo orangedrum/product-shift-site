@@ -18,7 +18,7 @@ const tags = [
 
 const AgencyPartner = () => {
   return (
-    <section className="bg-white py-24 sm:py-32">
+    <section className="bg-white pt-24 pb-16 sm:pt-32 sm:pb-16">
       <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
         <MarketingCard>
           <h3 className="text-2xl font-bold text-gray-800 leading-8 mb-4">

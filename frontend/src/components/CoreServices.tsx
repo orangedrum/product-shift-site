@@ -44,7 +44,7 @@ const services = [
 
 const CoreServices = () => {
   return (
-    <section id="services" className="bg-white py-24 sm:py-32">
+    <section id="services" className="bg-white pt-16 pb-24 sm:pb-32">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-xs font-medium text-gray-600 mb-4">
@@ -64,7 +64,7 @@ const CoreServices = () => {
                 <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <service.icon className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
                   {service.title}
                 </h3>
                 <p className="text-gray-500 mb-6 text-sm leading-relaxed">
@@ -73,7 +73,7 @@ const CoreServices = () => {
                 <ul className="space-y-2">
                   {service.features.map((feature) => (
                     <li key={feature} className="flex items-center text-xs text-gray-500 font-medium">
-                      <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-3"></div>
+                      <div className="w-1.5 h-1.5 bg-[#ff1493] rounded-full mr-3"></div>
                       {feature}
                     </li>
                   ))}
