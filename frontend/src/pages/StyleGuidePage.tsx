@@ -232,8 +232,8 @@ const StyleGuide: React.FC = () => {
                   <p className="text-xs font-mono">brand-red (rgb(250, 66, 91))</p>
                 </div>
                 <div className="space-y-2">
-                  <div className="h-20 rounded-lg bg-[#a855f7] shadow-sm"></div>
-                  <p className="text-xs font-mono">brand-purple (#a855f7)</p>
+                  <div className="h-20 rounded-lg bg-[rgb(79,70,229)] shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-purple (rgb(79, 70, 229))</p>
                 </div>
                 <div className="space-y-2">
                   <div className="h-20 rounded-lg bg-[#00bfff] shadow-sm"></div>

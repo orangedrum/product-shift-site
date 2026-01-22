@@ -12,7 +12,7 @@ export default {
         'brand-orange': '#ff7733',
         'brand-pink': '#ff66ff',
         'brand-red': 'rgb(250, 66, 91)',
-        'brand-purple': '#a855f7',
+        'brand-purple': 'rgb(79, 70, 229)',
         'brand-lightblue': '#4dd2ff',
         'brand-tag-bg': '#f3f4f6', // Equivalent to gray-100
       },

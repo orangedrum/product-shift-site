@@ -7,13 +7,13 @@ const Footer = () => {
   const location = useLocation();
   const currentYear = new Date().getFullYear();
 
-  const handleServiceClick = (e: React.MouseEvent, href: string) => {
-    if (href.includes('#services')) {
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    if (href.startsWith('#')) {
       e.preventDefault();
       if (location.pathname !== '/') {
-        navigate('/#services');
+        navigate('/' + href);
       } else {
-        const element = document.getElementById('services');
+        const element = document.querySelector(href);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
@@ -34,9 +34,10 @@ const Footer = () => {
     { name: 'Media Buying', href: '#services' },
   ];
   const companyLinks = [
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Contact', href: '#' },
+    { name: 'About', href: '#about' },
+    { name: 'Blog', href: '#blog' },
+    { name: 'Products', href: '#products' },
+    { name: 'Contact', href: 'https://calendly.com/jean-kaluza/media-buyer-op' },
   ];
   const resourceLinks = [
     { name: 'Medium Blog', href: '#' },
@@ -102,7 +103,7 @@ const Footer = () => {
                   <li key={link.name}>
                     <a 
                       href={link.href} 
-                      onClick={(e) => handleServiceClick(e, link.href)}
+                      onClick={(e) => handleNavClick(e, link.href)}
                       className="text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
                     >
                       {link.name}
@@ -117,7 +118,13 @@ const Footer = () => {
               <ul className="space-y-3">
                 {companyLinks.map((link) => (
                   <li key={link.name}>
-                    <a href={link.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                    <a 
+                      href={link.href} 
+                      onClick={(e) => link.href.startsWith('#') ? handleNavClick(e, link.href) : undefined}
+                      target={link.href.startsWith('http') ? '_blank' : undefined}
+                      rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+                    >
                       {link.name}
                     </a>
                   </li>

@@ -25,7 +25,7 @@ const achievements = [
   }
 ];
 
-const AnimatedStat = ({ value, label, delay }: { value: string, label: string, delay: number }) => {
+const AnimatedStat = ({ value, label, delay, color }: { value: string, label: string, delay: number, color: string }) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -75,7 +75,7 @@ const AnimatedStat = ({ value, label, delay }: { value: string, label: string, d
       <div 
         className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float -z-0"
         style={{ 
-          background: 'linear-gradient(135deg, #ff8c00, #ff1493)',
+          background: color,
           animationDelay: `${delay}s` 
         }}
       ></div>
@@ -129,10 +129,10 @@ const About = () => {
 
         {/* Bottom Stats */}
         <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <AnimatedStat value="15+" label="Years Experience" delay={0} />
-          <AnimatedStat value="50+" label="Projects Completed" delay={1} />
-          <AnimatedStat value="70%" label="Avg ROI Increase" delay={2} />
-          <AnimatedStat value="90%" label="Success Rate" delay={3} />
+          <AnimatedStat value="15+" label="Years Experience" delay={0} color="linear-gradient(135deg, #ff8c00, #ff1493)" />
+          <AnimatedStat value="50+" label="Projects Completed" delay={1} color="linear-gradient(135deg, #00bfff, #4f46e5)" />
+          <AnimatedStat value="70%" label="Avg ROI Increase" delay={2} color="linear-gradient(135deg, #ff1493, #a855f7)" />
+          <AnimatedStat value="90%" label="Success Rate" delay={3} color="linear-gradient(135deg, #39ff14, #00dfd8)" />
         </div>
       </div>
     </section>
