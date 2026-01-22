@@ -4,6 +4,7 @@ import IncubatorRibbon from '../components/IncubatorRibbon';
 import CoreServices from '../components/CoreServices';
 import AgencyPartner from '../components/AgencyPartner';
 import FinalCta from '../components/FinalCta';
+import Speaker from '../components/Speaker';
 
 const HomePage = () => {
   return (
@@ -12,6 +13,7 @@ const HomePage = () => {
       <IncubatorRibbon />
       <AgencyPartner />
       <CoreServices />
+      <Speaker />
       <FinalCta />
     </>
   );

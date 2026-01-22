@@ -342,7 +342,7 @@ const StyleGuide: React.FC = () => {
             <section>
               <h2 className="text-2xl font-bold text-black mb-4">Services Card</h2>
               <div className="grid md:grid-cols-2 gap-8">
-                <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 group">
+                <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
                   <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Megaphone className="h-6 w-6 text-white" />
                   </div>
