@@ -15,7 +15,9 @@ export default {
         'brand-tag-bg': '#f3f4f6', // Equivalent to gray-100
       },
       backgroundImage: {
-        'gradient-hero': 'linear-gradient(to right, #4f46e5, #a855f7)', // indigo-600 to purple-600
+        'purple-gradient': 'linear-gradient(to right, #4f46e5, #a855f7)', // indigo-600 to purple-600
+        'marketing-gradient': 'linear-gradient(135deg, hsl(20 100% 60%), hsl(300 100% 70%), hsl(195 100% 65%))',
+        'orange-pink-gradient': 'linear-gradient(to right, #ff8c00, #ff1493)',
         'gradient-subtle': 'linear-gradient(to bottom, white, #f9fafb)', // white to gray-50
       },
       boxShadow: {

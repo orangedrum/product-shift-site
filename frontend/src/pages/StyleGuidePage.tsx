@@ -226,8 +226,12 @@ const StyleGuide: React.FC = () => {
                   <p className="text-xs font-mono">brand-lightblue (#00bfff)</p>
                 </div>
                 <div className="space-y-2">
-                  <div className="h-20 rounded-lg bg-gradient-hero shadow-sm"></div>
-                  <p className="text-xs font-mono">gradient-hero</p>
+                  <div className="h-20 rounded-lg bg-marketing-gradient shadow-sm"></div>
+                  <p className="text-xs font-mono">marketing-gradient</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-orange-pink-gradient shadow-sm"></div>
+                  <p className="text-xs font-mono">orange-pink-gradient</p>
                 </div>
               </div>
             </section>
@@ -268,7 +272,7 @@ const StyleGuide: React.FC = () => {
               <h2 className="text-2xl font-bold text-black mb-4">Marketing Buttons</h2>
               <div className="flex flex-wrap gap-4 items-center bg-white p-6 rounded-lg border border-gray-200">
                   {/* Primary Gradient (Lovable Style) */}
-                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-gradient-hero hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                     Primary Gradient
                   </button>
                   

@@ -10,7 +10,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-subtle">
+    <section className="pt-24 pb-12 md:pt-16 md:pb-20 bg-gradient-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -22,7 +22,7 @@ const Hero = () => {
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
               Turn UX Research Into
-              <span className="bg-gradient-hero bg-clip-text text-transparent"> Higher ROIs</span>
+              <span className="bg-marketing-gradient bg-clip-text text-transparent"> Higher ROIs</span>
             </h1>
             
             <p className="text-xl text-gray-500 mb-8 max-w-2xl animate-fade-in mx-auto lg:mx-0">
@@ -34,7 +34,7 @@ const Hero = () => {
                 href="https://calendly.com/jean-kaluza/media-buyer-op" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-gradient-hero hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
               >
                 Book Free Consultation
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -76,14 +76,14 @@ const Hero = () => {
 
           {/* Right Image */}
           <div className="relative animate-float">
-            <div className="relative rounded-2xl overflow-hidden shadow-elegant border-4 border-white">
+            <div className="relative rounded-2xl overflow-hidden shadow-elegant">
               <img src="/hero-image.png" alt="Product Shift UX Research Team" className="w-full h-auto" />
               <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent"></div>
             </div>
             <div className="text-center mt-4">
               <a href="https://www.orangedrum.com/casestudy_sms.html" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-indigo-600 transition-colors underline">our research built Disney's Omnichannel Platform</a>
             </div>
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-20 animate-pulse blur-xl"></div>
+            <div className="absolute -top-4 -right-4 w-24 h-24 bg-marketing-gradient rounded-full opacity-20 animate-pulse blur-xl"></div>
             <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-pink-500 rounded-full opacity-30 animate-pulse delay-1000 blur-xl"></div>
           </div>
         </div>
