@@ -11,6 +11,7 @@ export default {
         'brand-cyan': '#00dfd8',
         'brand-orange': '#ff7733',
         'brand-pink': '#ff66ff',
+        'brand-red': 'rgb(250, 66, 91)',
         'brand-lightblue': '#4dd2ff',
         'brand-tag-bg': '#f3f4f6', // Equivalent to gray-100
       },

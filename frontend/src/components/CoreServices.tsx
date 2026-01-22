@@ -73,7 +73,7 @@ const CoreServices = () => {
                 <ul className="space-y-2">
                   {service.features.map((feature) => (
                     <li key={feature} className="flex items-center text-xs text-gray-500 font-medium">
-                      <div className="w-1.5 h-1.5 bg-[#ff1493] rounded-full mr-3"></div>
+                      <div className="w-1.5 h-1.5 bg-brand-red rounded-full mr-3"></div>
                       {feature}
                     </li>
                   ))}

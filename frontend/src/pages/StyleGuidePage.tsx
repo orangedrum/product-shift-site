@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import { CheckCircle, AlertCircle, User, LogIn, LogOut, Sparkles, VolumeX, Volume2 } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AgencyPartner from '../components/AgencyPartner';
+import { Megaphone, Search, Brain, Zap, Target, TestTube, TrendingUp, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const StyleGuide: React.FC = () => {
@@ -224,6 +225,10 @@ const StyleGuide: React.FC = () => {
                   <p className="text-xs font-mono">brand-pink (#ff1493)</p>
                 </div>
                 <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-[rgb(250,66,91)] shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-red (rgb(250, 66, 91))</p>
+                </div>
+                <div className="space-y-2">
                   <div className="h-20 rounded-lg bg-[#00bfff] shadow-sm"></div>
                   <p className="text-xs font-mono">brand-lightblue (#00bfff)</p>
                 </div>
@@ -271,6 +276,25 @@ const StyleGuide: React.FC = () => {
             </section>
 
             <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Marketing Icons</h2>
+              <div className="flex flex-wrap gap-8 bg-white p-6 rounded-lg border border-gray-200">
+                <div className="text-center space-y-2">
+                  <TrendingUp className="h-8 w-8 text-brand-red mx-auto" />
+                  <p className="text-xs text-gray-500">TrendingUp</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <Users className="h-8 w-8 text-brand-red mx-auto" />
+                  <p className="text-xs text-gray-500">Users</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <Brain className="h-8 w-8 text-brand-red mx-auto" />
+                  <p className="text-xs text-gray-500">Brain</p>
+                </div>
+                {/* Add more as needed */}
+              </div>
+            </section>
+
+            <section>
               <h2 className="text-2xl font-bold text-black mb-4">Tags & Pills</h2>
               <div className="flex flex-wrap gap-4 items-center bg-white p-6 rounded-lg border border-gray-200">
                 <span className="px-3 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-full">Primary Tag</span>
@@ -313,6 +337,33 @@ const StyleGuide: React.FC = () => {
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Card Title</h3>
                 <p className="text-gray-600">This is a reusable marketing card component with a subtle gradient background and border.</p>
               </MarketingCard>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Services Card</h2>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 group">
+                  <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Megaphone className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    Service Title
+                  </h3>
+                  <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                    Strategic advertising campaigns that convert based on user research insights.
+                  </p>
+                  <ul className="space-y-2">
+                    <li className="flex items-center text-xs text-gray-500 font-medium">
+                      <div className="w-1.5 h-1.5 bg-brand-red rounded-full mr-3"></div>
+                      Feature One
+                    </li>
+                    <li className="flex items-center text-xs text-gray-500 font-medium">
+                      <div className="w-1.5 h-1.5 bg-brand-red rounded-full mr-3"></div>
+                      Feature Two
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </section>
 
             <section>

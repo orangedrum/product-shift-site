@@ -32,7 +32,7 @@ const AgencyPartner = () => {
           </div>
           <div className="mt-12 flex flex-wrap justify-center gap-8 md:gap-12 items-center">
             {clientLogos.map((logo) => (
-              <img key={logo} src={`/${logo}`} alt="Client Logo" className="max-h-20 w-auto object-contain grayscale opacity-70 hover:opacity-100 transition-opacity duration-300" />
+              <img key={logo} src={`/${logo}`} alt="Client Logo" className="max-h-20 w-auto object-contain grayscale opacity-70 hover:opacity-100 transition-opacity duration-300 animate-float" />
             ))}
           </div>
         </MarketingCard>

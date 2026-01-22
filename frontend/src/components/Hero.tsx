@@ -65,21 +65,21 @@ const Hero: React.FC<HeroProps> = ({
             <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200 animate-fade-in">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="h-5 w-5 text-[#ff1493] mr-2" />
+                  <TrendingUp className="h-5 w-5 text-brand-red mr-2" />
                   <span className="text-2xl font-bold text-gray-900">70%</span>
                 </div>
                 <p className="text-sm text-gray-500">Avg ROI Increase</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <Users className="h-5 w-5 text-[#ff1493] mr-2" />
+                  <Users className="h-5 w-5 text-brand-red mr-2" />
                   <span className="text-2xl font-bold text-gray-900">50+</span>
                 </div>
                 <p className="text-sm text-gray-500">Successful Launches</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <Brain className="h-5 w-5 text-[#ff1493] mr-2" />
+                  <Brain className="h-5 w-5 text-brand-red mr-2" />
                   <span className="text-2xl font-bold text-gray-900">AI</span>
                 </div>
                 <p className="text-sm text-gray-500">Powered Research</p>
