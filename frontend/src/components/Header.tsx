@@ -99,15 +99,15 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
               </div>
             ) : (
               <>
-                <NeoButton variant="secondary" onClick={handleLogin} className="mr-4">
-                  Sign In
-                </NeoButton>
                 <button 
                   onClick={() => navigate('/landingpg-aiuxagent')}
-                  className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient shadow-sm transition-transform transform hover:scale-105 hover:shadow-md"
+                  className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient shadow-sm transition-transform transform hover:scale-105 hover:shadow-md mr-4"
                 >
                   Try Our Instant Insights Tool
                 </button>
+                <NeoButton variant="secondary" onClick={handleLogin} className="h-9 px-4 text-sm">
+                  Sign In
+                </NeoButton>
               </>
             )}
           </div>
@@ -150,14 +150,14 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
               </div>
             ) : (
               <div className="space-y-3">
-                <button onClick={handleLogin} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
-                  Sign In
-                </button>
                 <button 
                   onClick={() => navigate('/landingpg-aiuxagent')}
                   className="w-full h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient shadow-sm transition-transform transform hover:scale-105"
                 >
                   Try Our Instant Insights Tool
+                </button>
+                <button onClick={handleLogin} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100">
+                  Sign In
                 </button>
               </div>
             )}

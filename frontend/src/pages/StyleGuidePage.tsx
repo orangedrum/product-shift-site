@@ -233,6 +233,10 @@ const StyleGuide: React.FC = () => {
                   <div className="h-20 rounded-lg bg-orange-pink-gradient shadow-sm"></div>
                   <p className="text-xs font-mono">orange-pink-gradient</p>
                 </div>
+                <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-purple-gradient shadow-sm"></div>
+                  <p className="text-xs font-mono">purple-gradient</p>
+                </div>
               </div>
             </section>
 
@@ -248,6 +252,14 @@ const StyleGuide: React.FC = () => {
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Section Heading</p>
                   <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">Aa - The quick brown fox</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Agency Heading (H3)</p>
+                  <h3 className="text-2xl font-bold text-gray-800 leading-8 mb-4 text-center">Aa - The quick brown fox</h3>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Agency Body Text</p>
+                  <p className="text-gray-500 leading-6 mb-6 text-center">The quick brown fox jumps over the lazy dog. This is the specific body style for agency sections.</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Body Text</p>

@@ -1,7 +1,21 @@
 import React from 'react';
 import { ArrowRight, Brain, TrendingUp, Users } from 'lucide-react';
 
-const Hero = () => {
+interface HeroProps {
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  description?: string;
+  imageSrc?: string;
+  badgeText?: string;
+}
+
+const Hero: React.FC<HeroProps> = ({
+  title = "Turn UX Research Into",
+  subtitle = <span className="bg-marketing-gradient bg-clip-text text-transparent"> Higher ROIs</span>,
+  description = "Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond",
+  imageSrc = "/hero-image.png",
+  badgeText = "Growth, AI UX, & Marketing Strategy Expert"
+}) => {
   const scrollToServices = () => {
     const element = document.getElementById('services');
     if (element) {
@@ -17,12 +31,11 @@ const Hero = () => {
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full mb-6">
               <Brain className="h-4 w-4" />
-              <span>Growth, AI UX, & Marketing Strategy Expert</span>
+              <span>{badgeText}</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
-              Turn UX Research Into
-              <span className="bg-marketing-gradient bg-clip-text text-transparent"> Higher ROIs</span>
+              {title} {subtitle}
             </h1>
             
             <p className="text-xl text-gray-500 mb-8 max-w-2xl animate-fade-in mx-auto lg:mx-0">
@@ -77,7 +90,7 @@ const Hero = () => {
           {/* Right Image */}
           <div className="relative animate-float">
             <div className="relative rounded-2xl overflow-hidden shadow-elegant">
-              <img src="/hero-image.png" alt="Product Shift UX Research Team" className="w-full h-auto" />
+              <img src={imageSrc} alt="Hero Visual" className="w-full h-auto" />
               <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent"></div>
             </div>
             <div className="text-center mt-4">
