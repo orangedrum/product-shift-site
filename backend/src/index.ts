@@ -36,13 +36,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-latest', // Highest priority: Stable, generous free tier.
-    'gemini-flash-latest',     // Alias for 1.5 Flash
-    'gemini-2.0-flash',        // Next best option
-    'gemini-2.5-flash',        // Newest flash model
-    'gemini-2.0-flash-lite',   // Lite models as final fallbacks
-    'gemini-2.5-flash-lite',
-    'gemini-flash-lite-latest',
+    'gemini-1.5-flash',        // Stable, production-ready
+    'gemini-2.0-flash',        // Newer, faster
+    'gemini-1.5-pro',          // Higher quality fallback
+    'gemini-1.5-flash-8b',     // Cost-effective fallback
   ];
 
   // Prepare image part if available
@@ -481,6 +478,77 @@ app.post('/api/user/generate-referral', async (req, res) => {
   res.json({ referralCode: code });
 });
 
+// --- Redeem Coupon Endpoint ---
+app.post('/api/user/redeem-coupon', async (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code) return res.status(400).json({ error: 'Email and code required' });
+
+  const normalizedCode = code.toUpperCase().trim();
+  
+  // Hardcoded coupons for MVP (Smart Scavenger Model)
+  // In a real app, these would be in a database table 'coupons'
+  const COUPONS: Record<string, number> = {
+    'BACKSTAGE3': 3,  // Agency Offer
+    'SMBFREE1': 1,    // SMB Offer
+    'LAUNCHPARTY': 5  // Special Event
+  };
+
+  if (COUPONS[normalizedCode]) {
+    // 1. Check for previous redemption
+    const { data: existing } = await supabase
+      .from('coupon_redemptions')
+      .select('id')
+      .eq('user_email', email)
+      .eq('coupon_code', normalizedCode)
+      .single();
+
+    if (existing) {
+      return res.status(400).json({ error: 'You have already redeemed this coupon.' });
+    }
+
+    const creditsToAdd = COUPONS[normalizedCode];
+    
+    // 2. Log redemption (This will fail if unique constraint is violated, acting as a second lock)
+    const { error: logError } = await supabase.from('coupon_redemptions').insert({ user_email: email, coupon_code: normalizedCode });
+    if (logError) return res.status(500).json({ error: 'Failed to process coupon. You may have already used it.' });
+
+    // 3. Grant credits
+    const { error } = await supabase.rpc('add_credits', { user_email: email, amount: creditsToAdd });
+    
+    if (error) return res.status(500).json({ error: 'Failed to add credits' });
+
+    // 4. Send Email via Resend
+    if (!resend) {
+      console.warn('Resend API key missing. Skipping email.');
+      return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
+    }
+
+    try {
+      await resend.emails.send({
+        from: 'Product Shift <onboarding@theproductshift.com>',
+        to: email,
+        subject: 'You\'ve got credits! 🎟️',
+        html: `
+          <div style="font-family: sans-serif; max-w-600px; margin: 0 auto;">
+            <h1 style="color: #4f46e5;">Welcome Backstage!</h1>
+            <p>You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
+            <p style="font-size: 18px;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
+            <br/>
+            <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Run a Test Now</a>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      console.error('Failed to send redemption email:', emailErr);
+      // Don't fail the request, just log it
+    }
+
+    return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
+  }
+
+  return res.status(400).json({ error: 'Invalid or expired coupon code' });
+});
+
 // --- Check Referral Eligibility Endpoint ---
 app.post('/api/user/check-referral-eligibility', async (req, res) => {
   const { email } = req.body;
@@ -897,9 +965,18 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     const browserScript = `
       export default async ({ page, context }) => {
         const { url } = context;
-        await page.setViewport({ width: 1280, height: 800 }); // Corrected viewport setting
-        // Set timeout to 15s to ensure we return before Vercel's hard limit
-        const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+        await page.setViewport({ width: 1280, height: 800 });
+        
+        // Set a realistic User-Agent to avoid being blocked (403 Access Denied)
+        await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
+        
+        // Set extra headers for better acceptance
+        await page.setExtraHTTPHeaders({
+          'Accept-Language': 'en-US,en;q=0.9',
+        });
+
+        // Set timeout to 25s to handle slower sites (assuming Vercel Pro or sufficient execution time)
+        const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
         
         // SPA Stabilization: Wait for client-side redirects/hydration to settle.
         // This prevents "Execution context destroyed" if the app redirects immediately after load.
@@ -1568,6 +1645,49 @@ app.delete('/api/admin/errors/:id', async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
 
   res.json({ success: true });
+});
+
+// --- Admin Invite User Endpoint ---
+app.post('/api/admin/invite-user', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { email, credits, segment } = req.body;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  try {
+    // 1. Ensure customer row exists (This "whitelists" them so Login.tsx won't block them later)
+    const { error: dbError } = await supabase
+      .from('customers')
+      .upsert({ 
+        email, 
+        credits: credits || 0, 
+        plan_status: 'gifted', 
+        segment: segment || 'tech'
+      }, { onConflict: 'email' });
+
+    if (dbError) throw dbError;
+
+    // 2. Generate Magic Link via Supabase Admin
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: email,
+      options: {
+        redirectTo: 'https://www.theproductshift.com/ai-powered-ux?new_credit=true' // Redirect straight to tool
+      }
+    });
+
+    if (linkError) throw linkError;
+
+    // 3. Return the link directly since email is disabled on this branch
+    res.json({ success: true, message: 'Invite generated!', action_link: linkData.properties.action_link });
+  } catch (e: any) {
+    console.error('Invite Error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get('/api/admin/stats', async (req, res) => {
