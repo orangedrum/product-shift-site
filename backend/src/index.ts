@@ -84,8 +84,7 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   const apiKey = process.env.RESEND_API_KEY;
   
   if (!apiKey) {
-    console.warn('Resend API key missing. Skipping email.');
-    return;
+    throw new Error('Resend API key missing in environment variables.');
   }
 
   try {
@@ -101,9 +100,11 @@ const sendEmail = async (to: string, subject: string, html: string) => {
     if (!response.ok) {
       const errText = await response.text();
       console.error('Resend API Error:', errText);
+      throw new Error(`Resend API Error: ${errText}`);
     }
   } catch (e) {
     console.error('Failed to send email:', e);
+    throw e; // Propagate error to the caller (Admin Dashboard)
   }
 };
 

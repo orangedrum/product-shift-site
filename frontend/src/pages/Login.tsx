@@ -264,6 +264,17 @@ const Login: React.FC = () => {
                     <PenTool className="text-purple-600" /> <span className="font-bold text-black">I'm a UX Professional</span>
                   </button>
                 </div>
+                <div className="mt-6 text-center">
+                  <button 
+                    onClick={() => {
+                      setShowOnboardingModal(false);
+                      setLoading(false);
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-900 underline"
+                  >
+                    Mistake? Retry Login
+                  </button>
+                </div>
               </NeoCard>
             </div>
           </div>
