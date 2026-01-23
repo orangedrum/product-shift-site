@@ -118,7 +118,7 @@ const ProductLab = () => {
               onClick={() => navigate('/agency-user-testing')}
               className="text-lg px-8 py-4 w-full sm:w-auto"
             >
-              Learn More About our 1-click User Testing Tool
+              Try the free demo yourself
             </NeoButton>
           </NeoCard>
 

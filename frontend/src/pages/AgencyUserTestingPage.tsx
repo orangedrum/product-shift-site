@@ -55,7 +55,7 @@ const AgencyUserTestingPage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <NeoButton onClick={handleCtaClick} className="px-8 py-4 text-lg">
-              Learn More About our 1-click User Testing Tool
+              Try the free demo yourself
             </NeoButton>
             <NeoButton 
               variant="secondary"
