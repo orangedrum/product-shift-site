@@ -528,6 +528,12 @@ const StyleGuide: React.FC = () => {
                     </Link>
                     <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/landingpg-aiuxagent</code>
                   </li>
+                  <li>
+                    <span className="text-gray-400 font-semibold flex items-center gap-1 cursor-not-allowed">
+                      Lovable Site Reference (Local Only)
+                    </span>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/lovable_site (Run locally on port 5174)</code>
+                  </li>
                   <li className="mt-4 border-t pt-2">
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Video Variants</span>
                   </li>

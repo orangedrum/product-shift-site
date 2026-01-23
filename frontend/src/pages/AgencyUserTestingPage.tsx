@@ -54,17 +54,16 @@ const AgencyUserTestingPage: React.FC = () => {
             Stop arguing about design opinions. Start selling data. Use our <strong>1-Click User Testing Tool</strong> to audit prospect sites, benchmark redesigns, and prove your value with instant, AI-generated usability reports.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <NeoButton onClick={handleCtaClick} className="px-8 py-4 text-lg">
+            <button onClick={handleCtaClick} className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
               Try the free demo yourself
-            </NeoButton>
-            <NeoButton 
-              variant="secondary"
+            </button>
+            <button 
               onClick={() => setShowVideoModal(true)} 
-              className="px-8 py-4 text-lg"
-              icon={<PlayCircle size={20} />}
+              className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 transition-all duration-300"
             >
+              <PlayCircle size={20} className="mr-2" />
               See How It Works
-            </NeoButton>
+            </button>
           </div>
         </div>
       </section>

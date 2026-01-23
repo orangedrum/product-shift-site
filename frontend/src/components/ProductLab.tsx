@@ -15,15 +15,15 @@ const ProductLab = () => {
     setHasFiredConfetti(true);
 
     const colors = ['#ff1493', '#ff8c00', '#00bfff'];
-    const particleCount = 50;
+    const particleCount = 100;
     
     for (let i = 0; i < particleCount; i++) {
       const el = document.createElement('div');
       el.style.position = 'fixed';
       el.style.left = '50%';
       el.style.top = '50%';
-      el.style.width = '8px';
-      el.style.height = '8px';
+      el.style.width = '12px';
+      el.style.height = '12px';
       el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
       el.style.borderRadius = '50%';
       el.style.pointerEvents = 'none';
@@ -32,8 +32,8 @@ const ProductLab = () => {
 
       const angle = Math.random() * Math.PI * 2;
       const velocity = 10 + Math.random() * 10;
-      const tx = Math.cos(angle) * velocity * 20;
-      const ty = Math.sin(angle) * velocity * 20;
+      const tx = Math.cos(angle) * velocity * 30;
+      const ty = Math.sin(angle) * velocity * 30;
 
       el.animate([
         { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
