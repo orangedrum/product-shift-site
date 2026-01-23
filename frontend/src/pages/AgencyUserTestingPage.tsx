@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, BarChart, Users, Zap, FileText, TrendingUp, PlayCircle, X, Check } from 'lucide-react';
+import { CheckCircle, BarChart, Users, Zap, FileText, TrendingUp, PlayCircle, X, Check, ArrowRightLeft } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import { VideoPlayer } from '../components/VideoPlayer';
@@ -86,24 +86,29 @@ const AgencyUserTestingPage: React.FC = () => {
                 Our AI agents browse your client's site like real humans, verbalizing their confusion and frustration so you can fix it.
               </p>
               
-              <div className="space-y-6">
-                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm">
-                    <BarChart className="w-6 h-6 text-gray-400" />
+              <div className="relative grid grid-cols-2 gap-4">
+                {/* VS Badge */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full p-2 shadow-sm">
+                  <span className="text-xs font-black text-gray-400">VS</span>
+                </div>
+
+                <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200 h-full">
+                  <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm w-fit">
+                    <BarChart className="w-5 h-5 text-gray-400" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900">The Analytics Way</h4>
-                    <p className="text-sm text-gray-500">"Bounce rate on /checkout is 65%."</p>
+                    <h4 className="font-bold text-gray-900 text-sm mb-1">Analytics</h4>
+                    <p className="text-xs text-gray-500 leading-relaxed">"Bounce rate on /checkout is 65%."</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                  <div className="p-2 bg-white rounded-lg border border-indigo-100 shadow-sm">
-                    <Zap className="w-6 h-6 text-indigo-600" />
+                <div className="flex flex-col gap-3 p-4 bg-indigo-50 rounded-xl border border-indigo-100 h-full">
+                  <div className="p-2 bg-white rounded-lg border border-indigo-100 shadow-sm w-fit">
+                    <Zap className="w-5 h-5 text-indigo-600" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-indigo-900">The Product Shift Way</h4>
-                    <p className="text-sm text-indigo-700">"I can't find the shipping costs. I'm frustrated and leaving."</p>
+                    <h4 className="font-bold text-indigo-900 text-sm mb-1">Product Shift</h4>
+                    <p className="text-xs text-indigo-700 leading-relaxed">"I can't find the shipping costs. I'm frustrated."</p>
                   </div>
                 </div>
               </div>
@@ -123,10 +128,10 @@ const AgencyUserTestingPage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-4 text-brand-purple font-bold uppercase tracking-wider text-xs">
                   <CheckCircle size={16} /> Actionable Recommendation
                 </div>
-                <h3 className="text-xl font-bold mb-2">Add Integration Logos</h3>
-                <p className="text-gray-600 mb-4">Users are abandoning the pricing page because integration capabilities are buried.</p>
+                <h3 className="text-xl font-bold mb-2">Clarify Salesforce Integration</h3>
+                <p className="text-gray-600 mb-4">Users are abandoning the purchase because they can't confirm if the software works with their existing stack.</p>
                 <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-600 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-brand-pink rounded-full"></div> FIX: Add "Works with Salesforce" logo strip below CTA.
+                  <div className="w-2 h-2 bg-brand-pink rounded-full"></div> FIX: Add "Works with Salesforce" logo strip immediately below the primary CTA.
                 </div>
               </div>
               

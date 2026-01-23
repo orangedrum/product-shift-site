@@ -372,6 +372,22 @@ const StyleGuide: React.FC = () => {
             </section>
 
             <section>
+              <h2 className="text-2xl font-bold text-black mb-4">Actionable Recommendation</h2>
+              <div className="max-w-md">
+                <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-gray-100 shadow-xl relative z-10">
+                  <div className="flex items-center gap-2 mb-4 text-brand-purple font-bold uppercase tracking-wider text-xs">
+                    <CheckCircle size={16} /> Actionable Recommendation
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Problem Title</h3>
+                  <p className="text-gray-600 mb-4">Description of the user's confusion or friction point.</p>
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-600 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-brand-pink rounded-full"></div> FIX: Specific, tactical instruction to resolve the issue.
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section>
               <h2 className="text-2xl font-bold text-black mb-4">Video Thumbnail</h2>
               <div className="max-w-md">
                 <VideoThumbnail imageSrc="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" alt="Example Video" />
