@@ -34,7 +34,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 // --- Resend Initialization ---
-const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
+const emailFrom = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
@@ -84,7 +84,8 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   const apiKey = process.env.RESEND_API_KEY;
   
   if (!apiKey) {
-    throw new Error('Resend API key missing in environment variables.');
+    console.warn('Resend API key missing. Skipping email.');
+    return;
   }
 
   try {
@@ -100,11 +101,12 @@ const sendEmail = async (to: string, subject: string, html: string) => {
     if (!response.ok) {
       const errText = await response.text();
       console.error('Resend API Error:', errText);
-      throw new Error(`Resend API Error: ${errText}`);
+      // Don't crash the whole request if email fails, just log it.
+      // throw new Error(`Resend API Error: ${errText}`);
     }
   } catch (e) {
     console.error('Failed to send email:', e);
-    throw e; // Propagate error to the caller (Admin Dashboard)
+    // throw e; // Don't propagate error to the caller to avoid 500s on frontend
   }
 };
 
