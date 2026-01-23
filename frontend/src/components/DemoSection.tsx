@@ -106,6 +106,74 @@ export const DemoSection = () => {
     }
   };
 
+  const scrollToPricing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  if (result) {
+    const session = result.userSessions?.[0];
+    const userBubble = session?.analysis?.split('|||USER_BUBBLE|||')[1]?.split('|||USER_DETAILS|||')[0]?.trim() || "Analysis complete.";
+    const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
+
+    return (
+      <section id="demo" className="bg-gray-50 py-24 sm:py-32">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-gray-900">Demo Result for <span className="text-indigo-600">{result.title}</span></h2>
+            <p className="mt-4 text-lg text-gray-600">Here is what our AI customer thought of your site.</p>
+          </div>
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+              <div className="flex flex-col items-center text-center">
+                <img 
+                  src={session.avatar} 
+                  alt={session.persona} 
+                  onError={(e: any) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4`; }}
+                  className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-3 bg-gray-100" />
+                <h3 className="text-xl font-bold text-gray-900">{session.persona}</h3>
+                <p className="text-sm text-gray-500">{session.description}</p>
+              </div>
+              <div className="mt-6 bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative">
+                <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
+                <div className="relative">
+                  <p className="text-base italic text-gray-700 leading-relaxed blur-sm select-none">"{userBubble}"</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-transparent">
+                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
+                          <Lock size={12} className="inline-block mr-1" />
+                          Unlock Feedback
+                      </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-8 bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Top Recommendations</h3>
+              <div className="prose prose-sm max-w-none">
+                {formatDemoText(recommendations)}
+              </div>
+              <div className="mt-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200 text-center relative">
+                <div className="relative z-10">
+                  <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
+                  <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
+                  <p className="text-sm text-indigo-700 mt-1">Get the complete analysis and feedback from 5 more personas.</p>
+                  <a href="#pricing" onClick={scrollToPricing} className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+                    Get Full Access
+                  </a>
+                </div>
+              </div>
+              <div className="mt-6 text-center">
+                <button onClick={() => setResult(null)} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 transition-colors">
+                  <RefreshCw size={16} /> Run Another Demo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="demo" className="bg-gray-900 text-white py-24">
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
