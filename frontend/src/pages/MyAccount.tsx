@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake } from 'lucide-react';
+import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ticket } from 'lucide-react';
 
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +14,9 @@ const MyAccount: React.FC = () => {
   const [showRefillModal, setShowRefillModal] = useState(false);
   const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
   const [cancelNotification, setCancelNotification] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [redeemMessage, setRedeemMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
+  const [redeemLoading, setRedeemLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -132,6 +135,35 @@ const MyAccount: React.FC = () => {
     }
   };
 
+  const handleRedeemCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponCode.trim()) return;
+    
+    setRedeemLoading(true);
+    setRedeemMessage(null);
+
+    try {
+      const res = await fetch('/api/user/redeem-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.user.email, code: couponCode })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        setRedeemMessage({ type: 'success', text: data.message });
+        setCouponCode('');
+        fetchData(session.user.email); // Refresh credits
+      } else {
+        setRedeemMessage({ type: 'error', text: data.error });
+      }
+    } catch (err) {
+      setRedeemMessage({ type: 'error', text: 'Failed to redeem code' });
+    } finally {
+      setRedeemLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       {/* Cancellation Notification Bar */}
@@ -197,6 +229,31 @@ const MyAccount: React.FC = () => {
             <NeoButton onClick={() => setShowRefillModal(true)} className="w-full">
               Add More Tests <ArrowRight size={16} />
             </NeoButton>
+          </div>
+        </NeoCard>
+
+        {/* Coupon Redemption Card */}
+        <NeoCard title="Redeem Code">
+          <div className="flex flex-col h-full justify-between">
+            <p className="text-gray-600 mb-4 text-sm">Have a promo code from an event or partner? Enter it here to unlock free tests.</p>
+            <form onSubmit={handleRedeemCoupon} className="space-y-3">
+              <div className="relative">
+                <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input 
+                  type="text" 
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="Enter Code (e.g. BACKSTAGE3)"
+                  className="w-full pl-10 p-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none uppercase"
+                />
+              </div>
+              <NeoButton type="submit" variant="secondary" className="w-full" disabled={redeemLoading || !couponCode}>
+                {redeemLoading ? 'Verifying...' : 'Redeem'}
+              </NeoButton>
+              {redeemMessage && (
+                <p className={`text-xs font-bold text-center ${redeemMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>{redeemMessage.text}</p>
+              )}
+            </form>
           </div>
         </NeoCard>
       </div>

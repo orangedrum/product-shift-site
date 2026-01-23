@@ -7,16 +7,88 @@ import { VideoPlayer } from '../components/VideoPlayer';
 import { SpeechBubble } from '../components/SpeechBubble';
 import { DemoSection } from '../components/DemoSection';
 
+const CONFIG = {
+  pageTitle: "White Label User Testing for Agencies | Product Shift",
+  metaDescription: "Scale your agency with AI-powered user testing. Validate designs instantly, prove ROI to clients, and deliver data-driven websites without the wait.",
+  urlSlug: "agency-user-testing",
+};
+
 const AgencyUserTestingPage: React.FC = () => {
   const navigate = useNavigate();
   const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
-    document.title = "White Label User Testing for Agencies | Sell Web Design Services";
+    document.title = CONFIG.pageTitle;
+    
+    // 1. Meta Description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', "The automated UX audit tool for agencies. Sell more website redesigns and prove ROI with instant, white-label user testing reports.");
+      metaDescription.setAttribute('content', CONFIG.metaDescription);
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = "description";
+      meta.content = CONFIG.metaDescription;
+      document.head.appendChild(meta);
     }
+
+    // 2. Canonical Link (Pointing to www as requested)
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
+
+    // 3. Open Graph Tags (Social SEO)
+    const setMeta = (attr: string, key: string, content: string) => {
+      let m = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!m) {
+        m = document.createElement('meta');
+        m.setAttribute(attr, key);
+        document.head.appendChild(m);
+      }
+      m.setAttribute('content', content);
+    };
+    
+    setMeta('property', 'og:title', CONFIG.pageTitle);
+    setMeta('property', 'og:description', CONFIG.metaDescription);
+    setMeta('property', 'og:url', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
+    setMeta('property', 'og:type', 'website');
+    setMeta('property', 'og:image', 'https://www.theproductshift.com/social-share.png');
+
+    // 4. JSON-LD Structured Data (AI Search Optimization)
+    const scriptId = 'json-ld-agency';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "Product Shift for Agencies",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web Browser",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Agency Audit Demo" },
+            "description": CONFIG.metaDescription,
+            "featureList": "White Label Reports, Multi-Client Management, Instant AI Analysis",
+            "audience": {
+              "@type": "Audience",
+              "audienceType": "Digital Agencies & Web Design Studios"
+            },
+            "offeredBy": {
+              "@type": "Organization",
+              "name": "Product Shift",
+              "url": "https://www.theproductshift.com"
+            }
+          }
+        ]
+      });
+      document.head.appendChild(script);
+    }
+
     window.scrollTo(0, 0);
   }, []);
 

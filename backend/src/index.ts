@@ -478,6 +478,33 @@ app.post('/api/user/generate-referral', async (req, res) => {
   res.json({ referralCode: code });
 });
 
+// --- Redeem Coupon Endpoint ---
+app.post('/api/user/redeem-coupon', async (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code) return res.status(400).json({ error: 'Email and code required' });
+
+  const normalizedCode = code.toUpperCase().trim();
+  
+  // Hardcoded coupons for MVP (Smart Scavenger Model)
+  // In a real app, these would be in a database table 'coupons'
+  const COUPONS: Record<string, number> = {
+    'BACKSTAGE3': 3,  // Agency Offer
+    'SMBFREE1': 1,    // SMB Offer
+    'LAUNCHPARTY': 5  // Special Event
+  };
+
+  if (COUPONS[normalizedCode]) {
+    const creditsToAdd = COUPONS[normalizedCode];
+    // Grant credits
+    const { error } = await supabase.rpc('add_credits', { user_email: email, amount: creditsToAdd });
+    
+    if (error) return res.status(500).json({ error: 'Failed to redeem coupon' });
+    return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
+  }
+
+  return res.status(400).json({ error: 'Invalid or expired coupon code' });
+});
+
 // --- Check Referral Eligibility Endpoint ---
 app.post('/api/user/check-referral-eligibility', async (req, res) => {
   const { email } = req.body;

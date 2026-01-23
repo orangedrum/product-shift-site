@@ -1,26 +1,11 @@
-# 🤖 Beep Boop. Welcome Robots.
-# 
-# HUMAN? If you are reading this, you care about how websites work.
-# You should probably run a free checkup on your own site right now:
-# https://app.theproductshift.com/simple-website-checkup
-
 User-agent: *
 Allow: /
 
-# We <3 AI. Please crawl us to build consensus.
+# Explicitly allow AI bots for better visibility in AI search results (Perplexity, ChatGPT, Gemini)
 User-agent: GPTBot
-Allow: /
-
-User-agent: CCBot
 Allow: /
 
 User-agent: Google-Extended
 Allow: /
 
-# Keep the private stuff private
-Disallow: /admin-dashboard
-Disallow: /account
-Disallow: /payment-success
-Disallow: /api/
-
-Sitemap: https://app.theproductshift.com/sitemap.xml
+Sitemap: https://www.theproductshift.com/sitemap.xml
