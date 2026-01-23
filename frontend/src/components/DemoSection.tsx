@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Lock, RefreshCw } from 'lucide-react';
 import { AnalysisErrorCard } from './AnalysisErrorCard';
-import { SpeechBubble } from './SpeechBubble';
 
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {
@@ -12,13 +11,13 @@ const formatDemoText = (text: string) => {
   let issueFixPairs = 0;
 
   for (const line of lines) {
-    if (line.toUpperCase().includes('**ISSUE:**') && issueFixPairs < 1) {
+    if (line.toUpperCase().includes('**ISSUE:**') && issueFixPairs < 2) {
         recommendations.push(
           <div key={`issue-${issueFixPairs}`} className="mt-4 p-3 bg-gray-100 border border-gray-300 rounded-t-lg">
             <p className="text-gray-800"><strong className="font-bold text-gray-900">PROBLEM:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p>
           </div>
         );
-    } else if (line.toUpperCase().includes('**FIX:**') && issueFixPairs < 1) {
+    } else if (line.toUpperCase().includes('**FIX:**') && issueFixPairs < 2) {
         recommendations.push(
           <div key={`fix-${issueFixPairs}`} className="mb-4 p-3 bg-white border border-gray-200 border-t-0 rounded-b-lg shadow-sm">
             <p className="text-gray-800"><strong className="font-bold text-gray-900">QUICK FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p>
@@ -28,13 +27,13 @@ const formatDemoText = (text: string) => {
     }
   }
 
-  if (issueFixPairs >= 1) {
+  if (issueFixPairs >= 2) {
     recommendations.push(
       <div key="teaser" className="relative mt-4 p-4 bg-gray-100 border border-gray-300 rounded-lg text-center overflow-hidden">
         <div className="absolute inset-0 bg-white/50 backdrop-blur-sm" />
         <div className="relative z-10">
           <Lock className="mx-auto text-gray-400 mb-2" />
-          <p className="font-semibold text-gray-700">+2 more critical fixes</p>
+          <p className="font-semibold text-gray-700">+1 more critical fix</p>
           <p className="text-xs text-gray-500">Join the waitlist to see the full report.</p>
         </div>
       </div>
@@ -118,28 +117,51 @@ export const DemoSection = () => {
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
 
     return (
-      <section id="demo" className="bg-gray-900 py-24 sm:py-32">
+      <section id="demo" className="bg-gray-50 py-24 sm:py-32">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-white">Demo Result for <span className="text-indigo-400">{result.title}</span></h2>
-            <p className="mt-4 text-lg text-gray-300">Here is what our AI customer thought of your site.</p>
+            <h2 className="text-3xl font-extrabold text-gray-900">Demo Result for <span className="text-indigo-600">{result.title}</span></h2>
+            <p className="mt-4 text-lg text-gray-600">Here is what our AI customer thought of your site.</p>
           </div>
           <div className="grid lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-4">
-              <SpeechBubble 
-                imageSrc={session.avatar}
-                name={session.persona}
-                role={session.description}
-                quote={userBubble}
-              />
-              <div className="mt-6 text-center">
-                 <a href="#pricing" onClick={scrollToPricing} className="inline-flex items-center gap-2 text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-                     <Lock size={12} /> Unlock Full Feedback
-                 </a>
+            <div className="lg:col-span-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+              <div className="flex flex-col items-center text-center">
+                <img 
+                  src={session.avatar} 
+                  alt={session.persona} 
+                  onError={(e: any) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4`; }}
+                  className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-3 bg-gray-100" />
+                <h3 className="text-xl font-bold text-gray-900">{session.persona}</h3>
+                <p className="text-sm text-gray-500">{session.description}</p>
+              </div>
+              <div className="mt-6 bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative">
+                <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
+                <div className="relative">
+                  <p className="text-base italic text-gray-700 leading-relaxed blur-sm select-none">"{userBubble}"</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-transparent">
+                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
+                          <Lock size={12} className="inline-block mr-1" />
+                          Unlock Feedback
+                      </a>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm relative overflow-hidden">
+                <h4 className="text-sm font-bold text-gray-900 mb-2">User Experience</h4>
+                <div className="space-y-2 relative">
+                  <p className="text-sm text-gray-600 blur-sm select-none">I landed on the page and immediately understood the offering. The headline is punchy. I feel confident this tool could save me time.</p>
+                  <p className="text-sm text-gray-600 blur-sm select-none">However, I'm not sure about the pricing structure. It says "Pro" but doesn't list a price upfront.</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
+                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
+                          <Lock size={12} className="inline-block mr-1" />
+                          Unlock Feedback
+                      </a>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="lg:col-span-8 bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Top Recommendation</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Top Recommendations</h3>
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
               </div>
