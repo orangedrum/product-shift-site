@@ -117,11 +117,11 @@ export const DemoSection = () => {
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
 
     return (
-      <section id="demo" className="bg-gray-50 py-24 sm:py-32">
+      <section id="demo" className="bg-gray-900 py-24 sm:py-32">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900">Demo Result for <span className="text-indigo-600">{result.title}</span></h2>
-            <p className="mt-4 text-lg text-gray-600">Here is what our AI customer thought of your site.</p>
+            <h2 className="text-3xl font-extrabold text-white">Demo Result for <span className="text-indigo-400">{result.title}</span></h2>
+            <p className="mt-4 text-lg text-gray-300">Here is what our AI customer thought of your site.</p>
           </div>
           <div className="grid lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -136,26 +136,20 @@ export const DemoSection = () => {
               </div>
               <div className="mt-6 bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative">
                 <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
-                <div className="relative">
-                  <p className="text-base italic text-gray-700 leading-relaxed blur-sm select-none">"{userBubble}"</p>
-                  <div className="absolute inset-0 flex items-center justify-center bg-transparent">
-                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
-                          <Lock size={12} className="inline-block mr-1" />
-                          Unlock Feedback
-                      </a>
-                  </div>
-                </div>
+                <p className="text-base italic text-gray-700 leading-relaxed">"{userBubble}"</p>
               </div>
               <div className="mt-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm relative overflow-hidden">
                 <h4 className="text-sm font-bold text-gray-900 mb-2">User Experience</h4>
                 <div className="space-y-2 relative">
-                  <p className="text-sm text-gray-600 blur-sm select-none">I landed on the page and immediately understood the offering. The headline is punchy. I feel confident this tool could save me time.</p>
-                  <p className="text-sm text-gray-600 blur-sm select-none">However, I'm not sure about the pricing structure. It says "Pro" but doesn't list a price upfront.</p>
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
-                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
-                          <Lock size={12} className="inline-block mr-1" />
-                          Unlock Feedback
-                      </a>
+                  <p className="text-sm text-gray-600">I landed on the page and immediately understood the offering.</p>
+                  <div className="relative">
+                    <p className="text-sm text-gray-600 blur-sm select-none">The headline is punchy. I feel confident this tool could save me time. However, I'm not sure about the pricing structure. It says "Pro" but doesn't list a price upfront.</p>
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
+                        <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
+                            <Lock size={12} className="inline-block mr-1" />
+                            Unlock Full Feedback
+                        </a>
+                    </div>
                   </div>
                 </div>
               </div>
