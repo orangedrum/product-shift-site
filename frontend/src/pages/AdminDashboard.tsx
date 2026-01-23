@@ -51,8 +51,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           headers: { Authorization: `Bearer ${secretKey}` },
         });
         if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || 'Failed to fetch stats');
+          // Handle non-JSON errors (like 500 crashes)
+          const text = await res.text();
+          try {
+            const errorData = JSON.parse(text);
+            throw new Error(errorData.error || 'Failed to fetch stats');
+          } catch {
+            throw new Error(`Server Error (${res.status}): ${text.substring(0, 100)}`);
+          }
         }
         const data = await res.json();
         setStats(data);

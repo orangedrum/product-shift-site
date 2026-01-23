@@ -35,7 +35,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 // --- Resend Initialization ---
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY;
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
+const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
@@ -522,9 +524,14 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
     if (error) return res.status(500).json({ error: 'Failed to add credits' });
 
     // 4. Send Email via Resend
+    if (!resend) {
+      console.warn('Resend API key missing. Skipping email.');
+      return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
+    }
+
     try {
       await resend.emails.send({
-        from: 'Product Shift <onboarding@theproductshift.com>',
+        from: emailFrom,
         to: email,
         subject: 'You\'ve got credits! 🎟️',
         html: `
@@ -1673,8 +1680,12 @@ app.post('/api/admin/invite-user', async (req, res) => {
     if (linkError) throw linkError;
 
     // 3. Send Custom Email via Resend
+    if (!resend) {
+      return res.status(500).json({ error: 'Email service not configured (Missing Resend Key)' });
+    }
+
     const { error: emailError } = await resend.emails.send({
-      from: 'Product Shift <onboarding@theproductshift.com>',
+      from: emailFrom,
       to: email,
       subject: 'Your Product Shift Backstage Pass 🎟️',
       html: `

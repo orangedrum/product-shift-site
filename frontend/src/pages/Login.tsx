@@ -133,13 +133,23 @@ const Login: React.FC = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email }),
         });
+        
+        if (!accRes.ok) {
+          throw new Error('Server unavailable');
+        }
+
         const accData = await accRes.json();
         if (!accData.exists) {
           setLoading(false);
           setShowOnboardingModal(true);
           return;
         }
-      } catch (e) { console.error('Account check failed', e); }
+      } catch (e) { 
+        console.error('Account check failed', e);
+        setLoading(false);
+        setMessage("Unable to verify account status. Please try again.");
+        return;
+      }
     }
 
     // Construct the Redirect URL to preserve our "Tickets"
