@@ -15,9 +15,9 @@ const HomePage = () => {
       <Hero />
       <IncubatorRibbon />
       <AgencyPartner />
-      <About />
       <ProductLab />
       <CoreServices />
+      <About />
       <Speaker />
       <Blog />
       <CTA />

@@ -185,7 +185,7 @@ const Login: React.FC = () => {
       }}
     >
       <div className="max-w-md w-full">
-        <NeoCard title={plan ? "Complete Your Purchase" : "Sign In"}>
+        <NeoCard title={plan ? "Complete Your Purchase" : "Sign in to Product Shift"}>
           <p className="text-gray-600 mb-6">
             {plan 
               ? "Sign in or create an account to proceed to checkout." 
@@ -208,6 +208,15 @@ const Login: React.FC = () => {
               <NeoButton type="submit" className="w-full justify-center" disabled={loading}>
                 {loading ? <Loader2 className="animate-spin" /> : <><Mail size={18} className="mr-2" /> Send Magic Link</>}
             </NeoButton>
+            <div className="mt-4 text-center">
+              <button 
+                type="button"
+                onClick={() => setMessage("We use secure magic links instead of passwords. Just enter your email above!")}
+                className="text-sm text-gray-500 hover:text-gray-800 underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
             </form>
           ) : (
             <div className="p-4 bg-green-50 border-2 border-green-500 rounded-lg text-green-800 font-bold text-center animate-fade-in">

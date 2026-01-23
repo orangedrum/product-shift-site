@@ -50,10 +50,19 @@ const App: React.FC = () => {
     console.log('Current Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
   }, [location, normalizedPath, isLandingPage]);
 
-  // Scroll to top on route change
+  // Scroll handling: Respect hash if present, otherwise scroll to top
   React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    if (location.hash) {
+      setTimeout(() => {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
 
   return (
     <div className="flex flex-col min-h-screen">
