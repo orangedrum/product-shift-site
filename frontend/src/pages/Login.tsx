@@ -14,6 +14,7 @@ const Login: React.FC = () => {
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [bgGradient, setBgGradient] = useState('');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Capture "Tickets" (URL Params)
   const plan = searchParams.get('plan');
@@ -162,6 +163,7 @@ const Login: React.FC = () => {
       setLoading(false);
     } else {
       setMessage('Check your email for the magic link!');
+      setIsSuccess(true);
       setLoading(false);
     }
   };
@@ -185,14 +187,23 @@ const Login: React.FC = () => {
       }}
     >
       <div className="max-w-md w-full">
-        <NeoCard title={plan ? "Complete Your Purchase" : "Sign in to Product Shift"}>
+        <h1 className="text-3xl font-black text-center mb-6 text-black">
+          {plan ? "Complete Your Purchase" : "Sign in to Product Shift"}
+        </h1>
+        <NeoCard>
           <p className="text-gray-600 mb-6">
             {plan 
               ? "Sign in or create an account to proceed to checkout." 
               : "Enter your email to sign in."}
           </p>
           
-          {!message ? (
+          {message && (
+            <div className={`p-4 mb-6 border-2 rounded-lg font-bold text-center animate-fade-in ${isSuccess ? 'bg-green-50 border-green-500 text-green-800' : 'bg-blue-50 border-blue-500 text-blue-800'}`}>
+              {message}
+            </div>
+          )}
+
+          {!isSuccess && (
             <form onSubmit={handleLogin} className="space-y-4">
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
@@ -218,10 +229,6 @@ const Login: React.FC = () => {
               </button>
             </div>
             </form>
-          ) : (
-            <div className="p-4 bg-green-50 border-2 border-green-500 rounded-lg text-green-800 font-bold text-center animate-fade-in">
-              {message}
-            </div>
           )}
         </NeoCard>
 

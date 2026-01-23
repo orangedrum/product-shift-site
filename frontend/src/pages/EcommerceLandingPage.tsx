@@ -614,9 +614,10 @@ const EcommerceLandingPage: React.FC = () => {
         
         <div className="relative z-10">
           <HeroSection />
-          <PainSection />
           <hr className="border-t-2 border-black my-0" />
           <DemoSection />
+          <hr className="border-t-2 border-black my-0" />
+          <PainSection />
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection />
           <hr className="border-t-2 border-black my-0" />
