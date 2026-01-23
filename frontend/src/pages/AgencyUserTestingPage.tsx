@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, BarChart, Users, Zap, FileText, Globe, Lock, TrendingUp, Layout, Search, AlertCircle, PlayCircle, X, Check, RefreshCw } from 'lucide-react';
+import { CheckCircle, BarChart, Users, Zap, FileText, Globe, Lock, TrendingUp, Layout, Search, AlertCircle, PlayCircle, X, Check, RefreshCw, Megaphone } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import { VideoPlayer } from '../components/VideoPlayer';
@@ -120,14 +120,14 @@ const AgencyUserTestingPage: React.FC = () => {
                 mood="negative"
               />
               
-              <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-green-100 shadow-xl relative z-10">
-                <div className="flex items-center gap-2 mb-4 text-green-600 font-bold uppercase tracking-wider text-xs">
+              <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-gray-100 shadow-xl relative z-10">
+                <div className="flex items-center gap-2 mb-4 text-brand-purple font-bold uppercase tracking-wider text-xs">
                   <CheckCircle size={16} /> Actionable Recommendation
                 </div>
                 <h3 className="text-xl font-bold mb-2">Add Integration Logos</h3>
                 <p className="text-gray-600 mb-4">Users are abandoning the pricing page because integration capabilities are buried.</p>
-                <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-600">
-                  FIX: Add "Works with Salesforce" logo strip below CTA.
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-600 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-brand-pink rounded-full"></div> FIX: Add "Works with Salesforce" logo strip below CTA.
                 </div>
               </div>
               
@@ -142,93 +142,82 @@ const AgencyUserTestingPage: React.FC = () => {
       <section id="use-cases" className="py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-black text-gray-900 mb-4">Win Every Stage of the Client Lifecycle</h2>
+            <h2 className="text-3xl font-black text-gray-900 mb-4">When should I use 1-Click User Testing?</h2>
+            <h3 className="text-xl font-bold text-gray-500 mb-4">Win Every Stage of the Client Lifecycle</h3>
             <p className="text-lg text-gray-500">From the first pitch to the final handoff, data is your best salesperson.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
             {/* Phase 1: The Pitch */}
-            <div className="relative group">
-              <div className="absolute -inset-2 bg-gradient-to-r from-orange-400 to-pink-600 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-300"></div>
-              <NeoCard className="relative h-full">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 bg-orange-100 rounded-xl">
-                    <TrendingUp className="w-8 h-8 text-orange-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">1. The "Trojan Horse" Pitch</h3>
-                </div>
-                <p className="text-gray-600 mb-6">
-                  Don't just tell prospects their current site is losing money—<strong>show them</strong>. Run a 1-click audit on their existing URL before the meeting.
-                </p>
-                <ul className="space-y-3 text-sm text-gray-700">
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Reveal hidden friction points in their checkout flow.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Show them exactly where users get confused.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Close the deal by offering to fix the specific issues found.</span></li>
-                </ul>
-              </NeoCard>
+            <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                1. The "Trojan Horse" Pitch
+              </h3>
+              <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                Don't just tell prospects their current site is losing money—<strong>show them</strong>. Run a 1-click audit on their existing URL before the meeting.
+              </p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Reveal hidden friction points in their checkout flow.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Show them exactly where users get confused.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Close the deal by offering to fix the specific issues found.</span></li>
+              </ul>
             </div>
 
             {/* Phase 2: The Benchmark */}
-            <div className="relative group">
-              <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-indigo-600 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-300"></div>
-              <NeoCard className="relative h-full">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 bg-blue-100 rounded-xl">
-                    <BarChart className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">2. Establish the "Before"</h3>
-                </div>
-                <p className="text-gray-600 mb-6">
-                  Protect your agency from scope creep and subjective feedback. Establish a concrete usability baseline before you write a single line of code.
-                </p>
-                <ul className="space-y-3 text-sm text-gray-700">
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Get a "Usability Score" for the old site.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Set clear, data-driven KPIs for the redesign.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Align stakeholders on objective problems, not personal tastes.</span></li>
-                </ul>
-              </NeoCard>
+            <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <BarChart className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                2. Establish the "Before"
+              </h3>
+              <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                Protect your agency from scope creep and subjective feedback. Establish a concrete usability baseline before you write a single line of code.
+              </p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Get a "Usability Score" for the old site.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Set clear, data-driven KPIs for the redesign.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Align stakeholders on objective problems, not personal tastes.</span></li>
+              </ul>
             </div>
 
             {/* Phase 3: The Build */}
-            <div className="relative group">
-              <div className="absolute -inset-2 bg-gradient-to-r from-purple-400 to-pink-600 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-300"></div>
-              <NeoCard className="relative h-full">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 bg-purple-100 rounded-xl">
-                    <Zap className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">3. Test Until It Passes</h3>
-                </div>
-                <p className="text-gray-600 mb-6">
-                  Don't wait for launch day to find bugs. Run rapid, automated user tests on your staging environment throughout the development process.
-                </p>
-                <ul className="space-y-3 text-sm text-gray-700">
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Test wireframes and staging sites instantly.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Identify navigation issues before they become expensive code.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Validate copy and CTAs with AI personas.</span></li>
-                </ul>
-              </NeoCard>
+            <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Zap className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                3. Test Until It Passes
+              </h3>
+              <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                Don't wait for launch day to find bugs. Run rapid, automated user tests on your staging environment throughout the development process.
+              </p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Test wireframes and staging sites instantly.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Identify navigation issues before they become expensive code.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Validate copy and CTAs with AI personas.</span></li>
+              </ul>
             </div>
 
             {/* Phase 4: The Handoff */}
-            <div className="relative group">
-              <div className="absolute -inset-2 bg-gradient-to-r from-green-400 to-teal-600 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-300"></div>
-              <NeoCard className="relative h-full">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 bg-green-100 rounded-xl">
-                    <FileText className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">4. The "Certified" Handoff</h3>
-                </div>
-                <p className="text-gray-600 mb-6">
-                  Deliver more than just a website. Hand over a final product accompanied by a passing Usability Test Report.
-                </p>
-                <ul className="space-y-3 text-sm text-gray-700">
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Prove the new site performs better than the old one.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Justify your premium pricing with tangible proof of quality.</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle className="w-5 h-5 text-green-500 shrink-0" /> <span>Increase client retention and referrals.</span></li>
-                </ul>
-              </NeoCard>
+            <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                4. The "Certified" Handoff
+              </h3>
+              <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                Deliver more than just a website. Hand over a final product accompanied by a passing Usability Test Report.
+              </p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Prove the new site performs better than the old one.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Justify your premium pricing with tangible proof of quality.</span></li>
+                <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Increase client retention and referrals.</span></li>
+              </ul>
             </div>
           </div>
         </div>

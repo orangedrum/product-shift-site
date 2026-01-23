@@ -87,6 +87,14 @@ const About = () => {
   return (
     <section id="about" className="py-20 bg-gradient-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top Stats */}
+        <div className="mb-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <AnimatedStat value="15+" label="Years Experience" delay={0} color="#ff8c00" />
+          <AnimatedStat value="50+" label="Projects Completed" delay={1} color="#ff1493" />
+          <AnimatedStat value="70%" label="Avg ROI Increase" delay={2} color="#4dd2ff" />
+          <AnimatedStat value="90%" label="Success Rate" delay={3} color="#ff8c00" />
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Left Content */}
           <div>
@@ -125,14 +133,6 @@ const About = () => {
               />
             ))}
           </div>
-        </div>
-
-        {/* Bottom Stats */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <AnimatedStat value="15+" label="Years Experience" delay={0} color="#ff8c00" />
-          <AnimatedStat value="50+" label="Projects Completed" delay={1} color="#ff1493" />
-          <AnimatedStat value="70%" label="Avg ROI Increase" delay={2} color="#4dd2ff" />
-          <AnimatedStat value="90%" label="Success Rate" delay={3} color="#ff8c00" />
         </div>
       </div>
     </section>

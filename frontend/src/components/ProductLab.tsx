@@ -106,10 +106,10 @@ const ProductLab = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content Card */}
           <NeoCard className="bg-white/95 backdrop-blur-sm text-left">
-            <h3 className="text-xl font-bold text-brand-pink mb-2">We're so excited about the launch of our new tool!</h3>
-            <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl mb-6">
+            <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl mb-2">
               We Also Build Our Services into SaaS Products
             </h2>
+            <h3 className="text-xl font-bold text-black mb-6">We're so excited about the launch of our new tool!</h3>
             <p className="text-lg text-gray-700 mb-8">
               Experience the power of our internal tools. We productize our proven methodologies so you can run your own research at scale.
             </p>

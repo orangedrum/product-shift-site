@@ -75,7 +75,6 @@ export const DemoSection = () => {
     setError(null);
 
     try {
-      console.log('🚀 Starting Demo Analysis for:', url);
       const response = await fetch('/api/run-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -91,12 +90,10 @@ export const DemoSection = () => {
       if (contentType && contentType.includes("application/json")) {
         data = await response.json();
       } else {
-        console.error('❌ Server returned non-JSON response:', response.status);
         throw { error: 'Server Error', details: `The server returned an unexpected response (${response.status}). Please try again later.` };
       }
 
       if (!response.ok) throw data;
-      console.log('✅ Analysis Success:', data);
       setResult(data);
     } catch (err: any) {
       setError({
@@ -104,7 +101,6 @@ export const DemoSection = () => {
         details: err.details || err.message || 'An unexpected error occurred.',
         usageCounted: err.usageCounted
       });
-      console.error('❌ Demo Error:', err);
     } finally {
       setIsLoading(false);
     }
