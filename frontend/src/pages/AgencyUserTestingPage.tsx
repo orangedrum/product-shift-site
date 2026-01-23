@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, BarChart, Users, Zap, FileText, Globe, Lock, TrendingUp, Layout, Search, AlertCircle, PlayCircle, X, Check, RefreshCw, Megaphone } from 'lucide-react';
+import { CheckCircle, BarChart, Users, Zap, FileText, TrendingUp, PlayCircle, X, Check } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import { VideoPlayer } from '../components/VideoPlayer';
@@ -219,20 +219,6 @@ const AgencyUserTestingPage: React.FC = () => {
                 <li className="flex items-start gap-2 text-sm text-gray-600"><div className="w-1.5 h-1.5 bg-brand-purple rounded-full mt-2 shrink-0"></div> <span>Increase client retention and referrals.</span></li>
               </ul>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SEO / Longtail Keyword Section (Subtle) */}
-      <section className="py-16 bg-gray-50 border-t border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Why Agencies Choose Product Shift</h2>
-          <div className="flex flex-wrap justify-center gap-3">
-            {["White Label User Testing", "Automated UX Audits", "Agency Lead Gen Tool", "Website ROI Calculator", "Client Reporting Automation", "Staging Site Testing"].map((keyword) => (
-              <span key={keyword} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-600 font-medium shadow-sm">
-                {keyword}
-              </span>
-            ))}
           </div>
         </div>
       </section>
