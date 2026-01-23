@@ -190,16 +190,16 @@ const StyleGuide: React.FC = () => {
                   <p className="text-xs font-mono">brand-pink (#ff1493)</p>
                 </div>
                 <div className="space-y-2">
-                  <div className="h-20 rounded-lg bg-[rgb(250,66,91)] shadow-sm"></div>
-                  <p className="text-xs font-mono">brand-red (rgb(250, 66, 91))</p>
+                  <div className="h-20 rounded-lg bg-[#00bfff] shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-lightblue (#00bfff)</p>
                 </div>
                 <div className="space-y-2">
                   <div className="h-20 rounded-lg bg-[rgb(79,70,229)] shadow-sm"></div>
                   <p className="text-xs font-mono">brand-purple (rgb(79, 70, 229))</p>
                 </div>
                 <div className="space-y-2">
-                  <div className="h-20 rounded-lg bg-[#00bfff] shadow-sm"></div>
-                  <p className="text-xs font-mono">brand-lightblue (#00bfff)</p>
+                  <div className="h-20 rounded-lg bg-[rgb(250,66,91)] shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-red (rgb(250, 66, 91))</p>
                 </div>
                 <div className="space-y-2">
                   <div className="h-20 rounded-lg bg-marketing-gradient shadow-sm"></div>

@@ -2,10 +2,65 @@ import React, { useEffect, useRef } from 'react';
 import { NeoCard } from './NeoCard';
 import { NeoButton } from './NeoButton';
 import { useNavigate } from 'react-router-dom';
+import { SpeechBubble } from './SpeechBubble';
 
 const ProductLab = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [hasFiredConfetti, setHasFiredConfetti] = React.useState(false);
+
+  // Simple Confetti Implementation
+  const fireConfetti = () => {
+    if (hasFiredConfetti) return;
+    setHasFiredConfetti(true);
+
+    const colors = ['#ff1493', '#ff8c00', '#00bfff'];
+    const particleCount = 50;
+    
+    for (let i = 0; i < particleCount; i++) {
+      const el = document.createElement('div');
+      el.style.position = 'fixed';
+      el.style.left = '50%';
+      el.style.top = '50%';
+      el.style.width = '8px';
+      el.style.height = '8px';
+      el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      el.style.borderRadius = '50%';
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '9999';
+      document.body.appendChild(el);
+
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 10 + Math.random() * 10;
+      const tx = Math.cos(angle) * velocity * 20;
+      const ty = Math.sin(angle) * velocity * 20;
+
+      el.animate([
+        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+      ], {
+        duration: 1000 + Math.random() * 500,
+        easing: 'cubic-bezier(0, .9, .57, 1)',
+      }).onfinish = () => el.remove();
+    }
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fireConfetti();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasFiredConfetti]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -47,22 +102,37 @@ const ProductLab = () => {
         ))}
       </div>
 
-      <div className="container mx-auto max-w-4xl text-center py-20 px-4">
-        <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl mb-8 relative z-10">
-          We Also Build Our Services into SaaS Products
-        </h2>
-        <NeoCard className="bg-white/90 backdrop-blur-sm relative z-10">
-          <p className="text-lg text-gray-700 mb-8">
-            Experience the power of our internal tools. We productize our proven methodologies so you can run your own research at scale.
-          </p>
-          <NeoButton 
-            variant="primary" 
-            onClick={() => navigate('/agency-user-testing')}
-            className="text-lg px-8 py-4"
-          >
-            Learn More About our 1-click User Testing Tool
-          </NeoButton>
-        </NeoCard>
+      <div className="container mx-auto max-w-6xl px-4 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: Content Card */}
+          <NeoCard className="bg-white/95 backdrop-blur-sm text-left">
+            <h3 className="text-xl font-bold text-brand-pink mb-2">We're so excited about the launch of our new tool!</h3>
+            <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl mb-6">
+              We Also Build Our Services into SaaS Products
+            </h2>
+            <p className="text-lg text-gray-700 mb-8">
+              Experience the power of our internal tools. We productize our proven methodologies so you can run your own research at scale.
+            </p>
+            <NeoButton 
+              variant="primary" 
+              onClick={() => navigate('/agency-user-testing')}
+              className="text-lg px-8 py-4 w-full sm:w-auto"
+            >
+              Learn More About our 1-click User Testing Tool
+            </NeoButton>
+          </NeoCard>
+
+          {/* Right: User Bubble */}
+          <div className="flex justify-center lg:justify-start">
+            <SpeechBubble 
+              imageSrc="https://api.dicebear.com/7.x/notionists/svg?seed=Sarah"
+              name="Sarah"
+              role="Product Manager"
+              quote="I used to wait weeks for user feedback. Now I get it in minutes. This tool is a game changer!"
+              mood="positive"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
