@@ -5,26 +5,26 @@ interface SpeechBubbleProps {
   name: string;
   role: string;
   quote: string;
-  mood?: 'positive' | 'negative' | 'neutral';
+  mood?: 'positive' | 'negative' | 'neutral'; // Kept for API compatibility, but styling is now Neo (B&W)
 }
 
-export const SpeechBubble: React.FC<SpeechBubbleProps> = ({ imageSrc, name, role, quote, mood = 'neutral' }) => {
-  const borderColor = mood === 'negative' ? 'border-red-200 bg-red-50' : mood === 'positive' ? 'border-green-200 bg-green-50' : 'border-blue-100 bg-blue-50';
-  const textColor = mood === 'negative' ? 'text-red-800' : mood === 'positive' ? 'text-green-800' : 'text-gray-800';
-
+export const SpeechBubble: React.FC<SpeechBubbleProps> = ({ imageSrc, name, role, quote }) => {
   return (
     <div className="flex flex-col items-center text-center max-w-xs mx-auto">
-      <div className="relative mb-4">
+      {/* Bubble on Top */}
+      <div className="relative p-4 rounded-xl border-2 border-black bg-white shadow-[4px_4px_0px_0px_#000] mb-6">
+        {/* Triangle Pointer pointing down */}
+        <div className="absolute left-1/2 -bottom-2.5 w-4 h-4 border-2 border-black border-t-0 border-l-0 transform rotate-45 -translate-x-1/2 bg-white"></div>
+        <p className="text-base italic font-medium text-black leading-relaxed">"{quote}"</p>
+      </div>
+
+      {/* Persona Below */}
+      <div className="relative">
         <img 
           src={imageSrc} 
           alt={name} 
-          className="w-20 h-20 rounded-full border-4 border-white shadow-lg bg-gray-100" 
+          className="w-20 h-20 rounded-full border-2 border-black shadow-sm bg-gray-100" 
         />
-      </div>
-      <div className={`relative p-4 rounded-xl border-2 ${borderColor} shadow-sm`}>
-        {/* Triangle Pointer */}
-        <div className={`absolute left-1/2 -top-2.5 w-4 h-4 ${borderColor} border-b-0 border-r-0 transform rotate-45 -translate-x-1/2 bg-inherit`}></div>
-        <p className={`text-base italic font-medium ${textColor} leading-relaxed`}>"{quote}"</p>
       </div>
       <div className="mt-3">
         <h4 className="font-bold text-gray-900">{name}</h4>

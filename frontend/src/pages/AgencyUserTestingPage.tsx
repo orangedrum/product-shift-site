@@ -1,22 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowRight, BarChart, Users, Zap, FileText, Globe, Lock, TrendingUp, Layout, Search, AlertCircle, PlayCircle, X, Check, RefreshCw } from 'lucide-react';
+import { CheckCircle, BarChart, Users, Zap, FileText, Globe, Lock, TrendingUp, Layout, Search, AlertCircle, PlayCircle, X, Check, RefreshCw } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { SpeechBubble } from '../components/SpeechBubble';
-import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
+import { DemoSection } from '../components/DemoSection';
 
 const AgencyUserTestingPage: React.FC = () => {
   const navigate = useNavigate();
   const [showVideoModal, setShowVideoModal] = useState(false);
-  
-  // Demo State
-  const [url, setUrl] = useState('');
-  const [result, setResult] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<any>(null);
-  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     document.title = "White Label User Testing for Agencies | Sell Web Design Services";
@@ -29,63 +22,6 @@ const AgencyUserTestingPage: React.FC = () => {
 
   const handleCtaClick = () => {
     document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Demo Logic
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isLoading) {
-      setProgress(5);
-      const duration = 10000;
-      const step = 200;
-      interval = setInterval(() => {
-        setProgress(old => {
-          const newProgress = old + (100 / (duration / step));
-          return newProgress >= 95 ? 95 : newProgress;
-        });
-      }, step);
-    } else {
-      setProgress(0);
-    }
-    return () => clearInterval(interval);
-  }, [isLoading]);
-
-  const handleDemoSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setResult(null);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/run-test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: `https://${url}`,
-          personaIds: ['alex-busy-pro'],
-          goal: 'Quickly understand what this page is about.'
-        }),
-      });
-      
-      let data;
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        throw { error: 'Server Error', details: `The server returned an unexpected response (${response.status}). Please try again later.` };
-      }
-
-      if (!response.ok) throw data;
-      setResult(data);
-    } catch (err: any) {
-      setError({
-        error: err.error || 'Analysis Failed',
-        details: err.details || err.message || 'An unexpected error occurred.',
-        usageCounted: err.usageCounted
-      });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -119,7 +55,7 @@ const AgencyUserTestingPage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <NeoButton onClick={handleCtaClick} className="px-8 py-4 text-lg">
-              Try Our 1-Click User Testing Tool
+              Learn More About our 1-click User Testing Tool
             </NeoButton>
             <NeoButton 
               variant="secondary"
@@ -134,56 +70,7 @@ const AgencyUserTestingPage: React.FC = () => {
       </section>
 
       {/* Demo Section */}
-      <section id="demo" className="bg-gray-900 text-white py-24">
-        <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4">Try It Now: Free Agency Audit</h2>
-          <p className="text-lg text-gray-300 mb-8">See exactly what your clients see. Run a live test on any URL right now.</p>
-          
-          {result ? (
-            <div className="bg-white text-left p-8 rounded-xl border border-gray-200 shadow-lg animate-fade-in">
-              <div className="flex items-center gap-4 mb-6">
-                <img 
-                  src={result.userSessions[0].avatar} 
-                  alt="Persona" 
-                  className="w-16 h-16 rounded-full border-2 border-gray-200"
-                />
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">{result.userSessions[0].persona}</h3>
-                  <p className="text-sm text-gray-500">{result.userSessions[0].description}</p>
-                </div>
-              </div>
-              <div className="prose prose-sm max-w-none text-gray-600 mb-6">
-                <p className="italic text-lg text-gray-800 border-l-4 border-indigo-500 pl-4 py-2 bg-gray-50 rounded-r">
-                  "{result.userSessions[0].analysis.split('|||USER_BUBBLE|||')[1]?.split('|||USER_DETAILS|||')[0]?.trim()}"
-                </p>
-              </div>
-              <div className="text-center">
-                <button onClick={() => setResult(null)} className="inline-flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800 font-bold">
-                  <RefreshCw size={16} /> Run Another Test
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              {error && error.usageCounted === false ? (
-                <div className="mb-8 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} theme="dark" /></div>
-              ) : (
-                <form onSubmit={handleDemoSubmit} className="max-w-xl mx-auto flex flex-col gap-3">
-                  <div className="flex items-center bg-gray-800 border border-gray-600 rounded-md focus-within:ring-2 focus-within:ring-indigo-500">
-                    <span className="pl-4 text-gray-400">https://</span>
-                    <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} className="flex-grow px-2 py-3 text-white bg-transparent border-none focus:outline-none focus:ring-0" placeholder="client-website.com" required />
-                  </div>
-                  <button type="submit" disabled={isLoading} className="relative overflow-hidden px-8 py-3 bg-marketing-gradient text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
-                    {isLoading && <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />}
-                    <span className="relative z-10">{isLoading ? 'Running Audit...' : 'Run Free Audit'}</span>
-                  </button>
-                  {error && <div className="mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-sm text-red-200 flex items-center gap-2 text-left"><AlertCircle size={16} /><strong>Error:</strong> {error.details || error.error}</div>}
-                </form>
-              )}
-            </>
-          )}
-        </div>
-      </section>
+      <DemoSection />
 
       {/* The "WHY" Section - Google Analytics vs Product Shift */}
       <section className="py-20 bg-white">
@@ -209,10 +96,6 @@ const AgencyUserTestingPage: React.FC = () => {
                     <h4 className="font-bold text-gray-900">The Analytics Way</h4>
                     <p className="text-sm text-gray-500">"Bounce rate on /checkout is 65%."</p>
                   </div>
-                </div>
-                
-                <div className="flex items-center justify-center">
-                  <ArrowRight className="w-6 h-6 text-gray-300 transform rotate-90 lg:rotate-0" />
                 </div>
 
                 <div className="flex items-start gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">

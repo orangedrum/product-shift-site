@@ -53,7 +53,7 @@ const CTA = () => {
               
               <button 
                 onClick={scrollToServices}
-                className="inline-flex items-center justify-center h-14 px-8 text-lg font-bold text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                className="inline-flex items-center justify-center h-14 px-8 text-lg font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-300"
               >
                 Learn More About Services
               </button>

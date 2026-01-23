@@ -97,7 +97,7 @@ const About = () => {
               Thought Leadership in Growth & Strategy
             </h2>
             <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
-              <div className="w-48 h-48 flex-shrink-0 mx-auto sm:mx-0 rounded-full overflow-hidden border border-brand-pink shadow-lg">
+              <div className="w-48 h-48 flex-shrink-0 mx-auto sm:mx-0 rounded-full overflow-hidden border-4 border-white ring-1 ring-brand-pink shadow-lg">
                 <img src="/jeankaluza.png" alt="Jean, Product Shift Lead" className="w-full h-full object-cover" />
               </div>
               <div className="space-y-4 text-gray-600">
