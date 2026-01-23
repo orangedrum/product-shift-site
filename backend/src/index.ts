@@ -3,6 +3,7 @@ import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { Resend } from 'resend';
 
 // --- Persona & Analyzer Definitions ---
 
@@ -32,6 +33,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20',
 });
+
+// --- Resend Initialization ---
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
@@ -494,11 +498,50 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
   };
 
   if (COUPONS[normalizedCode]) {
+    // 1. Check for previous redemption
+    const { data: existing } = await supabase
+      .from('coupon_redemptions')
+      .select('id')
+      .eq('user_email', email)
+      .eq('coupon_code', normalizedCode)
+      .single();
+
+    if (existing) {
+      return res.status(400).json({ error: 'You have already redeemed this coupon.' });
+    }
+
     const creditsToAdd = COUPONS[normalizedCode];
-    // Grant credits
+    
+    // 2. Log redemption (This will fail if unique constraint is violated, acting as a second lock)
+    const { error: logError } = await supabase.from('coupon_redemptions').insert({ user_email: email, coupon_code: normalizedCode });
+    if (logError) return res.status(500).json({ error: 'Failed to process coupon. You may have already used it.' });
+
+    // 3. Grant credits
     const { error } = await supabase.rpc('add_credits', { user_email: email, amount: creditsToAdd });
     
-    if (error) return res.status(500).json({ error: 'Failed to redeem coupon' });
+    if (error) return res.status(500).json({ error: 'Failed to add credits' });
+
+    // 4. Send Email via Resend
+    try {
+      await resend.emails.send({
+        from: 'Product Shift <onboarding@theproductshift.com>',
+        to: email,
+        subject: 'You\'ve got credits! 🎟️',
+        html: `
+          <div style="font-family: sans-serif; max-w-600px; margin: 0 auto;">
+            <h1 style="color: #4f46e5;">Welcome Backstage!</h1>
+            <p>You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
+            <p style="font-size: 18px;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
+            <br/>
+            <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Run a Test Now</a>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      console.error('Failed to send redemption email:', emailErr);
+      // Don't fail the request, just log it
+    }
+
     return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
   }
 
@@ -1592,6 +1635,67 @@ app.delete('/api/admin/errors/:id', async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
 
   res.json({ success: true });
+});
+
+// --- Admin Invite User Endpoint ---
+app.post('/api/admin/invite-user', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { email, credits, segment } = req.body;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  try {
+    // 1. Ensure customer row exists (This "whitelists" them so Login.tsx won't block them later)
+    const { error: dbError } = await supabase
+      .from('customers')
+      .upsert({ 
+        email, 
+        credits: credits || 0, 
+        plan_status: 'gifted', 
+        segment: segment || 'tech'
+      }, { onConflict: 'email' });
+
+    if (dbError) throw dbError;
+
+    // 2. Generate Magic Link via Supabase Admin
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: email,
+      options: {
+        redirectTo: 'https://www.theproductshift.com/ai-powered-ux?new_credit=true' // Redirect straight to tool
+      }
+    });
+
+    if (linkError) throw linkError;
+
+    // 3. Send Custom Email via Resend
+    const { error: emailError } = await resend.emails.send({
+      from: 'Product Shift <onboarding@theproductshift.com>',
+      to: email,
+      subject: 'Your Product Shift Backstage Pass 🎟️',
+      html: `
+        <div style="font-family: sans-serif; max-w-600px; margin: 0 auto; padding: 20px;">
+          <h1 style="color: #4f46e5;">You're in!</h1>
+          <p>You've been granted a backstage pass to Product Shift.</p>
+          <p style="font-size: 18px;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
+          <br/>
+          <a href="${linkData.properties.action_link}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Your Account</a>
+          <p style="margin-top: 20px; font-size: 12px; color: #666;">This secure link expires in 24 hours.</p>
+        </div>
+      `
+    });
+
+    if (emailError) throw emailError;
+
+    res.json({ success: true, message: 'Invite sent successfully!' });
+  } catch (e: any) {
+    console.error('Invite Error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get('/api/admin/stats', async (req, res) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -29,6 +29,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [refunding, setRefunding] = useState(false);
   const [inputKey, setInputKey] = useState('');
   const [hideTestUsers, setHideTestUsers] = useState(true);
+  
+  // Invite State
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteCredits, setInviteCredits] = useState(3);
+  const [inviteLoading, setInviteLoading] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -114,6 +119,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       }
     } catch (e) {
       console.error('Failed to delete error', e);
+    }
+  };
+
+  const handleInviteUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteLoading(true);
+    try {
+      const res = await fetch('/api/admin/invite-user', {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${secretKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: inviteEmail, credits: inviteCredits, segment: 'tech' })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Success: ${data.message}`);
+        setInviteEmail('');
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      alert('Failed to send invite');
+    } finally {
+      setInviteLoading(false);
     }
   };
 
@@ -214,6 +245,40 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             <div className="flex justify-between"><span>15-Packs:</span> <strong>{stats.salesBreakdown?.pack15 || 0}</strong></div>
             <div className="flex justify-between"><span>Subscriptions:</span> <strong>{stats.salesBreakdown?.starter || 0}</strong></div>
           </div>
+        </NeoCard>
+      </div>
+
+      {/* --- INVITE USER SECTION --- */}
+      <div className="mb-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Manual Invite</h3>
+        <NeoCard title="Send Backstage Pass">
+          <form onSubmit={handleInviteUser} className="flex flex-col md:flex-row gap-4 items-end">
+            <div className="w-full md:w-1/2">
+              <label className="block text-sm font-bold mb-1">Email Address</label>
+              <input 
+                type="email" 
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                className="w-full p-2 border-2 border-gray-300 rounded-lg"
+                placeholder="user@example.com"
+                required
+              />
+            </div>
+            <div className="w-full md:w-1/4">
+              <label className="block text-sm font-bold mb-1">Credits</label>
+              <input 
+                type="number" 
+                value={inviteCredits}
+                onChange={(e) => setInviteCredits(parseInt(e.target.value))}
+                className="w-full p-2 border-2 border-gray-300 rounded-lg"
+              />
+            </div>
+            <div className="w-full md:w-1/4">
+              <NeoButton type="submit" className="w-full" disabled={inviteLoading}>
+                {inviteLoading ? 'Sending...' : 'Send Invite'}
+              </NeoButton>
+            </div>
+          </form>
         </NeoCard>
       </div>
 

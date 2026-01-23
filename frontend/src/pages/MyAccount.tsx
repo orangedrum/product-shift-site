@@ -243,7 +243,7 @@ const MyAccount: React.FC = () => {
                   type="text" 
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder="Enter Code (e.g. BACKSTAGE3)"
+                  placeholder="Enter Code"
                   className="w-full pl-10 p-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none uppercase"
                 />
               </div>
