@@ -3,7 +3,6 @@ import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
-import { Resend } from 'resend';
 
 // --- Persona & Analyzer Definitions ---
 
@@ -35,8 +34,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 // --- Resend Initialization ---
-const resendApiKey = process.env.RESEND_API_KEY;
-const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
@@ -80,6 +77,34 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // If we exit the loop, all models failed. Throw error to be caught by handler.
   throw new Error(`All fallback models failed. Last Error: ${lastError?.message}`);
+};
+
+// --- Email Helper (No Dependency) ---
+const sendEmail = async (to: string, subject: string, html: string) => {
+  const apiKey = process.env.RESEND_API_KEY;
+  
+  if (!apiKey) {
+    console.warn('Resend API key missing. Skipping email.');
+    return;
+  }
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({ from: emailFrom, to, subject, html })
+    });
+    
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('Resend API Error:', errText);
+    }
+  } catch (e) {
+    console.error('Failed to send email:', e);
+  }
 };
 
 // --- Generators ---
@@ -524,30 +549,19 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
     if (error) return res.status(500).json({ error: 'Failed to add credits' });
 
     // 4. Send Email via Resend
-    if (!resend) {
-      console.warn('Resend API key missing. Skipping email.');
-      return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
-    }
-
-    try {
-      await resend.emails.send({
-        from: emailFrom,
-        to: email,
-        subject: 'You\'ve got credits! 🎟️',
-        html: `
-          <div style="font-family: sans-serif; max-w-600px; margin: 0 auto;">
-            <h1 style="color: #4f46e5;">Welcome Backstage!</h1>
-            <p>You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
-            <p style="font-size: 18px;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
-            <br/>
-            <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Run a Test Now</a>
-          </div>
-        `
-      });
-    } catch (emailErr) {
-      console.error('Failed to send redemption email:', emailErr);
-      // Don't fail the request, just log it
-    }
+    await sendEmail(
+      email,
+      'You\'ve got credits! 🎟️',
+      `
+        <div style="font-family: sans-serif; max-w-600px; margin: 0 auto;">
+          <h1 style="color: #4f46e5;">Welcome Backstage!</h1>
+          <p>You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
+          <p style="font-size: 18px;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
+          <br/>
+          <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Run a Test Now</a>
+        </div>
+      `
+    );
 
     return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
   }
@@ -1680,15 +1694,10 @@ app.post('/api/admin/invite-user', async (req, res) => {
     if (linkError) throw linkError;
 
     // 3. Send Custom Email via Resend
-    if (!resend) {
-      return res.status(500).json({ error: 'Email service not configured (Missing Resend Key)' });
-    }
-
-    const { error: emailError } = await resend.emails.send({
-      from: emailFrom,
-      to: email,
-      subject: 'Your Product Shift Backstage Pass 🎟️',
-      html: `
+    await sendEmail(
+      email,
+      'Your Product Shift Backstage Pass 🎟️',
+      `
         <div style="font-family: sans-serif; max-w-600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #4f46e5;">You're in!</h1>
           <p>You've been granted a backstage pass to Product Shift.</p>
@@ -1698,9 +1707,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
           <p style="margin-top: 20px; font-size: 12px; color: #666;">This secure link expires in 24 hours.</p>
         </div>
       `
-    });
-
-    if (emailError) throw emailError;
+    );
 
     res.json({ success: true, message: 'Invite sent successfully!' });
   } catch (e: any) {
