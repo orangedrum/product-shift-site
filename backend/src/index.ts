@@ -21,9 +21,7 @@ type Persona = {
 };
 
 // --- AI Helpers ---
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-// Note: We are relying on the SDK's default behavior but ensuring we use stable model aliases.
-// If v1beta continues to fail, we might need to manually fetch against the v1 REST API.
+// We will use direct fetch for Gemini to avoid SDK versioning issues
 
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -42,14 +40,37 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // 1. Attempt Gemini
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const imagePart = screenshot ? { inlineData: { data: screenshot, mimeType: "image/jpeg" } } : null;
-    const parts: any[] = [prompt];
-    if (imagePart) parts.push(imagePart);
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
+
+    // Construct the payload manually for the REST API
+    const contents = [{
+      parts: [
+        { text: prompt },
+        ...(screenshot ? [{ inline_data: { mime_type: "image/jpeg", data: screenshot } }] : [])
+      ]
+    }];
+
+    // Use the v1beta endpoint directly. If this fails with 404, it is 100% a project config issue.
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage = `Gemini API Error: ${response.status} ${response.statusText}`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = `Gemini API Error: ${errorJson.error?.message || errorText}`;
+      } catch (e) {}
+      throw new Error(errorMessage);
+    }
     
-    const result = await model.generateContent(parts);
+    const data = await response.json();
     console.log(`✅ Provider 'Gemini' succeeded.`);
-    return result.response.text();
+    return data.candidates[0].content.parts[0].text;
   } catch (geminiError: any) {
     console.warn(`⚠️ Provider 'Gemini' failed: ${geminiError.message}. Falling back to OpenAI.`);
     
@@ -1729,7 +1750,10 @@ app.get('/api/admin/stats', async (req, res) => {
   const isTestUser = (identifier: string | null) => {
     if (!identifier) return false;
     const lower = identifier.toLowerCase();
-    return lower.includes('test') || lower.includes('demo') || lower.includes('example') || lower.includes('localhost') || lower.includes('+smb');
+    // Filter out common test patterns, localhost IPs, and internal domains if needed
+    return lower.includes('test') || lower.includes('demo') || lower.includes('example') || 
+           lower.includes('localhost') || lower.includes('127.0.0.1') || lower.includes('::1') ||
+           lower.includes('+smb');
   };
 
   // 1. Security Check
