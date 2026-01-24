@@ -39,9 +39,8 @@ const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproduc
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-001',    // Specific stable version
-    'gemini-1.5-flash',        // Alias fallback
-    'gemini-1.5-pro-001',      // Specific stable version
+    'gemini-1.5-flash',        // Primary: Fast, cheap, stable alias (Auto-updates)
+    'gemini-1.5-pro',          // Secondary: Higher intelligence alias (Auto-updates)
   ];
 
   // Prepare image part if available
@@ -67,6 +66,7 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
       const response = result.response;
+      console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
       console.log(`Model '${modelName}' failed: ${error.message}`);
