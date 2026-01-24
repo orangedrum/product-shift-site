@@ -39,8 +39,9 @@ const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproduc
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash',        // Stable, production-ready
-    'gemini-1.5-pro',          // Higher quality fallback
+    'gemini-1.5-flash-001',    // Specific stable version
+    'gemini-1.5-flash',        // Alias fallback
+    'gemini-1.5-pro-001',      // Specific stable version
   ];
 
   // Prepare image part if available
