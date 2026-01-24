@@ -58,7 +58,10 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       // Add a small delay to avoid hitting rate limits instantly if looping fast
       if (geminiErrors.length > 0) await new Promise(r => setTimeout(r, 1000));
 
-      const model = genAI.getGenerativeModel({ model: modelName });
+      // Force API version to 'v1' to avoid 404s on v1beta endpoints
+      const model = genAI.getGenerativeModel({ model: modelName }, {
+        apiVersion: 'v1'
+      });
       const result = await model.generateContent(parts);
       const response = result.response;
       console.log(`✅ Provider 'Gemini' (${modelName}) succeeded.`);
