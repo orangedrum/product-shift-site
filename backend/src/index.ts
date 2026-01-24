@@ -21,7 +21,7 @@ type Persona = {
 };
 
 // --- AI Helpers ---
-// We will use direct fetch for Gemini to avoid SDK versioning issues
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -39,40 +39,37 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   // --- STRATEGY: Attempt Gemini first, fallback to OpenAI on any failure ---
 
   // 1. Attempt Gemini
-  try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
+  // Strategy: Smart Scavenger (Cycle Gemini models) -> Fallback to OpenAI
+  const geminiModels = [
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+    'gemini-pro'
+  ];
 
-    // Construct the payload manually for the REST API
-    const contents = [{
-      parts: [
-        { text: prompt },
-        ...(screenshot ? [{ inline_data: { mime_type: "image/jpeg", data: screenshot } }] : [])
-      ]
-    }];
+  const imagePart = screenshot ? { inlineData: { data: screenshot, mimeType: "image/jpeg" } } : null;
+  const parts: any[] = [prompt];
+  if (imagePart) parts.push(imagePart);
 
-    // Use the v1beta endpoint directly. If this fails with 404, it is 100% a project config issue.
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents })
-    });
+  let geminiErrors: string[] = [];
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = `Gemini API Error: ${response.status} ${response.statusText}`;
-      try {
-        const errorJson = JSON.parse(errorText);
-        errorMessage = `Gemini API Error: ${errorJson.error?.message || errorText}`;
-      } catch (e) {}
-      throw new Error(errorMessage);
+  // Attempt Gemini Scavenger Loop
+  for (const modelName of geminiModels) {
+    try {
+      // Add a small delay to avoid hitting rate limits instantly if looping fast
+      if (geminiErrors.length > 0) await new Promise(r => setTimeout(r, 1000));
+
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(parts);
+      const response = result.response;
+      console.log(`✅ Provider 'Gemini' (${modelName}) succeeded.`);
+      return response.text();
+    } catch (error: any) {
+      console.warn(`⚠️ Gemini model '${modelName}' failed: ${error.message}`);
+      geminiErrors.push(`${modelName}: ${error.message}`);
     }
-    
-    const data = await response.json();
-    console.log(`✅ Provider 'Gemini' succeeded.`);
-    return data.candidates[0].content.parts[0].text;
-  } catch (geminiError: any) {
-    console.warn(`⚠️ Provider 'Gemini' failed: ${geminiError.message}. Falling back to OpenAI.`);
+  }
+
+  console.warn('⚠️ All Gemini models failed. Falling back to OpenAI.');
     
     // 2. Fallback to OpenAI
     try {
@@ -111,9 +108,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
     } catch (openAIError: any) {
       console.error(`❌ Fallback Provider 'OpenAI' also failed: ${openAIError.message}`);
       // If both providers fail, we throw a comprehensive error.
-      throw new Error(`Primary (Gemini) and Fallback (OpenAI) providers failed. Gemini: ${geminiError.message} | OpenAI: ${openAIError.message}`);
+      throw new Error(`Primary (Gemini Smart Scavenger) and Fallback (OpenAI) providers failed. Gemini Errors: [${geminiErrors.join(' | ')}] | OpenAI Error: ${openAIError.message}`);
     }
-  }
 };
 
 // --- Generators ---
