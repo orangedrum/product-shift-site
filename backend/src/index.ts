@@ -3,6 +3,7 @@ import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { Resend } from 'resend';
 
 // --- Persona & Analyzer Definitions ---
 
@@ -32,6 +33,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20',
 });
+
+const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
@@ -525,7 +528,7 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
 
     try {
       await resend.emails.send({
-        from: 'Product Shift <onboarding@theproductshift.com>',
+        from: emailFrom,
         to: email,
         subject: 'You\'ve got credits! 🎟️',
         html: `
@@ -965,18 +968,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     const browserScript = `
       export default async ({ page, context }) => {
         const { url } = context;
-        await page.setViewport({ width: 1280, height: 800 });
-        
-        // Set a realistic User-Agent to avoid being blocked (403 Access Denied)
-        await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
-        
-        // Set extra headers for better acceptance
-        await page.setExtraHTTPHeaders({
-          'Accept-Language': 'en-US,en;q=0.9',
-        });
-
-        // Set timeout to 25s to handle slower sites (assuming Vercel Pro or sufficient execution time)
-        const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+        await page.setViewport({ width: 1280, height: 800 }); // Corrected viewport setting
+        // Set timeout to 15s to ensure we return before Vercel's hard limit
+        const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
         
         // SPA Stabilization: Wait for client-side redirects/hydration to settle.
         // This prevents "Execution context destroyed" if the app redirects immediately after load.
@@ -1682,8 +1676,30 @@ app.post('/api/admin/invite-user', async (req, res) => {
 
     if (linkError) throw linkError;
 
-    // 3. Return the link directly since email is disabled on this branch
-    res.json({ success: true, message: 'Invite generated!', action_link: linkData.properties.action_link });
+    // 3. Send Custom Email via Resend
+    if (!resend) {
+      return res.status(500).json({ error: 'Email service not configured (Missing Resend Key)' });
+    }
+
+    const { error: emailError } = await resend.emails.send({
+      from: emailFrom,
+      to: email,
+      subject: 'Your Product Shift Backstage Pass 🎟️',
+      html: `
+        <div style="font-family: sans-serif; max-w-600px; margin: 0 auto; padding: 20px;">
+          <h1 style="color: #4f46e5;">You're in!</h1>
+          <p>You've been granted a backstage pass to Product Shift.</p>
+          <p style="font-size: 18px;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
+          <br/>
+          <a href="${linkData.properties.action_link}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Your Account</a>
+          <p style="margin-top: 20px; font-size: 12px; color: #666;">This secure link expires in 24 hours.</p>
+        </div>
+      `
+    });
+
+    if (emailError) throw emailError;
+
+    res.json({ success: true, message: 'Invite sent successfully!' });
   } catch (e: any) {
     console.error('Invite Error:', e);
     res.status(500).json({ error: e.message });
