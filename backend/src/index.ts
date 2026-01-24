@@ -23,6 +23,8 @@ type Persona = {
 
 // --- AI Helpers ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Force the use of the stable 'v1' API version to avoid beta instability
+// Note: The SDK defaults to v1beta, but we can't easily change it via constructor in this version.
 
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -39,9 +41,9 @@ const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproduc
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash',        // Primary: Standard 1.5 Flash alias
-    'gemini-1.5-pro',          // Secondary: Standard 1.5 Pro alias
-    'gemini-pro',              // Safety Net: Legacy 1.0 Pro (Extremely stable)
+    'gemini-1.5-flash-latest', // Try the 'latest' alias which often resolves better
+    'gemini-1.5-flash',
+    'gemini-pro',
   ];
 
   // Prepare image part if available
