@@ -275,7 +275,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                   <div key={err.id} className="p-3 bg-red-50 border border-red-200 rounded-lg flex justify-between items-start">
                     <div className="overflow-hidden">
                       <p className="font-bold text-red-800 text-sm">{err.error_message}</p>
-                      <p className="text-xs text-red-600 truncate">{err.details}</p>
+                      <p className="text-xs text-red-600 break-all whitespace-pre-wrap mt-1">{err.details}</p>
                       <p className="text-[10px] text-gray-500 mt-1">{new Date(err.created_at).toLocaleString()}</p>
                     </div>
                     <button onClick={() => handleDeleteError(err.id)} className="text-red-400 hover:text-red-700 p-1">
