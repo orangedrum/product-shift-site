@@ -22,6 +22,8 @@ type Persona = {
 
 // --- AI Helpers ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Note: We are relying on the SDK's default behavior but ensuring we use stable model aliases.
+// If v1beta continues to fail, we might need to manually fetch against the v1 REST API.
 
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -36,83 +38,55 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
-  // --- STRATEGY: Attempt Gemini first, fallback to OpenAI on any failure ---
-
-  // 1. Attempt Gemini
-  // Strategy: Smart Scavenger (Cycle Gemini models) -> Fallback to OpenAI
-  // Restoring the robust list to scavenge for ANY working model version
-  const geminiModels = [
-    'gemini-1.5-flash-latest', // Often resolves to a newer, working build
-    'gemini-1.5-flash',        // Standard alias
-    'gemini-1.5-pro-latest',   // Try Pro latest
-    'gemini-1.5-pro',          // Standard Pro
-    'gemini-pro',              // Legacy 1.0 (Ultimate safety net)
+  // Strategy: Cycle through a prioritized list of models to find one with available free quota.
+  const modelsToTry = [
+    'gemini-1.5-flash',        // Primary: Standard 1.5 Flash alias (Most Stable)
+    'gemini-1.5-pro',          // Secondary: Standard 1.5 Pro alias
+    'gemini-pro',              // Safety Net: Legacy 1.0 Pro
   ];
 
-  const imagePart = screenshot ? { inlineData: { data: screenshot, mimeType: "image/jpeg" } } : null;
+  // Prepare image part if available
+  const imagePart = screenshot ? {
+    inlineData: {
+      data: screenshot,
+      mimeType: "image/jpeg",
+    },
+  } : null;
+
   const parts: any[] = [prompt];
   if (imagePart) parts.push(imagePart);
 
-  let geminiErrors: string[] = [];
+  let errorLog: string[] = [];
 
-  // Attempt Gemini Scavenger Loop
-  for (const modelName of geminiModels) {
+  // Helper to delay execution to avoid rate limits
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  for (const modelName of modelsToTry) {
+    // Add a "politeness" delay before every attempt to stay under RPM limits
+    await delay(2000); 
     try {
-      // Add a small delay to avoid hitting rate limits instantly if looping fast
-      if (geminiErrors.length > 0) await new Promise(r => setTimeout(r, 1000));
-
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
       const response = result.response;
-      console.log(`✅ Provider 'Gemini' (${modelName}) succeeded.`);
+      console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
-      console.warn(`⚠️ Gemini model '${modelName}' failed: ${error.message}`);
-      geminiErrors.push(`${modelName}: ${error.message}`);
+      console.log(`Model '${modelName}' failed: ${error.message}`);
+      // Enhance error message for 404s which usually mean API is disabled or Key is restricted
+      if (error.message.includes('404') && error.message.includes('not found')) {
+        errorLog.push(`${modelName}: 404 (Check if Generative Language API is enabled in Google Cloud or Key is restricted)`);
+      } else if (error.message.includes('400') && (error.message.includes('API key') || error.message.includes('expired'))) {
+        errorLog.push(`${modelName}: 400 API Key Invalid/Expired (Check Vercel Environment Variables)`);
+      } else if (error.message.includes('429') || error.message.includes('exhausted')) {
+        errorLog.push(`${modelName}: 429 Rate Limit Exceeded (Free Tier limit hit - No Charge)`);
+      } else {
+        errorLog.push(`${modelName}: ${error.message}`);
+      }
     }
   }
 
-  console.warn('⚠️ All Gemini models failed. Falling back to OpenAI.');
-    
-    // 2. Fallback to OpenAI
-    try {
-      const openAIKey = process.env.OPENAI_API_KEY;
-      if (!openAIKey) {
-        throw new Error("OpenAI API Key is missing in environment variables.");
-      }
-
-      const messages: any[] = [{ role: 'user', content: [{ type: 'text', text: prompt }] }];
-      if (screenshot) {
-        messages[0].content.push({ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${screenshot}` } });
-      }
-
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openAIKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini', // Cost-effective and powerful
-          messages: messages,
-          max_tokens: 2048
-        })
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.json();
-        throw new Error(`OpenAI API Error: ${errorBody.error.message}`);
-      }
-
-      const data = await response.json();
-      console.log(`✅ Provider 'OpenAI' succeeded.`);
-      return data.choices[0].message.content;
-
-    } catch (openAIError: any) {
-      console.error(`❌ Fallback Provider 'OpenAI' also failed: ${openAIError.message}`);
-      // If both providers fail, we throw a comprehensive error.
-      throw new Error(`Primary (Gemini Smart Scavenger) and Fallback (OpenAI) providers failed. Gemini Errors: [${geminiErrors.join(' | ')}] | OpenAI Error: ${openAIError.message}`);
-    }
+  // If we exit the loop, all models failed. Throw error to be caught by handler.
+  throw new Error(`All fallback models failed. Errors: ${errorLog.join(' | ')}`);
 };
 
 // --- Generators ---
@@ -1749,10 +1723,7 @@ app.get('/api/admin/stats', async (req, res) => {
   const isTestUser = (identifier: string | null) => {
     if (!identifier) return false;
     const lower = identifier.toLowerCase();
-    // Filter out common test patterns, localhost IPs, and internal domains if needed
-    return lower.includes('test') || lower.includes('demo') || lower.includes('example') || 
-           lower.includes('localhost') || lower.includes('127.0.0.1') || lower.includes('::1') ||
-           lower.includes('+smb');
+    return lower.includes('test') || lower.includes('demo') || lower.includes('example') || lower.includes('localhost') || lower.includes('+smb');
   };
 
   // 1. Security Check
