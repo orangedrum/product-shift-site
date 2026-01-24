@@ -39,9 +39,9 @@ const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproduc
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-002',    // Primary: Latest stable Flash (High throughput, low cost)
-    'gemini-1.5-pro-002',      // Secondary: Latest stable Pro (High intelligence)
-    'gemini-1.5-flash',        // Fallback: Generic alias
+    'gemini-1.5-flash',        // Primary: Standard 1.5 Flash alias
+    'gemini-1.5-pro',          // Secondary: Standard 1.5 Pro alias
+    'gemini-pro',              // Safety Net: Legacy 1.0 Pro (Extremely stable)
   ];
 
   // Prepare image part if available
@@ -55,7 +55,7 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   const parts: any[] = [prompt];
   if (imagePart) parts.push(imagePart);
 
-  let lastError: any = null;
+  let errorLog: string[] = [];
 
   // Helper to delay execution to avoid rate limits
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -71,12 +71,12 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       return response.text();
     } catch (error: any) {
       console.log(`Model '${modelName}' failed: ${error.message}`);
-      lastError = error;
+      errorLog.push(`${modelName}: ${error.message}`);
     }
   }
 
   // If we exit the loop, all models failed. Throw error to be caught by handler.
-  throw new Error(`All fallback models failed. Last Error: ${lastError?.message}`);
+  throw new Error(`All fallback models failed. Errors: ${errorLog.join(' | ')}`);
 };
 
 // --- Generators ---
