@@ -76,6 +76,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       // Enhance error message for 404s which usually mean API is disabled or Key is restricted
       if (error.message.includes('404') && error.message.includes('not found')) {
         errorLog.push(`${modelName}: 404 (Check if Generative Language API is enabled in Google Cloud or Key is restricted)`);
+      } else if (error.message.includes('429') || error.message.includes('exhausted')) {
+        errorLog.push(`${modelName}: 429 Rate Limit Exceeded (Free Tier limit hit - No Charge)`);
       } else {
         errorLog.push(`${modelName}: ${error.message}`);
       }
