@@ -40,10 +40,13 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // 1. Attempt Gemini
   // Strategy: Smart Scavenger (Cycle Gemini models) -> Fallback to OpenAI
+  // Restoring the robust list to scavenge for ANY working model version
   const geminiModels = [
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
-    'gemini-pro'
+    'gemini-1.5-flash-latest', // Often resolves to a newer, working build
+    'gemini-1.5-flash',        // Standard alias
+    'gemini-1.5-pro-latest',   // Try Pro latest
+    'gemini-1.5-pro',          // Standard Pro
+    'gemini-pro',              // Legacy 1.0 (Ultimate safety net)
   ];
 
   const imagePart = screenshot ? { inlineData: { data: screenshot, mimeType: "image/jpeg" } } : null;
@@ -58,10 +61,7 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       // Add a small delay to avoid hitting rate limits instantly if looping fast
       if (geminiErrors.length > 0) await new Promise(r => setTimeout(r, 1000));
 
-      // Force API version to 'v1' to avoid 404s on v1beta endpoints
-      const model = genAI.getGenerativeModel({ model: modelName }, {
-        apiVersion: 'v1'
-      });
+      const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
       const response = result.response;
       console.log(`✅ Provider 'Gemini' (${modelName}) succeeded.`);
