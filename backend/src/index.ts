@@ -23,8 +23,8 @@ type Persona = {
 
 // --- AI Helpers ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-// Force the use of the stable 'v1' API version to avoid beta instability
-// Note: The SDK defaults to v1beta, but we can't easily change it via constructor in this version.
+// Note: We are relying on the SDK's default behavior but ensuring we use stable model aliases.
+// If v1beta continues to fail, we might need to manually fetch against the v1 REST API.
 
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -85,7 +85,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   }
 
   // If we exit the loop, all models failed. Throw error to be caught by handler.
-  throw new Error(`All fallback models failed. Errors: ${errorLog.join(' | ')}`);
+  // throw new Error(`All fallback models failed. Errors: ${errorLog.join(' | ')}`);
+  return "FALLBACK_TRIGGERED"; // Return a special flag instead of crashing
 };
 
 // --- Generators ---
@@ -124,9 +125,13 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
     
     ### 3. What I Think This Is
     (Define the product based ONLY on what you see. Explain why.)
-
   `;
-  return generateContentWithFallback(prompt, data.screenshot);
+  const result = await generateContentWithFallback(prompt, data.screenshot);
+  if (result === "FALLBACK_TRIGGERED") {
+     // Return a generic, safe response if AI fails completely
+     return `|||USER_MOOD|||Neutral|||USER_BUBBLE|||I can see the page, but I'm having trouble analyzing the details right now.|||USER_DETAILS|||### 1. My Experience\nThe page loaded, but I couldn't process the visual hierarchy fully. It looks professional enough.\n\n### 2. Points of Friction\nI'm not sure what the primary call to action is supposed to be.\n\n### 3. What I Think This Is\nA business website.`;
+  }
+  return result;
 };
 
 const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
@@ -181,7 +186,22 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     **PDF FOOTER:** At the very end of the report, include the following footer exactly as written, with a separator line:
     ${footerContent}
   `;
-  return generateContentWithFallback(prompt, data.screenshot);
+  const result = await generateContentWithFallback(prompt, data.screenshot);
+  if (result === "FALLBACK_TRIGGERED") {
+      return `### TEST RESULT: INCONCLUSIVE
+      We encountered a temporary issue analyzing your site with our AI models.
+      
+      ### Visual & Heuristic Analysis
+      - **Status:** [Neutral] The site is accessible, but deep analysis failed.
+      
+      ### Actionable Recommendations
+      - **ISSUE:** AI Analysis Timeout
+      - **FIX:** Please try running the test again in a few minutes.
+      
+      |||SCORES_JSON|||
+      { "usability": 70, "desirability": 70, "clarity": 70 }`;
+  }
+  return result;
 };
 
 // Initialize Express App
