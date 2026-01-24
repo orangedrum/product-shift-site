@@ -102,7 +102,7 @@ export const DemoSection = () => {
         usageCounted: err.usageCounted
       };
       // Check for the specific AI failure case and show the user-friendly message
-      if (displayError.details.includes('All fallback models failed')) {
+      if (displayError.details.includes('All fallback models failed') || displayError.details.includes('providers failed')) {
         displayError.error = 'AI Services Temporarily Unavailable';
         displayError.details = 'We are unable to connect to our AI models at the moment. Please try again in a few minutes. You have not been charged for this attempt.';
         displayError.usageCounted = false;

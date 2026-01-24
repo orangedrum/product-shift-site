@@ -270,11 +270,19 @@ const DemoSection = () => {
       if (!response.ok) throw data;
       setResult(data);
     } catch (err: any) {
-      setError({
+      let displayError = {
         error: err.error || 'Analysis Failed',
         details: err.details || err.message || 'An unexpected error occurred.',
         usageCounted: err.usageCounted
-      });
+      };
+
+      if (displayError.details.includes('All fallback models failed') || displayError.details.includes('providers failed')) {
+        displayError.error = 'AI Services Temporarily Unavailable';
+        displayError.details = 'We are unable to connect to our AI models at the moment. Please try again in a few minutes. You have not been charged for this attempt.';
+        displayError.usageCounted = false;
+      }
+
+      setError(displayError);
     } finally {
       setIsLoading(false);
     }

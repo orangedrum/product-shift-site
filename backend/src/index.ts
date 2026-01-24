@@ -40,7 +40,7 @@ const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproduc
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // --- STRATEGY: Attempt Gemini first, fallback to OpenAI on any failure ---
 
-  // 1. Attempt Gemini (Primary - Low Cost)
+  // 1. Attempt Gemini
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const imagePart = screenshot ? { inlineData: { data: screenshot, mimeType: "image/jpeg" } } : null;
@@ -53,12 +53,11 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   } catch (geminiError: any) {
     console.warn(`⚠️ Provider 'Gemini' failed: ${geminiError.message}. Falling back to OpenAI.`);
     
-    // 2. Fallback to OpenAI (Reliability)
+    // 2. Fallback to OpenAI
     try {
       const openAIKey = process.env.OPENAI_API_KEY;
       if (!openAIKey) {
-        // If no OpenAI key, throw the original Gemini error to avoid confusion
-        throw new Error(`OpenAI API Key not configured. Gemini Error: ${geminiError.message}`);
+        throw new Error("OpenAI API Key is missing in environment variables.");
       }
 
       const messages: any[] = [{ role: 'user', content: [{ type: 'text', text: prompt }] }];
@@ -81,7 +80,7 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
       if (!response.ok) {
         const errorBody = await response.json();
-        throw new Error(`OpenAI API Error: ${errorBody.error?.message || response.statusText}`);
+        throw new Error(`OpenAI API Error: ${errorBody.error.message}`);
       }
 
       const data = await response.json();
