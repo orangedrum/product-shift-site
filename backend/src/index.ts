@@ -41,9 +41,9 @@ const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproduc
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-latest', // Try the 'latest' alias which often resolves better
-    'gemini-1.5-flash',
-    'gemini-pro',
+    'gemini-1.5-flash',        // Primary: Standard 1.5 Flash alias (Most Stable)
+    'gemini-1.5-pro',          // Secondary: Standard 1.5 Pro alias
+    'gemini-pro',              // Safety Net: Legacy 1.0 Pro
   ];
 
   // Prepare image part if available
@@ -73,7 +73,12 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       return response.text();
     } catch (error: any) {
       console.log(`Model '${modelName}' failed: ${error.message}`);
-      errorLog.push(`${modelName}: ${error.message}`);
+      // Enhance error message for 404s which usually mean API is disabled or Key is restricted
+      if (error.message.includes('404') && error.message.includes('not found')) {
+        errorLog.push(`${modelName}: 404 (Check if Generative Language API is enabled in Google Cloud or Key is restricted)`);
+      } else {
+        errorLog.push(`${modelName}: ${error.message}`);
+      }
     }
   }
 
