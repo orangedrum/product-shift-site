@@ -21,7 +21,7 @@ type Persona = {
 };
 
 // --- AI Helpers ---
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// We will initialize genAI inside the function to ensure we catch the latest env var
 // Note: We are relying on the SDK's default behavior but ensuring we use stable model aliases.
 // If v1beta continues to fail, we might need to manually fetch against the v1 REST API.
 
@@ -39,6 +39,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is missing in environment variables");
+  
+  // Debug Log: Verify we are using the correct key (Security: Only log first 4 chars)
+  console.log(`🔑 Using Gemini API Key starting with: ${apiKey.substring(0, 4)}...`);
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
     'gemini-1.5-flash-latest', // Often resolves to a newer, working build
