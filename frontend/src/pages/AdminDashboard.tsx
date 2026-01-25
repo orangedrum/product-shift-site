@@ -275,7 +275,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       {/* --- INVITE USER SECTION --- */}
       <div className="mb-8">
         <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Manual Invite</h3>
-        <NeoCard title="Send Backstage Pass">
+        <NeoCard title="Send Free Trial">
           <form onSubmit={handleInviteUser} className="flex flex-col md:flex-row gap-4 items-end">
             <div className="w-full md:w-1/2">
               <label className="block text-sm font-bold mb-1">Email Address</label>

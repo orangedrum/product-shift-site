@@ -591,7 +591,7 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
       'You\'ve got credits! 🎟️',
       `
         <div style="font-family: sans-serif; max-w-600px; margin: 0 auto;">
-          <h1 style="color: #4f46e5;">Welcome Backstage!</h1>
+          <h1 style="color: #4f46e5;">Welcome to your Free Trial!</h1>
           <p>You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
           <p style="font-size: 18px;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
           <br/>
@@ -1700,11 +1700,11 @@ app.post('/api/admin/invite-user', async (req, res) => {
     // 3. Send Custom Email via Resend
     await sendEmail(
       email,
-      'Your Product Shift Backstage Pass 🎟️',
+      'Your Product Shift Free Trial 🎟️',
       `
         <div style="font-family: sans-serif; max-w-600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #4f46e5;">You're in!</h1>
-          <p>You've been granted a backstage pass to Product Shift.</p>
+          <p>You've been granted a free trial to Product Shift.</p>
           <p style="font-size: 18px;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
           <br/>
           <a href="${linkData.properties.action_link}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Your Account</a>
