@@ -49,11 +49,12 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-latest', // Often resolves to a newer, working build
-    'gemini-1.5-flash',        // Standard alias
-    'gemini-1.5-pro-latest',   // Try Pro latest
-    'gemini-1.5-pro',          // Standard Pro
-    'gemini-pro',              // Legacy 1.0 (Ultimate safety net)
+    'gemini-1.5-flash-001',    // Pinned Version (Most Reliable)
+    'gemini-1.5-flash',        // Standard Alias
+    'gemini-1.5-pro-001',      // Pinned Version
+    'gemini-1.5-pro',          // Standard Alias
+    'gemini-1.0-pro',          // Pinned Legacy
+    'gemini-pro',              // Legacy Alias
   ];
 
   // Prepare image part if available
@@ -86,6 +87,20 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       // Enhance error message for 404s which usually mean API is disabled or Key is restricted
       if (error.message.includes('404') && error.message.includes('not found')) {
         errorLog.push(`${modelName}: 404 (Check if Generative Language API is enabled in Google Cloud or Key is restricted)`);
+        
+        // DIAGNOSTIC: If we get a 404, ask the API what models ARE available.
+        try {
+          console.log(`🔍 Diagnostic: Listing available models for this key...`);
+          const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+          if (listResp.ok) {
+            const listData = await listResp.json();
+            console.log('🔍 Diagnostic Result:', JSON.stringify(listData));
+          } else {
+            console.log(`🔍 Diagnostic Failed: ${listResp.status} ${await listResp.text()}`);
+          }
+        } catch (diagErr) {
+          console.error('🔍 Diagnostic Error:', diagErr);
+        }
       } else if (error.message.includes('400') && (error.message.includes('API key') || error.message.includes('expired'))) {
         errorLog.push(`${modelName}: 400 API Key Invalid/Expired (Check Vercel Environment Variables)`);
       } else if (error.message.includes('429') || error.message.includes('exhausted')) {
