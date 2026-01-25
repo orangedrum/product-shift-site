@@ -128,6 +128,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     }
   };
 
+<<<<<<< HEAD
   const handleInviteUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setInviteLoading(true);
@@ -152,6 +153,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     } finally {
       setInviteLoading(false);
     }
+=======
+  // Helper to categorize errors
+  const getErrorType = (err: any) => {
+    const msg = (err.error_message || '').toUpperCase();
+    
+    // Known User Errors (Client-side issues)
+    if (
+      msg.includes('SSL') || 
+      msg.includes('NOT_FOUND') || 
+      msg.includes('ACCESS_DENIED') ||
+      msg.includes('TIMEOUT') ||
+      msg.includes('REFUSED')
+    ) {
+      return { label: 'User Error', badgeClass: 'bg-yellow-100 text-yellow-800 border-yellow-200' };
+    }
+    // Default to System Error
+    return { label: 'System Error', badgeClass: 'bg-red-100 text-red-800 border-red-200' };
+>>>>>>> 0123bugs
   };
 
   // Helper to filter test users
@@ -342,18 +361,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           <NeoCard title="Recent Errors">
             {stats.recentErrors && stats.recentErrors.length > 0 ? (
               <div className="space-y-4">
-                {stats.recentErrors.map((err: any) => (
-                  <div key={err.id} className="p-3 bg-red-50 border border-red-200 rounded-lg flex justify-between items-start">
+                {stats.recentErrors.map((err: any) => {
+                  const { label, badgeClass } = getErrorType(err);
+                  return (
+                  <div key={err.id} className={`p-3 border rounded-lg flex justify-between items-start ${label === 'User Error' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
                     <div className="overflow-hidden">
-                      <p className="font-bold text-red-800 text-sm">{err.error_message}</p>
-                      <p className="text-xs text-red-600 truncate">{err.details}</p>
-                      <p className="text-[10px] text-gray-500 mt-1">{new Date(err.created_at).toLocaleString()}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${badgeClass}`}>{label}</span>
+                        <span className="text-[10px] text-gray-500">{new Date(err.created_at).toLocaleString()}</span>
+                      </div>
+                      <p className="font-bold text-gray-900 text-sm">{err.error_message}</p>
+                      <p className="text-xs text-red-600 break-all whitespace-pre-wrap mt-1 font-mono bg-red-50/50 p-1 rounded">
+                        {err.details?.split(' | ').join('\n\n')}
+                      </p>
                     </div>
                     <button onClick={() => handleDeleteError(err.id)} className="text-red-400 hover:text-red-700 p-1">
                       <Trash2 size={16} />
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-gray-500 italic">No recent errors logged.</p>

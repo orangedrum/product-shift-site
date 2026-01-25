@@ -60,6 +60,11 @@ export const AnalysisErrorCard: React.FC<{ error: AnalysisError, onReset: () => 
     iconColor = "text-red-600";
     borderColor = "border-red-600";
     subHeader = "Access Restricted";
+  } else if (error.error === 'AI Services Temporarily Unavailable') {
+    Icon = Clock;
+    iconColor = "text-orange-500";
+    borderColor = "border-orange-400";
+    subHeader = "High Traffic";
   }
 
   const isDark = theme === 'dark';
