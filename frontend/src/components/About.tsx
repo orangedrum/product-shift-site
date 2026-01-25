@@ -1,10 +1,10 @@
 import React from 'react';
-import { Building, Award, Users, Zap, PillBottle } from 'lucide-react';
+import { Building, Award, Users, Zap, Pill } from 'lucide-react';
 import { FeatureCard } from './FeatureCard';
 
 const achievements = [
   {
-    icon: PillBottle,
+    icon: Pill,
     title: "Movement Health Researcher",
     description: "Expert in behavior-change products and human-centered design in complex health/neuro-tech applications"
   },
@@ -49,13 +49,13 @@ const About = () => {
               </div>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  I/’m Jean Kaluza, founder of The Product Shift where we still believe in technology for the good of ALL humans not just certain wallets. I’ve been a writer, speaker & consultant in the human-centered & Design Thinking space since 2010. Productshift, shifts products against data, not ego, solving problems through technology for clients as well as our own internal endeavors. My passion for UX & product extends into the medTech as a Movement Health Researcher, UX/AI Innovator, and Founder The Product Shift as well as FreeBrain. Our mission is to solve world problems through technology and we get as passionate as our clients do solving them. Our current project (FreeBrain), is a brain health app to support those with Parkinson’s and other neurological disorders.
+                  I’m Jean Kaluza, founder of The Product Shift where we still believe in technology for the good of ALL humans not just certain wallets. I’ve been a writer, speaker & consultant in the human-centered & Design Thinking space since 2010. The Product Shift provides **data-driven UX for HealthTech**, shifting products against data, not ego, solving problems through technology for clients as well as our own internal endeavors. My passion for **HealthTech product strategy** extends into MedTech as a Movement Health Researcher, UX/AI Innovator, and Founder of The Product Shift as well as FreeBrain. Our mission is to solve world problems through technology and we get as passionate as our clients do solving them. Our current project (FreeBrain), is a brain health app to support those with Parkinson’s and other neurological disorders.
                 </p>
                 <p>
-                  We are currently accepting limited clients for Q1 of 2025, and currently seeking sponsorship FreeBrain for it's validation phase. Our extensive research expertise means you'll know your future customers better than they know themselves, converting them from hook, through conversion, and returning customers. We encourage our client's & partners to extend our insights across both marketing & product silos for the best results.
+                  We are currently accepting limited clients for Q1 of 2025, focusing on **UX research for HealthTech startups**, and currently seeking sponsorship for FreeBrain for its validation phase. Our extensive research expertise means you'll know your future customers better than they know themselves, converting them from hook, through conversion, and returning customers. We encourage our clients & partners to extend our insights across both marketing & product silos for the best results.
                 </p>
                 <p>
-                  We design with data, not ego. Our goal is to build customized flywheels based metrics & real-world data that generates automated growth & success for years un-end.  We're excited for both our projects and yours becoming part our next problem solving success story.
+                  We deliver **patient-centric design** with data, not ego. Our goal is to build customized flywheels based metrics & real-world data that generates automated growth & success for years on end.  We're excited for both our projects and yours becoming part our next problem solving success story.
                 </p>
               </div>
             </div>
