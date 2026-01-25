@@ -40,9 +40,11 @@ const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproduc
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash',        // Primary: Standard 1.5 Flash alias (Most Stable)
-    'gemini-1.5-pro',          // Secondary: Standard 1.5 Pro alias
-    'gemini-pro',              // Safety Net: Legacy 1.0 Pro
+    'gemini-1.5-flash-latest', // Often resolves to a newer, working build
+    'gemini-1.5-flash',        // Standard alias
+    'gemini-1.5-pro-latest',   // Try Pro latest
+    'gemini-1.5-pro',          // Standard Pro
+    'gemini-pro',              // Legacy 1.0 (Ultimate safety net)
   ];
 
   // Prepare image part if available
