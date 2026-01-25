@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -34,6 +34,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteCredits, setInviteCredits] = useState(3);
   const [inviteSegment, setInviteSegment] = useState('tech');
+  const [inviteDuration, setInviteDuration] = useState('7 days');
   const [inviteLoading, setInviteLoading] = useState(false);
 
   // Coupon State
@@ -155,7 +156,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           Authorization: `Bearer ${secretKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: inviteEmail, credits: inviteCredits, segment: inviteSegment })
+        body: JSON.stringify({ email: inviteEmail, credits: inviteCredits, segment: inviteSegment, duration: inviteDuration })
       });
       const data = await res.json();
       if (res.ok) {
@@ -215,6 +216,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     }
   };
 
+  const handleCompensate = async (email: string) => {
+    if (!window.confirm(`Send 2 free credits to ${email} as compensation?`)) return;
+    try {
+      const res = await fetch('/api/admin/compensate-user', {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${secretKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, credits: 2 })
+      });
+      if (res.ok) alert('Compensation sent!');
+    } catch (e) {
+      alert('Failed to compensate');
+    }
+  };
+
   // Helper to categorize errors
   const getErrorType = (err: any) => {
     const msg = (err.error_message || '').toUpperCase();
@@ -242,6 +260,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
            lower.includes('example') || 
            lower.includes('localhost') ||
            lower.includes('+smb'); // Catch specific test aliases
+  };
+
+  // Helper to extract email from error log
+  const extractEmailFromLog = (msg: string) => {
+    const match = msg.match(/^\[(.*?)\]/);
+    return match && match[1] !== 'Anonymous' ? match[1] : null;
   };
 
   if (loading) return <div className="p-4">Loading admin dashboard... <Loader2 className="inline-block ml-2 animate-spin" /></div>;
@@ -336,11 +360,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       {/* --- ACTIONS ROW --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div>
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Manual Invite</h3>
-        <NeoCard title="Send Free Trial">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Free Trial Manager</h3>
+        <NeoCard title="Send Invite">
           <form onSubmit={handleInviteUser} className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="w-full md:w-1/3">
-              <label className="block text-sm font-bold mb-1">Email Address</label>
+            <div className="w-full md:w-1/2">
+              <label className="block text-sm font-bold mb-1">Email</label>
               <input 
                 type="email" 
                 value={inviteEmail}
@@ -350,7 +374,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 required
               />
             </div>
-            <div className="w-full md:w-1/4">
+            <div className="w-full md:w-1/2">
               <label className="block text-sm font-bold mb-1">Segment</label>
               <select 
                 value={inviteSegment}
@@ -361,27 +385,41 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 <option value="smb">Small Business</option>
               </select>
             </div>
-            <div className="w-full md:w-1/6">
+          </form>
+          <div className="flex flex-col md:flex-row gap-4 items-end mt-4">
+            <div className="w-full md:w-1/3">
               <label className="block text-sm font-bold mb-1">Credits</label>
               <input 
                 type="number" 
                 value={inviteCredits}
                 onChange={(e) => setInviteCredits(parseInt(e.target.value))}
-                className="w-full p-2 border-2 border-gray-300 rounded-lg"
+                className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
               />
             </div>
-            <div className="w-full md:w-1/4">
+            <div className="w-full md:w-1/3">
+              <label className="block text-sm font-bold mb-1">Expiration</label>
+              <select 
+                value={inviteDuration}
+                onChange={(e) => setInviteDuration(e.target.value)}
+                className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
+              >
+                <option value="3 days">3 Days</option>
+                <option value="7 days">7 Days</option>
+                <option value="30 days">30 Days</option>
+              </select>
+            </div>
+            <div className="w-full md:w-1/3">
               <NeoButton type="submit" className="w-full" disabled={inviteLoading}>
                 {inviteLoading ? 'Sending...' : 'Send Invite'}
               </NeoButton>
             </div>
-          </form>
+          </div>
         </NeoCard>
         </div>
 
         <div>
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Tag size={20} /> Campaign Manager</h3>
-          <NeoCard title="Create Podcast/Event Code">
+          <NeoCard title="Coupons & Events">
             <form onSubmit={handleCreateCoupon} className="flex flex-col md:flex-row gap-4 items-end">
               <div className="w-full md:w-1/2">
                 <label className="block text-sm font-bold mb-1">Coupon Code</label>
@@ -402,10 +440,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 <NeoButton type="submit" className="w-full" disabled={couponLoading}>{couponLoading ? 'Saving...' : 'Create'}</NeoButton>
               </div>
             </form>
-          </NeoCard>
 
-          <div className="mt-4">
-            <NeoCard title="Active Campaigns">
+            <div className="mt-6 pt-6 border-t-2 border-gray-100">
+              <h4 className="text-sm font-bold text-gray-500 uppercase mb-3">Active Campaigns</h4>
               {coupons.length === 0 ? (
                 <p className="text-gray-500 italic text-sm">No active campaigns.</p>
               ) : (
@@ -434,8 +471,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                   </table>
                 </div>
               )}
-            </NeoCard>
-          </div>
+            </div>
+          </NeoCard>
         </div>
       </div>
 
@@ -495,6 +532,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
               <div className="space-y-4">
                 {stats.recentErrors.map((err: any) => {
                   const { label, badgeClass } = getErrorType(err);
+                  const userEmail = extractEmailFromLog(err.error_message);
                   return (
                   <div key={err.id} className={`p-3 border rounded-lg flex justify-between items-start ${label === 'User Error' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
                     <div className="overflow-hidden">
@@ -507,9 +545,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                         {err.details?.split(' | ').join('\n\n')}
                       </p>
                     </div>
-                    <button onClick={() => handleDeleteError(err.id)} className="text-red-400 hover:text-red-700 p-1">
-                      <Trash2 size={16} />
-                    </button>
+                    <div className="flex flex-col gap-2 ml-2">
+                      <button onClick={() => handleDeleteError(err.id)} className="text-red-400 hover:text-red-700 p-1" title="Delete Log">
+                        <Trash2 size={16} />
+                      </button>
+                      {userEmail && (
+                        <button onClick={() => handleCompensate(userEmail)} className="text-green-600 hover:text-green-800 p-1" title="Compensate User">
+                          <HeartHandshake size={16} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   );
                 })}

@@ -1296,7 +1296,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     if (supabaseUrl && supabaseServiceKey) {
       try {
         await supabase.from('error_logs').insert({
-          error_message: `Failed to run the test: ${errorMessage}`,
+          error_message: `[${email || 'Anonymous'}] Failed to run test: ${errorMessage}`,
           details: error.stack || JSON.stringify(error), // Log the full error for debugging
         });
       } catch (logErr) {
@@ -1689,7 +1689,7 @@ app.delete('/api/admin/errors/:id', async (req, res) => {
 app.post('/api/admin/invite-user', async (req, res) => {
   const authHeader = req.headers.authorization;
   const secretKey = process.env.ADMIN_SECRET_KEY;
-  const { email, credits, segment } = req.body;
+  const { email, credits, segment, duration } = req.body;
 
   if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -1731,6 +1731,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
         <h1 style="color: #4f46e5; margin-top: 0;">You're in!</h1>
         <p style="font-size: 16px; color: #374151; line-height: 1.5;">You've been granted a free trial to Product Shift.</p>
         <p style="font-size: 18px; color: #111827;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
+        ${duration ? `<p style="font-size: 14px; color: #dc2626; font-weight: bold;">Note: This trial expires in ${duration}.</p>` : ''}
         <div style="margin-top: 32px; text-align: center;">
           <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
         </div>
@@ -1741,6 +1742,36 @@ app.post('/api/admin/invite-user', async (req, res) => {
     res.json({ success: true, message: 'Invite sent successfully!' });
   } catch (e: any) {
     console.error('Invite Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// --- Admin Compensate User Endpoint ---
+app.post('/api/admin/compensate-user', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { email, credits } = req.body;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    // Grant credits
+    await supabase.rpc('add_credits', { user_email: email, amount: credits });
+
+    // Send Apology Email
+    await sendEmail(
+      email,
+      'Credits added to your account',
+      `
+        <h1 style="color: #4f46e5; margin-top: 0;">We're sorry about the hiccup!</h1>
+        <p style="font-size: 16px; color: #374151; line-height: 1.5;">We noticed you experienced an error recently. To make it up to you, we've added <strong>${credits} free tests</strong> to your account.</p>
+        <p style="font-size: 16px; color: #374151;">Please try running your analysis again.</p>
+      `
+    );
+    res.json({ success: true });
+  } catch (e: any) {
     res.status(500).json({ error: e.message });
   }
 });
