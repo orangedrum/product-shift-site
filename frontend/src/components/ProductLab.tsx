@@ -34,17 +34,17 @@ const ProductLab = () => {
       if (containerRef.current) containerRef.current.appendChild(el);
 
       const angle = Math.random() * Math.PI * 2;
-      const velocity = 15 + Math.random() * 15; // Faster explosion
+      const velocity = 20 + Math.random() * 20; // High initial velocity
       const tx = Math.cos(angle) * velocity * 30;
       const ty = Math.sin(angle) * velocity * 30;
 
       el.animate([
-        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-        // Fly upwards generally (subtract from Y)
-        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty - 200}px)) scale(0)`, opacity: 0 }
+        { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 1, offset: 0 },
+        { transform: `translate(calc(-50% + ${tx * 0.5}px), calc(-50% + ${ty * 0.5}px)) scale(1.2)`, opacity: 1, offset: 0.1 }, // Fast Burst (10%)
+        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty - 150}px)) scale(0.5)`, opacity: 0, offset: 1 } // Slow Disintegration
       ], {
-        duration: 1000 + Math.random() * 500,
-        easing: 'cubic-bezier(0, .9, .57, 1)',
+        duration: 2000 + Math.random() * 1000, // Longer duration for the float
+        easing: 'linear', // Keyframes handle the pacing
       }).onfinish = () => el.remove();
     }
   };

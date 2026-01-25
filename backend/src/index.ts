@@ -1746,6 +1746,47 @@ app.post('/api/admin/invite-user', async (req, res) => {
   }
 });
 
+// --- Custom Auth Login Endpoint (Branded Magic Links) ---
+app.post('/api/auth/login', async (req, res) => {
+  const { email, redirectTo } = req.body;
+  
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  try {
+    // Generate Magic Link via Admin API
+    const { data, error } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: {
+        redirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux'
+      }
+    });
+
+    if (error) throw error;
+
+    // Send Branded Email
+    const magicLink = data.properties.action_link;
+    
+    await sendEmail(
+      email,
+      'Sign in to Product Shift',
+      `
+        <h1 style="color: #000000; margin-top: 0;">Sign in to Product Shift</h1>
+        <p style="font-size: 16px; color: #374151; line-height: 1.5;">Click the button below to sign in to your account. This link will expire in 24 hours.</p>
+        <div style="margin-top: 32px; text-align: center;">
+          <a href="${magicLink}" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Sign In Now</a>
+        </div>
+        <p style="margin-top: 24px; font-size: 14px; color: #6b7280; text-align: center;">If you didn't request this, you can safely ignore this email.</p>
+      `
+    );
+
+    res.json({ success: true });
+  } catch (e: any) {
+    console.error('Login Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/admin/stats', async (req, res) => {
   const authHeader = req.headers.authorization;
   const secretKey = process.env.ADMIN_SECRET_KEY;

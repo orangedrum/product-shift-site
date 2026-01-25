@@ -161,19 +161,21 @@ const Login: React.FC = () => {
     
     const redirectTo = `${window.location.origin}/login?${redirectParams.toString()}`;
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { 
-        emailRedirectTo: redirectTo,
-      },
-    });
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, redirectTo })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to send login email');
 
-    if (error) {
-      setMessage(`Error: ${error.message}`);
-      setLoading(false);
-    } else {
       setMessage('Check your email for the magic link!');
       setIsSuccess(true);
+    } catch (err: any) {
+      setMessage(`Error: ${err.message}`);
+    } finally {
       setLoading(false);
     }
   };
