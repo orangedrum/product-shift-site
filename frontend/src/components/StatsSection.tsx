@@ -48,7 +48,7 @@ const AnimatedStat = ({ value, label, delay, color }: { value: string, label: st
       </div>
       {/* Floating Orb 1 (Specific Color) */}
       <div 
-        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float -z-10"
+        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float z-0"
         style={{ 
           background: color,
           animationDelay: `${delay}s` 
@@ -56,7 +56,7 @@ const AnimatedStat = ({ value, label, delay, color }: { value: string, label: st
       ></div>
       {/* Floating Orb 2 (Marketing Gradient) */}
       <div 
-        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float -z-20 bg-marketing-gradient"
+        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float z-0 bg-marketing-gradient"
         style={{ 
           animationDelay: `${delay + 0.5}s` 
         }}

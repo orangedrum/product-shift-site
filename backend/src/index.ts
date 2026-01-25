@@ -138,6 +138,8 @@ const sendEmail = async (to: string, subject: string, html: string) => {
       console.error('Resend API Error:', errText);
       // Don't crash the whole request if email fails, just log it.
       // throw new Error(`Resend API Error: ${errText}`);
+    } else {
+      console.log(`📧 Email sent successfully to: ${to}`);
     }
   } catch (e) {
     console.error('Failed to send email:', e);
