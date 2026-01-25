@@ -4,6 +4,7 @@ import IncubatorRibbon from '../components/IncubatorRibbon';
 import CoreServices from '../components/CoreServices';
 import AgencyPartner from '../components/AgencyPartner';
 import ProductLab from '../components/ProductLab';
+import StatsSection from '../components/StatsSection';
 import Speaker from '../components/Speaker';
 import About from '../components/About';
 import Blog from '../components/Blog';
@@ -15,6 +16,7 @@ const HomePage = () => {
       <Hero />
       <IncubatorRibbon />
       <AgencyPartner />
+      <StatsSection />
       <ProductLab />
       <CoreServices />
       <About />
