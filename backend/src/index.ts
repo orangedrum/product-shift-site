@@ -1762,6 +1762,41 @@ app.post('/api/admin/create-coupon', async (req, res) => {
   res.json({ success: true, message: `Coupon ${code.toUpperCase()} created!` });
 });
 
+// --- Admin Get Coupons Endpoint ---
+app.get('/api/admin/coupons', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { data, error } = await supabase
+    .from('coupons')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+// --- Admin Delete Coupon Endpoint ---
+app.delete('/api/admin/coupons/:id', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { id } = req.params;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { error } = await supabase.from('coupons').delete().eq('id', id);
+
+  if (error) return res.status(500).json({ error: error.message });
+  
+  res.json({ success: true });
+});
+
 // --- Custom Auth Login Endpoint (Branded Magic Links) ---
 app.post('/api/auth/login', async (req, res) => {
   const { email, redirectTo, coupon } = req.body;

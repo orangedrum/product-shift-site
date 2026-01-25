@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -40,6 +40,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [couponCode, setCouponCode] = useState('');
   const [couponCredits, setCouponCredits] = useState(5);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [newCouponLink, setNewCouponLink] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -71,6 +73,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         
         // Auto-tag this device as internal for Google Analytics
         localStorage.setItem('ga_internal_user', 'true');
+
+        // Fetch Coupons
+        const couponRes = await fetch('/api/admin/coupons', {
+          headers: { Authorization: `Bearer ${secretKey}` },
+        });
+        if (couponRes.ok) {
+          const couponData = await couponRes.json();
+          setCoupons(couponData);
+        }
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -174,8 +185,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       });
       const data = await res.json();
       if (res.ok) {
-        alert(`Success: ${data.message}\nLink: https://app.theproductshift.com/login?coupon=${couponCode.toUpperCase()}`);
+        setNewCouponLink(`https://app.theproductshift.com/login?coupon=${couponCode.toUpperCase()}`);
         setCouponCode('');
+        // Refresh list
+        const couponRes = await fetch('/api/admin/coupons', {
+          headers: { Authorization: `Bearer ${secretKey}` },
+        });
+        if (couponRes.ok) setCoupons(await couponRes.json());
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -183,6 +199,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       alert('Failed to create coupon');
     } finally {
       setCouponLoading(false);
+    }
+  };
+
+  const handleDeleteCoupon = async (id: string) => {
+    if (!window.confirm('Are you sure you want to end this campaign? The code will no longer work.')) return;
+    try {
+      await fetch(`/api/admin/coupons/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${secretKey}` },
+      });
+      setCoupons(prev => prev.filter(c => c.id !== id));
+    } catch (e) {
+      console.error('Failed to delete coupon', e);
     }
   };
 
@@ -374,6 +403,39 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
               </div>
             </form>
           </NeoCard>
+
+          <div className="mt-4">
+            <NeoCard title="Active Campaigns">
+              {coupons.length === 0 ? (
+                <p className="text-gray-500 italic text-sm">No active campaigns.</p>
+              ) : (
+                <div className="overflow-x-auto max-h-60">
+                  <table className="w-full text-left text-sm">
+                    <thead className="sticky top-0 bg-white">
+                      <tr className="border-b-2 border-black">
+                        <th className="pb-2">Code</th>
+                        <th className="pb-2">Credits</th>
+                        <th className="pb-2 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {coupons.map(c => (
+                        <tr key={c.id}>
+                          <td className="py-2 font-bold text-indigo-600">{c.code}</td>
+                          <td className="py-2">{c.credits}</td>
+                          <td className="py-2 text-right">
+                            <button onClick={() => handleDeleteCoupon(c.id)} className="text-red-500 hover:text-red-700 font-bold text-xs flex items-center gap-1 ml-auto">
+                              <Trash2 size={14} /> End
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </NeoCard>
+          </div>
         </div>
       </div>
 
@@ -603,6 +665,27 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 {refunding ? 'Refunding...' : 'Confirm Refund'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Coupon Success Modal */}
+      {newCouponLink && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+          <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-md w-full relative">
+            <button onClick={() => setNewCouponLink(null)} className="absolute top-4 right-4 text-gray-500 hover:text-black">
+              <X size={24} />
+            </button>
+            <h3 className="text-xl font-black mb-4 flex items-center gap-2 text-green-600">
+              <Tag /> Campaign Created!
+            </h3>
+            <p className="text-gray-600 mb-2 font-bold">Share this tracking link:</p>
+            <div className="bg-gray-100 p-3 rounded border-2 border-gray-300 break-all font-mono text-sm mb-6 select-all">
+              {newCouponLink}
+            </div>
+            <NeoButton className="w-full" onClick={() => { navigator.clipboard.writeText(newCouponLink); alert('Copied to clipboard!'); }}>
+              <Copy size={18} className="mr-2" /> Copy Link
+            </NeoButton>
           </div>
         </div>
       )}
