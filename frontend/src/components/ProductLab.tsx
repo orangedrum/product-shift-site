@@ -15,29 +15,33 @@ const ProductLab = () => {
     setHasFiredConfetti(true);
 
     const colors = ['#ff1493', '#ff8c00', '#00bfff'];
-    const particleCount = 100;
+    const particleCount = 200; // More confetti
     
     for (let i = 0; i < particleCount; i++) {
       const el = document.createElement('div');
-      el.style.position = 'fixed';
+      // Attach to container instead of body for better positioning control
+      el.style.position = 'absolute';
       el.style.left = '50%';
-      el.style.top = '50%';
-      el.style.width = '12px';
-      el.style.height = '12px';
+      el.style.top = '80%'; // Start from bottom
+      const size = Math.floor(Math.random() * 10) + 10; // Bigger: 10px to 20px
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
       el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
       el.style.borderRadius = '50%';
       el.style.pointerEvents = 'none';
-      el.style.zIndex = '9999';
-      document.body.appendChild(el);
+      el.style.zIndex = '50'; // Above content
+      
+      if (containerRef.current) containerRef.current.appendChild(el);
 
       const angle = Math.random() * Math.PI * 2;
-      const velocity = 10 + Math.random() * 10;
+      const velocity = 15 + Math.random() * 15; // Faster explosion
       const tx = Math.cos(angle) * velocity * 30;
       const ty = Math.sin(angle) * velocity * 30;
 
       el.animate([
         { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+        // Fly upwards generally (subtract from Y)
+        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty - 200}px)) scale(0)`, opacity: 0 }
       ], {
         duration: 1000 + Math.random() * 500,
         easing: 'cubic-bezier(0, .9, .57, 1)',

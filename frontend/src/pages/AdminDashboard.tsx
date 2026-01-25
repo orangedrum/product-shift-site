@@ -33,6 +33,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   // Invite State
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteCredits, setInviteCredits] = useState(3);
+  const [inviteSegment, setInviteSegment] = useState('tech');
   const [inviteLoading, setInviteLoading] = useState(false);
 
   useEffect(() => {
@@ -138,7 +139,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           Authorization: `Bearer ${secretKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: inviteEmail, credits: inviteCredits, segment: 'tech' })
+        body: JSON.stringify({ email: inviteEmail, credits: inviteCredits, segment: inviteSegment })
       });
       const data = await res.json();
       if (res.ok) {
@@ -277,7 +278,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Manual Invite</h3>
         <NeoCard title="Send Free Trial">
           <form onSubmit={handleInviteUser} className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="w-full md:w-1/2">
+            <div className="w-full md:w-1/3">
               <label className="block text-sm font-bold mb-1">Email Address</label>
               <input 
                 type="email" 
@@ -289,6 +290,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
               />
             </div>
             <div className="w-full md:w-1/4">
+              <label className="block text-sm font-bold mb-1">Segment</label>
+              <select 
+                value={inviteSegment}
+                onChange={(e) => setInviteSegment(e.target.value)}
+                className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
+              >
+                <option value="tech">Tech / UX Pro</option>
+                <option value="smb">Small Business</option>
+              </select>
+            </div>
+            <div className="w-full md:w-1/6">
               <label className="block text-sm font-bold mb-1">Credits</label>
               <input 
                 type="number" 
