@@ -114,6 +114,27 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   throw new Error(`All fallback models failed. Errors: ${errorLog.join(' | ')}`);
 };
 
+// --- Email Template Helper ---
+const getEmailTemplate = (content: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 40px 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <img src="https://app.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto;" />
+    </div>
+    ${content}
+    <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 32px 0;" />
+    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">Please do not reply to this email. This inbox is not monitored.</p>
+  </div>
+</body>
+</html>
+`;
+
 // --- Email Helper (No Dependency) ---
 const sendEmail = async (to: string, subject: string, html: string) => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -123,6 +144,8 @@ const sendEmail = async (to: string, subject: string, html: string) => {
     return;
   }
 
+  const fullHtml = getEmailTemplate(html);
+
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -130,7 +153,7 @@ const sendEmail = async (to: string, subject: string, html: string) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({ from: emailFrom, to, subject, html })
+      body: JSON.stringify({ from: emailFrom, to, subject, html: fullHtml })
     });
     
     if (!response.ok) {
@@ -592,12 +615,11 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
       email,
       'You\'ve got credits! 🎟️',
       `
-        <div style="font-family: sans-serif; max-w-600px; margin: 0 auto;">
-          <h1 style="color: #4f46e5;">Welcome to your Free Trial!</h1>
-          <p>You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
-          <p style="font-size: 18px;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
-          <br/>
-          <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Run a Test Now</a>
+        <h1 style="color: #4f46e5; margin-top: 0;">Welcome to your Free Trial!</h1>
+        <p style="font-size: 16px; color: #374151; line-height: 1.5;">You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
+        <p style="font-size: 18px; color: #111827;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
+        <div style="margin-top: 32px; text-align: center;">
+          <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Run a Test Now</a>
         </div>
       `
     );
@@ -1707,19 +1729,13 @@ app.post('/api/admin/invite-user', async (req, res) => {
       email,
       'Your Product Shift Free Trial 🎟️',
       `
-        <div style="font-family: sans-serif; max-w-600px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <img src="https://app.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto;" />
-          </div>
-          <h1 style="color: #4f46e5;">You're in!</h1>
-          <p>You've been granted a free trial to Product Shift.</p>
-          <p style="font-size: 18px;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
-          <br/>
-          <a href="${linkData.properties.action_link}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Your Account</a>
-          <p style="margin-top: 20px; font-size: 12px; color: #666;">This secure link expires in 24 hours.</p>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-          <p style="font-size: 11px; color: #999; text-align: center;">Please do not reply to this email. This inbox is not monitored.</p>
+        <h1 style="color: #4f46e5; margin-top: 0;">You're in!</h1>
+        <p style="font-size: 16px; color: #374151; line-height: 1.5;">You've been granted a free trial to Product Shift.</p>
+        <p style="font-size: 18px; color: #111827;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
+        <div style="margin-top: 32px; text-align: center;">
+          <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
         </div>
+        <p style="margin-top: 24px; font-size: 14px; color: #6b7280; text-align: center;">This secure link expires in 24 hours.</p>
       `
     );
 
