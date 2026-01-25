@@ -49,13 +49,13 @@ const About = () => {
               </div>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  I’m Jean Kaluza, founder of The Product Shift where we still believe in technology for the good of ALL humans not just certain wallets. I’ve been a writer, speaker & consultant in the human-centered & Design Thinking space since 2010. The Product Shift provides **data-driven UX for HealthTech**, shifting products against data, not ego, solving problems through technology for clients as well as our own internal endeavors. My passion for **HealthTech product strategy** extends into MedTech as a Movement Health Researcher, UX/AI Innovator, and Founder of The Product Shift as well as FreeBrain. Our mission is to solve world problems through technology and we get as passionate as our clients do solving them. Our current project (FreeBrain), is a brain health app to support those with Parkinson’s and other neurological disorders.
+                  I’m Jean Kaluza, founder of The Product Shift. Since 2010, I’ve been a consultant in the human-centered Design Thinking space, believing in technology for the good of all. We provide <strong>data-driven UX for HealthTech</strong>, shifting products based on data, not ego. My passion for <strong>HealthTech product strategy</strong> extends to my role as a Movement Health Researcher and founder of FreeBrain, a brain health app for Parkinson’s support.
                 </p>
                 <p>
-                  We are currently accepting limited clients for Q1 of 2025, focusing on **UX research for HealthTech startups**, and currently seeking sponsorship for FreeBrain for its validation phase. Our extensive research expertise means you'll know your future customers better than they know themselves, converting them from hook, through conversion, and returning customers. We encourage our clients & partners to extend our insights across both marketing & product silos for the best results.
+                  We are accepting limited clients for Q1 2025, focusing on <strong>UX research for HealthTech startups</strong>, while seeking sponsorship for FreeBrain's validation phase. Our research expertise helps you understand customers better than they know themselves, driving conversion and retention. We encourage partners to apply these insights across both marketing and product silos.
                 </p>
                 <p>
-                  We deliver **patient-centric design** with data, not ego. Our goal is to build customized flywheels based metrics & real-world data that generates automated growth & success for years on end.  We're excited for both our projects and yours becoming part our next problem solving success story.
+                  We deliver <strong>patient-centric design</strong> backed by real-world metrics. Our goal is to build customized growth flywheels that generate automated success for years on end. We're excited to make your project our next success story.
                 </p>
               </div>
             </div>
