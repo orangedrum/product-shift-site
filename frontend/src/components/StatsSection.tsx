@@ -40,7 +40,7 @@ const AnimatedStat = ({ value, label, delay, color }: { value: string, label: st
 
   return (
     <div ref={ref} className="relative group">
-      <div className="relative z-10">
+      <div className="relative z-20">
         <div className="text-3xl font-bold text-gray-900 mb-2">
           {count}{suffix}
         </div>
@@ -48,7 +48,7 @@ const AnimatedStat = ({ value, label, delay, color }: { value: string, label: st
       </div>
       {/* Floating Orb 1 (Specific Color) */}
       <div 
-        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float z-0"
+        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-40 blur-xl animate-float z-10"
         style={{ 
           background: color,
           animationDelay: `${delay}s` 
@@ -56,7 +56,7 @@ const AnimatedStat = ({ value, label, delay, color }: { value: string, label: st
       ></div>
       {/* Floating Orb 2 (Marketing Gradient) */}
       <div 
-        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-20 blur-xl animate-float z-0 bg-marketing-gradient"
+        className="absolute inset-0 m-auto w-24 h-24 rounded-full opacity-40 blur-xl animate-float z-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
         style={{ 
           animationDelay: `${delay + 0.5}s` 
         }}
