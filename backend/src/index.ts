@@ -35,28 +35,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20',
 });
 
-<<<<<<< HEAD
 // --- Resend Initialization ---
-const emailFrom = process.env.EMAIL_FROM || 'onboarding@resend.dev';
-=======
 const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
->>>>>>> 0123bugs
 
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-<<<<<<< HEAD
-    'gemini-1.5-flash',        // Stable, production-ready
-    'gemini-2.0-flash',        // Newer, faster
-    'gemini-1.5-pro',          // Higher quality fallback
-    'gemini-1.5-flash-8b',     // Cost-effective fallback
-=======
     'gemini-1.5-flash-latest', // Often resolves to a newer, working build
     'gemini-1.5-flash',        // Standard alias
     'gemini-1.5-pro-latest',   // Try Pro latest
     'gemini-1.5-pro',          // Standard Pro
     'gemini-pro',              // Legacy 1.0 (Ultimate safety net)
->>>>>>> 0123bugs
   ];
 
   // Prepare image part if available
@@ -575,7 +564,6 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
     if (error) return res.status(500).json({ error: 'Failed to add credits' });
 
     // 4. Send Email via Resend
-<<<<<<< HEAD
     await sendEmail(
       email,
       'You\'ve got credits! 🎟️',
@@ -589,32 +577,6 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
         </div>
       `
     );
-=======
-    if (!resend) {
-      console.warn('Resend API key missing. Skipping email.');
-      return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
-    }
-
-    try {
-      await resend.emails.send({
-        from: emailFrom,
-        to: email,
-        subject: 'You\'ve got credits! 🎟️',
-        html: `
-          <div style="font-family: sans-serif; max-w-600px; margin: 0 auto;">
-            <h1 style="color: #4f46e5;">Welcome Backstage!</h1>
-            <p>You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
-            <p style="font-size: 18px;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
-            <br/>
-            <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Run a Test Now</a>
-          </div>
-        `
-      });
-    } catch (emailErr) {
-      console.error('Failed to send redemption email:', emailErr);
-      // Don't fail the request, just log it
-    }
->>>>>>> 0123bugs
 
     return res.json({ success: true, creditsAdded: creditsToAdd, message: `Redeemed! ${creditsToAdd} tests added to your account.` });
   }
