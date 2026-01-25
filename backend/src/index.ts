@@ -1709,22 +1709,10 @@ app.post('/api/admin/invite-user', async (req, res) => {
     if (linkError) throw linkError;
 
     // 3. Send Custom Email via Resend
-<<<<<<< HEAD
     await sendEmail(
       email,
       'Your Product Shift Backstage Pass 🎟️',
       `
-=======
-    if (!resend) {
-      return res.status(500).json({ error: 'Email service not configured (Missing Resend Key)' });
-    }
-
-    const { error: emailError } = await resend.emails.send({
-      from: emailFrom,
-      to: email,
-      subject: 'Your Product Shift Backstage Pass 🎟️',
-      html: `
->>>>>>> 0123bugs
         <div style="font-family: sans-serif; max-w-600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #4f46e5;">You're in!</h1>
           <p>You've been granted a backstage pass to Product Shift.</p>

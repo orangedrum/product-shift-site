@@ -128,7 +128,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     }
   };
 
-<<<<<<< HEAD
   const handleInviteUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setInviteLoading(true);
@@ -153,7 +152,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     } finally {
       setInviteLoading(false);
     }
-=======
+  };
+
   // Helper to categorize errors
   const getErrorType = (err: any) => {
     const msg = (err.error_message || '').toUpperCase();
@@ -170,7 +170,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     }
     // Default to System Error
     return { label: 'System Error', badgeClass: 'bg-red-100 text-red-800 border-red-200' };
->>>>>>> 0123bugs
   };
 
   // Helper to filter test users
