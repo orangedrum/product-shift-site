@@ -96,13 +96,6 @@ export const DemoSection = () => {
       if (!response.ok) throw data;
       setResult(data);
     } catch (err: any) {
-<<<<<<< HEAD
-      setError({
-        error: err.error || 'Analysis Failed',
-        details: err.details || err.message || 'An unexpected error occurred.',
-        usageCounted: err.usageCounted
-      });
-=======
       let displayError = {
         error: err.error || 'Analysis Failed',
         details: err.details || err.message || 'An unexpected error occurred.',
@@ -116,7 +109,6 @@ export const DemoSection = () => {
       }
 
       setError(displayError);
->>>>>>> 0123bugs
     } finally {
       setIsLoading(false);
     }

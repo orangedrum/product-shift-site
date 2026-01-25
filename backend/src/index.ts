@@ -1722,13 +1722,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
           <p style="margin-top: 20px; font-size: 12px; color: #666;">This secure link expires in 24 hours.</p>
         </div>
       `
-<<<<<<< HEAD
     );
-=======
-    });
-
-    if (emailError) throw emailError;
->>>>>>> 0123bugs
 
     res.json({ success: true, message: 'Invite sent successfully!' });
   } catch (e: any) {
