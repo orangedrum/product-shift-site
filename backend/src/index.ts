@@ -49,12 +49,9 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash-001',    // Pinned Version (Most Reliable)
-    'gemini-1.5-flash',        // Standard Alias
-    'gemini-1.5-pro-001',      // Pinned Version
-    'gemini-1.5-pro',          // Standard Alias
-    'gemini-1.0-pro',          // Pinned Legacy
-    'gemini-pro',              // Legacy Alias
+    'gemini-2.0-flash',        // Confirmed Available (Newer/Faster)
+    'gemini-flash-latest',     // Confirmed Available (Generic Alias)
+    'gemini-pro-latest',       // Confirmed Available (Generic Alias)
   ];
 
   // Prepare image part if available
