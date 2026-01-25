@@ -1689,11 +1689,14 @@ app.post('/api/admin/invite-user', async (req, res) => {
     if (dbError) throw dbError;
 
     // 2. Generate Magic Link via Supabase Admin
+    // We append the segment to the URL so the frontend can adapt the UI immediately upon arrival
+    const redirectUrl = `https://app.theproductshift.com/ai-powered-ux?new_credit=true&segment=${segment || 'tech'}`;
+
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: email,
       options: {
-        redirectTo: 'https://www.theproductshift.com/ai-powered-ux?new_credit=true' // Redirect straight to tool
+        redirectTo: redirectUrl
       }
     });
 
@@ -1705,12 +1708,17 @@ app.post('/api/admin/invite-user', async (req, res) => {
       'Your Product Shift Free Trial 🎟️',
       `
         <div style="font-family: sans-serif; max-w-600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <img src="https://app.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto;" />
+          </div>
           <h1 style="color: #4f46e5;">You're in!</h1>
           <p>You've been granted a free trial to Product Shift.</p>
           <p style="font-size: 18px;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
           <br/>
           <a href="${linkData.properties.action_link}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Access Your Account</a>
           <p style="margin-top: 20px; font-size: 12px; color: #666;">This secure link expires in 24 hours.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+          <p style="font-size: 11px; color: #999; text-align: center;">Please do not reply to this email. This inbox is not monitored.</p>
         </div>
       `
     );
