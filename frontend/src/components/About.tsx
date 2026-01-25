@@ -5,28 +5,28 @@ import { FeatureCard } from './FeatureCard';
 const achievements = [
   {
     icon: Pill,
-    title: "Movement Health Researcher",
-    description: "Expert in behavior-change products and human-centered design in complex health/neuro-tech applications"
+    title: "HealthTech Behavior Research",
+    description: <>Expert in <strong>HealthTech behavior change</strong> and human-centered design for neuro-tech applications.</>
   },
   {
     icon: Building,
-    title: "Enterprise Experience",
-    description: "Delivered solutions for Disney Parks & Resorts, Pluralsight, and leading SaaS companies"
+    title: "Enterprise UX Strategy",
+    description: <>Delivered <strong>enterprise UX solutions</strong> for Disney Parks & Resorts, Pluralsight, and leading SaaS companies.</>
   },
   {
     icon: Award,
-    title: "AI UX Expertise",
-    description: "Pioneer in the UX of AI as a consultant for JEMA and Dovetail platforms."
+    title: "AI-Driven UX Design",
+    description: <>Pioneer in <strong>AI-driven UX design</strong>, consulting for JEMA and Dovetail platforms.</>
   },
   {
     icon: Users,
-    title: "Startup Success",
-    description: "Helped 50+ startups across Silicon Valley and Dallas achieve successful product launches"
+    title: "Startup Growth Strategy",
+    description: <>Scaled 50+ <strong>HealthTech and SaaS startups</strong> across Silicon Valley and Dallas with successful product launches.</>
   },
   {
     icon: Zap,
-    title: "Data-Driven Results",
-    description: "Our critical research and analysis consistently delivers 300% average ROI improvements"
+    title: "ROI-Focused Research",
+    description: <>Our <strong>data-driven UX research</strong> consistently delivers 300% average ROI improvements.</>
   }
 ];
 
