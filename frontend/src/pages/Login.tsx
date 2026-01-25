@@ -20,6 +20,7 @@ const Login: React.FC = () => {
   const plan = searchParams.get('plan');
   const segment = searchParams.get('segment');
   const refCode = searchParams.get('ref');
+  const coupon = searchParams.get('coupon');
 
   // Set background gradient
   useEffect(() => {
@@ -158,6 +159,7 @@ const Login: React.FC = () => {
     if (plan) redirectParams.append('plan', plan);
     if (segment) redirectParams.append('segment', segment);
     if (refCode) redirectParams.append('ref', refCode);
+    if (coupon) redirectParams.append('coupon', coupon);
     
     const redirectTo = `${window.location.origin}/login?${redirectParams.toString()}`;
 
@@ -165,7 +167,7 @@ const Login: React.FC = () => {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, redirectTo })
+        body: JSON.stringify({ email, redirectTo, coupon })
       });
       
       const data = await response.json();

@@ -333,6 +333,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       const urlRef = searchParams.get('ref');
       const urlSegment = searchParams.get('segment');
       const urlNewCredit = searchParams.get('new_credit');
+      const urlCoupon = searchParams.get('coupon');
 
       if (urlNewCredit === 'true') {
         shouldAnimateOnMount.current = true;
@@ -356,6 +357,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
           }
         } catch (err) {
           console.error('Referral Claim Error:', err);
+        }
+      }
+
+      // 3b. Coupon Redemption (Priority)
+      if (urlCoupon) {
+        try {
+          const res = await fetch('/api/user/redeem-coupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentSession.user.email, code: urlCoupon })
+          });
+          const data = await res.json();
+          if (data.success) shouldAnimateOnMount.current = true;
+        } catch (err) {
+          console.error('Coupon Auto-Redeem Error:', err);
         }
       }
 
@@ -409,7 +425,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       }
 
       // 6. Clean URL (Once everything is processed)
-      if (urlRef || urlSegment || urlNewCredit) {
+      if (urlRef || urlSegment || urlNewCredit || urlCoupon) {
         setSearchParams({}, { replace: true });
       }
     };

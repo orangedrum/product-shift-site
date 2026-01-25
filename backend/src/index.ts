@@ -578,15 +578,14 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
 
   const normalizedCode = code.toUpperCase().trim();
   
-  // Hardcoded coupons for MVP (Smart Scavenger Model)
-  // In a real app, these would be in a database table 'coupons'
-  const COUPONS: Record<string, number> = {
-    'BACKSTAGE3': 3,  // Agency Offer
-    'SMBFREE1': 1,    // SMB Offer
-    'LAUNCHPARTY': 5  // Special Event
-  };
+  // 1. Lookup Coupon in DB
+  const { data: coupon } = await supabase
+    .from('coupons')
+    .select('credits')
+    .eq('code', normalizedCode)
+    .single();
 
-  if (COUPONS[normalizedCode]) {
+  if (coupon) {
     // 1. Check for previous redemption
     const { data: existing } = await supabase
       .from('coupon_redemptions')
@@ -599,7 +598,7 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
       return res.status(400).json({ error: 'You have already redeemed this coupon.' });
     }
 
-    const creditsToAdd = COUPONS[normalizedCode];
+    const creditsToAdd = coupon.credits;
     
     // 2. Log redemption (This will fail if unique constraint is violated, acting as a second lock)
     const { error: logError } = await supabase.from('coupon_redemptions').insert({ user_email: email, coupon_code: normalizedCode });
@@ -1746,19 +1745,43 @@ app.post('/api/admin/invite-user', async (req, res) => {
   }
 });
 
+// --- Admin Create Coupon Endpoint ---
+app.post('/api/admin/create-coupon', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { code, credits } = req.body;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { error } = await supabase.from('coupons').insert({ code: code.toUpperCase(), credits });
+  
+  if (error) return res.status(500).json({ error: error.message });
+  
+  res.json({ success: true, message: `Coupon ${code.toUpperCase()} created!` });
+});
+
 // --- Custom Auth Login Endpoint (Branded Magic Links) ---
 app.post('/api/auth/login', async (req, res) => {
-  const { email, redirectTo } = req.body;
+  const { email, redirectTo, coupon } = req.body;
   
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
   try {
+    // If a coupon is passed, append it to the redirect URL so it survives the email click
+    let finalRedirect = redirectTo || 'https://www.theproductshift.com/ai-powered-ux';
+    if (coupon) {
+      const separator = finalRedirect.includes('?') ? '&' : '?';
+      finalRedirect = `${finalRedirect}${separator}coupon=${coupon}`;
+    }
+
     // Generate Magic Link via Admin API
     const { data, error } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email,
       options: {
-        redirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux'
+        redirectTo: finalRedirect
       }
     });
 

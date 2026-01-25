@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -35,6 +35,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [inviteCredits, setInviteCredits] = useState(3);
   const [inviteSegment, setInviteSegment] = useState('tech');
   const [inviteLoading, setInviteLoading] = useState(false);
+
+  // Coupon State
+  const [couponCode, setCouponCode] = useState('');
+  const [couponCredits, setCouponCredits] = useState(5);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -152,6 +157,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       alert('Failed to send invite');
     } finally {
       setInviteLoading(false);
+    }
+  };
+
+  const handleCreateCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCouponLoading(true);
+    try {
+      const res = await fetch('/api/admin/create-coupon', {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${secretKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: couponCode, credits: couponCredits })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Success: ${data.message}\nLink: https://app.theproductshift.com/login?coupon=${couponCode.toUpperCase()}`);
+        setCouponCode('');
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      alert('Failed to create coupon');
+    } finally {
+      setCouponLoading(false);
     }
   };
 
@@ -273,8 +304,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         </NeoCard>
       </div>
 
-      {/* --- INVITE USER SECTION --- */}
-      <div className="mb-8">
+      {/* --- ACTIONS ROW --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div>
         <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Manual Invite</h3>
         <NeoCard title="Send Free Trial">
           <form onSubmit={handleInviteUser} className="flex flex-col md:flex-row gap-4 items-end">
@@ -316,6 +348,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             </div>
           </form>
         </NeoCard>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Tag size={20} /> Campaign Manager</h3>
+          <NeoCard title="Create Podcast/Event Code">
+            <form onSubmit={handleCreateCoupon} className="flex flex-col md:flex-row gap-4 items-end">
+              <div className="w-full md:w-1/2">
+                <label className="block text-sm font-bold mb-1">Coupon Code</label>
+                <input 
+                  type="text" 
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="w-full p-2 border-2 border-gray-300 rounded-lg uppercase"
+                  placeholder="e.g. PODCAST20"
+                  required
+                />
+              </div>
+              <div className="w-full md:w-1/4">
+                <label className="block text-sm font-bold mb-1">Credits</label>
+                <input type="number" value={couponCredits} onChange={(e) => setCouponCredits(parseInt(e.target.value))} className="w-full p-2 border-2 border-gray-300 rounded-lg" />
+              </div>
+              <div className="w-full md:w-1/4">
+                <NeoButton type="submit" className="w-full" disabled={couponLoading}>{couponLoading ? 'Saving...' : 'Create'}</NeoButton>
+              </div>
+            </form>
+          </NeoCard>
+        </div>
       </div>
 
       {/* --- FINANCIALS SECTION --- */}
