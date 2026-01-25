@@ -1,8 +1,13 @@
 import React from 'react';
-import { Building, Award, Users, Zap } from 'lucide-react';
+import { Building, Award, Users, Zap, PillBottle } from 'lucide-react';
 import { FeatureCard } from './FeatureCard';
 
 const achievements = [
+  {
+    icon: PillBottle,
+    title: "Movement Health Researcher",
+    description: "Expert in behavior-change products and human-centered design in complex health/neuro-tech applications"
+  },
   {
     icon: Building,
     title: "Enterprise Experience",
@@ -35,22 +40,22 @@ const About = () => {
             <div className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-xs font-medium text-gray-600 mb-4">
               About Product Shift
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              Thought Leadership in Growth & Strategy
-            </h2>
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Tech for the good of all, not just certain wallets
+            </h3>
             <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
               <div className="w-48 h-48 flex-shrink-0 mx-auto sm:mx-0 rounded-full overflow-hidden border-4 border-white ring-1 ring-brand-pink shadow-lg">
                 <img src="/jeankaluza.png" alt="Jean, Product Shift Lead" className="w-full h-full object-cover" />
               </div>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  I'm Jean, and I lead Product Shift in delivering data driven marketing strategy & product solutions. Our team has proven expertise in product & marketing strategy, media buying, and UX research methodologies that have transformed product & marketing strategies into the stratospheres of success. We're at the forefront of AI UX experience, helping companies leverage GenAI for unprecedented user insights and business growth.
+                  I/’m Jean Kaluza, founder of The Product Shift where we still believe in technology for the good of ALL humans not just certain wallets. I’ve been a writer, speaker & consultant in the human-centered & Design Thinking space since 2010. Productshift, shifts products against data, not ego, solving problems through technology for clients as well as our own internal endeavors. My passion for UX & product extends into the medTech as a Movement Health Researcher, UX/AI Innovator, and Founder The Product Shift as well as FreeBrain. Our mission is to solve world problems through technology and we get as passionate as our clients do solving them. Our current project (FreeBrain), is a brain health app to support those with Parkinson’s and other neurological disorders.
                 </p>
                 <p>
-                  Our extensive research expertise means you'll know your future customers better than they know themselves, converting them from hook, through conversion, and returning customers. We encourage our client's & partners to extend our insights across both marketing & product silos for the best results.
+                  We are currently accepting limited clients for Q1 of 2025, and currently seeking sponsorship FreeBrain for it's validation phase. Our extensive research expertise means you'll know your future customers better than they know themselves, converting them from hook, through conversion, and returning customers. We encourage our client's & partners to extend our insights across both marketing & product silos for the best results.
                 </p>
                 <p>
-                  Our goal is to build customized flywheels based metrics & real-world data that generates automated growth & success for years un-end.
+                  We design with data, not ego. Our goal is to build customized flywheels based metrics & real-world data that generates automated growth & success for years un-end.  We're excited for both our projects and yours becoming part our next problem solving success story.
                 </p>
               </div>
             </div>
