@@ -1724,6 +1724,9 @@ app.post('/api/admin/invite-user', async (req, res) => {
 
     if (linkError) throw linkError;
 
+    // FIX: Force correct domain if Supabase is configured with the old one
+    const actionLink = linkData.properties.action_link.replace('app.theproductshift.com', 'www.theproductshift.com');
+
     // 3. Send Custom Email via Resend
     await sendEmail(
       email,
@@ -1734,7 +1737,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
         <p style="font-size: 18px; color: #111827;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
         ${duration ? `<p style="font-size: 14px; color: #dc2626; font-weight: bold;">Note: This trial expires in ${duration}.</p>` : ''}
         <div style="margin-top: 32px; text-align: center;">
-          <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
+          <a href="${actionLink}" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
         </div>
         <p style="margin-top: 24px; font-size: 14px; color: #6b7280; text-align: center;">This secure link expires in 24 hours.</p>
       `
@@ -1772,6 +1775,43 @@ app.post('/api/admin/compensate-user', async (req, res) => {
       `
     );
     res.json({ success: true });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// --- Admin Diagnostic Endpoint ---
+app.get('/api/admin/diagnose-link', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: 'diagnostic@test.com',
+      options: {
+        redirectTo: 'https://www.theproductshift.com/diagnostic-redirect'
+      }
+    });
+
+    if (linkError) throw linkError;
+
+    const rawLink = linkData.properties.action_link;
+    const isCorrect = !rawLink.includes('app.theproductshift.com');
+
+    res.json({
+      message: "This is the raw link Supabase generates based on its 'Site URL' setting.",
+      raw_action_link: rawLink,
+      is_configured_correctly: isCorrect,
+      recommendation: isCorrect
+        ? "Supabase 'Site URL' appears to be correct. No action needed."
+        : "Supabase 'Site URL' is incorrect. It should be updated to 'https://www.theproductshift.com' in your Supabase project settings under Auth -> URL Configuration. Our backend code is currently fixing this manually."
+    });
+
   } catch (e: any) {
     res.status(500).json({ error: e.message });
   }
@@ -1855,7 +1895,8 @@ app.post('/api/auth/login', async (req, res) => {
     if (error) throw error;
 
     // Send Branded Email
-    const magicLink = data.properties.action_link;
+    // FIX: Force correct domain if Supabase is configured with the old one
+    const magicLink = data.properties.action_link.replace('app.theproductshift.com', 'www.theproductshift.com');
     
     await sendEmail(
       email,
