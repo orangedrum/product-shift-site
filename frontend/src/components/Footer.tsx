@@ -46,17 +46,17 @@ const Footer = () => {
     { name: 'Agency Partnerships', href: '#' },
   ];
   const specializations = [
-    'UX Researcher',
-    'User Experience Researcher',
-    'UX Research',
+    'Data-Driven UX',
+    'HealthTech UX',
+    'MedTech Product Design',
+    'Patient-Centric Design',
+    'AI-Driven Research',
+    'Behavioral Science',
+    'Clinical UX',
+    'Rapid Prototyping',
     'User Research',
     'Usability Testing',
-    'User Interviews',
-    'Surveys',
-    'A/B Testing',
-    'Ethnographic Research',
-    'GenAI',
-    'AI UX',
+    'GenAI Strategy',
     'Design Sprints',
   ];
   const socialLinks = [
