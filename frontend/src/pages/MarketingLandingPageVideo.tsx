@@ -501,7 +501,7 @@ const MarketingLandingPageVideo: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', `https://app.theproductshift.com/${CONFIG.urlSlug}`);
+    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
 
     const scriptId = 'json-ld-marketing-video';
     document.getElementById(scriptId)?.remove();
@@ -525,7 +525,7 @@ const MarketingLandingPageVideo: React.FC = () => {
           "name": "Product Shift AI UX Demo for Product Teams",
           "description": "See how Product Shift's AI provides instant usability feedback for product teams and UX professionals.",
           "uploadDate": "2024-01-21T08:00:00+00:00",
-          "thumbnailUrl": "https://app.theproductshift.com/video-thumbnail.jpg",
+          "thumbnailUrl": "https://www.theproductshift.com/video-thumbnail.jpg",
           "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
           "duration": "PT1M30S"
         },

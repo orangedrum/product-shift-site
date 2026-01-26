@@ -536,7 +536,7 @@ const RealtorLandingPageVideo: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', `https://app.theproductshift.com/${CONFIG.urlSlug}`);
+    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
 
     // Add Open Graph Tags for Social SEO
     const setMeta = (attr: string, key: string, content: string) => {
@@ -551,14 +551,14 @@ const RealtorLandingPageVideo: React.FC = () => {
     
     setMeta('property', 'og:title', CONFIG.pageTitle);
     setMeta('property', 'og:description', CONFIG.metaDescription);
-    setMeta('property', 'og:url', `https://app.theproductshift.com/${CONFIG.urlSlug}`);
+    setMeta('property', 'og:url', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
     setMeta('property', 'og:type', 'website');
-    setMeta('property', 'og:image', 'https://app.theproductshift.com/social-share.png');
+    setMeta('property', 'og:image', 'https://www.theproductshift.com/social-share.png');
 
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:title', CONFIG.pageTitle);
     setMeta('name', 'twitter:description', CONFIG.metaDescription);
-    setMeta('name', 'twitter:image', 'https://app.theproductshift.com/social-share.png');
+    setMeta('name', 'twitter:image', 'https://www.theproductshift.com/social-share.png');
 
     // Add JSON-LD Structured Data
     const scriptId = 'json-ld-realtor-video';
@@ -583,7 +583,7 @@ const RealtorLandingPageVideo: React.FC = () => {
             "name": "Product Shift AI UX Demo for Realtors",
             "description": "See how Product Shift's AI provides instant usability feedback for realtor websites.",
             "uploadDate": "2024-01-21T08:00:00+00:00",
-            "thumbnailUrl": "https://app.theproductshift.com/video-thumbnail.jpg",
+            "thumbnailUrl": "https://www.theproductshift.com/video-thumbnail.jpg",
             "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
             "duration": "PT1M30S"
           },

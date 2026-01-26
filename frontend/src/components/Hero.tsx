@@ -82,13 +82,15 @@ const Hero: React.FC<HeroProps> = ({
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up justify-center lg:justify-start">
-              <button 
-                onClick={scrollToContact}
-                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-transform transform hover:scale-105"
+              <a 
+                href="https://calendly.com/jean-kaluza/app-idea-day-1-facilitation-clone"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-transform transform hover:scale-105"
               >
                 Book Free Consultation
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </button>
+              </a>
               
               <button 
                 onClick={scrollToServices}

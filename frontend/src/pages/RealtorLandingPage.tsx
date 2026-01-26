@@ -530,7 +530,7 @@ const RealtorLandingPage: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', `https://app.theproductshift.com/${CONFIG.urlSlug}`);
+    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
 
     // Add Open Graph Tags for Social SEO
     const setMeta = (attr: string, key: string, content: string) => {
@@ -545,14 +545,14 @@ const RealtorLandingPage: React.FC = () => {
     
     setMeta('property', 'og:title', CONFIG.pageTitle);
     setMeta('property', 'og:description', CONFIG.metaDescription);
-    setMeta('property', 'og:url', `https://app.theproductshift.com/${CONFIG.urlSlug}`);
+    setMeta('property', 'og:url', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
     setMeta('property', 'og:type', 'website');
-    setMeta('property', 'og:image', 'https://app.theproductshift.com/social-share.png');
+    setMeta('property', 'og:image', 'https://www.theproductshift.com/social-share.png');
 
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:title', CONFIG.pageTitle);
     setMeta('name', 'twitter:description', CONFIG.metaDescription);
-    setMeta('name', 'twitter:image', 'https://app.theproductshift.com/social-share.png');
+    setMeta('name', 'twitter:image', 'https://www.theproductshift.com/social-share.png');
 
     // Add JSON-LD Structured Data
     const scriptId = 'json-ld-software-app';
@@ -574,7 +574,7 @@ const RealtorLandingPage: React.FC = () => {
             "offeredBy": {
               "@type": "Organization",
               "name": "Product Shift",
-              "url": "https://app.theproductshift.com"
+              "url": "https://www.theproductshift.com"
             }
           }
         ]

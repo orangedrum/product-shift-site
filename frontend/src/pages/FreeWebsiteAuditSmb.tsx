@@ -554,7 +554,7 @@ const FreeWebsiteAuditSmb: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', 'https://app.theproductshift.com/free-website-audit-for-small-business'); // Strictly enforces HTTPS and the correct subdomain
+    canonical.setAttribute('href', 'https://www.theproductshift.com/free-website-audit-for-small-business'); // Strictly enforces HTTPS and the correct subdomain
 
     // Add Open Graph Tags for Social SEO (Facebook, LinkedIn, Twitter)
     const setMeta = (attr: string, key: string, content: string) => {
@@ -570,15 +570,15 @@ const FreeWebsiteAuditSmb: React.FC = () => {
     // Open Graph (Facebook/LinkedIn)
     setMeta('property', 'og:title', 'Free Website Audit for Small Business');
     setMeta('property', 'og:description', 'Stop losing customers. Get an instant AI website audit based on industry usability standards.');
-    setMeta('property', 'og:url', 'https://app.theproductshift.com/free-website-audit-for-small-business');
+    setMeta('property', 'og:url', 'https://www.theproductshift.com/free-website-audit-for-small-business');
     setMeta('property', 'og:type', 'website');
-    setMeta('property', 'og:image', 'https://app.theproductshift.com/social-share.png'); // Ensure this file exists in public/
+    setMeta('property', 'og:image', 'https://www.theproductshift.com/social-share.png'); // Ensure this file exists in public/
 
     // Twitter Card
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:title', 'Free Website Audit for Small Business');
     setMeta('name', 'twitter:description', 'Stop losing customers. Get an instant AI website audit.');
-    setMeta('name', 'twitter:image', 'https://app.theproductshift.com/social-share.png');
+    setMeta('name', 'twitter:image', 'https://www.theproductshift.com/social-share.png');
 
     // Add JSON-LD Structured Data for SoftwareApplication
     const scriptId = 'json-ld-smb-audit';
@@ -601,7 +601,7 @@ const FreeWebsiteAuditSmb: React.FC = () => {
             "offeredBy": {
               "@type": "Organization",
               "name": "Product Shift",
-              "url": "https://product-shift-site.vercel.app"
+              "url": "https://www.theproductshift.com"
             }
           },
           {
@@ -609,7 +609,7 @@ const FreeWebsiteAuditSmb: React.FC = () => {
             "name": "Product Shift AI Website Audit Demo",
             "description": "See how Product Shift's AI provides instant usability feedback for small business websites.",
             "uploadDate": "2024-01-21T08:00:00+00:00",
-            "thumbnailUrl": "https://app.theproductshift.com/video-thumbnail.jpg",
+            "thumbnailUrl": "https://www.theproductshift.com/video-thumbnail.jpg",
             "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
             "duration": "PT1M30S"
           },

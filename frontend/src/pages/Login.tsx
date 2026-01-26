@@ -161,7 +161,8 @@ const Login: React.FC = () => {
     if (refCode) redirectParams.append('ref', refCode);
     if (coupon) redirectParams.append('coupon', coupon);
     
-    const redirectTo = `${window.location.origin}/login?${redirectParams.toString()}`;
+    const origin = window.location.hostname.includes('localhost') ? window.location.origin : 'https://www.theproductshift.com';
+    const redirectTo = `${origin}/login?${redirectParams.toString()}`;
 
     try {
       const response = await fetch('/api/auth/login', {
