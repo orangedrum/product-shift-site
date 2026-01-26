@@ -308,7 +308,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-          <span className="hidden md:inline-flex items-center gap-1 px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-medium text-gray-500" title="Your visits are not counted in Google Analytics">
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-medium text-gray-500" title="Your visits are not counted in Google Analytics">
             <EyeOff size={12} /> SEO Tracking Disabled
           </span>
         </div>

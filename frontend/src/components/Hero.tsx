@@ -48,6 +48,13 @@ const Hero: React.FC<HeroProps> = ({
     }
   };
 
+  const scrollToContact = () => {
+    const element = document.getElementById('contact');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -75,15 +82,13 @@ const Hero: React.FC<HeroProps> = ({
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up justify-center lg:justify-start">
-              <a 
-                href="https://calendly.com/jean-kaluza/media-buyer-op" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              <button 
+                onClick={scrollToContact}
+                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-transform transform hover:scale-105"
               >
                 Book Free Consultation
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+              </button>
               
               <button 
                 onClick={scrollToServices}
