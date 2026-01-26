@@ -131,8 +131,8 @@ const ProductLab = () => {
             <SpeechBubble 
               imageSrc="https://api.dicebear.com/7.x/notionists/svg?seed=Sarah"
               name="Sarah"
-              role="Product Manager"
-              quote="I used to guess for weeks until we could get real feedback from real humans. Now we can use synthesized tests whenever we need them. Instantly!"
+              role="Freelancer"
+              quote="Our budget rarely afforded testing with real humans. Now we can use synthesized tests whenever we need them. Instantly!"
               mood="positive"
             />
           </div>
