@@ -847,7 +847,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
   // --- TEST MODE LOGIC (MOVED TO TOP) ---
   // We check this immediately to bypass all other logic (DB, Credits, AI) for test URLs.
-  if (url.toLowerCase().includes('test-mode')) {
+  // Expanded to catch common typos like "test-demo"
+  if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
     console.log('--- RUNNING IN TEST MODE (Bypass Engaged) ---');
 
     // DEDUCT CREDIT IF APPLICABLE (Even for test mode, to verify flow)
