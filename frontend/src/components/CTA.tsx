@@ -17,7 +17,7 @@ const CTA = () => {
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/95 backdrop-blur-sm border border-white/20 shadow-2xl rounded-2xl p-8 md:p-12 text-center">
             <div className="inline-block mb-6 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-sm font-medium">
-              Ready to Transform Your Strategy?
+              Ready to Transform Your HealthTech Strategy?
             </div>
             
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
@@ -25,7 +25,7 @@ const CTA = () => {
             </h2>
             
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Discover how Product Shift's UX research can deliver real data that transforms your product launches and drives marketing ROI growth.
+              Discover how Product Shift's data-driven UX for HealthTech can deliver real insights that transform your product launches and drive patient engagement.
             </p>
 
             {/* Benefits Grid */}

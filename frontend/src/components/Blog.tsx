@@ -54,11 +54,11 @@ const Blog = () => {
             Latest Insights
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-            Thought Leadership in AI & UX
+            Thought Leadership in HealthTech UX & AI
           </h2>
           <p className="text-xl text-gray-500 max-w-3xl mx-auto">
-            Stay ahead of the curve with our latest insights on AI-powered UX research, 
-            GenAI integration, and the future of user experience design.
+            Stay ahead of the curve with our latest insights on data-driven UX for HealthTech, 
+            AI-powered research, and the future of patient-centric design.
           </p>
         </div>
 

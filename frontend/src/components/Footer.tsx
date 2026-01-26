@@ -83,7 +83,7 @@ const Footer = () => {
               </a>
             </div>
             <p className="text-sm text-gray-500">
-              Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond.
+              Partner with Product Shift to leverage data-driven UX for HealthTech to level-up your market strategy & deliver predictable successful launches. Trusted by Disney Parks & Resorts, Pluralsight and MedTech start-ups across Silicon Valley, Dallas and beyond.
             </p>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (

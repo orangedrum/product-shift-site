@@ -22,10 +22,10 @@ const AgencyPartner = () => {
       <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
         <MarketingCard>
           <h3 className="text-2xl font-bold text-gray-800 leading-8 mb-4">
-            The Perfect Partner for Agencies & Health Tech Startups
+            The Perfect Partner for HealthTech Startups & Agencies
           </h3>
           <p className="text-gray-500 leading-6 mb-6 max-w-3xl mx-auto">
-            Enhance your agency's offerings with our specialized UX research and AI expertise. We seamlessly integrate with your existing client relationships to deliver exceptional results.
+            Enhance your offerings with our specialized data-driven UX for HealthTech. We seamlessly integrate with your existing client relationships to deliver exceptional clinical and commercial results.
           </p>
           <div className="flex flex-wrap justify-center gap-2 mb-12">
             {tags.map(tag => <span key={tag} className="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full border border-gray-200">{tag}</span>)}

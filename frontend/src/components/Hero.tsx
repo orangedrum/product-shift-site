@@ -10,11 +10,11 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({
-  title = "Turn UX Research Into",
-  subtitle = <span className="bg-marketing-gradient bg-clip-text text-transparent"> Higher ROIs</span>,
-  description = "Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond",
+  title = "Data-Driven UX for",
+  subtitle = <span className="bg-marketing-gradient bg-clip-text text-transparent"> HealthTech Growth</span>,
+  description = "Partner with Product Shift to leverage proven UX research to level-up your HealthTech market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and MedTech start-ups across Silicon Valley, Dallas and beyond",
   imageSrc = "/hero-image.png",
-  badgeText = "Growth, AI UX, & Marketing Strategy Expert"
+  badgeText = "HealthTech Growth, AI UX, & Strategy Expert"
 }) => {
   const scrollToServices = () => {
     const element = document.getElementById('services');
