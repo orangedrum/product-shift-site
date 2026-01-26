@@ -132,7 +132,7 @@ const ProductLab = () => {
               imageSrc="https://api.dicebear.com/7.x/notionists/svg?seed=Sarah"
               name="Sarah"
               role="Product Manager"
-              quote="I used to wait weeks for user feedback. Now I get it in minutes. This tool is a game changer!"
+              quote="I used to guess for weeks until we could get real feedback from real humans. Now we can use synthesized tests whenever we need them. Instantly!"
               mood="positive"
             />
           </div>

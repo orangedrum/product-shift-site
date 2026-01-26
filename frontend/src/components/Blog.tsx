@@ -155,6 +155,12 @@ const Blog = () => {
                 Visit Our Medium
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
+              <a 
+                href="https://dovetail.com/contributors/jean-kaluza/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-100 shadow-sm"
+              >My Work on Dovetail</a>
             </div>
           </div>
         </div>
