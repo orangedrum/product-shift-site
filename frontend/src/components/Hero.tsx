@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Brain, TrendingUp, Users } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 interface HeroProps {
   title?: React.ReactNode;
@@ -16,6 +17,30 @@ const Hero: React.FC<HeroProps> = ({
   imageSrc = "/hero-image.png",
   badgeText = "HealthTech Growth, AI UX, & Strategy Expert"
 }) => {
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Product Shift",
+    "image": "https://www.theproductshift.com/logo.png",
+    "url": "https://www.theproductshift.com/",
+    "description": "Product Shift provides data-driven UX for HealthTech, helping startups and enterprises build successful digital health products through patient-centric research and AI-powered strategy.",
+    "founder": {
+      "@type": "Person",
+      "name": "Jean Kaluza"
+    },
+    "knowsAbout": [
+      { "@type": "Thing", "name": "HealthTech" },
+      { "@type": "Thing", "name": "MedTech" },
+      { "@type": "Thing", "name": "User Experience (UX) Research" },
+      { "@type": "Thing", "name": "AI-driven Product Strategy" },
+      { "@type": "Thing", "name": "Patient-Centric Design" }
+    ],
+    "areaServed": {
+      "@type": "Country",
+      "name": "USA"
+    }
+  };
+
   const scrollToServices = () => {
     const element = document.getElementById('services');
     if (element) {
@@ -24,6 +49,13 @@ const Hero: React.FC<HeroProps> = ({
   };
 
   return (
+    <>
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      </Helmet>
+
     <section className="pt-24 pb-12 md:pt-16 md:pb-20 bg-gradient-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -102,6 +134,7 @@ const Hero: React.FC<HeroProps> = ({
         </div>
       </div>
     </section>
+    </>
   );
 };
 
