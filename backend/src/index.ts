@@ -125,7 +125,7 @@ const getEmailTemplate = (content: string) => `
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 40px 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
     <div style="text-align: center; margin-bottom: 32px;">
-      <img src="https://app.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto;" />
+      <img src="https://www.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto;" />
     </div>
     ${content}
     <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 32px 0;" />
@@ -214,7 +214,7 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
   let footerContent = `
     ---
     **The Product Shift** | AI-Powered UX Audits
-    Get your own report at product-shift-site.vercel.app/landingpg-aiuxagent
+    Get your own report at www.theproductshift.com/landingpg-aiuxagent
   `;
 
   if (isDemo) {
@@ -222,7 +222,7 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     ---
     **Ready for more?** Unlock the full potential of AI-powered UX research.
     Use code **EARLYBIRD30** for 30% off your first month of Pro.
-    Upgrade Now at product-shift-site.vercel.app/landingpg-aiuxagent
+    Upgrade Now at www.theproductshift.com/landingpg-aiuxagent
     `;
   }
   const prompt = `
@@ -1712,7 +1712,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
 
     // 2. Generate Magic Link via Supabase Admin
     // We append the segment to the URL so the frontend can adapt the UI immediately upon arrival
-    const redirectUrl = `https://app.theproductshift.com/ai-powered-ux?new_credit=true&segment=${segment || 'tech'}`;
+    const redirectUrl = `https://www.theproductshift.com/ai-powered-ux?new_credit=true&segment=${segment || 'tech'}`;
 
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',

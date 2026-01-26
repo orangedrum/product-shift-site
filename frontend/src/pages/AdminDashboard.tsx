@@ -186,7 +186,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       });
       const data = await res.json();
       if (res.ok) {
-        setNewCouponLink(`https://app.theproductshift.com/login?coupon=${couponCode.toUpperCase()}`);
+        setNewCouponLink(`https://www.theproductshift.com/login?coupon=${couponCode.toUpperCase()}`);
         setCouponCode('');
         // Refresh list
         const couponRes = await fetch('/api/admin/coupons', {

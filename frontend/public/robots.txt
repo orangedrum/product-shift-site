@@ -1,11 +1,4 @@
 User-agent: *
 Allow: /
 
-# Explicitly allow AI bots for better visibility in AI search results (Perplexity, ChatGPT, Gemini)
-User-agent: GPTBot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
 Sitemap: https://www.theproductshift.com/sitemap.xml
