@@ -4,40 +4,40 @@ import { Megaphone, Search, Brain, Zap, Target, TestTube, ArrowRight } from 'luc
 const services = [
   {
     icon: Megaphone,
-    title: "Media Buying",
-    description: "Strategic advertising campaigns that convert based on user research insights",
-    features: ["Targeted Campaigns", "Performance Marketing", "ROI Optimization", "Multi-Platform"],
+    title: "Strategic Media Buying",
+    description: "Data-backed advertising campaigns that target high-value patients and providers.",
+    features: ["Patient Targeting", "Performance Marketing", "ROI Optimization", "Multi-Platform"],
     url: "https://www.fiverr.com/s/EgxKZwY"
   },
   {
     icon: Search,
-    title: "UX Research",
-    description: "Deep user insights through ethnographic research, usability testing, and user interviews",
-    features: ["User Interviews", "Usability Testing", "Ethnographic Research", "Surveys & Analytics"]
+    title: "HealthTech UX Research",
+    description: "Deep insights into patient behavior through ethnographic research and usability testing.",
+    features: ["Patient Interviews", "Clinical Usability", "Ethnographic Research", "Behavioral Analytics"]
   },
   {
     icon: Brain,
-    title: "GenAI Expertise",
-    description: "Cutting-edge GenAI integration for enhanced user experiences and data-driven insights",
+    title: "AI-Driven Product Strategy",
+    description: "Integrating GenAI to personalize patient experiences and automate clinical workflows.",
     features: ["GenAI UX Design", "AI User Testing", "Automated Research", "ML-Driven Insights"]
   },
   {
     icon: Zap,
-    title: "Design Sprints",
-    description: "Rapid prototyping and validation to accelerate your product development cycle",
-    features: ["5-Day Sprints", "Rapid Prototyping", "User Validation", "Concept Testing"]
+    title: "Rapid MedTech Prototyping",
+    description: "Validate digital health concepts in 5 days before committing to expensive code.",
+    features: ["5-Day Sprints", "Rapid Prototyping", "Clinical Validation", "Concept Testing"]
   },
   {
     icon: Target,
-    title: "Customer Personas",
-    description: "Data-driven market positioning and go-to-market strategies for successful launches",
+    title: "Patient & Provider Personas",
+    description: "Data-driven profiles for complex healthcare ecosystems and GTM strategies.",
     features: ["Market Research", "Positioning Strategy", "Competitor Analysis", "Launch Planning"],
     url: "https://www.fiverr.com/s/jjW7aXa"
   },
   {
     icon: TestTube,
-    title: "A/B Testing",
-    description: "Optimize conversion rates through systematic experimentation and data analysis",
+    title: "Conversion Rate Optimization",
+    description: "Systematic experimentation to improve patient engagement and enrollment rates.",
     features: ["Conversion Testing", "Statistical Analysis", "Performance Metrics", "Optimization"]
   }
 ];
@@ -50,10 +50,9 @@ const CoreServices = () => {
           <div className="inline-flex items-center px-3 py-1 rounded-full border border-gray-200 bg-white text-xs font-medium text-gray-600 mb-4">
             Our Services
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Complete Growth & Strategy Solutions</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Specialized Growth for Digital Health</h2>
           <p className="text-xl text-gray-500 max-w-3xl mx-auto">
-            From initial research to successful launch, we provide end-to-end growth strategies that drive results. 
-            Perfect for agencies looking to expand their offerings or marketing teams hungry for high ROIs.
+            From clinical validation to market launch, we provide end-to-end strategies for HealthTech startups and enterprise healthcare organizations.
           </p>
         </div>
 

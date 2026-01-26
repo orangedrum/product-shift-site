@@ -41,7 +41,7 @@ const About = () => {
               About Product Shift
             </div>
             <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              Tech for the good of all, not just certain wallets
+              <span className="bg-marketing-gradient bg-clip-text text-transparent">Tech for the good of all,</span> not just certain wallets
             </h3>
             <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
               <div className="w-48 h-48 flex-shrink-0 mx-auto sm:mx-0 rounded-full overflow-hidden border-4 border-white ring-1 ring-brand-pink shadow-lg">
@@ -57,6 +57,16 @@ const About = () => {
                 <p>
                   We deliver <strong>patient-centric design</strong> backed by real-world metrics. Our goal is to build customized growth flywheels that generate automated success for years on end. We're excited to make your project our next success story.
                 </p>
+                <div className="mt-6">
+                  <a 
+                    href="https://calendly.com/jean-kaluza/app-idea-day-1-facilitation-clone" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-bold text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                  >
+                    Free Consultation
+                  </a>
+                </div>
               </div>
             </div>
           </div>
