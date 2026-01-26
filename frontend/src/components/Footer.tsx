@@ -27,17 +27,18 @@ const Footer = () => {
     'Agency Partners',
   ];
   const serviceLinks = [
-    { name: 'UX Research', href: '#services' },
-    { name: 'AI-Powered Design Sprints', href: '#services' },
-    { name: 'Market Strategy', href: '#services' },
-    { name: 'A/B Testing', href: '#services' },
-    { name: 'Media Buying', href: '#services' },
+    { name: 'Strategic Media Buying', href: '#services' },
+    { name: 'HealthTech UX Research', href: '#services' },
+    { name: 'AI-Driven Product Strategy', href: '#services' },
+    { name: 'Rapid MedTech Prototyping', href: '#services' },
+    { name: 'Patient & Provider Personas', href: '#services' },
+    { name: 'Conversion Rate Optimization', href: '#services' },
   ];
   const companyLinks = [
     { name: 'About', href: '#about' },
     { name: 'Blog', href: '#blog' },
     { name: 'Products', href: '#products' },
-    { name: 'Contact', href: 'https://calendly.com/jean-kaluza/media-buyer-op' },
+    { name: 'Contact', href: '#contact' },
   ];
   const resourceLinks = [
     { name: 'Medium Blog', href: '#' },

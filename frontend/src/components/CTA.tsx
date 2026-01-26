@@ -12,7 +12,7 @@ const CTA = () => {
   };
 
   return (
-    <section className="py-20 bg-marketing-gradient">
+    <section id="contact" className="py-20 bg-marketing-gradient">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/95 backdrop-blur-sm border border-white/20 shadow-2xl rounded-2xl p-8 md:p-12 text-center">
