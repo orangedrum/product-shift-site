@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake, Palette, EyeOff } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 
@@ -305,14 +306,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-        <button 
-          onClick={() => setHideTestUsers(!hideTestUsers)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold transition-all ${hideTestUsers ? 'bg-indigo-100 border-indigo-600 text-indigo-800' : 'bg-white border-gray-300 text-gray-600'}`}
-        >
-          <Filter size={16} />
-          {hideTestUsers ? 'Test Data Hidden' : 'Show All Data'}
-        </button>
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-bold">Admin Dashboard</h2>
+          <span className="hidden md:inline-flex items-center gap-1 px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-medium text-gray-500" title="Your visits are not counted in Google Analytics">
+            <EyeOff size={12} /> SEO Tracking Disabled
+          </span>
+        </div>
+        <div className="flex gap-3">
+          <Link to="/styleguide">
+            <NeoButton variant="secondary" icon={<Palette size={16} />}>Style Guide</NeoButton>
+          </Link>
+          <button 
+            onClick={() => setHideTestUsers(!hideTestUsers)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold transition-all ${hideTestUsers ? 'bg-indigo-100 border-indigo-600 text-indigo-800' : 'bg-white border-gray-300 text-gray-600'}`}
+          >
+            <Filter size={16} />
+            {hideTestUsers ? 'Test Data Hidden' : 'Show All Data'}
+          </button>
+        </div>
       </div>
 
       {/* --- TOP METRICS ROW --- */}
