@@ -302,12 +302,12 @@ const StyleGuide: React.FC = () => {
               <h2 className="text-2xl font-bold text-black mb-4">Marketing Buttons</h2>
               <div className="flex flex-wrap gap-4 items-center bg-white p-6 rounded-lg border border-gray-200">
                   {/* Primary Gradient (Lovable Style) */}
-                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                    Primary Gradient
+                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-black hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    Primary (Black)
                   </button>
                   
                   {/* Primary Solid */}
-                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105">
+                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-transform transform hover:scale-105">
                     Primary Solid
                   </button>
                   
@@ -454,6 +454,7 @@ const StyleGuide: React.FC = () => {
           <NeoCard title="NeoButton Components">
             <div className="flex flex-wrap gap-4 items-center">
               <NeoButton variant="primary">Primary Action</NeoButton>
+              <NeoButton variant="tertiary">Tertiary Action</NeoButton>
               <NeoButton variant="secondary">Secondary Action</NeoButton>
               <NeoButton variant="danger">Danger Zone</NeoButton>
               <NeoButton variant="ghost">Ghost Button</NeoButton>

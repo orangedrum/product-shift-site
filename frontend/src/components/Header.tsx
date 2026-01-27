@@ -122,7 +122,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
               <>
                 <button 
                   onClick={() => navigate('/agency-user-testing')}
-                  className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient shadow-sm transition-transform transform hover:scale-105 hover:shadow-md mr-4"
+                  className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-black shadow-sm transition-transform transform hover:scale-105 hover:shadow-md mr-4"
                 >
                   Try Our Demo
                 </button>
@@ -178,7 +178,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
               <div className="space-y-3">
                 <button 
                   onClick={() => navigate('/agency-user-testing')}
-                  className="w-full h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient shadow-sm transition-transform transform hover:scale-105"
+                  className="w-full h-11 rounded-md px-8 text-sm font-medium text-white bg-black shadow-sm transition-transform transform hover:scale-105"
                 >
                   Try Our Demo
                 </button>

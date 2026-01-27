@@ -1931,7 +1931,23 @@ app.post('/api/auth/login', async (req, res) => {
       password: Math.random().toString(36).slice(-12) + 'Aa1!', // Random strong password
       user_metadata: { source: 'magic_link_flow' }
     });
-    // We ignore 'User already registered' errors, as that's the happy path for returning users.
+    
+    // 2. Handle Existing Users: Ensure they are confirmed
+    // If createUser failed, it means they exist. They might be unconfirmed (triggering default emails).
+    if (createError) {
+      // Fetch the user to check status
+      const { data: { users } } = await supabase.auth.admin.listUsers();
+      const existingUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+      
+      if (existingUser && !existingUser.email_confirmed_at) {
+        console.log(`⚠️ User ${email} exists but is unconfirmed. Force confirming...`);
+        const { error: updateError } = await supabase.auth.admin.updateUserById(existingUser.id, {
+          email_confirm: true
+        });
+        if (updateError) console.error('Failed to force confirm user:', updateError);
+        else console.log(`✅ User ${email} force confirmed.`);
+      }
+    }
 
     // If a coupon is passed, append it to the redirect URL so it survives the email click
     let finalRedirect = redirectTo || 'https://www.theproductshift.com/ai-powered-ux';
