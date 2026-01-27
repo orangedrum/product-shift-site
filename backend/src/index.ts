@@ -117,19 +117,23 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 // --- Email Template Helper ---
 const getEmailTemplate = (content: string) => `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Shift</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 40px 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
     <div style="text-align: center; margin-bottom: 32px;">
-      <img src="https://www.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto;" />
+      <a href="https://www.theproductshift.com">
+        <img src="https://www.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
+      </a>
     </div>
     ${content}
     <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 32px 0;" />
-    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">Please do not reply to this email. This inbox is not monitored.</p>
+    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0 0 8px 0;">&copy; ${new Date().getFullYear()} Product Shift. All rights reserved.</p>
+    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">Sent with ❤️ from the Product Shift team.</p>
   </div>
 </body>
 </html>
@@ -614,11 +618,11 @@ app.post('/api/user/redeem-coupon', async (req, res) => {
       email,
       'You\'ve got credits! 🎟️',
       `
-        <h1 style="color: #4f46e5; margin-top: 0;">Welcome to your Free Trial!</h1>
+        <h1 style="color: #111827; margin-top: 0; font-size: 24px; font-weight: 800; text-align: center;">Welcome to your Free Trial!</h1>
         <p style="font-size: 16px; color: #374151; line-height: 1.5;">You've successfully redeemed code <strong>${normalizedCode}</strong>.</p>
         <p style="font-size: 18px; color: #111827;"><strong>${creditsToAdd}</strong> credits have been added to your account.</p>
         <div style="margin-top: 32px; text-align: center;">
-          <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Run a Test Now</a>
+          <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Run a Test Now</a>
         </div>
       `
     );
@@ -756,6 +760,21 @@ app.post('/api/user/claim-referral', async (req, res) => {
       
       if (!insertError) {
         await supabase.rpc('add_credits', { user_email: email, amount: 1 });
+        
+        // Send Welcome Email to Referee
+        await sendEmail(
+          email,
+          'Referral Claimed! 🎁',
+          `
+            <h1 style="color: #111827; margin-top: 0; font-size: 24px; font-weight: 800; text-align: center;">You're in!</h1>
+            <p style="font-size: 16px; color: #374151; line-height: 1.5;">You've successfully claimed a referral invite. We've added <strong>1 free test</strong> to your account so you can try Product Shift.</p>
+            <p style="font-size: 16px; color: #374151; line-height: 1.5;">Once you run your first test, we'll also send a reward to the friend who invited you!</p>
+            <div style="margin-top: 32px; text-align: center;">
+              <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Run Your First Test</a>
+            </div>
+          `
+        );
+
         return res.json({ success: true, message: 'Referral claimed. Run a test to unlock the reward for your friend!' });
       }
     }
@@ -1178,7 +1197,18 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
             
             if (newBalance === 0) {
                 console.log(`📧 [Email Trigger] User ${email} has run out of credits.`);
-                // TODO: Call your email service here (e.g. Resend.com, SendGrid)
+                await sendEmail(
+                  email,
+                  'You\'re out of credits',
+                  `
+                    <h1 style="color: #111827; margin-top: 0; font-size: 24px; font-weight: 800; text-align: center;">Running low?</h1>
+                    <p style="font-size: 16px; color: #374151; line-height: 1.5;">You've used all your available tests.</p>
+                    <p style="font-size: 16px; color: #374151; line-height: 1.5;">To continue analyzing sites and getting insights, upgrade your plan or grab a credit pack.</p>
+                    <div style="margin-top: 32px; text-align: center;">
+                      <a href="https://www.theproductshift.com/ai-powered-ux#pricing" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Get More Credits</a>
+                    </div>
+                  `
+                );
             }
         }
       }
@@ -1201,6 +1231,19 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           if (referrer) {
              await supabase.rpc('add_credits', { user_email: referrer.email, amount: 1 });
              console.log(`🎁 Referral Completed: ${referrer.email} rewarded for ${email}'s first test.`);
+             
+             await sendEmail(
+               referrer.email,
+               'You earned a free test! 🎁',
+               `
+                 <h1 style="color: #111827; margin-top: 0; font-size: 24px; font-weight: 800; text-align: center;">Referral Reward Unlocked!</h1>
+                 <p style="font-size: 16px; color: #374151; line-height: 1.5;">Your friend just ran their first test using your referral link.</p>
+                 <p style="font-size: 16px; color: #374151; line-height: 1.5;">As a thank you, we've added <strong>1 free test</strong> to your account.</p>
+                 <div style="margin-top: 32px; text-align: center;">
+                   <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Use Your Credit</a>
+                 </div>
+               `
+             );
           }
         }
       }
@@ -1732,12 +1775,12 @@ app.post('/api/admin/invite-user', async (req, res) => {
       email,
       'Your Product Shift Free Trial 🎟️',
       `
-        <h1 style="color: #4f46e5; margin-top: 0;">You're in!</h1>
+        <h1 style="color: #111827; margin-top: 0; font-size: 24px; font-weight: 800; text-align: center;">You're invited!</h1>
         <p style="font-size: 16px; color: #374151; line-height: 1.5;">You've been granted a free trial to Product Shift.</p>
         <p style="font-size: 18px; color: #111827;">We've added <strong>${credits || 0} free tests</strong> to your account.</p>
         ${duration ? `<p style="font-size: 14px; color: #dc2626; font-weight: bold;">Note: This trial expires in ${duration}.</p>` : ''}
         <div style="margin-top: 32px; text-align: center;">
-          <a href="${actionLink}" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
+          <a href="${actionLink}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Access Your Account</a>
         </div>
         <p style="margin-top: 24px; font-size: 14px; color: #6b7280; text-align: center;">This secure link expires in 24 hours.</p>
       `
@@ -1769,9 +1812,12 @@ app.post('/api/admin/compensate-user', async (req, res) => {
       email,
       'Credits added to your account',
       `
-        <h1 style="color: #4f46e5; margin-top: 0;">We're sorry about the hiccup!</h1>
+        <h1 style="color: #111827; margin-top: 0; font-size: 24px; font-weight: 800; text-align: center;">We're sorry about the hiccup!</h1>
         <p style="font-size: 16px; color: #374151; line-height: 1.5;">We noticed you experienced an error recently. To make it up to you, we've added <strong>${credits} free tests</strong> to your account.</p>
         <p style="font-size: 16px; color: #374151;">Please try running your analysis again.</p>
+        <div style="margin-top: 32px; text-align: center;">
+          <a href="https://www.theproductshift.com/ai-powered-ux" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Try Again</a>
+        </div>
       `
     );
     res.json({ success: true });
@@ -1902,10 +1948,10 @@ app.post('/api/auth/login', async (req, res) => {
       email,
       'Sign in to Product Shift',
       `
-        <h1 style="color: #000000; margin-top: 0;">Sign in to Product Shift</h1>
+        <h1 style="color: #111827; margin-top: 0; font-size: 24px; font-weight: 800; text-align: center;">Sign in to Product Shift</h1>
         <p style="font-size: 16px; color: #374151; line-height: 1.5;">Click the button below to sign in to your account. This link will expire in 24 hours.</p>
         <div style="margin-top: 32px; text-align: center;">
-          <a href="${magicLink}" style="background-color: #000000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Sign In Now</a>
+          <a href="${magicLink}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Sign In Now</a>
         </div>
         <p style="margin-top: 24px; font-size: 14px; color: #6b7280; text-align: center;">If you didn't request this, you can safely ignore this email.</p>
       `
