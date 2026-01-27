@@ -123,7 +123,7 @@ const AgencyUserTestingPage: React.FC = () => {
             <span className="text-transparent bg-clip-text bg-marketing-gradient">Selling & Delivering</span> Web Services
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Stop arguing about design opinions. Start selling data. Use our <strong>1-Click User Testing Tool</strong> to audit prospect sites, benchmark redesigns, and prove your value with instant, AI-generated usability reports.
+            Stop arguing about design opinions. Start selling with data. Use our <strong>1-Click User Testing Tool</strong> to audit prospect sites, benchmark redesigns, and prove your value with instant, AI-generated usability reports.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button onClick={handleCtaClick} className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">

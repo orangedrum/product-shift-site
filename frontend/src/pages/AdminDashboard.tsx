@@ -533,7 +533,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                     <tbody className="divide-y">
                       {coupons.map(c => (
                         <tr key={c.id}>
-                          <td className="py-2 font-bold text-indigo-600">{c.code}</td>
+                          <td className="py-2">
+                            <button 
+                              onClick={() => setNewCouponLink(`https://www.theproductshift.com/login?coupon=${c.code}`)}
+                              className="font-bold text-indigo-600 hover:underline"
+                              title="View Campaign Link"
+                            >
+                              {c.code}
+                            </button>
+                          </td>
                           <td className="py-2">{c.credits}</td>
                           <td className="py-2 text-right">
                             <button onClick={() => handleDeleteCoupon(c.id)} className="text-red-500 hover:text-red-700 font-bold text-xs flex items-center gap-1 ml-auto">
@@ -863,7 +871,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
               <X size={24} />
             </button>
             <h3 className="text-xl font-black mb-4 flex items-center gap-2 text-green-600">
-              <Tag /> Campaign Created!
+              <Tag /> Campaign Link
             </h3>
             <p className="text-gray-600 mb-2 font-bold">Share this tracking link:</p>
             <div className="bg-gray-100 p-3 rounded border-2 border-gray-300 break-all font-mono text-sm mb-6 select-all">
