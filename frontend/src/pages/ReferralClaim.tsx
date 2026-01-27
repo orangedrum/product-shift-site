@@ -65,18 +65,20 @@ const ReferralClaim: React.FC = () => {
     const redirectTo = `${baseUrl}?${params.toString()}`;
 
     // 3. Send Magic Link
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: redirectTo,
-      },
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
+    // FIX: Use backend endpoint to ensure branded email and suppress default Supabase email
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, redirectTo })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to send magic link');
+      
       setSent(true);
+    } catch (err: any) {
+      setError(err.message);
       setLoading(false);
     }
   };

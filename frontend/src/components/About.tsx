@@ -62,7 +62,7 @@ const About = () => {
                     href="https://calendly.com/jean-kaluza/app-idea-day-1-facilitation-clone" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-bold text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                    className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-transform transform hover:scale-105"
                   >
                     Free Consultation
                   </a>
