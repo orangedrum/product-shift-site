@@ -26,7 +26,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
-  const [refundReason, setRefundReason] = useState<string>('');
+  const [refundReasonEnum, setRefundReasonEnum] = useState<string>('requested_by_customer');
   const [refunding, setRefunding] = useState(false);
   const [inputKey, setInputKey] = useState('');
   const [hideTestUsers, setHideTestUsers] = useState(true);
@@ -109,6 +109,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
 
   const handleRefund = async () => {
     if (!selectedPayment) return;
+    
+    // Safety check for empty ID
+    if (!selectedPayment.stripe_session_id) {
+      alert("Error: This payment record is missing a Stripe Session ID and cannot be refunded automatically.");
+      return;
+    }
+
     setRefunding(true);
     try {
       const res = await fetch('/api/admin/refund', {
@@ -117,7 +124,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           Authorization: `Bearer ${secretKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ paymentId: selectedPayment.id, reason: refundReason }),
+        body: JSON.stringify({ paymentId: selectedPayment.id, reason: refundReasonEnum }),
       });
       if (!res.ok) {
         const errorData = await res.json();
@@ -132,8 +139,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           p.id === selectedPayment.id ? { ...p, status: 'refunded' } : p
         ),
       }));
+      alert('Refund processed successfully.');
     } catch (e: any) {
-      setError(e.message);
+      alert(`Refund Error: ${e.message}`);
     } finally {
       setRefunding(false);
       setSelectedPayment(null); // Clear selection
@@ -160,11 +168,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     }
   };
 
-  const handleInviteUser = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInviteUser = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setInviteLoading(true);
     setInviteMessage(null);
     console.log('🚀 Sending invite to:', inviteEmail); // Debug log for browser console
+
+    if (!inviteEmail || !inviteEmail.includes('@')) {
+      setInviteMessage({ type: 'error', text: 'Please enter a valid email address.' });
+      setInviteLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/admin/invite-user', {
@@ -416,58 +430,65 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         <div>
         <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Free Trial Manager</h3>
         <NeoCard title="Send Invite">
-          <form onSubmit={handleInviteUser} className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="w-full md:w-1/2">
-              <label className="block text-sm font-bold mb-1">Email</label>
-              <input 
-                type="email" 
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                className="w-full p-2 border-2 border-gray-300 rounded-lg"
-                placeholder="user@example.com"
-                required
-              />
+          {/* Replaced form with div to prevent browser validation blocking */}
+          <div>
+            <div className="flex flex-col md:flex-row gap-4 items-end">
+              <div className="w-full md:w-1/2">
+                <label className="block text-sm font-bold mb-1">Email</label>
+                <input 
+                  type="text" 
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  className="w-full p-2 border-2 border-gray-300 rounded-lg"
+                  placeholder="user@example.com"
+                />
+              </div>
+              <div className="w-full md:w-1/2">
+                <label className="block text-sm font-bold mb-1">Segment</label>
+                <select 
+                  value={inviteSegment}
+                  onChange={(e) => setInviteSegment(e.target.value)}
+                  className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
+                >
+                  <option value="tech">Tech / UX Pro</option>
+                  <option value="smb">Small Business</option>
+                </select>
+              </div>
             </div>
-            <div className="w-full md:w-1/2">
-              <label className="block text-sm font-bold mb-1">Segment</label>
-              <select 
-                value={inviteSegment}
-                onChange={(e) => setInviteSegment(e.target.value)}
-                className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
-              >
-                <option value="tech">Tech / UX Pro</option>
-                <option value="smb">Small Business</option>
-              </select>
-            </div>
-          </form>
-          <div className="flex flex-col md:flex-row gap-4 items-end mt-4">
-            <div className="w-full md:w-1/3">
-              <label className="block text-sm font-bold mb-1">Credits</label>
-              <input 
-                type="number" 
-                value={inviteCredits}
-                onChange={(e) => setInviteCredits(parseInt(e.target.value))}
-                className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
-              />
-            </div>
-            <div className="w-full md:w-1/3">
-              <label className="block text-sm font-bold mb-1">Expiration</label>
-              <select 
-                value={inviteDuration}
-                onChange={(e) => setInviteDuration(e.target.value)}
-                className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
-              >
-                <option value="3 days">3 Days</option>
-                <option value="7 days">7 Days</option>
-                <option value="30 days">30 Days</option>
-              </select>
-            </div>
-            <div className="w-full md:w-1/3">
-              <NeoButton type="submit" className="w-full" disabled={inviteLoading}>
-                {inviteLoading ? 'Sending...' : 'Send Invite'}
-              </NeoButton>
+            <div className="flex flex-col md:flex-row gap-4 items-end mt-4">
+              <div className="w-full md:w-1/3">
+                <label className="block text-sm font-bold mb-1">Credits</label>
+                <input 
+                  type="number" 
+                  value={inviteCredits}
+                  onChange={(e) => setInviteCredits(parseInt(e.target.value))}
+                  className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
+                />
+              </div>
+              <div className="w-full md:w-1/3">
+                <label className="block text-sm font-bold mb-1">Expiration</label>
+                <select 
+                  value={inviteDuration}
+                  onChange={(e) => setInviteDuration(e.target.value)}
+                  className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
+                >
+                  <option value="3 days">3 Days</option>
+                  <option value="7 days">7 Days</option>
+                  <option value="30 days">30 Days</option>
+                </select>
+              </div>
+              <div className="w-full md:w-1/3">
+                <NeoButton type="button" onClick={() => handleInviteUser()} className="w-full" disabled={inviteLoading}>
+                  {inviteLoading ? 'Sending...' : 'Send Invite'}
+                </NeoButton>
+              </div>
             </div>
           </div>
+          {inviteMessage && (
+            <div className={`mt-4 p-3 rounded text-sm font-bold ${inviteMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {inviteMessage.text}
+            </div>
+          )}
         </NeoCard>
         </div>
 
@@ -812,13 +833,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           <div className="bg-white p-4 rounded-lg">
             <h3 className="text-lg font-bold">Refund Payment</h3>
             <p>Are you sure you want to refund ${selectedPayment.amount_total / 100} to {selectedPayment.email}?</p>
-            <input
-              type="text"
-              placeholder="Reason for refund (optional)"
-              value={refundReason}
-              onChange={(e) => setRefundReason(e.target.value)}
-              className="border p-2 rounded-md w-full mb-3"
-            />
+            <div className="my-4">
+              <label className="block text-sm font-bold mb-1">Reason</label>
+              <select 
+                value={refundReasonEnum}
+                onChange={(e) => setRefundReasonEnum(e.target.value)}
+                className="w-full p-2 border-2 border-gray-300 rounded-lg bg-white"
+              >
+                <option value="requested_by_customer">Requested by Customer</option>
+                <option value="duplicate">Duplicate</option>
+                <option value="fraudulent">Fraudulent</option>
+              </select>
+            </div>
             <div className="flex justify-end gap-2">
               <button className="py-2 px-4 bg-gray-200 rounded-md" onClick={() => setSelectedPayment(null)}>Cancel</button>
               <button className="py-2 px-4 bg-red-500 text-white rounded-md" disabled={refunding} onClick={handleRefund}>

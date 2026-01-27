@@ -1692,14 +1692,22 @@ app.post('/api/admin/refund', async (req, res) => {
 
     // 2. Get Stripe Session to find Payment Intent
     const session = await stripe.checkout.sessions.retrieve(payment.stripe_session_id);
-    const paymentIntentId = session.payment_intent as string;
+    let paymentIntentId = session.payment_intent as string;
+
+    // Fix: For subscriptions, payment_intent is often on the invoice, not the session.
+    if (!paymentIntentId && session.invoice) {
+      const invoice = await stripe.invoices.retrieve(session.invoice as string);
+      paymentIntentId = invoice.payment_intent as string;
+    }
+
+    if (!paymentIntentId) return res.status(400).json({ error: 'Could not resolve Payment Intent ID from Stripe Session.' });
 
     // 3. Issue Refund via Stripe
     const refund = await stripe.refunds.create({
       payment_intent: paymentIntentId,
-      reason: 'requested_by_customer', // Stripe requires a specific enum here
+      reason: (reason as Stripe.RefundCreateParams.Reason) || 'requested_by_customer',
       metadata: {
-        admin_note: reason || 'Refunded via Admin Dashboard' // We store your custom reason here
+        admin_note: 'Refunded via Admin Dashboard'
       }
     });
 
