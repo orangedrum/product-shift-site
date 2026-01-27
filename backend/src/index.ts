@@ -145,6 +145,7 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   
   if (!apiKey) {
     console.warn('Resend API key missing. Skipping email.');
+    console.warn('Make sure RESEND_API_KEY is set in your Vercel Environment Variables.');
     return;
   }
 
@@ -163,10 +164,10 @@ const sendEmail = async (to: string, subject: string, html: string) => {
     if (!response.ok) {
       const errText = await response.text();
       console.error('Resend API Error:', errText);
-      // Don't crash the whole request if email fails, just log it.
-      // throw new Error(`Resend API Error: ${errText}`);
+      // We log it, but we also want to know about it in the logs
+      console.error(`❌ Failed to send email to ${to}. Status: ${response.status}`);
     } else {
-      console.log(`📧 Email sent successfully to: ${to}`);
+      console.log(`✅ Resend Email sent successfully to: ${to}`);
     }
   } catch (e) {
     console.error('Failed to send email:', e);
@@ -1753,7 +1754,21 @@ app.post('/api/admin/invite-user', async (req, res) => {
 
     if (dbError) throw dbError;
 
-    // 2. Generate Magic Link via Supabase Admin
+    // 2. Ensure Auth User Exists (Critical Fix for Admin Invites)
+    // We must create the user in the Auth system before we can generate a link for them.
+    const { error: createError } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: true, // Auto-confirm to suppress default Supabase email
+      password: Math.random().toString(36).slice(-12) + 'Aa1!',
+      user_metadata: { source: 'admin_invite' }
+    });
+    
+    if (createError && !createError.message.includes('already registered')) {
+       // Log but continue, as they might already exist
+       console.log('User already exists or create error:', createError.message);
+    }
+
+    // 3. Generate Magic Link via Supabase Admin
     // We append the segment to the URL so the frontend can adapt the UI immediately upon arrival
     const redirectUrl = `https://www.theproductshift.com/ai-powered-ux?new_credit=true&segment=${segment || 'tech'}`;
 
@@ -1770,7 +1785,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
     // Supabase is now configured to generate the correct 'www' link directly.
     const actionLink = linkData.properties.action_link;
 
-    // 3. Send Custom Email via Resend
+    // 4. Send Custom Email via Resend
     await sendEmail(
       email,
       'Your Product Shift Free Trial 🎟️',
@@ -1924,20 +1939,26 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     console.log(`🔐 Auth Login Request for: ${email}`);
     
-    // If a coupon is passed, append it to the redirect URL so it survives the email click
     let finalRedirect = redirectTo || 'https://www.theproductshift.com/ai-powered-ux';
     if (coupon) {
       const separator = finalRedirect.includes('?') ? '&' : '?';
       finalRedirect = `${finalRedirect}${separator}coupon=${coupon}`;
     }
 
-    // STRATEGY: Try to generate link first. If user doesn't exist, create them.
-    // This avoids pagination issues with listUsers().
+    // 1. Ensure User Exists & Is Confirmed
+    // We attempt to create the user with email_confirm: true.
+    // This suppresses the default Supabase SMTP email so we can send our branded one.
+    const { error: createError } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: true, 
+      password: Math.random().toString(36).slice(-12) + 'Aa1!',
+      user_metadata: { source: 'magic_link_flow' }
+    });
+
+    // If user already exists, we just proceed to generate the link.
     
-    let linkData;
-    
-    // 1. Attempt to generate link for existing user
-    const { data, error } = await supabase.auth.admin.generateLink({
+    // 2. Generate the Magic Link
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email,
       options: {
@@ -1945,36 +1966,7 @@ app.post('/api/auth/login', async (req, res) => {
       }
     });
 
-    if (error) {
-      // 2. If user not found, create them
-      console.log(`👤 User not found, creating new confirmed user: ${email}`);
-      const { error: createError } = await supabase.auth.admin.createUser({
-        email,
-        email_confirm: true, // Critical: Auto-confirm to suppress default Supabase email
-        password: Math.random().toString(36).slice(-12) + 'Aa1!',
-        user_metadata: { source: 'magic_link_flow' }
-      });
-      
-      if (createError) throw createError;
-
-      // Retry generating link
-      const retry = await supabase.auth.admin.generateLink({
-        type: 'magiclink',
-        email,
-        options: { redirectTo: finalRedirect }
-      });
-      if (retry.error) throw retry.error;
-      linkData = retry.data;
-    } else {
-      linkData = data;
-      
-      // 3. Existing User Check: Ensure they are confirmed
-      // We have the user object from generateLink, so we can check status directly
-      if (linkData.user && !linkData.user.email_confirmed_at) {
-        console.log(`⚠️ Existing user ${email} found but unconfirmed. Force confirming...`);
-        await supabase.auth.admin.updateUserById(linkData.user.id, { email_confirm: true });
-      }
-    }
+    if (linkError) throw linkError;
 
     // Send Branded Email
     // Supabase is now configured to generate the correct 'www' link directly.
