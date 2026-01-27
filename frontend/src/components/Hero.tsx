@@ -78,7 +78,7 @@ const Hero: React.FC<HeroProps> = ({
             </h1>
             
             <p className="text-xl text-gray-500 mb-8 max-w-2xl animate-fade-in mx-auto lg:mx-0">
-              Partner with Product Shift to leverage proven UX research to level-up your market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond
+              A Digital Product UX Research & Human Behavior Lab. The incubator behind FreeBrain. Partner with us for market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and start-ups across Silicon Valley, Dallas and beyond
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up justify-center lg:justify-start">

@@ -66,7 +66,7 @@ const StyleGuide: React.FC = () => {
 
   // Shared Admin Auth Logic
   useEffect(() => {
-    const storedKey = localStorage.getItem('adminSecretKey');
+    const storedKey = localStorage.getItem('productShiftAdminKey');
     if (storedKey) {
       setSecretKey(storedKey);
       verifyKey(storedKey);
@@ -81,7 +81,7 @@ const StyleGuide: React.FC = () => {
       });
       if (response.ok) {
         setIsAuthenticated(true);
-        localStorage.setItem('adminSecretKey', key);
+        localStorage.setItem('productShiftAdminKey', key);
       } else {
         throw new Error('Invalid Key');
       }

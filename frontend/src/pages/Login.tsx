@@ -218,6 +218,17 @@ const Login: React.FC = () => {
             </div>
           )}
 
+          {isSuccess && (
+            <div className="text-center mb-6">
+              <button 
+                onClick={() => { setIsSuccess(false); setMessage(null); }}
+                className="text-sm text-gray-500 hover:text-gray-900 underline font-medium"
+              >
+                Entered the wrong email? Fix it
+              </button>
+            </div>
+          )}
+
           {!isSuccess && (
             <form onSubmit={handleLogin} className="space-y-4">
             <div>
