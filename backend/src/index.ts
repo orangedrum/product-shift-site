@@ -1922,6 +1922,17 @@ app.post('/api/auth/login', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
   try {
+    // 1. Pre-create user as confirmed to suppress default Supabase "Confirm Signup" emails.
+    // We use a dummy password because we rely exclusively on magic links.
+    // If the user already exists, this returns an error which we safely ignore.
+    const { error: createError } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: true, // This is the key: Auto-confirm to skip default email
+      password: Math.random().toString(36).slice(-12) + 'Aa1!', // Random strong password
+      user_metadata: { source: 'magic_link_flow' }
+    });
+    // We ignore 'User already registered' errors, as that's the happy path for returning users.
+
     // If a coupon is passed, append it to the redirect URL so it survives the email click
     let finalRedirect = redirectTo || 'https://www.theproductshift.com/ai-powered-ux';
     if (coupon) {
