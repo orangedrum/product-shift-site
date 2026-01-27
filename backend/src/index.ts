@@ -1922,30 +1922,37 @@ app.post('/api/auth/login', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
   try {
-    // 1. Pre-create user as confirmed to suppress default Supabase "Confirm Signup" emails.
-    // We use a dummy password because we rely exclusively on magic links.
-    // If the user already exists, this returns an error which we safely ignore.
-    const { error: createError } = await supabase.auth.admin.createUser({
-      email,
-      email_confirm: true, // This is the key: Auto-confirm to skip default email
-      password: Math.random().toString(36).slice(-12) + 'Aa1!', // Random strong password
-      user_metadata: { source: 'magic_link_flow' }
-    });
+    console.log(`🔐 Auth Login Request for: ${email}`);
     
-    // 2. Handle Existing Users: Ensure they are confirmed
-    // If createUser failed, it means they exist. They might be unconfirmed (triggering default emails).
-    if (createError) {
-      // Fetch the user to check status
-      const { data: { users } } = await supabase.auth.admin.listUsers();
-      const existingUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
-      
-      if (existingUser && !existingUser.email_confirmed_at) {
-        console.log(`⚠️ User ${email} exists but is unconfirmed. Force confirming...`);
+    // 1. Check if user exists first to avoid race conditions with createUser error handling
+    // Increase limit to ensure we find the user if they exist (default is 50)
+    const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    const existingUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+
+    if (!existingUser) {
+      // Case A: New User - Create as confirmed immediately
+      console.log(`✨ Creating new confirmed user: ${email}`);
+      const { error: createError } = await supabase.auth.admin.createUser({
+        email,
+        email_confirm: true, // Auto-confirm to skip default email
+        password: Math.random().toString(36).slice(-12) + 'Aa1!',
+        user_metadata: { source: 'magic_link_flow' }
+      });
+      if (createError) {
+        console.error('Create User Error:', createError);
+        // Continue anyway, generateLink might still work if it was a race condition
+      }
+    } else {
+      // Case B: Existing User - Ensure confirmed
+      if (!existingUser.email_confirmed_at) {
+        console.log(`⚠️ Existing user ${email} is unconfirmed. Force confirming now.`);
         const { error: updateError } = await supabase.auth.admin.updateUserById(existingUser.id, {
           email_confirm: true
         });
         if (updateError) console.error('Failed to force confirm user:', updateError);
         else console.log(`✅ User ${email} force confirmed.`);
+      } else {
+        console.log(`✅ User ${email} exists and is already confirmed.`);
       }
     }
 
