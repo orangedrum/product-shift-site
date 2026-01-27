@@ -114,9 +114,9 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
                   <User size={20} />
                   My Account
                 </button>
-                <button onClick={handleLogout} className={`${displaySession ? 'text-white hover:text-red-400' : 'text-gray-600 hover:text-red-600'} font-medium flex items-center gap-2`}>
-                  <LogOut size={20} />
-                </button>
+                <NeoButton variant="secondary" onClick={handleLogout} className="h-9 px-4 text-sm">
+                  Sign Out
+                </NeoButton>
               </div>
             ) : (
               <>

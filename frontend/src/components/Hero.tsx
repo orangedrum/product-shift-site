@@ -84,7 +84,7 @@ const Hero: React.FC<HeroProps> = ({
             <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-slide-up justify-center lg:justify-start">
               <button 
                 onClick={scrollToContact}
-                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium text-white bg-marketing-gradient hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105"
               >
                 Book Free Consultation
                 <ArrowRight className="ml-2 h-5 w-5" />

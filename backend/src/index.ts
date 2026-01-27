@@ -1924,38 +1924,6 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     console.log(`🔐 Auth Login Request for: ${email}`);
     
-    // 1. Check if user exists first to avoid race conditions with createUser error handling
-    // Increase limit to ensure we find the user if they exist (default is 50)
-    const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-    const existingUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
-
-    if (!existingUser) {
-      // Case A: New User - Create as confirmed immediately
-      console.log(`✨ Creating new confirmed user: ${email}`);
-      const { error: createError } = await supabase.auth.admin.createUser({
-        email,
-        email_confirm: true, // Auto-confirm to skip default email
-        password: Math.random().toString(36).slice(-12) + 'Aa1!',
-        user_metadata: { source: 'magic_link_flow' }
-      });
-      if (createError) {
-        console.error('Create User Error:', createError);
-        // Continue anyway, generateLink might still work if it was a race condition
-      }
-    } else {
-      // Case B: Existing User - Ensure confirmed
-      if (!existingUser.email_confirmed_at) {
-        console.log(`⚠️ Existing user ${email} is unconfirmed. Force confirming now.`);
-        const { error: updateError } = await supabase.auth.admin.updateUserById(existingUser.id, {
-          email_confirm: true
-        });
-        if (updateError) console.error('Failed to force confirm user:', updateError);
-        else console.log(`✅ User ${email} force confirmed.`);
-      } else {
-        console.log(`✅ User ${email} exists and is already confirmed.`);
-      }
-    }
-
     // If a coupon is passed, append it to the redirect URL so it survives the email click
     let finalRedirect = redirectTo || 'https://www.theproductshift.com/ai-powered-ux';
     if (coupon) {
@@ -1963,7 +1931,12 @@ app.post('/api/auth/login', async (req, res) => {
       finalRedirect = `${finalRedirect}${separator}coupon=${coupon}`;
     }
 
-    // Generate Magic Link via Admin API
+    // STRATEGY: Try to generate link first. If user doesn't exist, create them.
+    // This avoids pagination issues with listUsers().
+    
+    let linkData;
+    
+    // 1. Attempt to generate link for existing user
     const { data, error } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email,
@@ -1972,11 +1945,40 @@ app.post('/api/auth/login', async (req, res) => {
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      // 2. If user not found, create them
+      console.log(`👤 User not found, creating new confirmed user: ${email}`);
+      const { error: createError } = await supabase.auth.admin.createUser({
+        email,
+        email_confirm: true, // Critical: Auto-confirm to suppress default Supabase email
+        password: Math.random().toString(36).slice(-12) + 'Aa1!',
+        user_metadata: { source: 'magic_link_flow' }
+      });
+      
+      if (createError) throw createError;
+
+      // Retry generating link
+      const retry = await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: { redirectTo: finalRedirect }
+      });
+      if (retry.error) throw retry.error;
+      linkData = retry.data;
+    } else {
+      linkData = data;
+      
+      // 3. Existing User Check: Ensure they are confirmed
+      // We have the user object from generateLink, so we can check status directly
+      if (linkData.user && !linkData.user.email_confirmed_at) {
+        console.log(`⚠️ Existing user ${email} found but unconfirmed. Force confirming...`);
+        await supabase.auth.admin.updateUserById(linkData.user.id, { email_confirm: true });
+      }
+    }
 
     // Send Branded Email
     // Supabase is now configured to generate the correct 'www' link directly.
-    const magicLink = data.properties.action_link;
+    const magicLink = linkData.properties.action_link;
     
     await sendEmail(
       email,

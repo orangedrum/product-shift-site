@@ -44,7 +44,7 @@ const CTA = () => {
                 href="https://calendly.com/jean-kaluza/media-buyer-op" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center h-14 px-8 text-lg font-bold text-white bg-black rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                className="inline-flex items-center justify-center h-14 px-8 text-lg font-bold text-white bg-marketing-gradient rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
               >
                 <Calendar className="mr-2 h-5 w-5" />
                 Book Free Consultation
