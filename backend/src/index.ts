@@ -1975,6 +1975,81 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// --- Admin Get Test Users Endpoint ---
+app.get('/api/admin/test-users', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    // Fetch users from Auth (Limit to 1000 for now to be safe)
+    const { data: { users }, error } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    if (error) throw error;
+
+    const testPatterns = ['test', 'demo', 'example', 'localhost', '+smb', 'jeankaluza+'];
+    
+    const testUsers = users.filter(u => {
+      const email = u.email?.toLowerCase() || '';
+      return testPatterns.some(p => email.includes(p));
+    }).map(u => ({
+      id: u.id,
+      email: u.email,
+      created_at: u.created_at,
+      last_sign_in_at: u.last_sign_in_at
+    }));
+
+    res.json(testUsers);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// --- Admin Bulk Delete Users Endpoint ---
+app.post('/api/admin/delete-users', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const { users } = req.body; // Expects array of { id, email }
+
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  if (!users || !Array.isArray(users)) {
+    return res.status(400).json({ error: 'Invalid users array' });
+  }
+
+  try {
+    const emails = users.map((u: any) => u.email).filter(Boolean);
+    const ids = users.map((u: any) => u.id).filter(Boolean);
+
+    // 1. Delete from Public Tables (using emails)
+    if (emails.length > 0) {
+      await supabase.from('analysis_runs').delete().in('user_identifier', emails);
+      await supabase.from('payments').delete().in('email', emails);
+      await supabase.from('referrals').delete().in('referee_email', emails);
+      await supabase.from('coupon_redemptions').delete().in('user_email', emails);
+      await supabase.from('daily_usage').delete().in('user_identifier', emails);
+      await supabase.from('customers').delete().in('email', emails);
+    }
+
+    // 2. Delete from Auth (using IDs)
+    const results = await Promise.allSettled(ids.map((id: string) => supabase.auth.admin.deleteUser(id)));
+    
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      console.error('Some user deletions failed', failed);
+    }
+
+    res.json({ success: true, deletedCount: ids.length - failed.length });
+  } catch (e: any) {
+    console.error('Bulk Delete Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/admin/stats', async (req, res) => {
   const authHeader = req.headers.authorization;
   const secretKey = process.env.ADMIN_SECRET_KEY;

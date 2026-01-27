@@ -44,6 +44,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [couponLoading, setCouponLoading] = useState(false);
   const [coupons, setCoupons] = useState<any[]>([]);
   const [newCouponLink, setNewCouponLink] = useState<string | null>(null);
+  
+  // Test User Management
+  const [testUsers, setTestUsers] = useState<any[]>([]);
+  const [selectedTestUsers, setSelectedTestUsers] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -83,6 +87,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         if (couponRes.ok) {
           const couponData = await couponRes.json();
           setCoupons(couponData);
+        }
+
+        // Fetch Test Users if showing test data
+        if (!hideTestUsers) {
+          const usersRes = await fetch('/api/admin/test-users', {
+            headers: { Authorization: `Bearer ${secretKey}` },
+          });
+          if (usersRes.ok) setTestUsers(await usersRes.json());
         }
       } catch (e: any) {
         setError(e.message);
@@ -231,6 +243,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       if (res.ok) alert('Compensation sent!');
     } catch (e) {
       alert('Failed to compensate');
+    }
+  };
+
+  const handleBulkDeleteUsers = async () => {
+    if (selectedTestUsers.length === 0) return;
+    if (!window.confirm(`Are you sure you want to PERMANENTLY delete ${selectedTestUsers.length} users and all their data?`)) return;
+
+    try {
+      const usersToDelete = testUsers.filter(u => selectedTestUsers.includes(u.id));
+      
+      const res = await fetch('/api/admin/delete-users', {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${secretKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ users: usersToDelete })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert(`Successfully deleted ${data.deletedCount} users.`);
+        setTestUsers(prev => prev.filter(u => !selectedTestUsers.includes(u.id)));
+        setSelectedTestUsers([]);
+      }
+    } catch (e) {
+      alert('Failed to delete users');
     }
   };
 
@@ -486,6 +525,63 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           </NeoCard>
         </div>
       </div>
+
+      {/* --- TEST USER MANAGEMENT (Only visible when showing test data) --- */}
+      {!hideTestUsers && (
+        <div className="mb-8 animate-fade-in">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-red-600"><Trash2 size={20} /> Test User Cleanup</h3>
+          <NeoCard title={`Found ${testUsers.length} Test Accounts`}>
+            <div className="mb-4 flex justify-between items-center">
+              <p className="text-sm text-gray-600">Select users to permanently remove them from Auth and all database tables.</p>
+              {selectedTestUsers.length > 0 && (
+                <NeoButton variant="danger" onClick={handleBulkDeleteUsers} className="text-xs">
+                  Delete {selectedTestUsers.length} Selected
+                </NeoButton>
+              )}
+            </div>
+            <div className="overflow-x-auto max-h-60">
+              <table className="w-full text-left text-sm">
+                <thead className="sticky top-0 bg-white border-b-2 border-gray-200">
+                  <tr>
+                    <th className="pb-2 w-10">
+                      <input 
+                        type="checkbox" 
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedTestUsers(testUsers.map(u => u.id));
+                          else setSelectedTestUsers([]);
+                        }}
+                        checked={selectedTestUsers.length === testUsers.length && testUsers.length > 0}
+                      />
+                    </th>
+                    <th className="pb-2">Email</th>
+                    <th className="pb-2">Created</th>
+                    <th className="pb-2">Last Login</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {testUsers.map(user => (
+                    <tr key={user.id} className="hover:bg-red-50">
+                      <td className="py-2">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedTestUsers.includes(user.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedTestUsers(prev => [...prev, user.id]);
+                            else setSelectedTestUsers(prev => prev.filter(id => id !== user.id));
+                          }}
+                        />
+                      </td>
+                      <td className="py-2 font-mono text-xs">{user.email}</td>
+                      <td className="py-2 text-gray-500 text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
+                      <td className="py-2 text-gray-500 text-xs">{user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'Never'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </NeoCard>
+        </div>
+      )}
 
       {/* --- FINANCIALS SECTION --- */}
       <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><DollarSign size={20} /> Financials</h3>

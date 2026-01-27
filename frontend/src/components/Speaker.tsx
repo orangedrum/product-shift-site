@@ -44,7 +44,7 @@ const Speaker = () => {
               href="https://orangedrum.com/talks/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-transform transform hover:scale-105"
+              className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105"
             >
               Schedule Speaking Engagement
               <ExternalLink className="ml-2 h-5 w-5" />

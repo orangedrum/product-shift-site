@@ -189,6 +189,10 @@ const StyleGuide: React.FC = () => {
               <h2 className="text-2xl font-bold text-black mb-4">Color Palette</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
+                  <div className="h-20 rounded-lg bg-black shadow-sm"></div>
+                  <p className="text-xs font-mono">brand-black (#000000)</p>
+                </div>
+                <div className="space-y-2">
                   <div className="h-20 rounded-lg bg-[#ff8c00] shadow-sm"></div>
                   <p className="text-xs font-mono">brand-orange (#ff8c00)</p>
                 </div>
@@ -303,7 +307,7 @@ const StyleGuide: React.FC = () => {
                   </button>
                   
                   {/* Primary Solid */}
-                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-transform transform hover:scale-105">
+                  <button className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105">
                     Primary Solid
                   </button>
                   
