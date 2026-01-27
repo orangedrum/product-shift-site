@@ -1697,7 +1697,10 @@ app.post('/api/admin/refund', async (req, res) => {
     // 3. Issue Refund via Stripe
     const refund = await stripe.refunds.create({
       payment_intent: paymentIntentId,
-      reason: reason || 'requested_by_customer',
+      reason: 'requested_by_customer', // Stripe requires a specific enum here
+      metadata: {
+        admin_note: reason || 'Refunded via Admin Dashboard' // We store your custom reason here
+      }
     });
 
     // 4. Update DB Status

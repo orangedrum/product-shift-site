@@ -37,6 +37,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [inviteSegment, setInviteSegment] = useState('tech');
   const [inviteDuration, setInviteDuration] = useState('7 days');
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // Coupon State
   const [couponCode, setCouponCode] = useState('');
@@ -162,6 +163,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const handleInviteUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setInviteLoading(true);
+    setInviteMessage(null);
+    console.log('🚀 Sending invite to:', inviteEmail); // Debug log for browser console
+
     try {
       const res = await fetch('/api/admin/invite-user', {
         method: 'POST',
@@ -173,13 +177,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       });
       const data = await res.json();
       if (res.ok) {
-        alert(`Success: ${data.message}`);
+        setInviteMessage({ type: 'success', text: `Invite sent! ${data.message}` });
         setInviteEmail('');
       } else {
-        alert(`Error: ${data.error}`);
+        setInviteMessage({ type: 'error', text: `Failed: ${data.error}` });
       }
     } catch (err) {
-      alert('Failed to send invite');
+      setInviteMessage({ type: 'error', text: 'Network error. Failed to send invite.' });
     } finally {
       setInviteLoading(false);
     }
@@ -609,8 +613,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                         <span className="ml-2 px-1.5 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase">TEST</span>
                       )}
                     </td>
-                    <td>${(payment.amount_total / 100).toFixed(2)}</td>
-                    <td>{payment.status}</td>
+                    <td className="font-mono">${(payment.amount_total / 100).toFixed(2)}</td>
+                    <td>
+                      <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${payment.status === 'refunded' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                        {payment.status}
+                      </span>
+                    </td>
                     <td>{new Date(payment.created_at).toLocaleDateString()}</td>
                     <td>
                       {payment.status === 'paid' && (
