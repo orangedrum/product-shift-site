@@ -1742,6 +1742,8 @@ app.post('/api/admin/invite-user', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email required' });
 
   try {
+    console.log(`🚀 Admin Invite Initiated for: ${email}`);
+
     // 1. Ensure customer row exists (This "whitelists" them so Login.tsx won't block them later)
     const { error: dbError } = await supabase
       .from('customers')
@@ -1753,6 +1755,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
       }, { onConflict: 'email' });
 
     if (dbError) throw dbError;
+    console.log(`✅ Customer row upserted for ${email}`);
 
     // 2. Ensure Auth User Exists (Critical Fix for Admin Invites)
     // We must create the user in the Auth system before we can generate a link for them.
@@ -1765,7 +1768,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
     
     if (createError && !createError.message.includes('already registered')) {
        // Log but continue, as they might already exist
-       console.log('User already exists or create error:', createError.message);
+       console.log('⚠️ User create warning (might exist):', createError.message);
     }
 
     // 3. Generate Magic Link via Supabase Admin
@@ -1783,6 +1786,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
     if (linkError) throw linkError;
 
     // Supabase is now configured to generate the correct 'www' link directly.
+    console.log(`🔗 Magic Link Generated for ${email}`);
     const actionLink = linkData.properties.action_link;
 
     // 4. Send Custom Email via Resend
@@ -1801,6 +1805,7 @@ app.post('/api/admin/invite-user', async (req, res) => {
       `
     );
 
+    console.log(`✅ Invite process completed for ${email}`);
     res.json({ success: true, message: 'Invite sent successfully!' });
   } catch (e: any) {
     console.error('Invite Error:', e);

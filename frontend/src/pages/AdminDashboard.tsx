@@ -360,7 +360,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold transition-all ${hideTestUsers ? 'bg-indigo-100 border-indigo-600 text-indigo-800' : 'bg-white border-gray-300 text-gray-600'}`}
           >
             <Filter size={16} />
-            {hideTestUsers ? 'Test Data Hidden' : 'Show All Data'}
+            {hideTestUsers ? 'Show Test Data' : 'Hide Test Data'}
           </button>
         </div>
       </div>

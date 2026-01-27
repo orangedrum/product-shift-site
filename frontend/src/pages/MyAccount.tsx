@@ -267,11 +267,11 @@ const MyAccount: React.FC = () => {
                 <Handshake size={32} />
               </div>
               <div className="flex-grow text-center md:text-left">
-                <h3 className="text-lg font-bold text-black">Earn 30% Recurring Commissions</h3>
-                <p className="text-gray-600">You are eligible for our Partner Program. Refer others and earn cash for every month they stay subscribed.</p>
+                <h3 className="text-lg font-bold text-black">Partner Program</h3>
+                <p className="text-gray-600">Thanks for being a subscriber! Don't forget to share your link to earn 30% recurring commissions.</p>
               </div>
               <a href="https://theproductshift.promotekit.com" target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
-                <NeoButton className="w-full">Join Program</NeoButton>
+                <NeoButton className="w-full">Go to Affiliate Dashboard</NeoButton>
               </a>
             </div>
           </NeoCard>
