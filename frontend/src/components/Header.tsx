@@ -75,12 +75,12 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className={`flex-shrink-0 ${displaySession ? 'bg-white rounded-xl px-3 py-1' : ''}`}>
-            <a href="https://www.theproductshift.com" title="Product Shift Home" className="flex items-center gap-3">
+            <Link to="/" title="Product Shift Home" className="flex items-center gap-3">
               <img className="h-8 w-auto" src="/logo.png" alt="Product Shift" />
               <span className={`text-xl font-bold tracking-tight ${displaySession ? 'text-black' : 'text-gray-900'}`}>
                 Product Shift
               </span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Menu */}

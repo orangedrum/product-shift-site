@@ -161,7 +161,8 @@ const Login: React.FC = () => {
     if (refCode) redirectParams.append('ref', refCode);
     if (coupon) redirectParams.append('coupon', coupon);
     
-    const origin = window.location.hostname.includes('localhost') ? window.location.origin : 'https://www.theproductshift.com';
+    // FIX: Use current origin for all environments (localhost, staging, production) to prevent cross-environment redirects
+    const origin = window.location.origin;
     const redirectTo = `${origin}/login?${redirectParams.toString()}`;
 
     try {

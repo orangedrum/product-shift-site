@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Instagram, Linkedin } from 'lucide-react';
 
 const Footer = () => {
@@ -76,12 +76,12 @@ const Footer = () => {
           {/* Column 1 */}
           <div className="space-y-6 lg:max-w-md">
             <div className="flex-shrink-0">
-              <a href="https://www.theproductshift.com" title="Product Shift Home" className="flex items-center gap-3">
+              <Link to="/" title="Product Shift Home" className="flex items-center gap-3">
                 <img className="h-8 w-auto" src="/logo.png" alt="Product Shift" />
                 <span className="text-xl font-bold text-gray-900 tracking-tight">
                   Product Shift
                 </span>
-              </a>
+              </Link>
             </div>
             <p className="text-sm text-gray-500">
               Partner with Product Shift to leverage data-driven UX for HealthTech to level-up your market strategy & deliver predictable successful launches. Trusted by Disney Parks & Resorts, Pluralsight and MedTech start-ups across Silicon Valley, Dallas and beyond.
