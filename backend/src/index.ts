@@ -1724,8 +1724,8 @@ app.post('/api/admin/invite-user', async (req, res) => {
 
     if (linkError) throw linkError;
 
-    // FIX: Force correct domain if Supabase is configured with the old one
-    const actionLink = linkData.properties.action_link.replace('app.theproductshift.com', 'www.theproductshift.com');
+    // FIX: Force correct domain globally, handling potential URL encoding
+    const actionLink = linkData.properties.action_link.replace(/app\.theproductshift\.com/g, 'www.theproductshift.com');
 
     // 3. Send Custom Email via Resend
     await sendEmail(
@@ -1895,8 +1895,8 @@ app.post('/api/auth/login', async (req, res) => {
     if (error) throw error;
 
     // Send Branded Email
-    // FIX: Force correct domain if Supabase is configured with the old one
-    const magicLink = data.properties.action_link.replace('app.theproductshift.com', 'www.theproductshift.com');
+    // FIX: Force correct domain globally, handling potential URL encoding
+    const magicLink = data.properties.action_link.replace(/app\.theproductshift\.com/g, 'www.theproductshift.com');
     
     await sendEmail(
       email,

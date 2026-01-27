@@ -574,7 +574,7 @@ const EcommerceLandingPage: React.FC = () => {
             "offeredBy": {
               "@type": "Organization",
               "name": "Product Shift",
-              "url": "https://app.theproductshift.com"
+              "url": "https://www.theproductshift.com"
             }
           }
         ]
