@@ -125,10 +125,10 @@ const Hero: React.FC<HeroProps> = ({
           </div>
 
           {/* Right Image */}
-          <div className="relative animate-float">
+          <div className="relative animate-float max-w-[85%] mx-auto">
             <div className="relative rounded-2xl overflow-hidden shadow-elegant">
               <img src={imageSrc} alt="Data-driven UX research optimizing HealthTech and MedTech patient experiences" className="w-full h-auto" />
-              <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/40 to-transparent"></div>
             </div>
             <div className="text-center mt-4">
               <p className="text-sm text-gray-500 font-medium">User Experience is the vital sign of digital health success.</p>
