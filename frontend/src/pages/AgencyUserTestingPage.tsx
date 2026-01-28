@@ -230,7 +230,7 @@ const AgencyUserTestingPage: React.FC = () => {
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">
-                1. The "Trojan Horse" Pitch
+                1. Sell With Data
               </h3>
               <p className="text-gray-500 mb-6 text-sm leading-relaxed">
                 Don't just tell prospects their current site is losing money—<strong>show them</strong>. Run a 1-click audit on their existing URL before the meeting.

@@ -80,9 +80,9 @@ const HeroSection = () => (
     <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center pointer-events-none">
       <div className="p-8 w-full">
          {/* Abstract representation of the AI analyzing */}
-         <div className="relative w-full max-w-lg mx-auto h-[500px]">
+         <div className="relative w-full max-w-lg mx-auto h-auto md:h-[500px] flex flex-col md:block gap-8 md:gap-0">
             {/* Card 1: Alex */}
-            <div className="absolute bottom-10 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+            <div className="relative md:absolute md:bottom-10 md:left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
                {/* Speech Bubble */}
                <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
                   <p className="text-sm text-gray-800 font-medium leading-snug">"I can't find the pricing page. I'm frustrated."</p>
@@ -102,7 +102,7 @@ const HeroSection = () => (
             </div>
 
             {/* Card 2: Marcus */}
-            <div className="absolute top-10 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <div className="relative md:absolute md:top-10 md:right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
                {/* Speech Bubble */}
                <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
                   <p className="text-sm text-gray-800 font-medium leading-snug">"This checkout form is asking for way too much info. I'm leaving."</p>

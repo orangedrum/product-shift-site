@@ -1218,7 +1218,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
               <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
                 <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4 break-inside-avoid no-print">
-                  <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
+                  <div>
+                    <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
+                    <p className="text-sm text-gray-600 mt-1">This is a compiled report of all the persona's experiences.</p>
+                  </div>
                   <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<FileText size={16} />}>
                     Download PDF
                   </NeoButton>
