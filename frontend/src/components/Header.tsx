@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden xl:flex flex-1 items-center justify-center">
+          <div className="hidden lg:flex flex-1 items-center justify-center">
             <nav className="flex space-x-10">
               {navLinks.map((link) => (
                 link.href.startsWith('/') ? (
@@ -104,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
               ))}
             </nav>
           </div>
-          <div className="hidden xl:flex">
+          <div className="hidden lg:flex">
             {displaySession ? (
               <div className="flex items-center gap-4">
                 <span className={`text-sm font-medium hidden lg:block ${displaySession ? 'text-white' : 'text-gray-700'}`}>
@@ -134,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="xl:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`inline-flex items-center justify-center p-2 rounded-md ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} focus:outline-none`}>
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -144,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <nav className={`xl:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3 ${displaySession ? 'bg-black' : 'bg-white'}`}>
+        <nav className={`lg:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3 ${displaySession ? 'bg-black' : 'bg-white'}`}>
           {navLinks.map((link) => (
             link.href.startsWith('/') ? (
               <Link key={link.name} to={link.href} className={`block px-3 py-2 rounded-md text-base font-medium ${displaySession ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`}>

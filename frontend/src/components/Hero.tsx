@@ -14,7 +14,7 @@ const Hero: React.FC<HeroProps> = ({
   title = "Data-Driven UX for",
   subtitle = <span className="bg-marketing-gradient bg-clip-text text-transparent"> HealthTech Growth</span>,
   description = "Partner with Product Shift to leverage proven UX research to level-up your HealthTech market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and MedTech start-ups across Silicon Valley, Dallas and beyond",
-  imageSrc = "/hero-image.png",
+  imageSrc = "https://images.unsplash.com/photo-1576091160550-2187d80a02ff?auto=format&fit=crop&w=800&q=80",
   badgeText = "HealthTech Growth, AI UX, & Strategy Expert"
 }) => {
   const schemaData = {
@@ -127,11 +127,11 @@ const Hero: React.FC<HeroProps> = ({
           {/* Right Image */}
           <div className="relative animate-float">
             <div className="relative rounded-2xl overflow-hidden shadow-elegant">
-              <img src={imageSrc} alt="Hero Visual" className="w-full h-auto" />
+              <img src={imageSrc} alt="Data-driven UX research optimizing HealthTech and MedTech patient experiences" className="w-full h-auto" />
               <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/20 to-transparent"></div>
             </div>
             <div className="text-center mt-4">
-              <a href="https://www.orangedrum.com/casestudy_sms.html" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-indigo-600 transition-colors underline">our research built Disney's Omnichannel Platform</a>
+              <p className="text-sm text-gray-500 font-medium">User Experience is the vital sign of digital health success.</p>
             </div>
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-marketing-gradient rounded-full opacity-20 animate-pulse blur-xl"></div>
             <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-pink-500 rounded-full opacity-30 animate-pulse delay-1000 blur-xl"></div>
