@@ -14,7 +14,7 @@ const Hero: React.FC<HeroProps> = ({
   title = "Data-Driven UX for",
   subtitle = <span className="bg-marketing-gradient bg-clip-text text-transparent"> HealthTech Growth</span>,
   description = "Partner with Product Shift to leverage proven UX research to level-up your HealthTech market strategy & deliver predictable successful product launches. Trusted by Disney Parks & Resorts, Pluralsight and MedTech start-ups across Silicon Valley, Dallas and beyond",
-  imageSrc = "https://images.unsplash.com/photo-1576091160550-2187d80a02ff?auto=format&fit=crop&w=800&q=80",
+  imageSrc = "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80",
   badgeText = "HealthTech Growth, AI UX, & Strategy Expert"
 }) => {
   const schemaData = {
