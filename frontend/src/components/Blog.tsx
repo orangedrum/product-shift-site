@@ -1,9 +1,23 @@
-import React from 'react';
-import { Calendar, ArrowRight, Brain, Zap, TrendingUp, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Calendar, ArrowRight, Brain, Zap, TrendingUp, Search, PenTool } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 const Blog = () => {
-  const articles = [
+  const [dbPosts, setDbPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const getIconForCategory = (category: string) => {
+    const map: Record<string, any> = {
+      'Website Optimization': Search,
+      'AI & UX': Brain,
+      'GenAI': Zap,
+      'Business': TrendingUp
+    };
+    return map[category] || PenTool;
+  };
+
+  const fallbackArticles = [
     {
       title: "Is Your Website Silently Losing You Money?",
       excerpt: "Why every small business needs a usability audit to fix hidden friction points and increase conversions.",
@@ -43,8 +57,43 @@ const Blog = () => {
     }
   ];
 
-  const featuredArticle = articles.find(article => article.featured);
-  const regularArticles = articles.filter(article => !article.featured);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('posts')
+          .select('*')
+          .order('published_at', { ascending: false });
+        
+        if (error) {
+          console.warn("Could not fetch blog posts, using fallback.", error);
+        } else if (data && data.length > 0) {
+          setDbPosts(data);
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching posts:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  // Merge DB posts with fallback if DB is empty, or just use DB if available
+  const displayArticles = dbPosts.length > 0 ? dbPosts.map(post => ({
+    title: post.title,
+    excerpt: post.excerpt,
+    category: post.category || 'General',
+    date: post.published_at || post.created_at,
+    icon: getIconForCategory(post.category),
+    featured: post.is_featured,
+    image: post.image_url,
+    link: post.external_link || `/blog/${post.slug}` // Priority to external link if set
+  })) : fallbackArticles;
+
+  const featuredArticle = displayArticles.find(article => article.featured);
+  const regularArticles = displayArticles.filter(article => !article.featured);
 
   return (
     <section id="blog" className="py-20 bg-white">
@@ -65,7 +114,11 @@ const Blog = () => {
         {/* Featured Article */}
         {featuredArticle && (
           <div className="mb-12">
-            <Link to={featuredArticle.link} className="block group">
+            <Link 
+              to={featuredArticle.link.startsWith('http') ? '#' : featuredArticle.link} 
+              onClick={(e) => featuredArticle.link.startsWith('http') ? window.open(featuredArticle.link, '_blank') : null}
+              className="block group"
+            >
               <div className="relative rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 bg-white">
                 <div className="grid md:grid-cols-2 gap-0">
                   <div className="relative min-h-[240px] overflow-hidden">
@@ -105,8 +158,15 @@ const Blog = () => {
 
         {/* Regular Articles Grid */}
         <div className="grid md:grid-cols-3 gap-8">
-          {regularArticles.map((article, index) => (
-            <Link key={index} to={article.link} className="block group h-full">
+          {regularArticles.map((article, index) => {
+            const isExternal = article.link.startsWith('http');
+            return (
+            <Link 
+              key={index} 
+              to={isExternal ? '#' : article.link} 
+              onClick={(e) => isExternal ? window.open(article.link, '_blank') : null}
+              className="block group h-full"
+            >
               <div className="h-full rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 p-6 flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
@@ -133,7 +193,8 @@ const Blog = () => {
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
 
         {/* CTA */}

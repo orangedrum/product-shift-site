@@ -25,6 +25,9 @@ import PaymentConfirmation from './pages/PaymentConfirmation';
 import ReferralClaim from './pages/ReferralClaim';
 import NotFound from './pages/NotFound';
 import AgencyUserTestingPage from './pages/AgencyUserTestingPage';
+import AdminBlog from './components/AdminBlog';
+import BlogPost from './components/BlogPost';
+
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -105,6 +108,9 @@ const App: React.FC = () => {
           <Route path="/styleguide" element={<StyleGuide />} />
           <Route path="/payment-success" element={<PaymentConfirmation />} />
           <Route path="/claim-test" element={<ReferralClaim />} />
+
+          <Route path="/admin-blog" element={<AdminBlog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
