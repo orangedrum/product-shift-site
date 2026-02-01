@@ -125,6 +125,15 @@ const AdminBlog = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-5xl">
+        <div className="mb-6 flex items-center gap-4">
+          <button onClick={() => navigate('/admin-dashboard')} className="flex items-center text-gray-600 hover:text-black transition-colors">
+            <LayoutDashboard className="w-4 h-4 mr-2" /> Back to Dashboard
+          </button>
+          <span className="text-gray-300">|</span>
+          <button onClick={() => navigate('/blog')} className="flex items-center text-gray-600 hover:text-black transition-colors">
+            <ExternalLink className="w-4 h-4 mr-2" /> View Live Blog
+          </button>
+        </div>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Blog Management</h1>
           {view === 'list' && (

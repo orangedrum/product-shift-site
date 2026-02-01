@@ -27,6 +27,7 @@ import NotFound from './pages/NotFound';
 import AgencyUserTestingPage from './pages/AgencyUserTestingPage';
 import AdminBlog from './components/AdminBlog';
 import BlogPost from './components/BlogPost';
+import Blog from './components/Blog';
 
 
 const App: React.FC = () => {
@@ -110,6 +111,7 @@ const App: React.FC = () => {
           <Route path="/claim-test" element={<ReferralClaim />} />
 
           <Route path="/admin-blog" element={<AdminBlog />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           
           {/* Fallback for unknown routes */}
