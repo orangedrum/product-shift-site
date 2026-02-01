@@ -127,7 +127,10 @@ const Login: React.FC = () => {
 
     // --- ACCOUNT EXISTENCE CHECK (The Gatekeeper) ---
     // Only check if NOT buying (plan) and NOT claiming referral (ref)
-    if (!plan && !refCode) {
+    // CTO FIX: Allow Admin PIN holders to bypass the "New User" check
+    const hasAdminKey = !!localStorage.getItem('productShiftAdminKey');
+
+    if (!plan && !refCode && !hasAdminKey) {
       try {
         const accRes = await fetch('/api/user/check-account', {
           method: 'POST',
