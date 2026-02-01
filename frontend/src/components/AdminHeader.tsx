@@ -10,6 +10,7 @@ const AdminHeader = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('productShiftAdminKey'); // Clear the Admin PIN
     navigate('/login');
   };
 

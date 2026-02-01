@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake, Palette, EyeOff } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
+import AdminHeader from '../components/AdminHeader';
 
 interface AdminDashboardProps {
   secretKey: string;
@@ -361,6 +362,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   if (error) return <div className="p-4 text-red-500 font-bold">Error: {error}</div>;
 
   return (
+    <div className="min-h-screen bg-gray-50">
+    <AdminHeader />
     <div className="p-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-3">
@@ -370,9 +373,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           </span>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
-          <Link to="/styleguide">
-            <NeoButton variant="secondary" icon={<Palette size={16} />}>Style Guide</NeoButton>
-          </Link>
           <button 
             onClick={() => setHideTestUsers(!hideTestUsers)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-bold transition-all ${hideTestUsers ? 'bg-indigo-100 border-indigo-600 text-indigo-800' : 'bg-white border-gray-300 text-gray-600'}`}
@@ -883,6 +883,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

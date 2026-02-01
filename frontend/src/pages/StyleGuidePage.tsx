@@ -14,6 +14,7 @@ import { FeatureCard } from '../components/FeatureCard';
 import { SpeechBubble } from '../components/SpeechBubble';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { supabase } from '../lib/supabase';
+import AdminHeader from '../components/AdminHeader';
 
 const StyleGuide: React.FC = () => {
   const navigate = useNavigate();
@@ -130,16 +131,10 @@ const StyleGuide: React.FC = () => {
         background: activeTab === 'product' ? (bgGradient || '#ffffff') : undefined
       }}
     >
+      <AdminHeader />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         <div className="max-w-4xl mx-auto space-y-12">
         
-        <div className="flex justify-end">
-          <Link to="/admin-dashboard">
-            <NeoButton variant="secondary" icon={<LayoutDashboard size={16} />}>
-              Back to Dashboard
-            </NeoButton>
-          </Link>
-        </div>
         <div className="text-center">
           <h1 className="text-4xl font-black mb-4 text-black">Product Shift Style Guide</h1>
           <p className="text-gray-600 mb-8">Design systems for our marketing site and application.</p>
