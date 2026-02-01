@@ -36,7 +36,8 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
     { name: 'AI Tester Tool', href: '/ai-powered-ux' },
     { name: 'Admin Dashboard', href: '/admin-dashboard' },
     { name: 'Blog Admin', href: '/admin-blog' },
-    { name: 'Styleguide', href: '/styleguide' }
+    { name: 'Styleguide', href: '/styleguide' },
+    { name: 'View Blog', href: '/blog' }
   ] : [
     { name: 'Services', href: '#services' },
     { name: 'Products', href: '#products' },

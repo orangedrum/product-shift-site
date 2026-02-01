@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoButton } from './NeoButton';
 import { NeoCard } from './NeoCard';
-import { ArrowLeft, Save, Loader, Trash2, Edit, Plus, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Save, Loader, Trash2, Edit, Plus, ExternalLink, LayoutDashboard } from 'lucide-react';
 
 const AdminBlog = () => {
   const navigate = useNavigate();
