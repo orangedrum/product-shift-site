@@ -23,6 +23,10 @@ const BlogPost = () => {
         console.error("Error fetching post:", error);
       } else {
         setPost(data);
+        // Increment view count securely
+        if (data?.id) {
+          supabase.rpc('increment_post_view', { post_id: data.id });
+        }
       }
       setLoading(false);
     };

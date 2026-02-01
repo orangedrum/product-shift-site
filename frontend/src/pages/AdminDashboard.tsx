@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake, Palette, EyeOff } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake, Palette, EyeOff, Eye } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import AdminHeader from '../components/AdminHeader';
+import { supabase } from '../lib/supabase';
 
 interface AdminDashboardProps {
   secretKey: string;
@@ -50,6 +51,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   // Test User Management
   const [testUsers, setTestUsers] = useState<any[]>([]);
   const [selectedTestUsers, setSelectedTestUsers] = useState<string[]>([]);
+  const [blogStats, setBlogStats] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -98,6 +100,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           });
           if (usersRes.ok) setTestUsers(await usersRes.json());
         }
+
+        // Fetch Blog Stats (Direct Supabase call since it's public data)
+        const { data: posts } = await supabase
+          .from('posts')
+          .select('title, views, slug')
+          .order('views', { ascending: false })
+          .limit(5);
+        if (posts) setBlogStats(posts);
+
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -422,6 +433,41 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             <div className="flex justify-between"><span>15-Packs:</span> <strong>{stats.salesBreakdown?.pack15 || 0}</strong></div>
             <div className="flex justify-between"><span>Subscriptions:</span> <strong>{stats.salesBreakdown?.starter || 0}</strong></div>
           </div>
+        </NeoCard>
+      </div>
+
+      {/* --- BLOG STATS ROW --- */}
+      <div className="mb-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><FileText size={20} /> Content Performance</h3>
+        <NeoCard title="Top Blog Posts">
+          {blogStats.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b-2 border-gray-100">
+                  <tr>
+                    <th className="pb-2 text-gray-500">Title</th>
+                    <th className="pb-2 text-right text-gray-500">Views</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {blogStats.map((post, i) => (
+                    <tr key={i} className="hover:bg-gray-50">
+                      <td className="py-3 font-medium text-gray-900">
+                        <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer" className="hover:underline hover:text-indigo-600">
+                          {post.title}
+                        </a>
+                      </td>
+                      <td className="py-3 text-right font-mono font-bold text-indigo-600 flex justify-end items-center gap-2">
+                        {post.views || 0} <Eye size={14} className="text-gray-400" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-gray-500 italic">No blog posts found or no views yet.</p>
+          )}
         </NeoCard>
       </div>
 
