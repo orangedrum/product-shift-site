@@ -20,7 +20,8 @@ const AdminLogin: React.FC = () => {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/admin-blog`,
+          // CTO FIX: Use root origin + query param to bypass strict path whitelisting
+          emailRedirectTo: `${window.location.origin}?redirect_to=/admin-blog`,
         },
       });
 

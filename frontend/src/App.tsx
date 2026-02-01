@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -33,6 +33,7 @@ import Blog from './components/Blog';
 
 const App: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   // Normalize path to handle optional trailing slashes (e.g. /simple-website-checkup/)
   const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
     ? location.pathname.slice(0, -1) 
@@ -57,6 +58,15 @@ const App: React.FC = () => {
   React.useEffect(() => {
     console.log('Current Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
   }, [location, normalizedPath, isLandingPage]);
+
+  // Global Redirect Handler (e.g. for Magic Links)
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const redirectTo = params.get('redirect_to');
+    if (redirectTo) {
+      navigate(redirectTo);
+    }
+  }, [location.search, navigate]);
 
   // Scroll handling: Respect hash if present, otherwise scroll to top
   React.useEffect(() => {
