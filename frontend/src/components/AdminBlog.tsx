@@ -26,7 +26,7 @@ const AdminBlog = () => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/login');
+      if (!session) navigate('/admin-login');
       setSession(session);
       if (session) fetchPosts();
     });

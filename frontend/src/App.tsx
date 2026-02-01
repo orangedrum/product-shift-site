@@ -19,6 +19,7 @@ import BlogWhyAudit from './pages/BlogWhyAudit';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
 import Login from './pages/Login';
+import AdminLogin from './pages/AdminLogin';
 import WaitlistPage from './pages/WaitlistPage';
 import StyleGuide from './pages/StyleGuidePage';
 import PaymentConfirmation from './pages/PaymentConfirmation';
@@ -107,6 +108,7 @@ const App: React.FC = () => {
           
           {/* This connects the /login URL to your new Neo-styled Login.tsx */}
           <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/waitlist" element={<WaitlistPage />} />
           
           <Route path="/styleguide" element={<StyleGuide />} />
