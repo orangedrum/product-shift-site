@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoButton } from './NeoButton';
 import { NeoCard } from './NeoCard';
-import { ArrowLeft, Save, Loader, Trash2, Edit, Plus, ExternalLink, LayoutDashboard } from 'lucide-react';
+import { Save, Loader, Trash2, Edit, Plus } from 'lucide-react';
+import AdminHeader from './AdminHeader';
 
 const AdminBlog = () => {
   const navigate = useNavigate();
@@ -123,17 +124,10 @@ const AdminBlog = () => {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader />
+      <div className="py-12">
       <div className="container mx-auto px-4 max-w-5xl">
-        <div className="mb-6 flex items-center gap-4">
-          <button onClick={() => navigate('/admin-dashboard')} className="flex items-center text-gray-600 hover:text-black transition-colors">
-            <LayoutDashboard className="w-4 h-4 mr-2" /> Back to Dashboard
-          </button>
-          <span className="text-gray-300">|</span>
-          <button onClick={() => navigate('/blog')} className="flex items-center text-gray-600 hover:text-black transition-colors">
-            <ExternalLink className="w-4 h-4 mr-2" /> View Live Blog
-          </button>
-        </div>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Blog Management</h1>
           {view === 'list' && (
@@ -238,6 +232,7 @@ const AdminBlog = () => {
           </NeoCard>
         )}
       </div>
+    </div>
     </div>
   );
 };

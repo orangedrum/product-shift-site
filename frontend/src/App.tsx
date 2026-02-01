@@ -28,6 +28,7 @@ import AgencyUserTestingPage from './pages/AgencyUserTestingPage';
 import AdminBlog from './components/AdminBlog';
 import BlogPost from './components/BlogPost';
 import Blog from './components/Blog';
+import AdminHeader from './components/AdminHeader';
 
 
 const App: React.FC = () => {
@@ -46,7 +47,10 @@ const App: React.FC = () => {
     '/increase-ecommerce-conversion-rates-video',
     '/landingpg-aiuxagent-video',
     '/free-website-audit-for-small-business',
-    '/blog/why-small-businesses-need-website-audit'
+    '/blog/why-small-businesses-need-website-audit',
+    '/admin-dashboard',
+    '/admin-blog',
+    '/styleguide'
   ].includes(normalizedPath);
 
   // Debugging: Log current path to ensure router is working
