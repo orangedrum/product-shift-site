@@ -1659,6 +1659,14 @@ app.get('/api/cron/cleanup-inactive-users', async (req, res) => {
 
 app.post('/api/run-test', runTestHandler);
 
+// --- Extension Endpoint ---
+app.post('/api/analyze', (req, res) => {
+  console.log(`[Extension] Analyze request received for: ${req.body?.url}`);
+  req.body.personaIds = ['alex-busy-pro']; // Default persona
+  req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
+  return runTestHandler(req, res);
+});
+
 app.post('/api/join-waitlist', async (req, res) => {
   const { email } = req.body;
 
