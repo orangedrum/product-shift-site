@@ -402,16 +402,6 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
 // This must come AFTER the webhook endpoint.
 app.use(express.json());
 
-// --- Extension Endpoint ---
-// Wraps the main test handler with defaults for the Chrome Extension
-// Placed here to ensure express.json() has parsed the body
-app.post('/api/analyze', (req, res) => {
-  console.log(`[Extension] Analyze request received for: ${req.body?.url}`);
-  req.body.personaIds = ['alex-busy-pro']; // Default persona
-  req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
-  return runTestHandler(req, res);
-});
-
 // --- Active Payment Verification (Self-Healing) ---
 // Allows the frontend to force a check if the webhook is slow or missing.
 app.post('/api/verify-payment', async (req, res) => {
@@ -796,12 +786,19 @@ app.post('/api/user/claim-referral', async (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
+  // Diagnostic: List registered routes to debug 404s
+  const routes: string[] = [];
+  app._router.stack.forEach((middleware: any) => {
+    if (middleware.route) {
+      routes.push(`${Object.keys(middleware.route.methods).join(',').toUpperCase()} ${middleware.route.path}`);
+    }
+  });
+
   res.json({
     status: 'ok',
     browserlessToken: process.env.BROWSERLESS_TOKEN ? 'SET' : 'MISSING',
     geminiApiKey: process.env.GEMINI_API_KEY ? 'SET' : 'MISSING',
-    supabaseUrl: process.env.SUPABASE_URL ? 'SET' : 'MISSING',
-    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY ? 'SET' : 'MISSING',
+    activeRoutes: routes.filter(r => r.includes('/api/analyze')), // Only show relevant route
   });
 });
 

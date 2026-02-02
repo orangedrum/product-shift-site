@@ -13,7 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('https://www.theproductshift.com/api/health');
       if (res.ok) {
         const json = await res.json();
-        status.innerText = `✅ Connected! (Status: ${json.status})`;
+          ? 'Analyze Route Active' 
+          : 'Analyze Route MISSING';
+        
+        status.innerText = `✅ Connected! (${routeCheck})`;
         status.className = 'status success';
       } else {
         throw new Error(`HTTP ${res.status}`);
