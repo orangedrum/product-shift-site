@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const img = document.getElementById('screenshot');
   const status = document.getElementById('status');
   const testBtn = document.getElementById('testConnBtn');
+  const resultsContainer = document.getElementById('results-container');
 
   const API_BASE = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
 
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     status.innerText = '';
     status.className = 'status';
     preview.style.display = 'none';
+    resultsContainer.innerHTML = ''; // Clear previous results
 
     try {
       // 2. Get the Active Tab
@@ -98,6 +100,44 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
       status.innerText = 'Analysis Complete!';
       status.className = 'status success';
+
+      // --- Render Analysis Results ---
+      if (data.userSessions && data.userSessions.length > 0) {
+        data.userSessions.forEach(session => {
+            // Parse the AI's structured response string
+            const analysisParts = session.analysis.split('|||');
+            const mood = analysisParts.find((part, i) => analysisParts[i-1] === 'USER_MOOD')?.trim() || 'Neutral';
+            const bubble = analysisParts.find((part, i) => analysisParts[i-1] === 'USER_BUBBLE')?.trim() || 'No immediate thoughts.';
+            let details = analysisParts.find((part, i) => analysisParts[i-1] === 'USER_DETAILS')?.trim() || 'No detailed feedback provided.';
+
+            // Convert simple markdown to HTML for display
+            details = details
+                .replace(/### (.*?)\n/g, '<h4>$1</h4>')
+                .replace(/### (.*)/g, '<h4>$1</h4>')
+                .replace(/\n/g, '<br>');
+
+            const sessionHtml = `
+                <div class="card result-card">
+                    <div class="persona-header">
+                        <img src="${session.avatar}" class="avatar" alt="${session.persona}">
+                        <div>
+                            <div class="persona-name">${session.persona}</div>
+                            <div class="persona-desc">${session.description}</div>
+                        </div>
+                    </div>
+                    <div class="mood-bubble mood-${mood.toLowerCase()}">
+                        "${bubble}"
+                    </div>
+                    <div class="details">
+                        ${details}
+                    </div>
+                </div>
+            `;
+            resultsContainer.innerHTML += sessionHtml;
+        });
+      } else {
+        resultsContainer.innerHTML = '<p class="error">No analysis results were returned from the server.</p>';
+      }
 
     } catch (err) {
       status.innerText = err.message || 'An error occurred';

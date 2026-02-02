@@ -1659,12 +1659,39 @@ app.get('/api/cron/cleanup-inactive-users', async (req, res) => {
 
 app.post('/api/run-test', runTestHandler);
 
-// --- Extension Endpoint ---
-app.post('/api/analyze', (req, res) => {
+// --- Extension Endpoint (with Auth) ---
+app.post('/api/analyze', async (req, res) => {
   console.log(`[Extension] Analyze request received for: ${req.body?.url}`);
-  req.body.personaIds = ['alex-busy-pro']; // Default persona
-  req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
-  return runTestHandler(req, res);
+
+  // 1. Extract Auth Token from cookies
+  // Vercel automatically parses cookies into req.cookies. The Supabase auth token
+  // is stored in a cookie with a dynamic name like 'sb-PROJECT_REF-auth-token'.
+  const authCookieKey = Object.keys(req.cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+  const cookie = authCookieKey ? req.cookies[authCookieKey] : null;
+
+  if (!cookie) {
+    return res.status(401).json({ error: 'Not authenticated. Please log in on the main site.' });
+  }
+
+  try {
+    // 2. Verify Token and Get User
+    // The cookie value is a JSON stringified array containing the session object.
+    const token = JSON.parse(cookie)[0].access_token;
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+    if (userError || !user) {
+      return res.status(401).json({ error: 'Authentication failed. Your session may have expired.' });
+    }
+
+    // 3. Inject required fields and call the main handler
+    req.body.email = user.email; // Inject the authenticated user's email
+    req.body.personaIds = ['alex-busy-pro']; // Default persona for the extension
+    req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
+    return runTestHandler(req, res);
+  } catch (e) {
+    console.error("Auth error in /api/analyze:", e);
+    return res.status(401).json({ error: 'Failed to process authentication token.' });
+  }
 });
 
 app.post('/api/join-waitlist', async (req, res) => {
