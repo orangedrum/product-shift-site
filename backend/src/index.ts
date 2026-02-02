@@ -399,7 +399,9 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
   res.json({received: true});
 });
 
-// This must come AFTER the webhook endpoint.
+// --- Global Middleware ---
+// This must come AFTER the webhook endpoint (which needs raw body)
+// but BEFORE all other API routes (which need JSON).
 app.use(express.json());
 
 // --- Active Payment Verification (Self-Healing) ---
@@ -798,6 +800,8 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     browserlessToken: process.env.BROWSERLESS_TOKEN ? 'SET' : 'MISSING',
     geminiApiKey: process.env.GEMINI_API_KEY ? 'SET' : 'MISSING',
+    supabaseUrl: process.env.SUPABASE_URL ? 'SET' : 'MISSING',
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY ? 'SET' : 'MISSING',
     activeRoutes: routes.filter(r => r.includes('/api/analyze')), // Only show relevant route
   });
 });
@@ -2160,7 +2164,7 @@ app.get('/api/admin/stats', async (req, res) => {
         .from('analysis_runs')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(5);
 
     if (runsError) throw runsError;
 
@@ -2212,6 +2216,13 @@ app.get('/api/admin/stats', async (req, res) => {
     console.error('Admin Stats Error:', error);
     res.status(500).json({ error: 'Failed to fetch stats', details: error.message });
   }
+});
+
+// --- 404 Catch-All Logger ---
+// If a request gets here, no route matched. Log it for debugging.
+app.use((req, res) => {
+  console.log(`[404] No route matched for: ${req.method} ${req.path}`);
+  res.status(404).send(`Cannot ${req.method} ${req.path}`);
 });
 
 // Export the app for Vercel

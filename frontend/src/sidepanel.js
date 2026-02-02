@@ -5,12 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const status = document.getElementById('status');
   const testBtn = document.getElementById('testConnBtn');
 
+  const API_BASE = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
+
   // Diagnostic Tool
-  testBtn.addEventListener('click', async () => {
+  if (testBtn) {
+    testBtn.addEventListener('click', async () => {
     status.innerText = 'Testing connection...';
     status.className = 'status';
     try {
-      const res = await fetch('https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app/api/health');
+      const res = await fetch(`${API_BASE}/api/health`);
       if (res.ok) {
         const json = await res.json();
         const routeCheck = json.activeRoutes && json.activeRoutes.length > 0
@@ -27,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
       status.className = 'status error';
     }
   });
+  }
 
   btn.addEventListener('click', async () => {
     // 1. Reset UI State
@@ -56,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 4. Send to Backend (Production)
       // We send the URL to our existing scraping engine.
       // Note: This relies on the user being logged into the main site for cookies.
-      const response = await fetch('https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app/api/analyze', {
+      const response = await fetch(`${API_BASE}/api/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (response.status === 401) {
-        status.innerHTML = '<a href="https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app/login" target="_blank">Please Log In First</a>';
+        status.innerHTML = `<a href="${API_BASE}/login" target="_blank">Please Log In First</a>`;
         status.className = 'status error';
         return;
       }
