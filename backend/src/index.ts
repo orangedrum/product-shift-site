@@ -54,11 +54,10 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-2.5-flash',        // Latest Stable (Best Balance of Speed/Quality)
-    'gemini-2.0-flash',        // Previous Stable (Reliable Fallback)
+    'gemini-1.5-flash',        // Current Stable Workhorse (Fast & Reliable)
+    'gemini-1.5-pro',          // High Intelligence Fallback
     'gemini-flash-latest',     // Generic Alias (Safety Net)
-    'gemini-2.5-pro',          // High Intelligence (If Flash fails)
-    'gemini-pro-latest',       // Generic Pro Alias
+    'gemini-pro',              // Legacy Fallback
   ];
 
   // Prepare image part if available
@@ -78,8 +77,6 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   for (const modelName of modelsToTry) {
-    // Add a "politeness" delay before every attempt to stay under RPM limits
-    await delay(2000);
     try {
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
@@ -87,6 +84,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
+      // Smart Scavenger: Only delay if we failed, to give the API a breather before the next attempt
+      await delay(2000);
       console.log(`Model '${modelName}' failed: ${error.message}`);
       // Enhance error message for 404s which usually mean API is disabled or Key is restricted
       if (error.message.includes('404') && error.message.includes('not found')) {
@@ -1357,36 +1356,32 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
 
     // Safety Valve: 54 second timeout (leaving 6s buffer for Vercel's 60s limit)
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 54000)
+      setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 48000)
     );
 
     const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
     res.json(finalResponse);
 
-    } catch (error: any) {
-      // --- Graceful Timeout Handling ---
-      if (error.message === 'GRACEFUL_TIMEOUT') {
-        console.error('⚠️ Analysis timed out. Returning graceful fallback.');
-        return res.json({
-          message: 'Analysis Delayed',
-          title: 'Analysis In Progress',
-          url: url,
-          screenshot: '', // We might not have it if browserless hung, or we could try to pass it out if we refactored deeper.
-          userSessions: [{
-            persona: 'System',
-            avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=System',
-            analysis: '|||USER_MOOD|||Neutral|||USER_BUBBLE|||We\'re having a bad AI day.|||USER_DETAILS|||### 1. Status Update\nOur AI brains are a bit overloaded right now and timed out while analyzing your page.\n\n### 2. Recommendation\nPlease wait a few minutes and click **Analyze Again** above to retry.\n\n### 3. Note\nYour credit was not deducted for this incomplete run.',
-            description: 'Automated System Message'
-          }],
-          expertReport: '### TEST RESULT: INCONCLUSIVE\nThe AI models are currently overloaded. Please retry.',
-          scores: { usability: 50, desirability: 50, clarity: 50 }
-        });
-      }
-
-      throw error;
+  } catch (error: any) {
+    // --- Graceful Timeout Handling ---
+    if (error.message === 'GRACEFUL_TIMEOUT') {
+      console.error('⚠️ Analysis timed out. Returning graceful fallback.');
+      return res.json({
+        message: 'Analysis Delayed',
+        title: 'Analysis In Progress',
+        url: url,
+        screenshot: '', // We might not have it if browserless hung, or we could try to pass it out if we refactored deeper.
+        userSessions: [{
+          persona: 'System',
+          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=System',
+          analysis: '|||USER_MOOD|||Neutral|||USER_BUBBLE|||We\'re having a bad AI day.|||USER_DETAILS|||### 1. Status Update\nOur AI brains are a bit overloaded right now and timed out while analyzing your page.\n\n### 2. Recommendation\nPlease wait a few minutes and click **Analyze Again** above to retry.\n\n### 3. Note\nYour credit was not deducted for this incomplete run.',
+          description: 'Automated System Message'
+        }],
+        expertReport: '### TEST RESULT: INCONCLUSIVE\nThe AI models are currently overloaded. Please retry.',
+        scores: { usability: 50, desirability: 50, clarity: 50 }
+      });
     }
 
-  } catch (error: any) {
     console.error('Test error:', error);
     const errorMessage = error.message || 'An unknown error occurred.';
     
