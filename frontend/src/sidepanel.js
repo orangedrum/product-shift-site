@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     status.innerText = 'Testing connection...';
     status.className = 'status';
     try {
-      const res = await fetch('https://www.theproductshift.com/api/health');
+      const res = await fetch('https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app/api/health');
       if (res.ok) {
         const json = await res.json();
         const routeCheck = json.activeRoutes && json.activeRoutes.length > 0
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 4. Send to Backend (Production)
       // We send the URL to our existing scraping engine.
       // Note: This relies on the user being logged into the main site for cookies.
-      const response = await fetch('https://www.theproductshift.com/api/analyze', {
+      const response = await fetch('https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (response.status === 401) {
-        status.innerHTML = '<a href="https://www.theproductshift.com/login" target="_blank">Please Log In First</a>';
+        status.innerHTML = '<a href="https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app/login" target="_blank">Please Log In First</a>';
         status.className = 'status error';
         return;
       }
