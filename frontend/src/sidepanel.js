@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Critical: Send auth cookies with the request
         body: JSON.stringify({ 
           url: tab.url
         }),
@@ -49,7 +50,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (!response.ok) {
-        throw new Error('Analysis failed. Please try again.');
+        // Debugging: Read the actual error from the server
+        const errorText = await response.text();
+        let errorMessage = `Error (${response.status})`;
+        try {
+          const json = JSON.parse(errorText);
+          if (json.error) errorMessage += `: ${json.error}`;
+        } catch (e) {
+          errorMessage += `: ${errorText.substring(0, 60)}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
