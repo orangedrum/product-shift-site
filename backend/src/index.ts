@@ -1651,6 +1651,7 @@ app.post('/api/run-test', runTestHandler);
 // --- Extension Endpoint ---
 // Wraps the main test handler with defaults for the Chrome Extension
 app.post('/api/analyze', (req, res) => {
+  console.log(`[Extension] Analyze request received for: ${req.body.url}`);
   req.body.personaIds = ['alex-busy-pro']; // Default persona
   req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
   return runTestHandler(req, res);
