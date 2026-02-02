@@ -1108,7 +1108,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
     `;
 
     // Reverted to a simple fetch call. We will not try to bypass SSL errors anymore.
-    try {
       const response = await fetch(`https://production-sfo.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN!}`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
