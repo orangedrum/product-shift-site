@@ -1648,6 +1648,14 @@ app.get('/api/cron/cleanup-inactive-users', async (req, res) => {
 
 app.post('/api/run-test', runTestHandler);
 
+// --- Extension Endpoint ---
+// Wraps the main test handler with defaults for the Chrome Extension
+app.post('/api/analyze', (req, res) => {
+  req.body.personaIds = ['alex-busy-pro']; // Default persona
+  req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
+  return runTestHandler(req, res);
+});
+
 app.post('/api/join-waitlist', async (req, res) => {
   const { email } = req.body;
 

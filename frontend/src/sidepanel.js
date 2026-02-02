@@ -50,8 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (!response.ok) {
-        // Debugging: Read the actual error from the server
         const errorText = await response.text();
+        
+        // Deductive Reasoning Fix: Detect HTML 404s (SPA Fallback)
+        if (errorText.trim().startsWith('<!DOCTYPE html>')) {
+          throw new Error(`Server Error (404): The API endpoint '/api/analyze' does not exist on the server.`);
+        }
+
         let errorMessage = `Error (${response.status})`;
         try {
           const json = JSON.parse(errorText);
