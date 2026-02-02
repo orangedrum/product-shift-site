@@ -49,9 +49,11 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash',        // Current Fastest & Most Reliable
-    'gemini-1.5-pro',          // High Intelligence Fallback
-    'gemini-pro',              // Legacy Fallback
+    'gemini-2.5-flash',        // Latest Stable (Best Balance of Speed/Quality)
+    'gemini-2.0-flash',        // Previous Stable (Reliable Fallback)
+    'gemini-flash-latest',     // Generic Alias (Safety Net)
+    'gemini-2.5-pro',          // High Intelligence (If Flash fails)
+    'gemini-pro-latest',       // Generic Pro Alias
   ];
 
   // Prepare image part if available
@@ -71,6 +73,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   for (const modelName of modelsToTry) {
+    // Add a "politeness" delay before every attempt to stay under RPM limits
+    await delay(2000);
     try {
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
@@ -78,8 +82,6 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
-      // Smart Scavenger: Only delay if we failed, to give the API a breather before the next attempt
-      await delay(1000);
       console.log(`Model '${modelName}' failed: ${error.message}`);
       // Enhance error message for 404s which usually mean API is disabled or Key is restricted
       if (error.message.includes('404') && error.message.includes('not found')) {
@@ -1036,6 +1038,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   }
 
   try {
+    // --- TIMEOUT RACE START ---
+    // We wrap the heavy lifting in a promise that rejects if it takes too long, preventing a 504.
+    const analysisPromise = (async () => {
     console.log('Sending request to Browserless...');
 
     // This script runs on the Browserless.io servers.
@@ -1153,6 +1158,11 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       for (const pId of personaIds) {
         const activePersona = personas[pId];
         if (activePersona) {
+          // Add a 6-second delay before each request (except the first) to stay under the RPM limit
+          if (userSessions.length > 0) {
+              await delay(6000);
+          }
+
           const sessionOutput = await generateUserSession(result, activePersona, goal, url);
           
           // Parse Mood to adjust avatar
@@ -1280,6 +1290,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       }
 
       // --- Aggregated Expert Report ---
+      await delay(6000); // Delay before the final expert report generation
       let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
       
       // Extract JSON Scores
@@ -1323,7 +1334,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         expertReportText = '|||SSL_WARNING_ALERT|||\n' + expertReportText;
       }
 
-      res.json({
+      return {
         message: 'Analysis Complete.',
         title: result.title,
         url: url,
@@ -1331,8 +1342,37 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description })),
         expertReport: expertReportText,
         scores
-      });
+      };
+    })(); // End of analysisPromise
+
+    // Safety Valve: 54 second timeout (leaving 6s buffer for Vercel's 60s limit)
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 54000)
+    );
+
+    const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
+    res.json(finalResponse);
+
     } catch (error: any) {
+      // --- Graceful Timeout Handling ---
+      if (error.message === 'GRACEFUL_TIMEOUT') {
+        console.error('⚠️ Analysis timed out. Returning graceful fallback.');
+        return res.json({
+          message: 'Analysis Delayed',
+          title: 'Analysis In Progress',
+          url: url,
+          screenshot: '', // We might not have it if browserless hung, or we could try to pass it out if we refactored deeper.
+          userSessions: [{
+            persona: 'System',
+            avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=System',
+            analysis: '|||USER_MOOD|||Neutral|||USER_BUBBLE|||We\'re having a bad AI day.|||USER_DETAILS|||### 1. Status Update\nOur AI brains are a bit overloaded right now and timed out while analyzing your page.\n\n### 2. Recommendation\nPlease wait a few minutes and click **Analyze Again** above to retry.\n\n### 3. Note\nYour credit was not deducted for this incomplete run.',
+            description: 'Automated System Message'
+          }],
+          expertReport: '### TEST RESULT: INCONCLUSIVE\nThe AI models are currently overloaded. Please retry.',
+          scores: { usability: 50, desirability: 50, clarity: 50 }
+        });
+      }
+
       throw error;
     }
 
