@@ -3,6 +3,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const preview = document.getElementById('preview');
   const img = document.getElementById('screenshot');
   const status = document.getElementById('status');
+  const testBtn = document.getElementById('testConnBtn');
+
+  // Diagnostic Tool
+  testBtn.addEventListener('click', async () => {
+    status.innerText = 'Testing connection...';
+    status.className = 'status';
+    try {
+      const res = await fetch('https://www.theproductshift.com/api/health');
+      if (res.ok) {
+        const json = await res.json();
+        status.innerText = `✅ Connected! (Status: ${json.status})`;
+        status.className = 'status success';
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    } catch (e) {
+      status.innerText = `❌ Connection Failed: ${e.message}`;
+      status.className = 'status error';
+    }
+  });
 
   btn.addEventListener('click', async () => {
     // 1. Reset UI State
