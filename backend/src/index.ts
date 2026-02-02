@@ -49,11 +49,9 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-2.5-flash',        // Latest Stable (Best Balance of Speed/Quality)
-    'gemini-2.0-flash',        // Previous Stable (Reliable Fallback)
-    'gemini-flash-latest',     // Generic Alias (Safety Net)
-    'gemini-2.5-pro',          // High Intelligence (If Flash fails)
-    'gemini-pro-latest',       // Generic Pro Alias
+    'gemini-1.5-flash',        // Current Fastest & Most Reliable
+    'gemini-1.5-pro',          // High Intelligence Fallback
+    'gemini-pro',              // Legacy Fallback
   ];
 
   // Prepare image part if available
@@ -73,8 +71,6 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   for (const modelName of modelsToTry) {
-    // Add a "politeness" delay before every attempt to stay under RPM limits
-    await delay(2000); 
     try {
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
@@ -82,6 +78,8 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
       console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
+      // Smart Scavenger: Only delay if we failed, to give the API a breather before the next attempt
+      await delay(1000);
       console.log(`Model '${modelName}' failed: ${error.message}`);
       // Enhance error message for 404s which usually mean API is disabled or Key is restricted
       if (error.message.includes('404') && error.message.includes('not found')) {
@@ -1155,11 +1153,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       for (const pId of personaIds) {
         const activePersona = personas[pId];
         if (activePersona) {
-          // Add a 6-second delay before each request (except the first) to stay under the RPM limit
-          if (userSessions.length > 0) {
-              await delay(6000);
-          }
-
           const sessionOutput = await generateUserSession(result, activePersona, goal, url);
           
           // Parse Mood to adjust avatar
@@ -1287,7 +1280,6 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       }
 
       // --- Aggregated Expert Report ---
-      await delay(6000); // Delay before the final expert report generation
       let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
       
       // Extract JSON Scores
