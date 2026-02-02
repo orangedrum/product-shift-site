@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('https://www.theproductshift.com/api/health');
       if (res.ok) {
         const json = await res.json();
+        const routeCheck = json.activeRoutes && json.activeRoutes.length > 0
           ? 'Analyze Route Active' 
           : 'Analyze Route MISSING';
         
