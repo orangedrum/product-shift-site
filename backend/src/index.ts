@@ -402,6 +402,16 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
 // This must come AFTER the webhook endpoint.
 app.use(express.json());
 
+// --- Extension Endpoint ---
+// Wraps the main test handler with defaults for the Chrome Extension
+// Placed here to ensure express.json() has parsed the body
+app.post('/api/analyze', (req, res) => {
+  console.log(`[Extension] Analyze request received for: ${req.body?.url}`);
+  req.body.personaIds = ['alex-busy-pro']; // Default persona
+  req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
+  return runTestHandler(req, res);
+});
+
 // --- Active Payment Verification (Self-Healing) ---
 // Allows the frontend to force a check if the webhook is slow or missing.
 app.post('/api/verify-payment', async (req, res) => {
@@ -1647,15 +1657,6 @@ app.get('/api/cron/cleanup-inactive-users', async (req, res) => {
 });
 
 app.post('/api/run-test', runTestHandler);
-
-// --- Extension Endpoint ---
-// Wraps the main test handler with defaults for the Chrome Extension
-app.post('/api/analyze', (req, res) => {
-  console.log(`[Extension] Analyze request received for: ${req.body.url}`);
-  req.body.personaIds = ['alex-busy-pro']; // Default persona
-  req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
-  return runTestHandler(req, res);
-});
 
 app.post('/api/join-waitlist', async (req, res) => {
   const { email } = req.body;
