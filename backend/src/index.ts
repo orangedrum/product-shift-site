@@ -28,7 +28,12 @@ type Persona = {
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// FIX: Prevent top-level crash if env vars are missing (common in Preview environments).
+// We use a placeholder so the app initializes, but DB calls will fail gracefully later.
+const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseServiceKey || 'placeholder'
+);
 
 // --- Stripe Initialization ---
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -790,11 +795,17 @@ app.post('/api/user/claim-referral', async (req, res) => {
 app.get('/api/health', (req, res) => {
   // Diagnostic: List registered routes to debug 404s
   const routes: string[] = [];
-  app._router.stack.forEach((middleware: any) => {
-    if (middleware.route) {
-      routes.push(`${Object.keys(middleware.route.methods).join(',').toUpperCase()} ${middleware.route.path}`);
+  try {
+    if (app._router && app._router.stack) {
+      app._router.stack.forEach((middleware: any) => {
+        if (middleware.route) {
+          routes.push(`${Object.keys(middleware.route.methods).join(',').toUpperCase()} ${middleware.route.path}`);
+        }
+      });
     }
-  });
+  } catch (e) {
+    console.error('Health check route inspection failed:', e);
+  }
 
   res.json({
     status: 'ok',
