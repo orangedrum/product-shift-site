@@ -1795,6 +1795,82 @@ app.get('/api/cron/cleanup-inactive-users', async (req, res) => {
   }
 });
 
+// --- Public Report Endpoint (SEO Optimized) ---
+app.get('/api/public-report/:id', async (req, res) => {
+  const { id } = req.params;
+
+  // --- Test Mode Fallback ---
+  if (id === 'test-mode-dummy-id') {
+    const scores = { usability: 88, desirability: 92, clarity: 95 };
+    const title = 'Test Mode: The Product Shift';
+    const url = 'https://test-mode.com';
+    const expertReport = '### TEST RESULT: PASS\nThis is a generated test report for verification purposes.';
+    const seoSchema = generateStructuredData(url, `UX Audit: ${title}`, scores, expertReport);
+    
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>UX Audit: ${title}</title>
+        <script type="application/ld+json">${JSON.stringify(seoSchema)}</script>
+        <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;}</style>
+      </head>
+      <body>
+        <h1>${title}</h1>
+        <p>This is a static test report to verify the Share feature.</p>
+      </body>
+      </html>`;
+    return res.send(html);
+  }
+  
+  if (!supabaseUrl || !supabaseServiceKey) return res.status(500).send('Database not configured');
+
+  try {
+    const { data: run, error } = await supabase
+      .from('analysis_runs')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !run || !run.report_data) {
+      return res.status(404).send('Report not found or expired.');
+    }
+
+    const { scores, expertReport, userSessions, title, url } = run.report_data;
+    
+    // Generate SEO Schema
+    const seoSchema = generateStructuredData(url, `UX Audit: ${title}`, scores, expertReport);
+
+    // Simple Server-Side Rendered HTML
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>UX Audit: ${title} | Product Shift</title>
+        <meta name="description" content="AI-powered UX audit for ${url}. Usability Score: ${scores.usability}/100.">
+        <script type="application/ld+json">${JSON.stringify(seoSchema)}</script>
+        <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;line-height:1.6} .score{font-weight:bold;font-size:24px}</style>
+      </head>
+      <body>
+        <h1>UX Audit: ${title}</h1>
+        <p><strong>Target URL:</strong> <a href="${url}">${url}</a></p>
+        <div class="score">Usability Score: ${scores.usability}/100</div>
+        <hr/>
+        <div>${expertReport.replace(/\n/g, '<br>')}</div>
+        <div style="margin-top:40px;padding:20px;background:#f3f4f6;text-align:center"><a href="https://www.theproductshift.com">Generate your own AI UX Audit</a></div>
+      </body>
+      </html>
+    `;
+    
+    res.send(html);
+  } catch (e: any) {
+    res.status(500).send('Error generating report');
+  }
+});
+
 app.post('/api/run-test', runTestHandler);
 
 // --- Extension Endpoint (with Auth) ---

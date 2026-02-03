@@ -163,12 +163,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.reportId) {
           const shareUrl = `${API_BASE}/api/public-report/${data.reportId}`;
           resultsContainer.innerHTML += `
-            <div style="margin-top: 16px;">
-              <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none;">
-                Share Full Report ↗
+            <div style="margin-top: 16px; display: flex; gap: 8px;">
+              <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none; flex: 1; text-align: center;">
+                Share Report ↗
               </a>
+              ${data.seoSchema ? `
+              <button id="copySeoBtn" class="btn btn-outline" style="flex: 1;">
+                Copy SEO JSON
+              </button>` : ''}
             </div>
           `;
+          
+          if (data.seoSchema) {
+             setTimeout(() => {
+                const copyBtn = document.getElementById('copySeoBtn');
+                if(copyBtn) {
+                    copyBtn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(JSON.stringify(data.seoSchema, null, 2));
+                        copyBtn.innerText = 'Copied!';
+                        setTimeout(() => copyBtn.innerText = 'Copy SEO JSON', 2000);
+                    });
+                }
+             }, 50);
+          }
         }
       } else {
         resultsContainer.innerHTML = '<p class="error">No analysis results were returned from the server.</p>';
