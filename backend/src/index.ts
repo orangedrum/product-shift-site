@@ -398,13 +398,18 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             // We use update here. If the user doesn't exist, add_credits (RPC) likely handled creation,
             // or we might miss it. To be safe, we can upsert or just update.
             // Since add_credits is atomic, let's just update the segment if the user exists now.
-            const { error: segError } = await supabase
+            // CTO FIX: We add .select() to verify if a row was actually updated.
+            const { data: updatedRows, error: segError } = await supabase
               .from('customers')
               .update({ segment })
-              .eq('email', customerEmail);
+              .eq('email', customerEmail)
+              .select();
 
-            if (segError) {
-              console.error('Failed to stamp segment:', segError);
+            // If error OR no rows were updated (user not found yet), trigger the fallback upsert.
+            if (segError || !updatedRows || updatedRows.length === 0) {
+              if (segError) console.error('Failed to stamp segment (Update):', segError);
+              else console.log('Segment update missed (User not ready). Triggering fallback upsert.');
+              
               // Fallback: Try upsert if update failed (e.g. row wasn't ready yet)
               // We only set the segment, preserving other fields if they exist (though upsert merges)
               // Note: This is a safety net.
@@ -933,11 +938,10 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         deductPromise();
     }
 
-    const fakeReport = {
-        message: 'Analysis Complete.',
-        title: 'Test Mode: The Product Shift',
-        screenshot: '', 
-        userSessions: [
+    const scores = { usability: 88, desirability: 92, clarity: 95 };
+    const expertReport = '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.\n\n|||SCORES_JSON|||\n{ "usability": 88, "desirability": 92, "clarity": 95 }';
+
+    const userSessions = [
             {
                 persona: 'Alex',
                 avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra',
@@ -945,9 +949,53 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
                 description: 'a busy professional with two kids under 5',
                 personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' }
             }
-        ],
-        expertReport: '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.\n\n|||SCORES_JSON|||\n{ "usability": 88, "desirability": 92, "clarity": 95 }',
-        scores: { usability: 88, desirability: 92, clarity: 95 }
+        ];
+
+    // Generate SEO Schema
+    const seoSchema = generateStructuredData(url, 'Test Mode: The Product Shift', scores, expertReport);
+
+    let reportId = null;
+
+    // Save to DB so Share Button works
+    if (supabaseUrl && supabaseServiceKey) {
+        const { data: runLog, error: runError } = await supabase
+          .from('analysis_runs')
+          .insert({
+            user_identifier: 'test-mode',
+            url: url,
+            persona_count: 1,
+            estimated_cost: 0,
+            is_demo: true,
+            plan_type: 'demo',
+            revenue: 0,
+            report_data: {
+                title: 'Test Mode: The Product Shift',
+                url: url,
+                scores,
+                expertReport,
+                userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.description }))
+            }
+          })
+          .select('id')
+          .single();
+        
+        if (runLog) reportId = runLog.id;
+        if (runError) console.error('Test Mode DB Insert Error (Using Fallback):', runError);
+    }
+    
+    // Ensure we always have an ID in test mode so the button appears
+    if (!reportId) reportId = 'test-mode-dummy-id';
+
+    const fakeReport = {
+        message: 'Analysis Complete.',
+        reportId,
+        title: 'Test Mode: The Product Shift',
+        url: url,
+        screenshot: '', 
+        userSessions,
+        expertReport,
+        scores,
+        seoSchema
     };
     // Add a small delay to simulate network latency
     await new Promise(resolve => setTimeout(resolve, 1500));
