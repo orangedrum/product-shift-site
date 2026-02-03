@@ -219,6 +219,34 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
   return generateContentWithFallback(prompt, data.screenshot);
 };
 
+// --- SEO Helper: Generate Schema.org JSON-LD ---
+const generateStructuredData = (url: string, title: string, scores: any, summary: string) => {
+  // Strip markdown for the schema description
+  const cleanSummary = summary.replace(/[#*]/g, '').split('\n').filter(line => line.trim().length > 0).slice(0, 3).join(' ');
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    "itemReviewed": {
+      "@type": "WebSite",
+      "name": title,
+      "url": url
+    },
+    "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": scores.usability,
+      "bestRating": "100",
+      "worstRating": "0"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "Product Shift AI"
+    },
+    "reviewBody": cleanSummary,
+    "datePublished": new Date().toISOString()
+  };
+};
+
 const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
   let footerContent = `
     ---
@@ -967,6 +995,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
   let useFreeTier = true;
   let shouldDeductCredit = false;
 
+  let runId: string | null = null;
+
   // --- CREDIT & SUBSCRIPTION CHECK ---
   // If user is logged in, check if they have a plan or credits
   if (email && supabaseUrl && supabaseServiceKey) {
@@ -1284,7 +1314,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         const totalAiCalls = personaIds.length + 1; // N personas + 1 aggregated report
         const estimatedCost = (totalAiCalls * costPerAiCallCents) / 100; // Store cost in dollars
 
-        const { error: runLogError } = await supabase
+        const { data: runLog, error: runLogError } = await supabase
           .from('analysis_runs')
           .insert({
             user_identifier: userIdentifier,
@@ -1294,7 +1324,11 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
             is_demo: isDemo,
             plan_type: planType,
             revenue: revenue
-          });
+          })
+          .select('id')
+          .single();
+        
+        if (runLog) runId = runLog.id;
         if (runLogError) console.error('Failed to log analysis run:', runLogError);
       }
 
@@ -1343,14 +1377,33 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
         expertReportText = '|||SSL_WARNING_ALERT|||\n' + expertReportText;
       }
 
+      // Generate SEO Schema for this report
+      const seoSchema = generateStructuredData(url, result.title, scores, expertReportText);
+
+      // --- Update DB with Full Report Data ---
+      if (runId && supabaseUrl && supabaseServiceKey) {
+        // We store the structured data so the public endpoint can re-render it
+        await supabase.from('analysis_runs').update({
+          report_data: {
+            title: result.title,
+            url: url,
+            scores,
+            expertReport: expertReportText,
+            userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description }))
+          }
+        }).eq('id', runId);
+      }
+
       return {
         message: 'Analysis Complete.',
+        reportId: runId, // Send back ID so frontend could link to public report if needed
         title: result.title,
         url: url,
         screenshot: result.screenshot,
         userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description })),
         expertReport: expertReportText,
-        scores
+        scores,
+        seoSchema // Frontend can now inject this into the head of public pages
       };
     })(); // End of analysisPromise
 

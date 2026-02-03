@@ -101,6 +101,29 @@ document.addEventListener('DOMContentLoaded', () => {
       status.innerText = 'Analysis Complete!';
       status.className = 'status success';
 
+      // --- Render Usability Scores ---
+      const scores = data.scores || { usability: 0, desirability: 0, clarity: 0 };
+      const scoreHtml = `
+        <div class="card score-container">
+          <div class="score-row">
+            <span class="score-label">Usability</span>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.usability}%"></div></div>
+            <span class="score-value">${scores.usability}</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Desirability</span>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.desirability}%"></div></div>
+            <span class="score-value">${scores.desirability}</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Clarity</span>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.clarity}%"></div></div>
+            <span class="score-value">${scores.clarity}</span>
+          </div>
+        </div>
+      `;
+      resultsContainer.innerHTML = scoreHtml;
+
       // --- Render Analysis Results ---
       if (data.userSessions && data.userSessions.length > 0) {
         data.userSessions.forEach(session => {
@@ -135,6 +158,18 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             resultsContainer.innerHTML += sessionHtml;
         });
+
+        // --- Share Button ---
+        if (data.reportId) {
+          const shareUrl = `${API_BASE}/api/public-report/${data.reportId}`;
+          resultsContainer.innerHTML += `
+            <div style="margin-top: 16px;">
+              <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none;">
+                Share Full Report ↗
+              </a>
+            </div>
+          `;
+        }
       } else {
         resultsContainer.innerHTML = '<p class="error">No analysis results were returned from the server.</p>';
       }

@@ -65,6 +65,16 @@
         transform: none;
       }
 
+      .btn-outline {
+        background: white;
+        color: black;
+        border: 2px solid black;
+      }
+
+      .btn-outline:hover {
+        background: #f3f4f6;
+      }
+
       /* Screenshot Preview */
       .preview-container {
         margin-top: 16px;
@@ -157,6 +167,40 @@
         font-size: 14px;
         font-weight: bold;
         margin: 12px 0 4px 0;
+      }
+
+      /* Score Chart */
+      .score-container {
+        margin-bottom: 16px;
+      }
+      .score-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .score-label {
+        width: 80px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .score-bar-bg {
+        flex-grow: 1;
+        height: 12px;
+        background: #e5e7eb;
+        border: 2px solid black;
+        margin: 0 8px;
+      }
+      .score-bar-fill {
+        height: 100%;
+        background: black;
+        width: 0%; /* Animated via JS */
+        transition: width 1s ease-out;
+      }
+      .score-value {
+        width: 30px;
+        text-align: right;
+        font-size: 12px;
+        font-weight: 900;
       }
     </style>
   </head>
