@@ -169,6 +169,15 @@
         font-weight: bold;
         margin: 12px 0 4px 0;
       }
+      
+      /* Input Style */
+      .input-field {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid black;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
 
       /* Score Chart */
       .score-container {
@@ -215,13 +224,21 @@
 
       <!-- Login View (Default) -->
       <div id="login-view" style="text-align: center; padding: 20px 0;">
-        <p>Please log in to your Product Shift account to run an analysis.</p>
-        <a id="loginLink" href="#" target="_blank" class="btn">
-          Login
-        </a>
+        <p>Enter your email to sign in.</p>
+        
+        <input type="email" id="emailInput" class="input-field" placeholder="name@company.com" />
+        
+        <button id="sendMagicLinkBtn" class="btn">
+          Send Login Link
+        </button>
+        
         <button id="checkAuthBtn" class="btn-outline" style="margin-top: 10px; width: 100%; padding: 8px; border-radius: 8px; cursor: pointer;">
           I've Logged In (Check Again)
         </button>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+          Don't have an account? <a href="https://www.theproductshift.com/agency-user-testing" target="_blank" style="color: black; font-weight: bold;">Create one here</a>
+        </div>
       </div>
 
       <!-- App View (Hidden until Auth) -->

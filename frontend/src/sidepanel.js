@@ -9,13 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auth Elements
   const loginView = document.getElementById('login-view');
   const appView = document.getElementById('app-view');
-  const loginLink = document.getElementById('loginLink');
   const checkAuthBtn = document.getElementById('checkAuthBtn');
+  const sendMagicLinkBtn = document.getElementById('sendMagicLinkBtn');
+  const emailInput = document.getElementById('emailInput');
 
   const API_BASE = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
-  
-  // Set Login Link
-  if (loginLink) loginLink.href = `${API_BASE}/login`;
 
   // --- Auth Check Function ---
   const checkAuth = async () => {
@@ -46,6 +44,46 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthBtn.addEventListener('click', () => {
       checkAuthBtn.innerText = 'Checking...';
       checkAuth().then(() => checkAuthBtn.innerText = "I've Logged In (Check Again)");
+    });
+  }
+
+  // --- Send Magic Link Function ---
+  if (sendMagicLinkBtn && emailInput) {
+    sendMagicLinkBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      if (!email) {
+        alert('Please enter your email address.');
+        return;
+      }
+
+      sendMagicLinkBtn.disabled = true;
+      sendMagicLinkBtn.innerText = 'Sending...';
+
+      try {
+        // We tell the backend to redirect the user back to THIS specific API Base URL after login.
+        // This ensures the auth cookie is set on the correct domain (the Vercel preview URL).
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            email, 
+            redirectTo: `${API_BASE}/ai-powered-ux` 
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('Magic Link Sent! Check your inbox, click the link, then come back here and click "Check Again".');
+          sendMagicLinkBtn.innerText = 'Link Sent!';
+        } else {
+          throw new Error(data.error || 'Failed to send link');
+        }
+      } catch (e) {
+        console.error('Login error:', e);
+        alert(`Error: ${e.message}`);
+        sendMagicLinkBtn.disabled = false;
+        sendMagicLinkBtn.innerText = 'Send Login Link';
+      }
     });
   }
 
