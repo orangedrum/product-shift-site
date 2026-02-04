@@ -205,7 +205,7 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
     |||USER_MOOD|||
     (One word: Positive, Neutral, or Negative)
     |||USER_BUBBLE|||
-    (A single, genuine, emotional sentence summarizing your immediate feeling. E.g., "I'm so confused, I don't know where to click!" or "This looks super professional, I trust it.")
+    (A single, genuine, emotional sentence connecting your specific problem/pain point to the solution you see on the page. E.g., "As a busy parent, this scheduling tool is exactly the relief I need!" or "I'm drowning in data, but this dashboard just adds more noise.")
     |||USER_DETAILS|||
     ### 1. My Experience
     (2-3 sentences on your immediate reaction. Do you feel confident? Confused? Does the site look trustworthy?)
@@ -1868,6 +1868,84 @@ app.get('/api/public-report/:id', async (req, res) => {
     res.send(html);
   } catch (e: any) {
     res.status(500).send('Error generating report');
+  }
+});
+
+// --- Auth Status Endpoint (For Extension UI) ---
+app.get('/api/auth/status', async (req, res) => {
+  // 1. Extract Auth Token from cookies (Same logic as /analyze)
+  let cookies = (req as any).cookies;
+  
+  if (!cookies && req.headers.cookie) {
+    try {
+      cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
+        const parts = cookie.trim().split('=');
+        const key = parts.shift();
+        const val = parts.join('=');
+        if (key) acc[key] = decodeURIComponent(val || '');
+        return acc;
+      }, {});
+    } catch (e) {
+      cookies = {};
+    }
+  }
+  cookies = cookies || {};
+
+  const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+  const cookie = authCookieKey ? cookies[authCookieKey] : null;
+
+  if (!cookie) {
+    return res.json({ authenticated: false });
+  }
+
+  try {
+    const token = JSON.parse(cookie)[0].access_token;
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      return res.json({ authenticated: false });
+    }
+    return res.json({ authenticated: true, email: user.email });
+  } catch (e) {
+    return res.json({ authenticated: false });
+  }
+});
+
+// --- Auth Status Endpoint (For Extension UI) ---
+app.get('/api/auth/status', async (req, res) => {
+  // 1. Extract Auth Token from cookies (Same logic as /analyze)
+  let cookies = (req as any).cookies;
+  
+  if (!cookies && req.headers.cookie) {
+    try {
+      cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
+        const parts = cookie.trim().split('=');
+        const key = parts.shift();
+        const val = parts.join('=');
+        if (key) acc[key] = decodeURIComponent(val || '');
+        return acc;
+      }, {});
+    } catch (e) {
+      cookies = {};
+    }
+  }
+  cookies = cookies || {};
+
+  const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+  const cookie = authCookieKey ? cookies[authCookieKey] : null;
+
+  if (!cookie) {
+    return res.json({ authenticated: false });
+  }
+
+  try {
+    const token = JSON.parse(cookie)[0].access_token;
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      return res.json({ authenticated: false });
+    }
+    return res.json({ authenticated: true, email: user.email });
+  } catch (e) {
+    return res.json({ authenticated: false });
   }
 });
 

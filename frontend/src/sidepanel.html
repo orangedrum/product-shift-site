@@ -211,22 +211,36 @@
         Product Shift
       </h1>
       <p>Analyze the current page for UX friction points using AI.</p>
-      
-      <button id="analyzeBtn" class="btn">
-        Analyze Page
-      </button>
 
-      <div id="preview" class="preview-container">
-        <div class="preview-badge">CAPTURED</div>
-        <img id="screenshot" class="preview-img" />
+      <!-- Login View (Default) -->
+      <div id="login-view" style="text-align: center; padding: 20px 0;">
+        <p>Please log in to your Product Shift account to run an analysis.</p>
+        <a id="loginLink" href="#" target="_blank" class="btn">
+          Log In to Product Shift
+        </a>
+        <button id="checkAuthBtn" class="btn-outline" style="margin-top: 10px; width: 100%; padding: 8px; border-radius: 8px; cursor: pointer;">
+          I've Logged In (Check Again)
+        </button>
       </div>
 
-      <div id="status" class="status"></div>
+      <!-- App View (Hidden until Auth) -->
+      <div id="app-view" style="display: none;">
+        <button id="analyzeBtn" class="btn">
+          Analyze Page
+        </button>
 
-      <div id="results-container"></div>
-      
-      <div style="margin-top: 20px; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 10px;">
-        <button id="testConnBtn" style="background:none; border:none; color:#6b7280; font-size:11px; text-decoration:underline; cursor:pointer;">Test Server Connection</button>
+        <div id="preview" class="preview-container">
+          <div class="preview-badge">CAPTURED</div>
+          <img id="screenshot" class="preview-img" />
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div id="results-container"></div>
+        
+        <div style="margin-top: 20px; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+          <button id="testConnBtn" style="background:none; border:none; color:#6b7280; font-size:11px; text-decoration:underline; cursor:pointer;">Test Server Connection</button>
+        </div>
       </div>
     </div>
 

@@ -86,6 +86,9 @@ export const AnalysisErrorCard: React.FC<{ error: AnalysisError, onReset: () => 
           </p>
         )}
         <p className={`${subTextColor} mb-4`}>{error.details || error.error}</p>
+        {(error.error === 'Site Not Found' || error.error === 'Connection Refused' || error.error === 'Invalid URL') && (
+          <p className={`text-sm ${subTextColor} mt-2 italic`}>Tip: Check that you didn't include "https://" in the URL field, as we've already got you covered there.</p>
+        )}
         {error.error === 'Site Security Error' && (
           <p className={subTextColor}>We recommend using a free tool like SSL Labs to diagnose and fix it. <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">You can learn more here.</a></p>
         )}

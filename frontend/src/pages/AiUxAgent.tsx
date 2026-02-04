@@ -28,6 +28,8 @@ type AnalysisResponse = {
     desirability: number;
     clarity: number;
   };
+  reportId?: string;
+  seoSchema?: any;
 };
 
 // Helper to format simple markdown to HTML
@@ -1222,9 +1224,23 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
                     <p className="text-sm text-gray-600 mt-1">This is a compiled report of all the persona's experiences.</p>
                   </div>
-                  <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<FileText size={16} />}>
-                    Download PDF
-                  </NeoButton>
+                  <div className="flex gap-2">
+                    {result.reportId && (
+                      <a 
+                        href={`/api/public-report/${result.reportId}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="no-print"
+                      >
+                        <NeoButton variant="secondary" icon={<ExternalLink size={16} />}>
+                          Share
+                        </NeoButton>
+                      </a>
+                    )}
+                    <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<FileText size={16} />}>
+                      Download PDF
+                    </NeoButton>
+                  </div>
                 </div>
 
                 {/* Render Test Result First for Prominence */}

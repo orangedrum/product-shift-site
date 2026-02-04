@@ -5,8 +5,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const status = document.getElementById('status');
   const testBtn = document.getElementById('testConnBtn');
   const resultsContainer = document.getElementById('results-container');
+  
+  // Auth Elements
+  const loginView = document.getElementById('login-view');
+  const appView = document.getElementById('app-view');
+  const loginLink = document.getElementById('loginLink');
+  const checkAuthBtn = document.getElementById('checkAuthBtn');
 
   const API_BASE = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
+  
+  // Set Login Link
+  if (loginLink) loginLink.href = `${API_BASE}/login`;
+
+  // --- Auth Check Function ---
+  const checkAuth = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/status`, { credentials: 'include' });
+      const data = await res.json();
+      
+      if (data.authenticated) {
+        loginView.style.display = 'none';
+        appView.style.display = 'block';
+      } else {
+        loginView.style.display = 'block';
+        appView.style.display = 'none';
+      }
+    } catch (e) {
+      console.error('Auth check failed', e);
+      // Default to login view on error
+      loginView.style.display = 'block';
+      appView.style.display = 'none';
+    }
+  };
+
+  // Check on load
+  checkAuth();
+  
+  if (checkAuthBtn) {
+    checkAuthBtn.addEventListener('click', () => {
+      checkAuthBtn.innerText = 'Checking...';
+      checkAuth().then(() => checkAuthBtn.innerText = "I've Logged In (Check Again)");
+    });
+  }
 
   // Diagnostic Tool
   if (testBtn) {
@@ -164,14 +204,17 @@ document.addEventListener('DOMContentLoaded', () => {
           const shareUrl = `${API_BASE}/api/public-report/${data.reportId}`;
           resultsContainer.innerHTML += `
             <div style="margin-top: 16px; display: flex; gap: 8px;">
+              <button class="btn btn-outline" style="flex: 1;" onclick="alert('PDF Download Coming Soon!')">
+                Download PDF
+              </button>
               <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none; flex: 1; text-align: center;">
                 Share Report ↗
               </a>
-              ${data.seoSchema ? `
-              <button id="copySeoBtn" class="btn btn-outline" style="flex: 1;">
-                Copy SEO JSON
-              </button>` : ''}
             </div>
+            ${data.seoSchema ? `
+            <div style="margin-top: 8px;">
+              <button id="copySeoBtn" class="btn btn-outline" style="width: 100%;">Copy SEO JSON</button>
+            </div>` : ''}
           `;
           
           if (data.seoSchema) {

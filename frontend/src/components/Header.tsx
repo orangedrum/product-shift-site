@@ -34,7 +34,6 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
   const navLinks = displaySession ? [
     { name: 'AI Tester Tool', href: '/ai-powered-ux' },
-    { name: 'My Account', href: '/account' }
   ] : [
     { name: 'Services', href: '#services' },
     { name: 'Products', href: '#products' },
