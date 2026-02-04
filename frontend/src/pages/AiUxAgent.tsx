@@ -1233,12 +1233,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
                         className="no-print"
                       >
                         <NeoButton variant="secondary" icon={<ExternalLink size={16} />}>
-                          Share
                         </NeoButton>
                       </a>
                     )}
                     <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<FileText size={16} />}>
-                      Download PDF
                     </NeoButton>
                   </div>
                 </div>

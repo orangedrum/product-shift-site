@@ -1245,9 +1245,9 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       for (const pId of personaIds) {
         const activePersona = personas[pId];
         if (activePersona) {
-          // Add a 6-second delay before each request (except the first) to stay under the RPM limit
+          // CTO UPDATE: Reduced delay from 6s to 1s to prevent Vercel 504 Timeouts.
           if (userSessions.length > 0) {
-              await delay(6000);
+              await delay(1000);
           }
 
           const sessionOutput = await generateUserSession(result, activePersona, goal, url);
@@ -1285,7 +1285,8 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
           .upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
 
         if (upsertError) {
-          // Log the error but don't fail the request for the user
+          // Ignore duplicate key errors (race conditions), log others
+          if (upsertError.code !== '23505') 
           console.error('Failed to increment usage count:', upsertError);
         }
       }
@@ -1381,7 +1382,7 @@ const runTestHandler = async (req: express.Request, res: express.Response) => {
       }
 
       // --- Aggregated Expert Report ---
-      await delay(6000); // Delay before the final expert report generation
+      await delay(1000); // Reduced delay for final report
       let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, isDemo);
       
       // Extract JSON Scores
@@ -1868,45 +1869,6 @@ app.get('/api/public-report/:id', async (req, res) => {
     res.send(html);
   } catch (e: any) {
     res.status(500).send('Error generating report');
-  }
-});
-
-// --- Auth Status Endpoint (For Extension UI) ---
-app.get('/api/auth/status', async (req, res) => {
-  // 1. Extract Auth Token from cookies (Same logic as /analyze)
-  let cookies = (req as any).cookies;
-  
-  if (!cookies && req.headers.cookie) {
-    try {
-      cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
-        const parts = cookie.trim().split('=');
-        const key = parts.shift();
-        const val = parts.join('=');
-        if (key) acc[key] = decodeURIComponent(val || '');
-        return acc;
-      }, {});
-    } catch (e) {
-      cookies = {};
-    }
-  }
-  cookies = cookies || {};
-
-  const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-  const cookie = authCookieKey ? cookies[authCookieKey] : null;
-
-  if (!cookie) {
-    return res.json({ authenticated: false });
-  }
-
-  try {
-    const token = JSON.parse(cookie)[0].access_token;
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) {
-      return res.json({ authenticated: false });
-    }
-    return res.json({ authenticated: true, email: user.email });
-  } catch (e) {
-    return res.json({ authenticated: false });
   }
 });
 

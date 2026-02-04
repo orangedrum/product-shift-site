@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Auth Check Function ---
   const checkAuth = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/auth/status`, { credentials: 'include' });
+      // Add timestamp to prevent caching of auth status
+      const res = await fetch(`${API_BASE}/api/auth/status?t=${Date.now()}`, { credentials: 'include' });
       const data = await res.json();
       
       if (data.authenticated) {
