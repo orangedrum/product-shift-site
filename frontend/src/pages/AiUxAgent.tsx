@@ -312,6 +312,24 @@ const AiPoweredUxHealthtech: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // --- AUTH BRIDGE: Sync Session to Cookie for Extension ---
+  // The extension cannot read LocalStorage, so we must mirror the session to a Secure Cookie.
+  useEffect(() => {
+    if (session) {
+      const cookieName = 'sb-productshift-auth-token';
+      // Format matches what the backend expects: JSON array with access_token
+      const cookieValue = JSON.stringify([{
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        user: session.user
+      }]);
+      
+      // Critical: SameSite=None; Secure is required for the extension to send this cookie cross-origin
+      document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=604800; SameSite=None; Secure`;
+      console.log('🍪 [Product Shift] Auth Cookie synced for Extension access.');
+    }
+  }, [session]);
+
   // --- UNIFIED BOOT SEQUENCE ---
   // This replaces scattered useEffects to ensure a deterministic loading order
   useEffect(() => {

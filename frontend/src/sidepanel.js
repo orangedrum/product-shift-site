@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Add timestamp to prevent caching of auth status
       const res = await fetch(`${API_BASE}/api/auth/status?t=${Date.now()}`, { credentials: 'include' });
       const data = await res.json();
+      console.log('[Extension] Auth Check Result:', data);
       
       if (data.authenticated) {
         loginView.style.display = 'none';
