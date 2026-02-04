@@ -1885,7 +1885,10 @@ app.post('/api/analyze', async (req, res) => {
   if (!cookies && req.headers.cookie) {
     try {
       cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
-        const [key, val] = cookie.trim().split('=');
+        // FIX: Handle cookies containing multiple '=' (like JSON tokens)
+        const parts = cookie.trim().split('=');
+        const key = parts.shift(); // Take the first part as key
+        const val = parts.join('='); // Rejoin the rest as the value
         if (key) acc[key] = decodeURIComponent(val || '');
         return acc;
       }, {});
