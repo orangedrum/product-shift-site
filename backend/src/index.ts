@@ -307,7 +307,7 @@ const app = express();
 
 app.set('trust proxy', 1); // Trust Vercel proxy to get correct req.ip
 // Middleware
-app.use(cors({ origin: true }));
+app.use(cors({ origin: true, credentials: true }));
 
 // --- Stripe Webhook Endpoint ---
 // This MUST be before `app.use(express.json())` so we can get the raw body for signature verification.
@@ -1878,10 +1878,27 @@ app.post('/api/analyze', async (req, res) => {
   console.log(`[Extension] Analyze request received for: ${req.body?.url}`);
 
   // 1. Extract Auth Token from cookies
-  // Vercel automatically parses cookies into req.cookies. The Supabase auth token
-  // is stored in a cookie with a dynamic name like 'sb-PROJECT_REF-auth-token'.
-  const authCookieKey = Object.keys(req.cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-  const cookie = authCookieKey ? req.cookies[authCookieKey] : null;
+  // Safely handle missing req.cookies (common in serverless Express without cookie-parser)
+  let cookies = (req as any).cookies;
+  
+  // Fallback: Parse from header if req.cookies is undefined
+  if (!cookies && req.headers.cookie) {
+    try {
+      cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
+        const [key, val] = cookie.trim().split('=');
+        if (key) acc[key] = decodeURIComponent(val || '');
+        return acc;
+      }, {});
+    } catch (e) {
+      console.error('Error parsing cookie header:', e);
+      cookies = {};
+    }
+  }
+  
+  cookies = cookies || {};
+
+  const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+  const cookie = authCookieKey ? cookies[authCookieKey] : null;
 
   if (!cookie) {
     return res.status(401).json({ error: 'Not authenticated. Please log in on the main site.' });
