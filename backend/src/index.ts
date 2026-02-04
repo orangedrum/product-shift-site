@@ -2318,6 +2318,7 @@ app.post('/api/auth/login', async (req, res) => {
           <a href="${magicLink}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Sign In Now</a>
         </div>
         <p style="margin-top: 24px; font-size: 14px; color: #6b7280; text-align: center;">If you didn't request this, you can safely ignore this email.</p>
+        <p style="margin-top: 12px; font-size: 14px; color: #6b7280; text-align: center;">Link expired? You can always go back to <a href="https://www.theproductshift.com" style="color: #4f46e5; text-decoration: none;">theproductshift.com</a> for another magic link.</p>
       `
     );
 
