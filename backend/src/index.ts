@@ -1972,13 +1972,14 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
     }
 
     const { title, expertReport, scores, url } = run.report_data;
+    const safeTitle = title || 'Untitled Audit';
     
     // 3. Prepare Data & Insert
-    const slug = `ux-audit-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
-    const seoSchema = generateStructuredData(url, `UX Audit: ${title}`, scores, expertReport);
+    const slug = `ux-audit-${safeTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
+    const seoSchema = generateStructuredData(url, `UX Audit: ${safeTitle}`, scores, expertReport);
 
     const { error: insertError } = await supabase.from('blog_posts').insert({
-      title: `UX Audit: ${title}`,
+      title: `UX Audit: ${safeTitle}`,
       slug: slug,
       content: expertReport,
       seo_schema: seoSchema,
@@ -1992,7 +1993,8 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
 
   } catch (e: any) {
     console.error('Draft Error:', e);
-    return res.status(500).json({ error: e.message });
+    // Return full error details to help debug the 500
+    return res.status(500).json({ error: e.message, details: e.details || e.hint || 'Check server logs' });
   }
 });
 

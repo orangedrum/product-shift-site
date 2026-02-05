@@ -245,10 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.reportId) {
           const shareUrl = `${API_BASE}/api/public-report/${data.reportId}`;
           resultsContainer.innerHTML += `
-            <div style="margin-top: 16px; display: flex; gap: 8px;">
-              <button id="downloadPdfBtn" class="btn btn-outline" style="flex: 1;">
-                Download PDF
-              </button>
+            <div style="margin-top: 16px;">
               <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none; flex: 1; text-align: center;">
                 Share Report
               </a>
@@ -268,12 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
             
              setTimeout(() => {
-                // Fix CSP: Attach event listener for Download button instead of inline onclick
-                const downloadBtn = document.getElementById('downloadPdfBtn');
-                if (downloadBtn) {
-                    downloadBtn.addEventListener('click', () => alert('PDF Download Coming Soon!'));
-                }
-
                 // Attach event listener for Draft button
                 const draftBtn = document.getElementById('draftBlogBtn');
                 if(draftBtn) {
