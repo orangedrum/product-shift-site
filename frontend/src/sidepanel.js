@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const shareUrl = `${API_BASE}/api/public-report/${data.reportId}`;
           resultsContainer.innerHTML += `
             <div style="margin-top: 16px; display: flex; gap: 8px;">
-              <button class="btn btn-outline" style="flex: 1;" onclick="alert('PDF Download Coming Soon!')">
+              <button id="downloadPdfBtn" class="btn btn-outline" style="flex: 1;">
                 Download PDF
               </button>
               <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none; flex: 1; text-align: center;">
@@ -268,6 +268,13 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
             
              setTimeout(() => {
+                // Fix CSP: Attach event listener for Download button instead of inline onclick
+                const downloadBtn = document.getElementById('downloadPdfBtn');
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', () => alert('PDF Download Coming Soon!'));
+                }
+
+                // Attach event listener for Draft button
                 const draftBtn = document.getElementById('draftBlogBtn');
                 if(draftBtn) {
                     draftBtn.addEventListener('click', async () => {
@@ -288,7 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
                           }
                           else draftBtn.innerText = 'Failed';
                         } catch(e) {
-                          draftBtn.innerText = 'Error';
+                          console.error('Draft Error:', e);
+                          draftBtn.innerText = 'Error (See Console)';
                         }
                     });
                 }

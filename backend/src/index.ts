@@ -1953,6 +1953,13 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
   }
 
   try {
+    // Handle Test Mode Dummy ID (Simulate success)
+    if (reportId === 'test-mode-dummy-id') {
+        // Simulate API delay
+        await new Promise(r => setTimeout(r, 1000));
+        return res.json({ success: true, cmsLink: '/admin-blog' });
+    }
+
     // 2. Fetch Report Data
     const { data: run } = await supabase
       .from('analysis_runs')
