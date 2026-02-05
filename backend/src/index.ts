@@ -2019,16 +2019,16 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
 
   } catch (e: any) {
     console.error('Draft Error:', e);
-    // Return full error details to help debug the 500. This will show up in the extension console.
+    // Return full error details to help debug the 500
     return res.status(500).json({ error: `Database Error: ${e.message}`, details: e.details || e.hint || 'Check if the blog_posts table and uuid-ossp extension exist.' });
   }
 });
 
-// --- Auth Status Endpoint (For Extension UI) ---
-app.get('/api/auth/status', async (req, res) => {
-  // 1. Extract Auth Token from cookies (Same logic as /analyze)
+// --- AUTHENTICATION MIDDLEWARE (The "Bridge") ---
+const authenticateRequest = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   let cookies = (req as any).cookies;
   
+  // Fallback: Parse from header if req.cookies is undefined
   if (!cookies && req.headers.cookie) {
     try {
       cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
@@ -2048,76 +2048,48 @@ app.get('/api/auth/status', async (req, res) => {
   const cookie = authCookieKey ? cookies[authCookieKey] : null;
 
   if (!cookie) {
-    return res.json({ authenticated: false });
+    (req as any).user = null;
+    return next();
   }
 
   try {
     const token = JSON.parse(cookie)[0].access_token;
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) {
-      return res.json({ authenticated: false });
-    }
-    return res.json({ authenticated: true, email: user.email });
+    (req as any).user = error || !user ? null : user;
   } catch (e) {
-    return res.json({ authenticated: false });
+    (req as any).user = null;
+  }
+  
+  next();
+};
+
+// --- Auth Status Endpoint (For Extension UI) ---
+app.get('/api/auth/status', authenticateRequest, (req, res) => {
+  const user = (req as any).user;
+  if (user) {
+    res.json({ authenticated: true, email: user.email });
+  } else {
+    res.json({ authenticated: false });
   }
 });
 
 app.post('/api/run-test', runTestHandler);
 
 // --- Extension Endpoint (with Auth) ---
-app.post('/api/analyze', async (req, res) => {
+app.post('/api/analyze', authenticateRequest, async (req, res) => {
   console.log(`[Extension] Analyze request received for: ${req.body?.url}`);
-
-  // 1. Extract Auth Token from cookies
-  // Safely handle missing req.cookies (common in serverless Express without cookie-parser)
-  let cookies = (req as any).cookies;
   
-  // Fallback: Parse from header if req.cookies is undefined
-  if (!cookies && req.headers.cookie) {
-    try {
-      cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
-        // FIX: Handle cookies containing multiple '=' (like JSON tokens)
-        const parts = cookie.trim().split('=');
-        const key = parts.shift(); // Take the first part as key
-        const val = parts.join('='); // Rejoin the rest as the value
-        if (key) acc[key] = decodeURIComponent(val || '');
-        return acc;
-      }, {});
-    } catch (e) {
-      console.error('Error parsing cookie header:', e);
-      cookies = {};
-    }
-  }
-  
-  cookies = cookies || {};
+  const user = (req as any).user;
 
-  const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-  const cookie = authCookieKey ? cookies[authCookieKey] : null;
-
-  if (!cookie) {
+  if (!user) {
     return res.status(401).json({ error: 'Not authenticated. Please log in on the main site.' });
   }
 
-  try {
-    // 2. Verify Token and Get User
-    // The cookie value is a JSON stringified array containing the session object.
-    const token = JSON.parse(cookie)[0].access_token;
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-
-    if (userError || !user) {
-      return res.status(401).json({ error: 'Authentication failed. Your session may have expired.' });
-    }
-
-    // 3. Inject required fields and call the main handler
-    req.body.email = user.email; // Inject the authenticated user's email
-    req.body.personaIds = ['alex-busy-pro']; // Default persona for the extension
-    req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
-    return runTestHandler(req, res);
-  } catch (e) {
-    console.error("Auth error in /api/analyze:", e);
-    return res.status(401).json({ error: 'Failed to process authentication token.' });
-  }
+  // Inject required fields and call the main handler
+  req.body.email = user.email;
+  req.body.personaIds = ['alex-busy-pro'];
+  req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
+  return runTestHandler(req, res);
 });
 
 app.post('/api/join-waitlist', async (req, res) => {
