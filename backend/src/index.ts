@@ -1920,13 +1920,39 @@ app.get('/api/public-report/:id', async (req, res) => {
               </div>
             </div>
 
-            <div class="prose prose-lg max-w-none prose-headings:font-black prose-headings:text-black">
-              ${expertReport.replace(/\n/g, '<br>')}
+            <div class="prose prose-lg max-w-none prose-headings:font-black prose-headings:text-black mb-12">
+              ${expertReport.replace(/\|\|\|SSL_WARNING_ALERT\|\|\|\\n/g, '').replace(/\n/g, '<br>')}
+            </div>
+
+            <div class="space-y-8">
+              <h2 class="text-3xl font-black text-black border-b-2 border-black pb-4">Detailed User Sessions</h2>
+              ${userSessions.map((session: any) => {
+                const analysisParts = session.analysis.split('|||');
+                const bubble = analysisParts.find((part: any, i: number) => analysisParts[i-1] === 'USER_BUBBLE')?.trim() || 'No immediate thoughts.';
+                let details = analysisParts.find((part: any, i: number) => analysisParts[i-1] === 'USER_DETAILS')?.trim() || 'No detailed feedback provided.';
+                details = details.replace(/### (.*?)\n/g, '<h4 class="font-bold text-black text-lg mt-4 mb-2">$1</h4>').replace(/\n/g, '<br/>');
+
+                return `
+                  <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000]">
+                    <div class="flex items-center gap-4 mb-4">
+                      <img src="${session.avatar}" alt="${session.persona}" class="w-16 h-16 rounded-full border-2 border-black bg-gray-100" />
+                      <div>
+                        <h3 class="text-xl font-black text-black">${session.persona}</h3>
+                        <p class="text-sm font-medium text-gray-600">${session.description}</p>
+                      </div>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-black italic text-gray-800 mb-4">
+                      "${bubble}"
+                    </div>
+                    <div class="prose max-w-none">${details}</div>
+                  </div>
+                `
+              }).join('')}
             </div>
           </div>
           
           <div class="text-center">
-            <a href="https://www.theproductshift.com" class="inline-block bg-black text-white font-bold py-4 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#fff] transition-all">
+            <a href="https://www.theproductshift.com/agency-user-testing" class="inline-block bg-black text-white font-bold py-4 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#fff] transition-all">
               Generate your own AI UX Audit
             </a>
           </div>
@@ -1993,8 +2019,8 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
 
   } catch (e: any) {
     console.error('Draft Error:', e);
-    // Return full error details to help debug the 500
-    return res.status(500).json({ error: e.message, details: e.details || e.hint || 'Check server logs' });
+    // Return full error details to help debug the 500. This will show up in the extension console.
+    return res.status(500).json({ error: `Database Error: ${e.message}`, details: e.details || e.hint || 'Check if the blog_posts table and uuid-ossp extension exist.' });
   }
 });
 

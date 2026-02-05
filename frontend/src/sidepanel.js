@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUserEmail = data.email || '';
         loginView.style.display = 'none';
         appView.style.display = 'block';
+
+        // Show admin-only tools
+        const isAdmin = currentUserEmail && (currentUserEmail.includes('@theproductshift.com') || currentUserEmail.includes('+smb') || currentUserEmail.includes('test'));
+        if (isAdmin && testBtn) {
+          testBtn.style.display = 'inline-block';
+        }
       } else {
         loginView.style.display = 'block';
         appView.style.display = 'none';

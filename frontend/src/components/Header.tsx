@@ -32,6 +32,22 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
   const displaySession = session !== undefined ? session : internalSession;
 
+  // --- GLOBAL AUTH BRIDGE: Sync Session to Cookie for Extension ---
+  useEffect(() => {
+    if (displaySession) {
+      const cookieName = 'sb-productshift-auth-token';
+      // Format matches what the backend expects: JSON array with access_token
+      const cookieValue = JSON.stringify([{
+        access_token: displaySession.access_token,
+        refresh_token: displaySession.refresh_token,
+        user: displaySession.user
+      }]);
+      
+      // Critical: SameSite=None; Secure is required for the extension to send this cookie cross-origin
+      document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=604800; SameSite=None; Secure`;
+    }
+  }, [displaySession]);
+
   const navLinks = displaySession ? [
     { name: 'AI Tester Tool', href: '/ai-powered-ux' },
   ] : [
