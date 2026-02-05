@@ -3,6 +3,7 @@ import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { randomUUID } from 'crypto'; // Native Node.js UUID generation
 
 // --- Persona & Analyzer Definitions ---
 
@@ -1920,34 +1921,42 @@ app.get('/api/public-report/:id', async (req, res) => {
               </div>
             </div>
 
-            <div class="prose prose-lg max-w-none prose-headings:font-black prose-headings:text-black mb-12">
-              ${expertReport.replace(/\|\|\|SSL_WARNING_ALERT\|\|\|\\n/g, '').replace(/\n/g, '<br>')}
-            </div>
-
-            <div class="space-y-8">
-              <h2 class="text-3xl font-black text-black border-b-2 border-black pb-4">Detailed User Sessions</h2>
+            <!-- 1. User Sessions (Moved to Top) -->
+            <div class="space-y-8 mb-12">
+              <h2 class="text-3xl font-black text-black border-b-4 border-black pb-2 inline-block mb-6">User Feedback</h2>
               ${userSessions.map((session: any) => {
                 const analysisParts = session.analysis.split('|||');
                 const bubble = analysisParts.find((part: any, i: number) => analysisParts[i-1] === 'USER_BUBBLE')?.trim() || 'No immediate thoughts.';
                 let details = analysisParts.find((part: any, i: number) => analysisParts[i-1] === 'USER_DETAILS')?.trim() || 'No detailed feedback provided.';
-                details = details.replace(/### (.*?)\n/g, '<h4 class="font-bold text-black text-lg mt-4 mb-2">$1</h4>').replace(/\n/g, '<br/>');
+                
+                // Format details with our new parser
+                const formattedDetails = parseMarkdownToTailwind(details);
 
                 return `
                   <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000]">
-                    <div class="flex items-center gap-4 mb-4">
+                    <div class="flex items-center gap-4 mb-6">
                       <img src="${session.avatar}" alt="${session.persona}" class="w-16 h-16 rounded-full border-2 border-black bg-gray-100" />
                       <div>
-                        <h3 class="text-xl font-black text-black">${session.persona}</h3>
-                        <p class="text-sm font-medium text-gray-600">${session.description}</p>
+                        <h3 class="text-xl font-black text-black leading-none">${session.persona}</h3>
+                        <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mt-1">${session.description}</p>
                       </div>
                     </div>
-                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-black italic text-gray-800 mb-4">
-                      "${bubble}"
+                    <div class="bg-[#f3f4f6] p-5 rounded-lg border-2 border-black italic text-black font-bold text-lg mb-6 relative">
+                      <span class="absolute -top-3 left-6 text-4xl leading-none text-black">"</span>
+                      ${bubble}
                     </div>
-                    <div class="prose max-w-none">${details}</div>
+                    <div class="text-gray-800">${formattedDetails}</div>
                   </div>
                 `
               }).join('')}
+            </div>
+
+            <!-- 2. Expert Analysis (Styled) -->
+            <div class="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+              <h2 class="text-3xl font-black text-black border-b-4 border-black pb-2 inline-block mb-6">Expert Analysis</h2>
+              <div class="prose-neo">
+                ${parseMarkdownToTailwind(expertReport)}
+              </div>
             </div>
           </div>
           
@@ -2001,10 +2010,13 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
     const safeTitle = title || 'Untitled Audit';
     
     // 3. Prepare Data & Insert
+    // We generate the UUID here to avoid dependency on uuid-ossp extension in DB
+    const newId = randomUUID();
     const slug = `ux-audit-${safeTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
     const seoSchema = generateStructuredData(url, `UX Audit: ${safeTitle}`, scores, expertReport);
 
     const { error: insertError } = await supabase.from('blog_posts').insert({
+      id: newId, // Explicitly set ID
       title: `UX Audit: ${safeTitle}`,
       slug: slug,
       content: expertReport,
@@ -2028,8 +2040,8 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
 const authenticateRequest = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   let cookies = (req as any).cookies;
   
-  // Fallback: Parse from header if req.cookies is undefined
-  if (!cookies && req.headers.cookie) {
+  // Robust Fallback: If cookies is undefined OR empty object, try parsing headers manually.
+  if ((!cookies || Object.keys(cookies).length === 0) && req.headers.cookie) {
     try {
       cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
         const parts = cookie.trim().split('=');
