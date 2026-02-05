@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                           });
                           const json = await res.json();
                           if (json.success) {
-                            draftBtn.innerText = 'Open Draft ↗';
+                            draftBtn.innerText = 'Open Draft';
                             draftBtn.onclick = (e) => {
                               e.preventDefault();
                               window.open(`${API_BASE}${json.cmsLink}`, '_blank');

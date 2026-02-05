@@ -59,6 +59,9 @@ const BlogPost = () => {
       <Helmet>
         <title>{post.title} | Product Shift</title>
         <meta name="description" content={post.excerpt} />
+        {post.seo_schema && (
+          <script type="application/ld+json">{JSON.stringify(post.seo_schema)}</script>
+        )}
       </Helmet>
 
       <article className="bg-white min-h-screen pb-20">

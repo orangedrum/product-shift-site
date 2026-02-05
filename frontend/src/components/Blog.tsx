@@ -63,6 +63,7 @@ const Blog = () => {
         const { data, error } = await supabase
           .from('posts')
           .select('*')
+          .eq('status', 'published') // Only show published posts
           .order('published_at', { ascending: false });
         
         if (error) {

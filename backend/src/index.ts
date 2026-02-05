@@ -2010,19 +2010,18 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
     const safeTitle = title || 'Untitled Audit';
     
     // 3. Prepare Data & Insert
-    // We generate the UUID here to avoid dependency on uuid-ossp extension in DB
-    const newId = randomUUID();
     const slug = `ux-audit-${safeTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
     const seoSchema = generateStructuredData(url, `UX Audit: ${safeTitle}`, scores, expertReport);
 
-    const { error: insertError } = await supabase.from('blog_posts').insert({
-      id: newId, // Explicitly set ID
+    // CTO UPDATE: Write to the main 'posts' table with 'draft' status
+    const { error: insertError } = await supabase.from('posts').insert({
       title: `UX Audit: ${safeTitle}`,
       slug: slug,
       content: expertReport,
       seo_schema: seoSchema,
       status: 'draft',
-      author_email: email
+      category: 'Website Optimization', // Default category for audits
+      published_at: new Date().toISOString() // Sets the date, but status keeps it hidden
     });
 
     if (insertError) throw insertError;

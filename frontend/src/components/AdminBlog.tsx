@@ -23,6 +23,8 @@ const AdminBlog = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [externalLink, setExternalLink] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [status, setStatus] = useState('published');
+  const [seoSchema, setSeoSchema] = useState<any>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -61,6 +63,8 @@ const AdminBlog = () => {
     setImageUrl(post.image_url || '');
     setExternalLink(post.external_link || '');
     setIsFeatured(post.is_featured);
+    setStatus(post.status || 'published');
+    setSeoSchema(post.seo_schema || null);
     setView('form');
   };
 
@@ -81,6 +85,8 @@ const AdminBlog = () => {
     setImageUrl('');
     setExternalLink('');
     setIsFeatured(false);
+    setStatus('published');
+    setSeoSchema(null);
     setView('list');
   };
 
@@ -98,6 +104,8 @@ const AdminBlog = () => {
       external_link: externalLink || null,
       is_featured: isFeatured,
       published_at: new Date().toISOString(),
+      status,
+      seo_schema: seoSchema
     };
 
     try {
@@ -154,6 +162,11 @@ const AdminBlog = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{post.title}</div>
                       <div className="text-xs text-gray-500">{post.slug}</div>
+                      {post.status === 'draft' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
+                          Draft
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
@@ -220,6 +233,18 @@ const AdminBlog = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-1">Content (HTML supported)</label>
                 <textarea rows={10} value={content} onChange={(e) => setContent(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm" />
               </div>
+
+              {/* SEO Schema Indicator */}
+              {seoSchema && (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <LayoutDashboard size={16} className="text-green-600" />
+                  </div>
+                  <div className="text-sm text-green-800 font-medium">
+                    GEO/SEO Structured Data is attached to this post.
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                 <button type="button" onClick={resetForm} className="text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
