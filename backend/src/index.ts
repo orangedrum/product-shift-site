@@ -1952,20 +1952,41 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized: Only team members can draft blog posts.' });
   }
 
-  // 2. Fetch Report Data
-  // In a real implementation, we would fetch the data from Supabase here.
-  // For now, we simulate the success.
-  
-  console.log(`📝 [Blog Draft] Creating draft for Report ID: ${reportId} by ${email}`);
-  
-  // Simulate API delay
-  await new Promise(r => setTimeout(r, 1000));
+  try {
+    // 2. Fetch Report Data
+    const { data: run } = await supabase
+      .from('analysis_runs')
+      .select('report_data')
+      .eq('id', reportId)
+      .single();
 
-  return res.json({ 
-    success: true, 
-    message: 'Draft created in CMS (Simulated). Ready for review.',
-    cmsLink: 'https://your-cms.com/admin/posts/draft-123' 
-  });
+    if (!run || !run.report_data) {
+      return res.status(404).json({ error: 'Report data not found.' });
+    }
+
+    const { title, expertReport, scores, url } = run.report_data;
+    
+    // 3. Prepare Data & Insert
+    const slug = `ux-audit-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
+    const seoSchema = generateStructuredData(url, `UX Audit: ${title}`, scores, expertReport);
+
+    const { error: insertError } = await supabase.from('blog_posts').insert({
+      title: `UX Audit: ${title}`,
+      slug: slug,
+      content: expertReport,
+      seo_schema: seoSchema,
+      status: 'draft',
+      author_email: email
+    });
+
+    if (insertError) throw insertError;
+
+    return res.json({ success: true, cmsLink: '/admin-blog' });
+
+  } catch (e: any) {
+    console.error('Draft Error:', e);
+    return res.status(500).json({ error: e.message });
+  }
 });
 
 // --- Auth Status Endpoint (For Extension UI) ---

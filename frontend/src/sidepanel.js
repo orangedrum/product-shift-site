@@ -279,7 +279,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             body: JSON.stringify({ reportId: data.reportId, email: currentUserEmail })
                           });
                           const json = await res.json();
-                          if (json.success) draftBtn.innerText = 'Draft Created! ✅';
+                          if (json.success) {
+                            draftBtn.innerText = 'Open Draft ↗';
+                            draftBtn.onclick = (e) => {
+                              e.preventDefault();
+                              window.open(`${API_BASE}${json.cmsLink}`, '_blank');
+                            };
+                          }
                           else draftBtn.innerText = 'Failed';
                         } catch(e) {
                           draftBtn.innerText = 'Error';
