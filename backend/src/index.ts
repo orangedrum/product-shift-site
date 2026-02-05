@@ -1813,13 +1813,46 @@ app.get('/api/public-report/:id', async (req, res) => {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>UX Audit: ${title}</title>
+        <meta name="description" content="AI-powered UX audit for ${url}. Usability Score: ${scores.usability}/100.">
+        
+        <!-- Open Graph / Social Sharing -->
+        <meta property="og:title" content="UX Audit: ${title}" />
+        <meta property="og:description" content="AI-powered UX audit for ${url}. Usability Score: ${scores.usability}/100." />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="${url}" />
+        
+        <!-- Tailwind CSS for styling -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <!-- GEO / Structured Data -->
         <script type="application/ld+json">${JSON.stringify(seoSchema)}</script>
-        <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;}</style>
       </head>
-      <body>
-        <h1>${title}</h1>
-        <p>This is a static test report to verify the Share feature.</p>
+      <body class="bg-gray-50 text-gray-900 font-sans antialiased p-8">
+        <div class="max-w-3xl mx-auto bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] p-8">
+          <h1 class="text-3xl font-black mb-2">${title}</h1>
+          <p class="text-gray-600 mb-6">This is a generated test report for verification purposes.</p>
+          
+          <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="p-4 bg-orange-50 border-2 border-black rounded-lg text-center">
+              <div class="text-sm font-bold uppercase tracking-wider text-gray-500">Usability</div>
+              <div class="text-3xl font-black text-orange-600">${scores.usability}</div>
+            </div>
+            <div class="p-4 bg-pink-50 border-2 border-black rounded-lg text-center">
+              <div class="text-sm font-bold uppercase tracking-wider text-gray-500">Desirability</div>
+              <div class="text-3xl font-black text-pink-600">${scores.desirability}</div>
+            </div>
+            <div class="p-4 bg-blue-50 border-2 border-black rounded-lg text-center">
+              <div class="text-sm font-bold uppercase tracking-wider text-gray-500">Clarity</div>
+              <div class="text-3xl font-black text-blue-600">${scores.clarity}</div>
+            </div>
+          </div>
+
+          <div class="prose max-w-none">
+            ${expertReport.replace(/\n/g, '<br>')}
+          </div>
+        </div>
       </body>
       </html>`;
     return res.send(html);
@@ -1852,16 +1885,52 @@ app.get('/api/public-report/:id', async (req, res) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>UX Audit: ${title} | Product Shift</title>
         <meta name="description" content="AI-powered UX audit for ${url}. Usability Score: ${scores.usability}/100.">
+        
+        <!-- Open Graph / Social Sharing -->
+        <meta property="og:title" content="UX Audit: ${title}" />
+        <meta property="og:description" content="AI-powered UX audit for ${url}. Usability Score: ${scores.usability}/100." />
+        <meta property="og:type" content="article" />
+        
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <!-- GEO / Structured Data -->
         <script type="application/ld+json">${JSON.stringify(seoSchema)}</script>
-        <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;line-height:1.6} .score{font-weight:bold;font-size:24px}</style>
       </head>
-      <body>
-        <h1>UX Audit: ${title}</h1>
-        <p><strong>Target URL:</strong> <a href="${url}">${url}</a></p>
-        <div class="score">Usability Score: ${scores.usability}/100</div>
-        <hr/>
-        <div>${expertReport.replace(/\n/g, '<br>')}</div>
-        <div style="margin-top:40px;padding:20px;background:#f3f4f6;text-align:center"><a href="https://www.theproductshift.com">Generate your own AI UX Audit</a></div>
+      <body class="bg-gray-50 text-gray-900 font-sans antialiased p-6 md:p-12">
+        <div class="max-w-4xl mx-auto">
+          <div class="bg-white border-2 border-black rounded-xl shadow-[8px_8px_0px_0px_#000] p-8 md:p-12 mb-8">
+            <div class="mb-8 border-b-2 border-black pb-6">
+              <h1 class="text-4xl font-black mb-2">${title}</h1>
+              <p class="text-lg font-medium text-gray-600">Target URL: <a href="${url}" class="text-indigo-600 underline">${url}</a></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
+                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Usability</div>
+                <div class="text-5xl font-black text-black">${scores.usability}</div>
+              </div>
+              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
+                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Desirability</div>
+                <div class="text-5xl font-black text-black">${scores.desirability}</div>
+              </div>
+              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
+                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Clarity</div>
+                <div class="text-5xl font-black text-black">${scores.clarity}</div>
+              </div>
+            </div>
+
+            <div class="prose prose-lg max-w-none prose-headings:font-black prose-headings:text-black">
+              ${expertReport.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+          
+          <div class="text-center">
+            <a href="https://www.theproductshift.com" class="inline-block bg-black text-white font-bold py-4 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#fff] transition-all">
+              Generate your own AI UX Audit
+            </a>
+          </div>
+        </div>
       </body>
       </html>
     `;
@@ -1870,6 +1939,33 @@ app.get('/api/public-report/:id', async (req, res) => {
   } catch (e: any) {
     res.status(500).send('Error generating report');
   }
+});
+
+// --- Admin Draft to Blog Endpoint ---
+app.post('/api/admin/draft-blog-post', async (req, res) => {
+  const { reportId, email } = req.body;
+  
+  // 1. Security: Simple check for now (In production, verify admin role in DB)
+  const isAdmin = email && (email.endsWith('@theproductshift.com') || email.includes('+smb') || email.includes('test'));
+  
+  if (!isAdmin) {
+    return res.status(403).json({ error: 'Unauthorized: Only team members can draft blog posts.' });
+  }
+
+  // 2. Fetch Report Data
+  // In a real implementation, we would fetch the data from Supabase here.
+  // For now, we simulate the success.
+  
+  console.log(`📝 [Blog Draft] Creating draft for Report ID: ${reportId} by ${email}`);
+  
+  // Simulate API delay
+  await new Promise(r => setTimeout(r, 1000));
+
+  return res.json({ 
+    success: true, 
+    message: 'Draft created in CMS (Simulated). Ready for review.',
+    cmsLink: 'https://your-cms.com/admin/posts/draft-123' 
+  });
 });
 
 // --- Auth Status Endpoint (For Extension UI) ---

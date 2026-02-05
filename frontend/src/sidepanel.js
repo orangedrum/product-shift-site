@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const emailInput = document.getElementById('emailInput');
 
   const API_BASE = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
+  let currentUserEmail = '';
 
   // --- Auth Check Function ---
   const checkAuth = async () => {
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('[Extension] Auth Check Result:', data);
       
       if (data.authenticated) {
+        currentUserEmail = data.email || '';
         loginView.style.display = 'none';
         appView.style.display = 'block';
       } else {
@@ -248,23 +250,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 Download PDF
               </button>
               <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none; flex: 1; text-align: center;">
-                Share Report ↗
+                Share Report
               </a>
             </div>
-            ${data.seoSchema ? `
-            <div style="margin-top: 8px;">
-              <button id="copySeoBtn" class="btn btn-outline" style="width: 100%;">Copy SEO JSON</button>
-            </div>` : ''}
-          `;
+            `;
+
+          // --- Admin Only: Draft to Blog ---
+          // Check if user is admin (simple check for now)
+          const isAdmin = currentUserEmail && (currentUserEmail.includes('@theproductshift.com') || currentUserEmail.includes('+smb') || currentUserEmail.includes('test'));
           
-          if (data.seoSchema) {
+          if (isAdmin && data.seoSchema) {
+             resultsContainer.innerHTML += `
+            <div style="margin-top: 8px;">
+              <button id="draftBlogBtn" class="btn btn-outline" style="width: 100%; background-color: #f0fdf4; border-color: #16a34a; color: #15803d;">
+                Draft to Blog (Admin)
+              </button>
+            </div>`;
+            
              setTimeout(() => {
-                const copyBtn = document.getElementById('copySeoBtn');
-                if(copyBtn) {
-                    copyBtn.addEventListener('click', () => {
-                        navigator.clipboard.writeText(JSON.stringify(data.seoSchema, null, 2));
-                        copyBtn.innerText = 'Copied!';
-                        setTimeout(() => copyBtn.innerText = 'Copy SEO JSON', 2000);
+                const draftBtn = document.getElementById('draftBlogBtn');
+                if(draftBtn) {
+                    draftBtn.addEventListener('click', async () => {
+                        draftBtn.innerText = 'Drafting...';
+                        try {
+                          const res = await fetch(`${API_BASE}/api/admin/draft-blog-post`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ reportId: data.reportId, email: currentUserEmail })
+                          });
+                          const json = await res.json();
+                          if (json.success) draftBtn.innerText = 'Draft Created! ✅';
+                          else draftBtn.innerText = 'Failed';
+                        } catch(e) {
+                          draftBtn.innerText = 'Error';
+                        }
                     });
                 }
              }, 50);
