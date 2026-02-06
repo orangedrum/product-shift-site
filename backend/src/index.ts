@@ -687,7 +687,21 @@ async function runTestHandler(req: express.Request, res: express.Response) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        code: `module.exports=async({page,context})=>{const url=context.url;await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});const title=await page.title();const bodyText=await page.evaluate(()=>document.body.innerText.substring(0,8000));const headings=await page.evaluate(()=>Array.from(document.querySelectorAll('h1, h2, h3')).map(h=>({tag:h.tagName,text:h.innerText})));const screenshotBuffer=await page.screenshot({type:'jpeg',quality:60,fullPage:false});return{data:{title,bodyText,headings,screenshot:screenshotBuffer.toString('base64')},type:'application/json'};};`,
+        code: `
+          module.exports = async ({ page, context }) => {
+            const url = context.url;
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+            
+            const title = await page.title();
+            const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
+            const headings = await page.evaluate(() => 
+              Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText }))
+            );
+            const screenshotBuffer = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false });
+            const screenshot = screenshotBuffer.toString('base64');
+            return { data: { title, bodyText, headings, screenshot }, type: 'application/json' };
+          };
+        `,
         context: { url }
       })
     });
