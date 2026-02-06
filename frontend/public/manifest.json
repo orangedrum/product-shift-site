@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Product Shift AI",
+  "version": "1.0",
+  "description": "AI-Powered UX Audits",
+  "icons": {
+    "16": "Favicon_1Favicon.png",
+    "48": "Favicon_1Favicon.png",
+    "128": "Favicon_1Favicon.png"
+  },
+  "action": {
+    "default_title": "Analyze Page",
+    "default_icon": "Favicon_1Favicon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "permissions": ["sidePanel", "activeTab", "scripting"]
+}
