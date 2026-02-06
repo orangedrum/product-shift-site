@@ -437,9 +437,10 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
 
 // --- AUTH MIDDLEWARE ---
 const authenticateRequest = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  let cookies = (req as any).cookies;
-  // Robust Fallback: If cookies is undefined OR empty object, try parsing headers manually.
-  if ((!cookies || Object.keys(cookies).length === 0) && req.headers.cookie) {
+  let cookies = (req as any).cookies || {}; // Default to empty object immediately
+  
+  // Fallback: Parse from header if cookies is empty
+  if (Object.keys(cookies).length === 0 && req.headers.cookie) {
     try {
       cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
         const parts = cookie.trim().split('=');
@@ -450,7 +451,7 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
       }, {});
     } catch (e) { cookies = {}; }
   }
-  cookies = cookies || {};
+  
   const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
   const cookie = authCookieKey ? cookies[authCookieKey] : null;
 
@@ -686,7 +687,23 @@ async function runTestHandler(req: express.Request, res: express.Response) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        code: `module.exports=async({page,context})=>{const url=context.url;await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});const title=await page.title();const bodyText=await page.evaluate(()=>document.body.innerText.substring(0,8000));const headings=await page.evaluate(()=>Array.from(document.querySelectorAll('h1, h2, h3')).map(h=>({tag:h.tagName,text:h.innerText})));const screenshotBuffer=await page.screenshot({type:'jpeg',quality:60,fullPage:false});return{data:{title,bodyText,headings,screenshot:screenshotBuffer.toString('base64')},type:'application/json'};};`,
+        code: `
+          module.exports = async ({ page, context }) => {
+            const url = context.url;
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+            
+            const title = await page.title();
+            const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
+            const headings = await page.evaluate(() => 
+              Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText }))
+            );
+            
+            const screenshotBuffer = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false });
+            const screenshot = screenshotBuffer.toString('base64');
+
+            return { data: { title, bodyText, headings, screenshot }, type: 'application/json' };
+          };
+        `,
         context: { url }
       })
     });
