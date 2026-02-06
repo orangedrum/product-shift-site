@@ -691,7 +691,6 @@ async function runTestHandler(req: express.Request, res: express.Response) {
           module.exports = async ({ page, context }) => {
             const url = context.url;
             await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-            
             const title = await page.title();
             const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
             const headings = await page.evaluate(() => 

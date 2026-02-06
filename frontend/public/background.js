@@ -1,0 +1,4 @@
+// frontend/public/background.js
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ tabId: tab.id });
+});
