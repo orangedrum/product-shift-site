@@ -9,7 +9,7 @@
     "128": "Favicon_1Favicon.png"
   },
   "action": {
-    "default_title": "Analyze Page",
+    "default_title": "Analyze Page"
   },
   "background": {
     "service_worker": "background.js"
