@@ -21,9 +21,6 @@ type Persona = {
   avatar: string;
 };
 
-// --- AI Helpers ---
-// We will initialize genAI inside the function to ensure we catch the latest env var
-
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
@@ -680,7 +677,12 @@ async function runTestHandler(req: express.Request, res: express.Response) {
     const analysisPromise = (async () => {
     console.log('Sending request to Browserless...');
 
-    const response = await fetch(`https://production-sfo.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN!}`, { 
+    const browserlessToken = process.env.BROWSERLESS_TOKEN;
+    if (!browserlessToken) {
+      throw new Error('BROWSERLESS_TOKEN is missing in environment variables.');
+    }
+
+    const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken}`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -688,18 +690,13 @@ async function runTestHandler(req: express.Request, res: express.Response) {
           module.exports = async ({ page, context }) => {
             const url = context.url;
             await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-            
-            // Extract Data
             const title = await page.title();
-            const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000)); // Limit text
+            const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
             const headings = await page.evaluate(() => 
               Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText }))
             );
-            
-            // Screenshot
             const screenshotBuffer = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false });
             const screenshot = screenshotBuffer.toString('base64');
-
             return { data: { title, bodyText, headings, screenshot }, type: 'application/json' };
           };
         `,
