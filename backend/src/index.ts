@@ -311,9 +311,6 @@ app.get('/api/public-report/:id', async (req, res) => {
   }
 
   if (id === 'test-mode-dummy-id') {
-    // ... (Test mode fallback logic omitted for brevity, but functionality preserved in main logic) ...
-    // For simplicity in this full file dump, we'll let the main logic handle it or return a simple static page if needed.
-    // Actually, let's keep the simple static return for test mode to be safe.
     return res.send('Test Mode Report'); 
   }
   
@@ -444,6 +441,7 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
 // --- AUTH MIDDLEWARE ---
 const authenticateRequest = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   let cookies = (req as any).cookies;
+  // Robust Fallback: If cookies is undefined OR empty object, try parsing headers manually.
   if ((!cookies || Object.keys(cookies).length === 0) && req.headers.cookie) {
     try {
       cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
@@ -474,10 +472,26 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
   next();
 };
 
+// --- Auth Routes ---
 app.get('/api/auth/status', authenticateRequest, (req, res) => {
   const user = (req as any).user;
   if (user) res.json({ authenticated: true, email: user.email });
   else res.json({ authenticated: false });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, redirectTo } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux',
+    },
+  });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ success: true });
 });
 
 app.post('/api/run-test', runTestHandler);
@@ -501,8 +515,352 @@ app.post('/api/join-waitlist', async (req, res) => {
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
 
-// ... (Admin endpoints omitted for brevity but assumed present in your full file. 
-// If you need them, they are standard. The critical fixes are above.) ...
+// --- Admin Stats Endpoint ---
+app.get('/api/admin/stats', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const { count: totalTests } = await supabase.from('analysis_runs').select('*', { count: 'exact', head: true });
+    const { count: totalUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true });
+    const { data: revenueData } = await supabase.from('payments').select('amount_total');
+    const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.amount_total || 0), 0) || 0;
+
+    res.json({
+      totalTests: totalTests || 0,
+      totalUsers: totalUsers || 0,
+      totalRevenue: totalRevenue / 100
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// --- Health Check ---
+app.get('/api/health', (req, res) => {
+  const routes: string[] = [];
+  try {
+    if (app._router && app._router.stack) {
+      app._router.stack.forEach((middleware: any) => {
+        if (middleware.route) {
+          routes.push(`${Object.keys(middleware.route.methods).join(',').toUpperCase()} ${middleware.route.path}`);
+        }
+      });
+    }
+  } catch (e) {
+    console.error('Health check route inspection failed:', e);
+  }
+
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    activeRoutes: routes,
+    env: {
+      supabaseUrl: !!supabaseUrl ? 'OK' : 'MISSING',
+      geminiKey: !!process.env.GEMINI_API_KEY ? 'OK' : 'MISSING'
+    }
+  });
+});
+
+// --- Main Handler (runTestHandler) ---
+// This function contains the core logic for running the test.
+// It is defined here to be used by both /api/run-test and /api/analyze.
+async function runTestHandler(req: express.Request, res: express.Response) {
+  const { url, personaIds, goal, email } = req.body;
+
+  if (!url || !personaIds || !goal) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // --- TEST MODE BYPASS ---
+  if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
+    const scores = { usability: 88, desirability: 92, clarity: 95 };
+    const expertReport = '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.\n\n|||SCORES_JSON|||\n{ "usability": 88, "desirability": 92, "clarity": 95 }';
+    const userSessions = [
+      {
+        persona: 'Alex',
+        avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra',
+        analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||I instantly get what this is. The value prop is super clear.|||USER_DETAILS|||### 1. My Experience\nI landed on the page and immediately understood the offering. The headline "AI-Powered UX Audits" is punchy. I feel confident this tool could save me time.\n\n### 2. Points of Friction\nI\'m not sure about the pricing structure. It says "Pro" but doesn\'t list a price upfront. That\'s a bit annoying.\n\n### 3. What I Think This Is\nIt\'s an automated user testing tool that uses AI agents instead of real people to give quick feedback.',
+        description: 'a busy professional with two kids under 5',
+        personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' }
+      }
+    ];
+
+    // Generate SEO Schema
+    const seoSchema = generateStructuredData(url, 'Test Mode: The Product Shift', scores, expertReport);
+
+    let reportId = null;
+    if (supabaseUrl && supabaseServiceKey) {
+        const { data: runLog, error: runError } = await supabase
+          .from('analysis_runs')
+          .insert({
+            user_identifier: 'test-mode',
+            url: url,
+            persona_count: 1,
+            estimated_cost: 0,
+            is_demo: true,
+            plan_type: 'demo',
+            revenue: 0,
+            report_data: {
+                title: 'Test Mode: The Product Shift',
+                url: url,
+                scores,
+                expertReport,
+                userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.description }))
+            }
+          })
+          .select('id')
+          .single();
+        
+        if (runLog) reportId = runLog.id;
+    }
+    if (!reportId) reportId = 'test-mode-dummy-id';
+
+    return res.json({
+        message: 'Analysis Complete.',
+        reportId,
+        title: 'Test Mode: The Product Shift',
+        url: url,
+        screenshot: '', 
+        userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.description })),
+        expertReport,
+        scores,
+        seoSchema
+    });
+  }
+
+  // --- REAL ANALYSIS LOGIC ---
+  let userIdentifier = req.ip || 'unknown';
+  let planType = 'free';
+  let revenue = 0;
+  let useFreeTier = true;
+  let shouldDeductCredit = false;
+  let runId: string | null = null;
+
+  // --- CREDIT & SUBSCRIPTION CHECK ---
+  if (email && supabaseUrl && supabaseServiceKey) {
+    userIdentifier = email;
+    const { data: customer } = await supabase.from('customers').select('*').eq('email', email).single();
+    
+    if (customer) {
+      if (customer.plan_status === 'active') {
+        planType = 'subscription';
+        useFreeTier = false; // Unlimited
+      } else if (customer.credits > 0) {
+        planType = 'credit_pack';
+        useFreeTier = false;
+        shouldDeductCredit = true;
+      }
+    }
+  }
+
+  // --- FREE TIER LIMIT CHECK ---
+  if (useFreeTier) {
+    const today = new Date().toISOString().split('T')[0];
+    const { data: usage } = await supabase
+      .from('daily_usage')
+      .select('count')
+      .eq('user_identifier', userIdentifier)
+      .eq('usage_date', today)
+      .single();
+
+    if (usage && usage.count >= 1) {
+      return res.status(402).json({ 
+        error: 'Insufficient Credits', 
+        details: 'You have reached your daily free limit. Please upgrade or buy a credit pack.' 
+      });
+    }
+  }
+
+  try {
+    // --- TIMEOUT RACE START ---
+    const analysisPromise = (async () => {
+    console.log('Sending request to Browserless...');
+
+    const response = await fetch(`https://production-sfo.browserless.io/function?token=${process.env.BROWSERLESS_TOKEN!}`, { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: `
+          module.exports = async ({ page, context }) => {
+            const url = context.url;
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+            
+            // Extract Data
+            const title = await page.title();
+            const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000)); // Limit text
+            const headings = await page.evaluate(() => 
+              Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText }))
+            );
+            
+            // Screenshot
+            const screenshotBuffer = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false });
+            const screenshot = screenshotBuffer.toString('base64');
+
+            return { data: { title, bodyText, headings, screenshot }, type: 'application/json' };
+          };
+        `,
+        context: { url }
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Browserless Error: ${response.status} - ${errorText}`);
+    }
+
+    const jsonResponse = await response.json();
+    const result = jsonResponse.data; // The object returned by the browserless function
+
+    // --- Persona-Driven Analysis ---
+    const userSessions: any[] = [];
+    const personas: Record<string, Persona> = {
+      'alex-busy-pro': { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
+      // ... (Add other personas if needed, but Alex is default)
+    };
+
+    for (const pId of personaIds) {
+      const activePersona = personas[pId] || personas['alex-busy-pro']; // Fallback to Alex
+      if (activePersona) {
+        if (userSessions.length > 0) await delay(1000); // Reduced delay
+        const sessionOutput = await generateUserSession(result, activePersona, goal, url);
+        
+        // Parse Mood
+        const moodMatch = sessionOutput.match(/\|\|\|USER_MOOD\|\|\|\s*(.*)/);
+        const mood = moodMatch ? moodMatch[1].trim() : 'Neutral';
+        let avatarUrl = activePersona.avatar;
+        if (mood.toLowerCase().includes('negative')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=sad`;
+        if (mood.toLowerCase().includes('positive')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=smile`;
+
+        userSessions.push({
+          persona: activePersona.name,
+          avatar: avatarUrl,
+          analysis: sessionOutput,
+          personaObj: activePersona
+        });
+      }
+    }
+
+    // --- Aggregated Expert Report ---
+    await delay(1000);
+    let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, false);
+    
+    // Extract JSON Scores
+    let scores = { usability: 0, desirability: 0, clarity: 0 };
+    if (rawExpertReport.includes('|||SCORES_JSON|||')) {
+      const parts = rawExpertReport.split('|||SCORES_JSON|||');
+      let expertReportText = parts[0];
+      try {
+        const jsonMatch = parts[1].match(/\{[\s\S]*?\}/);
+        if (jsonMatch) {
+            scores = JSON.parse(jsonMatch[0]);
+        } else {
+            scores = JSON.parse(parts[1].trim());
+        }
+      } catch (e) {
+        console.error('Failed to parse scores JSON', e);
+      }
+      rawExpertReport = expertReportText; // Update report text to exclude JSON
+    }
+
+    // --- USAGE TRACKING ---
+    if (supabaseUrl && supabaseServiceKey) {
+      if (shouldDeductCredit) {
+        await supabase.rpc('deduct_credit', { user_email: email });
+      } else if (useFreeTier) {
+        const today = new Date().toISOString().split('T')[0];
+        const { error: upsertError } = await supabase
+          .from('daily_usage')
+          .upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
+        if (upsertError && upsertError.code !== '23505') console.error('Failed to increment usage count:', upsertError);
+      }
+
+      // Log Run
+      const { data: runLog, error: runLogError } = await supabase
+        .from('analysis_runs')
+        .insert({
+          user_identifier: userIdentifier,
+          url: url,
+          persona_count: personaIds.length,
+          estimated_cost: 0, // Simplified
+          is_demo: false,
+          plan_type: planType,
+          revenue: revenue,
+          report_data: {
+            title: result.title,
+            url: url,
+            scores,
+            expertReport: rawExpertReport,
+            userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description }))
+          }
+        })
+        .select('id')
+        .single();
+      
+      if (runLog) runId = runLog.id;
+    }
+
+    // Generate SEO Schema
+    const seoSchema = generateStructuredData(url, result.title, scores, rawExpertReport);
+
+    return {
+      message: 'Analysis Complete.',
+      reportId: runId,
+      title: result.title,
+      url: url,
+      screenshot: result.screenshot,
+      userSessions: userSessions.map(({ persona, avatar, analysis, personaObj }) => ({ persona, avatar, analysis, description: personaObj.description })),
+      expertReport: rawExpertReport,
+      scores,
+      seoSchema
+    };
+    })(); // End of analysisPromise
+
+    // Safety Valve: 48 second timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 48000)
+    );
+
+    const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
+    res.json(finalResponse);
+
+  } catch (error: any) {
+    if (error.message === 'GRACEFUL_TIMEOUT') {
+      console.error('⚠️ Analysis timed out. Returning graceful fallback.');
+      return res.json({
+        message: 'Analysis Delayed',
+        title: 'Analysis In Progress',
+        url: url,
+        screenshot: '',
+        userSessions: [{
+          persona: 'System',
+          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=System',
+          analysis: '|||USER_MOOD|||Neutral|||USER_BUBBLE|||We\'re having a bad AI day.|||USER_DETAILS|||### 1. Status Update\nOur AI brains are a bit overloaded right now and timed out while analyzing your page.\n\n### 2. Recommendation\nPlease wait a few minutes and click **Analyze Again** above to retry.\n\n### 3. Note\nYour credit was not deducted for this incomplete run.',
+          description: 'Automated System Message'
+        }],
+        expertReport: '### TEST RESULT: INCONCLUSIVE\nThe AI models are currently overloaded. Please retry.',
+        scores: { usability: 50, desirability: 50, clarity: 50 }
+      });
+    }
+
+    console.error('Test error:', error);
+    const errorMessage = error.message || 'An unknown error occurred.';
+    
+    // Refund credit if error was not a timeout (and we deducted it)
+    if (shouldDeductCredit && supabaseUrl && supabaseServiceKey) {
+       await supabase.rpc('add_credits', { user_email: email, amount: 1 });
+    }
+
+    res.status(500).json({ 
+      error: 'Analysis Failed', 
+      details: errorMessage,
+      usageCounted: false 
+    });
+  }
+}
 
 app.use((req, res) => {
   console.log(`[404] No route matched for: ${req.method} ${req.path}`);
