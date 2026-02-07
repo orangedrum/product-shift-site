@@ -301,9 +301,10 @@ const parseMarkdownToTailwind = (text: string) => {
 app.get('/api/public-report/:id', async (req, res) => {
   const { id } = req.params;
 
-  // Validate UUID to prevent DB 500s
+  // Validate ID: Allow UUIDs, Integers (for legacy DBs), or the test mode string
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-  if (!isUuid && id !== 'test-mode-dummy-id') {
+  const isInt = /^\d+$/.test(id);
+  if (!isUuid && !isInt && id !== 'test-mode-dummy-id') {
      return res.status(404).send('Report not found (Invalid ID format).');
   }
 
@@ -416,12 +417,14 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
     const slug = `ux-audit-${safeTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
     const seoSchema = generateStructuredData(url, `UX Audit: ${safeTitle}`, scores, expertReport);
 
+    // GEO STRATEGY: Append SEO Schema to content so it's accessible in the CMS
+    const contentWithSchema = `${expertReport}\n\n## SEO Data (JSON-LD)\nCopy this block into your page <head>:\n\`\`\`json\n${JSON.stringify(seoSchema, null, 2)}\n\`\`\``;
+
     const { error: insertError } = await supabase.from('posts').insert({
       id: newId,
       title: `UX Audit: ${safeTitle}`,
       slug: slug,
-      content: expertReport,
-      seo_schema: seoSchema,
+      content: contentWithSchema,
       status: 'draft',
       category: 'Website Optimization',
       published_at: new Date().toISOString()
