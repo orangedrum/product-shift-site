@@ -425,7 +425,6 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
       title: `UX Audit: ${safeTitle}`,
       slug: slug,
       content: contentWithSchema,
-      status: 'draft',
       category: 'Website Optimization',
       published_at: new Date().toISOString()
     });
@@ -579,7 +578,7 @@ async function runTestHandler(req: express.Request, res: express.Response) {
   // --- TEST MODE BYPASS ---
   if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
     const scores = { usability: 88, desirability: 92, clarity: 95 };
-    const expertReport = '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.\n\n|||SCORES_JSON|||\n{ "usability": 88, "desirability": 92, "clarity": 95 }';
+    const expertReport = '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.';
     const userSessions = [
       {
         persona: 'Alex',
