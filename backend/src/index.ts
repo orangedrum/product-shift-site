@@ -38,6 +38,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 // --- Resend Initialization ---
 const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
 
+// --- Helper: Delay ---
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is missing in environment variables");
@@ -64,9 +67,6 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
   if (imagePart) parts.push(imagePart);
 
   let errorLog: string[] = [];
-
-  // Helper to delay execution to avoid rate limits
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   for (const modelName of modelsToTry) {
     try {
