@@ -4,6 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { randomUUID } from 'crypto'; // Native Node.js UUID generation
+import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody } from './email-templates';
 
 // --- Persona & Analyzer Definitions ---
 
@@ -276,6 +277,9 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           stripe_session_id: session.id
         });
       }
+      
+      // Marketing: Send Welcome Email
+      await sendEmail(customerEmail, welcomeSubject, welcomeBody);
     }
   }
   res.json({received: true});
@@ -513,6 +517,10 @@ app.post('/api/join-waitlist', async (req, res) => {
   if (!supabaseUrl || !supabaseServiceKey) return res.status(500).json({ error: 'Server configuration error.' });
   const { error } = await supabase.from('waitlist_emails').insert({ email });
   if (error) return res.status(500).json({ error: 'Could not save email.', details: error.message });
+  
+  // Marketing: Send Waitlist Email
+  await sendEmail(email, waitlistSubject, waitlistBody);
+  
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
 
@@ -693,7 +701,7 @@ async function runTestHandler(req: express.Request, res: express.Response) {
         code: `
 export default async function({ page, context }) {
   const url = context.url;
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
   
   const title = await page.title();
   const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
