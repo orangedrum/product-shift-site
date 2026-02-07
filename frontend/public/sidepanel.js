@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       screenshotImg.src = dataUrl;
       previewContainer.style.display = 'block';
 
-      setStatus('Analyzing with AI... (this may take 30s)', 'neutral');
+      setStatus('Analyzing with AI... (this may take a moment)', 'neutral');
 
       // 2. Send to Backend
       const res = await fetch(`${API_BASE_URL}/api/analyze`, {

@@ -338,6 +338,20 @@ app.get('/api/public-report/:id', async (req, res) => {
               <h1 class="text-4xl font-black mb-2">${title}</h1>
               <p class="text-lg font-medium text-gray-600">Target URL: <a href="${url}" class="text-indigo-600 underline">${url}</a></p>
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
+                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Usability</div>
+                <div class="text-5xl font-black text-black">${scores.usability}</div>
+              </div>
+              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
+                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Desirability</div>
+                <div class="text-5xl font-black text-black">${scores.desirability}</div>
+              </div>
+              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
+                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Clarity</div>
+                <div class="text-5xl font-black text-black">${scores.clarity}</div>
+              </div>
+            </div>
             <div class="space-y-8 mb-12">
               <h2 class="text-3xl font-black text-black border-b-4 border-black pb-2 inline-block mb-6">User Feedback</h2>
               ${(userSessions || []).map((session: any) => {
@@ -362,20 +376,6 @@ app.get('/api/public-report/:id', async (req, res) => {
                   </div>
                 `
               }).join('')}
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
-                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Usability</div>
-                <div class="text-5xl font-black text-black">${scores.usability}</div>
-              </div>
-              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
-                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Desirability</div>
-                <div class="text-5xl font-black text-black">${scores.desirability}</div>
-              </div>
-              <div class="p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] text-center">
-                <div class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Clarity</div>
-                <div class="text-5xl font-black text-black">${scores.clarity}</div>
-              </div>
             </div>
             <div class="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <h2 class="text-3xl font-black text-black border-b-4 border-black pb-2 inline-block mb-6">Expert Analysis</h2>
@@ -425,6 +425,7 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
       title: `UX Audit: ${safeTitle}`,
       slug: slug,
       content: contentWithSchema,
+      status: 'draft',
       category: 'Website Optimization',
       published_at: new Date().toISOString()
     });
