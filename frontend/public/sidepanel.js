@@ -3,6 +3,8 @@
 // Use the specific Vercel URL from your logs to ensure connectivity
 const API_BASE_URL = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
 
+let currentUserEmail = ''; // Store email for admin actions
+
 document.addEventListener('DOMContentLoaded', () => {
   const loginView = document.getElementById('login-view');
   const appView = document.getElementById('app-view');
@@ -44,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const data = await res.json();
       if (data.authenticated) {
+        currentUserEmail = data.email;
         setStatus('Logged in!', 'success');
         toggleView(true);
       } else {
@@ -132,10 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const renderResults = (data) => {
-    // Simple rendering of the HTML returned or constructing it from JSON
-    // Since your backend returns structured JSON + HTML report, let's use the JSON data
-    
-    const { scores, userSessions } = data;
+    const { scores, userSessions, expertReport, reportId } = data;
     
     let html = '';
 
@@ -144,23 +144,124 @@ document.addEventListener('DOMContentLoaded', () => {
       html += `
         <div class="card">
           <h3>Scores</h3>
-          <p>Usability: <strong>${scores.usability}</strong></p>
-          <p>Desirability: <strong>${scores.desirability}</strong></p>
-          <p>Clarity: <strong>${scores.clarity}</strong></p>
+          <div class="score-container">
+            <div class="score-row">
+              <span class="score-label">Usability</span>
+              <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.usability}%"></div></div>
+              <span class="score-value">${scores.usability}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Desirability</span>
+              <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.desirability}%"></div></div>
+              <span class="score-value">${scores.desirability}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Clarity</span>
+              <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.clarity}%"></div></div>
+              <span class="score-value">${scores.clarity}</span>
+            </div>
+          </div>
         </div>
       `;
     }
 
     // Sessions
     if (userSessions && userSessions.length > 0) {
+      html += `<h2>User Feedback</h2>`;
       userSessions.forEach(session => {
-        // Strip the internal markers for display
-        const cleanAnalysis = session.analysis.replace(/\|\|\|.*?\|\|\|/g, '').substring(0, 150) + '...';
-        html += `<div class="card"><strong>${session.persona}</strong>: ${cleanAnalysis}</div>`;
+        // Parse the analysis string to extract specific sections
+        const parts = session.analysis.split('|||');
+        const moodIndex = parts.indexOf('USER_MOOD');
+        const bubbleIndex = parts.indexOf('USER_BUBBLE');
+        const detailsIndex = parts.indexOf('USER_DETAILS');
+
+        const mood = moodIndex !== -1 ? parts[moodIndex + 1].trim() : 'Neutral';
+        const bubble = bubbleIndex !== -1 ? parts[bubbleIndex + 1].trim() : '';
+        const details = detailsIndex !== -1 ? parts[detailsIndex + 1].trim() : '';
+
+        // Format details (Markdown to HTML)
+        const formattedDetails = details
+          .replace(/^### (.*$)/gm, '<h4>$1</h4>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n/g, '<br>');
+
+        html += `
+          <div class="card">
+            <div class="persona-header">
+              <img src="${session.avatar}" class="avatar" alt="${session.persona}" />
+              <div>
+                <div class="persona-name">${session.persona}</div>
+                <div class="persona-desc">${session.description || 'Persona'}</div>
+              </div>
+            </div>
+            <div class="mood-bubble ${mood.toLowerCase().includes('positive') ? 'mood-positive' : 'mood-negative'}">
+              "${bubble}"
+            </div>
+            <div class="details">
+              ${formattedDetails}
+            </div>
+          </div>
+        `;
       });
     }
 
+    // Expert Analysis
+    if (expertReport) {
+       const formattedExpert = expertReport
+          .replace(/^### (.*$)/gm, '<h4>$1</h4>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/^- (.*$)/gm, '<li>$1</li>')
+          .replace(/\n/g, '<br>');
+       
+       html += `
+        <div class="card">
+          <h3>Expert Analysis</h3>
+          <div class="details">${formattedExpert}</div>
+        </div>
+       `;
+    }
+
+    // Actions (Share / Blog)
+    if (reportId) {
+      const publicUrl = `${API_BASE_URL}/api/public-report/${reportId}`;
+      html += `
+        <div style="display: flex; gap: 8px; flex-direction: column; margin-top: 16px;">
+          <a href="${publicUrl}" target="_blank" class="btn" style="text-decoration: none;">
+            Share Full Report
+          </a>
+          <button id="draftBlogBtn" class="btn-outline" data-report-id="${reportId}">
+            Draft to Blog (Admin)
+          </button>
+        </div>
+      `;
+    }
+
     resultsContainer.innerHTML = html;
+
+    // Attach listener for Draft Blog
+    const draftBtn = document.getElementById('draftBlogBtn');
+    if (draftBtn) {
+      draftBtn.addEventListener('click', async () => {
+        if (!currentUserEmail) return setStatus('Error: Email not found. Please re-login.', 'error');
+        
+        setStatus('Drafting blog post...', 'neutral');
+        try {
+           const res = await fetch(`${API_BASE_URL}/api/admin/draft-blog-post`, {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ reportId: reportId, email: currentUserEmail })
+           });
+           const d = await res.json();
+           if (d.success) {
+             setStatus('Draft created! Check CMS.', 'success');
+           } else {
+             setStatus('Failed: ' + (d.error || 'Unknown error'), 'error');
+           }
+        } catch (e) {
+          setStatus('Error drafting blog.', 'error');
+        }
+      });
+    }
   };
 
   // Initial check
