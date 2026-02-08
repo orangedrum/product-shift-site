@@ -528,9 +528,15 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/admin/test-email', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
+
+  // Check Key Presence explicitly for the test endpoint
+  if (!process.env.RESEND_API_KEY) {
+     return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing in Vercel Env Vars.' });
+  }
+
   const result = await sendEmail(email, 'Test Email from Backend', '<p>If you see this, Resend is working!</p>');
   if (result.success) return res.json({ success: true });
-  return res.status(500).json({ error: 'Failed to send email', details: result.error });
+  return res.json({ success: false, error: 'Failed to send email', details: result.error });
 });
 
 app.post('/api/run-test', runTestHandler);
