@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleView(true);
       } else {
         setStatus('Please log in.', 'neutral');
-        toggleView(false);
+        console.log('Auth Debug:', data.debug); // Log the reason from backend
       }
     } catch (err) {
       console.error('Auth Error:', err);
@@ -80,6 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       setStatus('Magic link sent! Check your email, then click "I\'ve Logged In".', 'success');
+      
+      // UI Update: Hide Input, Show Success Message (Matches Login.tsx isSuccess state)
+      emailInput.style.display = 'none';
+      sendMagicLinkBtn.style.display = 'none';
+      checkAuthBtn.innerText = "I've Logged In (Check Again)";
     } catch (err) {
       setStatus(`Error: ${err.message}`, 'error');
     } finally {

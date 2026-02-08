@@ -472,6 +472,7 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
 
   if (!cookie) {
     (req as any).user = null;
+    (req as any).authDebug = 'No auth cookie found in request';
     return next();
   }
 
@@ -479,8 +480,10 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
     const token = JSON.parse(cookie)[0].access_token;
     const { data: { user }, error } = await supabase.auth.getUser(token);
     (req as any).user = error || !user ? null : user;
+    if (error) (req as any).authDebug = `Supabase Error: ${error.message}`;
   } catch (e) {
     (req as any).user = null;
+    (req as any).authDebug = 'Failed to parse auth cookie';
   }
   next();
 };
@@ -488,8 +491,8 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
 // --- Auth Routes ---
 app.get('/api/auth/status', authenticateRequest, (req, res) => {
   const user = (req as any).user;
-  if (user) res.json({ authenticated: true, email: user.email });
-  else res.json({ authenticated: false });
+  if (user) res.json({ authenticated: true, email: user.email, debug: 'OK' });
+  else res.json({ authenticated: false, debug: (req as any).authDebug || 'Unknown auth failure' });
 });
 
 app.post('/api/auth/login', async (req, res) => {

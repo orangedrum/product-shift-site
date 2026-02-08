@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         loginView.style.display = 'block';
         appView.style.display = 'none';
+        if (data.debug) console.warn('Auth Failed Reason:', data.debug);
       }
     } catch (e) {
       console.error('Auth check failed', e);
@@ -78,6 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
           alert('Magic Link Sent! Check your inbox, click the link, then come back here and click "Check Again".');
           sendMagicLinkBtn.innerText = 'Link Sent!';
+          
+          // UI Update: Hide Input to reduce confusion (Matches Login.tsx flow)
+          emailInput.style.display = 'none';
+          sendMagicLinkBtn.style.display = 'none';
+          checkAuthBtn.innerText = "I've Logged In (Check Again)";
         } else {
           // Use the specific error from the backend if available
           throw new Error(data.error || `Failed to send link (${res.status})`);
