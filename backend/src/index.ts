@@ -138,12 +138,12 @@ const sendEmail = async (to: string, subject: string, html: string) => {
     if (!res.ok) {
       const errorData = await res.json();
       console.error('Resend API Error:', errorData);
-      return { success: false, error: errorData };
+      return { success: false, error: errorData, from: emailFrom };
     }
     return { success: true };
   } catch (e) {
     console.error('Failed to send email:', e);
-    return { success: false, error: e };
+    return { success: false, error: e, from: emailFrom };
   }
 };
 
@@ -536,7 +536,7 @@ app.post('/api/admin/test-email', async (req, res) => {
 
   const result = await sendEmail(email, 'Test Email from Backend', '<p>If you see this, Resend is working!</p>');
   if (result.success) return res.json({ success: true });
-  return res.json({ success: false, error: 'Failed to send email', details: result.error });
+  return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
 });
 
 app.post('/api/run-test', runTestHandler);
