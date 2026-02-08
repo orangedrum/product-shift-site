@@ -122,11 +122,11 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('Resend API key missing. Skipping email.');
-    return;
+    return { success: false, error: 'Resend API Key missing' };
   }
   const fullHtml = getEmailTemplate(html);
   try {
-    await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -134,8 +134,16 @@ const sendEmail = async (to: string, subject: string, html: string) => {
       },
       body: JSON.stringify({ from: emailFrom, to, subject, html: fullHtml })
     });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Resend API Error:', errorData);
+      return { success: false, error: errorData };
+    }
+    return { success: true };
   } catch (e) {
     console.error('Failed to send email:', e);
+    return { success: false, error: e };
   }
 };
 
@@ -514,6 +522,15 @@ app.post('/api/auth/login', async (req, res) => {
     console.error('UNEXPECTED AUTH EXCEPTION:', err);
     return res.status(500).json({ error: 'Email Service Error. Please try again later.' });
   }
+});
+
+// --- Debug: Test Email Endpoint ---
+app.post('/api/admin/test-email', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  const result = await sendEmail(email, 'Test Email from Backend', '<p>If you see this, Resend is working!</p>');
+  if (result.success) return res.json({ success: true });
+  return res.status(500).json({ error: 'Failed to send email', details: result.error });
 });
 
 app.post('/api/run-test', runTestHandler);
