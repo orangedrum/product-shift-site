@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Magic Link Sent! Check your inbox, click the link, then come back here and click "Check Again".');
           sendMagicLinkBtn.innerText = 'Link Sent!';
         } else {
-          throw new Error(data.error || 'Failed to send link');
+          // Use the specific error from the backend if available
+          throw new Error(data.error || `Failed to send link (${res.status})`);
         }
       } catch (e) {
         console.error('Login error:', e);

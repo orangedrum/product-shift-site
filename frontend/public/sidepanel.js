@@ -72,11 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ email })
       });
       
-      if (!res.ok) throw new Error('Failed to send link');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to send link');
+      }
       
       setStatus('Magic link sent! Check your email, then click "I\'ve Logged In".', 'success');
     } catch (err) {
-      setStatus('Error sending link. Try again.', 'error');
+      setStatus(`Error: ${err.message}`, 'error');
     }
   });
 

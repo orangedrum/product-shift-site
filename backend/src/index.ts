@@ -488,6 +488,12 @@ app.post('/api/auth/login', async (req, res) => {
   const { email, redirectTo } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
+  // Diagnostic: Check if Supabase is actually configured
+  if (!supabaseUrl || !supabaseServiceKey || supabaseUrl.includes('placeholder')) {
+    console.error('AUTH ERROR: Supabase Env Vars Missing');
+    return res.status(500).json({ error: 'Server Configuration Error: Supabase URL/Key missing.' });
+  }
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
@@ -495,7 +501,10 @@ app.post('/api/auth/login', async (req, res) => {
     },
   });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) {
+    console.error('SUPABASE AUTH ERROR:', error);
+    return res.status(500).json({ error: error.message });
+  }
   return res.json({ success: true });
 });
 
