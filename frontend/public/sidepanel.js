@@ -64,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = emailInput.value;
     if (!email) return setStatus('Please enter an email.', 'error');
 
+    sendMagicLinkBtn.disabled = true;
+    sendMagicLinkBtn.innerText = 'Sending...';
     setStatus('Sending login link...', 'neutral');
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -80,6 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus('Magic link sent! Check your email, then click "I\'ve Logged In".', 'success');
     } catch (err) {
       setStatus(`Error: ${err.message}`, 'error');
+    } finally {
+      sendMagicLinkBtn.disabled = false;
+      sendMagicLinkBtn.innerText = 'Send Login Link';
     }
   });
 

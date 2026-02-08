@@ -494,18 +494,26 @@ app.post('/api/auth/login', async (req, res) => {
     return res.status(500).json({ error: 'Server Configuration Error: Supabase URL/Key missing.' });
   }
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux',
-    },
-  });
+  try {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux',
+      },
+    });
 
-  if (error) {
-    console.error('SUPABASE AUTH ERROR:', error);
-    return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error('SUPABASE AUTH ERROR:', error);
+      if (error.status === 429) {
+        return res.status(429).json({ error: 'Too many login attempts. Please wait a minute.' });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+    return res.json({ success: true });
+  } catch (err: any) {
+    console.error('UNEXPECTED AUTH EXCEPTION:', err);
+    return res.status(500).json({ error: 'Email Service Error. Please try again later.' });
   }
-  return res.json({ success: true });
 });
 
 app.post('/api/run-test', runTestHandler);
