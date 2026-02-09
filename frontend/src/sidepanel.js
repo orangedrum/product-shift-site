@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         // We tell the backend to redirect the user back to THIS specific API Base URL after login.
         // This ensures the auth cookie is set on the correct domain (the Vercel preview URL).
+        // NOTE: This URL must match the domain where the backend is hosted for cookies to work.
         const res = await fetch(`${API_BASE}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

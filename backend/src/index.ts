@@ -93,7 +93,7 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 };
 
 // --- Email Template Helper ---
-const getEmailTemplate = (content: string) => `
+const getEmailTemplate = (content: string, baseUrl: string = 'https://www.theproductshift.com') => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -104,8 +104,8 @@ const getEmailTemplate = (content: string) => `
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 40px 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
     <div style="text-align: center; margin-bottom: 32px;">
-      <a href="https://www.theproductshift.com">
-        <img src="https://www.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
+      <a href="${baseUrl}">
+        <img src="${baseUrl}/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
       </a>
     </div>
     ${content}
@@ -118,13 +118,13 @@ const getEmailTemplate = (content: string) => `
 `;
 
 // --- Email Helper ---
-const sendEmail = async (to: string, subject: string, html: string) => {
+const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('Resend API key missing. Skipping email.');
     return { success: false, error: 'Resend API Key missing' };
   }
-  const fullHtml = getEmailTemplate(html);
+  const fullHtml = getEmailTemplate(html, baseUrl);
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -287,7 +287,8 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
       }
       
       // Marketing: Send Welcome Email
-      await sendEmail(customerEmail, welcomeSubject, welcomeBody);
+      // Webhooks don't have an origin header, so we default to production or use an env var if needed.
+      await sendEmail(customerEmail, welcomeSubject, welcomeBody('https://www.theproductshift.com'));
     }
   }
   res.json({received: true});
@@ -541,7 +542,8 @@ app.post('/api/admin/test-email', async (req, res) => {
      return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing in Vercel Env Vars.' });
   }
 
-  const result = await sendEmail(email, 'Test Email from Backend', '<p>If you see this, Resend is working!</p>');
+  const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+  const result = await sendEmail(email, 'Test Email from Backend', '<p>If you see this, Resend is working!</p>', baseUrl);
   if (result.success) return res.json({ success: true });
   return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
 });
@@ -565,8 +567,9 @@ app.post('/api/join-waitlist', async (req, res) => {
   const { error } = await supabase.from('waitlist_emails').insert({ email });
   if (error) return res.status(500).json({ error: 'Could not save email.', details: error.message });
   
+  const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
   // Marketing: Send Waitlist Email
-  await sendEmail(email, waitlistSubject, waitlistBody);
+  await sendEmail(email, waitlistSubject, waitlistBody(baseUrl), baseUrl);
   
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
