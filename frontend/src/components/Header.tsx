@@ -23,8 +23,12 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
       setInternalSession(session);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setInternalSession(session);
+      // Force update if token refreshes
+      if (event === 'TOKEN_REFRESHED' && session) {
+        setInternalSession({ ...session }); 
+      }
     });
 
     return () => subscription.unsubscribe();

@@ -574,6 +574,22 @@ app.post('/api/join-waitlist', async (req, res) => {
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
 
+// --- User Account Check (Fixes 404 Error) ---
+app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  // Fetch customer details to return credits/plan info
+  const { data: customer } = await supabase.from('customers').select('*').eq('email', user.email).single();
+  
+  res.json({ 
+    authenticated: true, 
+    email: user.email,
+    credits: customer?.credits || 0,
+    plan_status: customer?.plan_status || 'free'
+  });
+});
+
 // --- Admin Stats Endpoint ---
 app.get('/api/admin/stats', async (req, res) => {
   const authHeader = req.headers.authorization;

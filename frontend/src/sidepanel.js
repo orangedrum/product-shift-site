@@ -1,344 +1,330 @@
+// frontend/public/sidepanel.js
+
+// Use the specific Vercel URL from your logs to ensure connectivity
+const API_BASE_URL = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
+
+let currentUserEmail = ''; // Store email for admin actions
+
 document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('analyzeBtn');
-  const preview = document.getElementById('preview');
-  const img = document.getElementById('screenshot');
-  const status = document.getElementById('status');
-  const testBtn = document.getElementById('testConnBtn');
-  const resultsContainer = document.getElementById('results-container');
-  
-  // Auth Elements
   const loginView = document.getElementById('login-view');
   const appView = document.getElementById('app-view');
-  const checkAuthBtn = document.getElementById('checkAuthBtn');
-  const sendMagicLinkBtn = document.getElementById('sendMagicLinkBtn');
   const emailInput = document.getElementById('emailInput');
+  const sendMagicLinkBtn = document.getElementById('sendMagicLinkBtn');
+  const checkAuthBtn = document.getElementById('checkAuthBtn');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const statusDiv = document.getElementById('status');
+  const resultsContainer = document.getElementById('results-container');
+  const screenshotImg = document.getElementById('screenshot');
+  const previewContainer = document.getElementById('preview');
 
-  const API_BASE = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
-  let currentUserEmail = '';
-
-  // --- Auth Check Function ---
-  const checkAuth = async (silent = false) => {
-    if (!silent && status) status.innerText = 'Checking...';
-    try {
-      // Add timestamp to prevent caching of auth status
-      const res = await fetch(`${API_BASE}/api/auth/status?t=${Date.now()}`, { credentials: 'include' });
-      const data = await res.json();
-      console.log('[Extension] Auth Check Result:', data);
-      
-      if (data.authenticated) {
-        currentUserEmail = data.email || '';
-        loginView.style.display = 'none';
-        appView.style.display = 'block';
-      } else {
-        loginView.style.display = 'block';
-        appView.style.display = 'none';
-        if (!silent) {
-           if (data.debug) console.warn('Auth Failed Reason:', data.debug);
-        }
-      }
-    } catch (e) {
-      if (!silent) console.error('Auth check failed', e);
-      // Default to login view on error
-      loginView.style.display = 'block';
-      appView.style.display = 'none';
+  // --- Helper Functions ---
+  const setStatus = (msg, type = 'neutral') => {
+    if (statusDiv) {
+      statusDiv.textContent = msg;
+      statusDiv.className = `status ${type}`;
     }
   };
 
-  // Check on load
-  checkAuth(false);
-
-  // --- Auto-Login Polling ---
-  setInterval(() => {
-    if (appView.style.display === 'none') {
-      checkAuth(true);
+  const toggleView = (isAuthenticated) => {
+    if (isAuthenticated) {
+      if (loginView) loginView.style.display = 'none';
+      if (appView) appView.style.display = 'block';
+    } else {
+      if (loginView) loginView.style.display = 'block';
+      if (appView) appView.style.display = 'none';
     }
-  }, 4000);
-  
-  if (checkAuthBtn) {
-    checkAuthBtn.addEventListener('click', () => {
-      checkAuthBtn.innerText = 'Checking...';
-      checkAuth(false).then(() => checkAuthBtn.innerText = "I've Logged In (Check Again)");
-    });
-  }
+  };
 
-  // --- Send Magic Link Function ---
-  if (sendMagicLinkBtn && emailInput) {
-    sendMagicLinkBtn.addEventListener('click', async () => {
-      const email = emailInput.value.trim();
-      if (!email) {
-        alert('Please enter your email address.');
-        return;
+  // --- Auth Logic ---
+  const checkAuth = async (silent = false) => {
+    if (!silent) setStatus('Checking authentication...', 'neutral');
+    try {
+      // We must include credentials (cookies) for the auth check to work
+      // Add timestamp to prevent caching of auth status
+      const res = await fetch(`${API_BASE_URL}/api/auth/status?t=${Date.now()}`, { 
+        credentials: 'include' 
+      });
+      
+      if (!res.ok) throw new Error('Auth check failed');
+      
+      const data = await res.json();
+      if (data.authenticated) {
+        currentUserEmail = data.email;
+        setStatus('Logged in!', 'success');
+        toggleView(true);
+      } else {
+        if (!silent) {
+          setStatus('Please log in.', 'neutral');
+          console.log('Auth Debug:', data.debug); // Log the reason from backend
+        }
       }
+    } catch (err) {
+      console.error('Auth Error:', err);
+      if (!silent) setStatus('Not logged in.', 'neutral');
+      toggleView(false);
+    }
+  };
+
+  if (sendMagicLinkBtn) {
+    sendMagicLinkBtn.addEventListener('click', async () => {
+      const email = emailInput.value;
+      if (!email) return setStatus('Please enter an email.', 'error');
 
       sendMagicLinkBtn.disabled = true;
       sendMagicLinkBtn.innerText = 'Sending...';
-
+      setStatus('Sending login link...', 'neutral');
       try {
-        // We tell the backend to redirect the user back to THIS specific API Base URL after login.
-        // This ensures the auth cookie is set on the correct domain (the Vercel preview URL).
-        // NOTE: This URL must match the domain where the backend is hosted for cookies to work.
-        const res = await fetch(`${API_BASE}/api/auth/login`, {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            email, 
-            redirectTo: `${API_BASE}/ai-powered-ux` 
-          })
+          body: JSON.stringify({ email })
+        });
+        
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to send link');
+        }
+        
+        setStatus('Magic link sent! Check your email.', 'success');
+        
+        // UI Update: Show Success Message with Retry Options
+        const loginContainer = document.querySelector('#login-view .card') || loginView;
+        // Save original content to restore if needed
+        if (!loginContainer.dataset.originalContent) {
+          loginContainer.dataset.originalContent = loginContainer.innerHTML;
+        }
+        
+        // NO EMOJIS - Clean Text Only
+        loginContainer.innerHTML = `
+          <div style="text-align: center; padding: 20px 0;">
+            <h3>Magic Link Sent!</h3>
+            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Check your inbox, click the link to log in, then come back here.</p>
+            
+            <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
+            
+            <button id="openWebAppBtn" class="btn-outline" style="width: 100%; margin-bottom: 12px; font-size: 12px;">Open Web App (Fix Session)</button>
+            
+            <button id="backToLoginBtn" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size: 12px;">Send New Link / Wrong Email</button>
+          </div>
+        `;
+        
+        // Re-attach listener to the new button
+        document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth(false));
+        
+        document.getElementById('openWebAppBtn').addEventListener('click', () => {
+          window.open(`${API_BASE_URL}/ai-powered-ux`, '_blank');
         });
 
-        const data = await res.json();
-        if (data.success) {
-          alert('Magic Link Sent! Check your inbox, click the link, then come back here and click "Check Again".');
-          sendMagicLinkBtn.innerText = 'Link Sent!';
-          
-          // UI Update: Show Success Message with Retry Option
-          const loginContainer = document.querySelector('#login-view .card') || loginView;
-          if (!loginContainer.dataset.originalContent) {
-            loginContainer.dataset.originalContent = loginContainer.innerHTML;
-          }
+        document.getElementById('backToLoginBtn').addEventListener('click', () => {
+          loginContainer.innerHTML = loginContainer.dataset.originalContent;
+          // Reload to reset event listeners cleanly
+          window.location.reload();
+        });
 
-          loginContainer.innerHTML = `
-            <div style="text-align: center; padding: 20px 0;">
-              <h3>Magic Link Sent!</h3>
-              <p style="margin-bottom: 20px; color: #666;">Check your inbox, click the link, then click below.</p>
-              <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
-              <button id="openWebAppBtn" class="btn-outline" style="width: 100%; margin-bottom: 12px; font-size: 12px;">Open Web App (Fix Session)</button>
-              <button id="backToLoginBtn" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size: 12px;">Send New Link</button>
-            </div>
-          `;
-          document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth(false));
-          document.getElementById('openWebAppBtn').addEventListener('click', () => {
-            window.open(`${API_BASE}/ai-powered-ux`, '_blank');
-          });
-          document.getElementById('backToLoginBtn').addEventListener('click', () => window.location.reload());
-        } else {
-          // Use the specific error from the backend if available
-          throw new Error(data.error || `Failed to send link (${res.status})`);
+      } catch (err) {
+        setStatus(`Error: ${err.message}`, 'error');
+      } finally {
+        if (sendMagicLinkBtn) {
+          sendMagicLinkBtn.disabled = false;
+          sendMagicLinkBtn.innerText = 'Send Login Link';
         }
-      } catch (e) {
-        console.error('Login error:', e);
-        alert(`Error: ${e.message}`);
-        sendMagicLinkBtn.disabled = false;
-        sendMagicLinkBtn.innerText = 'Send Login Link';
       }
     });
   }
 
-  // Diagnostic Tool
-  if (testBtn) {
-    testBtn.addEventListener('click', async () => {
-    status.innerText = 'Testing connection...';
-    status.className = 'status';
-    try {
-      const res = await fetch(`${API_BASE}/api/health`);
-      if (res.ok) {
-        const json = await res.json();
-        const routeCheck = json.activeRoutes && json.activeRoutes.length > 0
-          ? 'Analyze Route Active' 
-          : 'Analyze Route MISSING';
-        
-        status.innerText = `✅ Connected! (${routeCheck})`;
-        status.className = 'status success';
-      } else {
-        throw new Error(`HTTP ${res.status}`);
-      }
-    } catch (e) {
-      status.innerText = `❌ Connection Failed: ${e.message}`;
-      status.className = 'status error';
-    }
-  });
+  if (checkAuthBtn) {
+    checkAuthBtn.addEventListener('click', () => checkAuth(false));
   }
 
-  btn.addEventListener('click', async () => {
-    // 1. Reset UI State
-    btn.disabled = true;
-    btn.innerText = 'Capturing...';
-    status.innerText = '';
-    status.className = 'status';
-    preview.style.display = 'none';
-    resultsContainer.innerHTML = ''; // Clear previous results
+  // --- Auto-Login Polling ---
+  // Check every 4 seconds if we are still on the login screen
+  setInterval(() => {
+    if (appView && appView.style.display === 'none') {
+      checkAuth(true); // Silent check
+    }
+  }, 4000);
 
-    try {
-      // 2. Get the Active Tab
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      
-      if (!tab) {
-        throw new Error("No active tab found.");
-      }
+  // --- Analysis Logic ---
+  if (analyzeBtn) {
+    analyzeBtn.addEventListener('click', async () => {
+      setStatus('Capturing page...', 'neutral');
+      resultsContainer.innerHTML = '';
+      previewContainer.style.display = 'none';
 
-      // 3. Capture Screenshot (Client-Side)
-      // This uses the 'activeTab' permission to grab what the user sees
-      const dataUrl = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
-      
-      // Show the screenshot to the user immediately
-      img.src = dataUrl;
-      preview.style.display = 'block';
-      btn.innerText = 'Analyzing...';
+      try {
+        // 1. Capture Visible Tab
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab) throw new Error('No active tab found');
 
-      // 4. Send to Backend (Production)
-      // We send the URL to our existing scraping engine.
-      // Note: This relies on the user being logged into the main site for cookies.
-      const response = await fetch(`${API_BASE}/api/analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Critical: Send auth cookies with the request
-        body: JSON.stringify({ 
-          url: tab.url
-        }),
-      });
-
-      if (response.status === 401) {
-        status.innerHTML = `<a href="${API_BASE}/login" target="_blank">Please Log In First</a>`;
-        status.className = 'status error';
-        return;
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text();
+        // Capture screenshot using Chrome API
+        const dataUrl = await chrome.tabs.captureVisibleTab(null, { format: 'jpeg', quality: 60 });
         
-        // Deductive Reasoning Fix: Detect HTML 404s (SPA Fallback)
-        if (errorText.trim().startsWith('<!DOCTYPE html>')) {
-          throw new Error(`Server Error (404): The API endpoint '/api/analyze' does not exist on the server.`);
+        // Show preview
+        screenshotImg.src = dataUrl;
+        previewContainer.style.display = 'block';
+
+        setStatus('Analyzing with AI... (this may take a moment)', 'neutral');
+
+        // 2. Send to Backend
+        const res = await fetch(`${API_BASE_URL}/api/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include', // Important for auth
+          body: JSON.stringify({
+            url: tab.url,
+            personaIds: ['alex-busy-pro'],
+            goal: 'Identify immediate UX friction points.',
+          })
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Server Error: ${res.status} ${errText}`);
         }
 
-        let errorMessage = `Error (${response.status})`;
-        try {
-          const json = JSON.parse(errorText);
-          if (json.error) errorMessage += `: ${json.error}`;
-        } catch (e) {
-          errorMessage += `: ${errorText.substring(0, 60)}`;
-        }
-        throw new Error(errorMessage);
+        const data = await res.json();
+
+        // 3. Render Results
+        setStatus('Analysis Complete!', 'success');
+        renderResults(data);
+
+      } catch (err) {
+        console.error(err);
+        setStatus(`Analysis Failed: ${err.message}`, 'error');
       }
+    });
+  }
 
-      const data = await response.json();
-      status.innerText = 'Analysis Complete!';
-      status.className = 'status success';
+  const renderResults = (data) => {
+    const { scores, userSessions, expertReport, reportId } = data;
+    
+    let html = '';
 
-      // --- Render Usability Scores ---
-      const scores = data.scores || { usability: 0, desirability: 0, clarity: 0 };
-      const scoreHtml = `
-        <div class="card score-container">
-          <div class="score-row">
-            <span class="score-label">Usability</span>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.usability}%"></div></div>
-            <span class="score-value">${scores.usability}</span>
-          </div>
-          <div class="score-row">
-            <span class="score-label">Desirability</span>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.desirability}%"></div></div>
-            <span class="score-value">${scores.desirability}</span>
-          </div>
-          <div class="score-row">
-            <span class="score-label">Clarity</span>
-            <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.clarity}%"></div></div>
-            <span class="score-value">${scores.clarity}</span>
+    // Scores
+    if (scores) {
+      html += `
+        <div class="card">
+          <h3>Scores</h3>
+          <div class="score-container">
+            <div class="score-row">
+              <span class="score-label">Usability</span>
+              <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.usability}%"></div></div>
+              <span class="score-value">${scores.usability}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Desirability</span>
+              <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.desirability}%"></div></div>
+              <span class="score-value">${scores.desirability}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Clarity</span>
+              <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${scores.clarity}%"></div></div>
+              <span class="score-value">${scores.clarity}</span>
+            </div>
           </div>
         </div>
       `;
-      resultsContainer.innerHTML = scoreHtml;
-
-      // --- Render Analysis Results ---
-      if (data.userSessions && data.userSessions.length > 0) {
-        data.userSessions.forEach(session => {
-            // Parse the AI's structured response string
-            const analysisParts = session.analysis.split('|||');
-            const mood = analysisParts.find((part, i) => analysisParts[i-1] === 'USER_MOOD')?.trim() || 'Neutral';
-            const bubble = analysisParts.find((part, i) => analysisParts[i-1] === 'USER_BUBBLE')?.trim() || 'No immediate thoughts.';
-            let details = analysisParts.find((part, i) => analysisParts[i-1] === 'USER_DETAILS')?.trim() || 'No detailed feedback provided.';
-
-            // Convert simple markdown to HTML for display
-            details = details
-                .replace(/### (.*?)\n/g, '<h4>$1</h4>')
-                .replace(/### (.*)/g, '<h4>$1</h4>')
-                .replace(/\n/g, '<br>');
-
-            const sessionHtml = `
-                <div class="card result-card">
-                    <div class="persona-header">
-                        <img src="${session.avatar}" class="avatar" alt="${session.persona}">
-                        <div>
-                            <div class="persona-name">${session.persona}</div>
-                            <div class="persona-desc">${session.description}</div>
-                        </div>
-                    </div>
-                    <div class="mood-bubble mood-${mood.toLowerCase()}">
-                        "${bubble}"
-                    </div>
-                    <div class="details">
-                        ${details}
-                    </div>
-                </div>
-            `;
-            resultsContainer.innerHTML += sessionHtml;
-        });
-
-        // --- Share Button ---
-        if (data.reportId) {
-          const shareUrl = `${API_BASE}/api/public-report/${data.reportId}`;
-          resultsContainer.innerHTML += `
-            <div style="margin-top: 16px;">
-              <a href="${shareUrl}" target="_blank" class="btn btn-outline" style="text-decoration: none; flex: 1; text-align: center;">
-                Share Report
-              </a>
-            </div>
-            `;
-
-          // --- Admin Only: Draft to Blog ---
-          // Check if user is admin (simple check for now)
-          const isAdmin = currentUserEmail && (currentUserEmail.includes('@theproductshift.com') || currentUserEmail.includes('+smb') || currentUserEmail.includes('test'));
-          
-          if (isAdmin && data.seoSchema) {
-             resultsContainer.innerHTML += `
-            <div style="margin-top: 8px;">
-              <button id="draftBlogBtn" class="btn btn-outline" style="width: 100%; background-color: #f0fdf4; border-color: #16a34a; color: #15803d;">
-                Draft to Blog (Admin)
-              </button>
-            </div>`;
-            
-             setTimeout(() => {
-                // Attach event listener for Draft button
-                const draftBtn = document.getElementById('draftBlogBtn');
-                if(draftBtn) {
-                    draftBtn.addEventListener('click', async () => {
-                        draftBtn.innerText = 'Drafting...';
-                        try {
-                          const res = await fetch(`${API_BASE}/api/admin/draft-blog-post`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ reportId: data.reportId, email: currentUserEmail })
-                          });
-                          const json = await res.json();
-                          if (json.success) {
-                            draftBtn.innerText = 'Open Draft';
-                            draftBtn.onclick = (e) => {
-                              e.preventDefault();
-                              window.open(`${API_BASE}${json.cmsLink}`, '_blank');
-                            };
-                          }
-                          else draftBtn.innerText = 'Failed';
-                        } catch(e) {
-                          console.error('Draft Error:', e);
-                          draftBtn.innerText = 'Error (See Console)';
-                        }
-                    });
-                }
-             }, 50);
-          }
-        }
-      } else {
-        resultsContainer.innerHTML = '<p class="error">No analysis results were returned from the server.</p>';
-      }
-
-    } catch (err) {
-      status.innerText = err.message || 'An error occurred';
-      status.className = 'status error';
-    } finally {
-      btn.disabled = false;
-      if (status.className !== 'status success') btn.innerText = 'Analyze Page';
-      else btn.innerText = 'Analyze Again';
     }
-  });
+
+    // Sessions
+    if (userSessions && userSessions.length > 0) {
+      html += `<h2>User Feedback</h2>`;
+      userSessions.forEach(session => {
+        // Parse the analysis string to extract specific sections
+        const parts = session.analysis.split('|||');
+        const moodIndex = parts.indexOf('USER_MOOD');
+        const bubbleIndex = parts.indexOf('USER_BUBBLE');
+        const detailsIndex = parts.indexOf('USER_DETAILS');
+
+        const mood = moodIndex !== -1 ? parts[moodIndex + 1].trim() : 'Neutral';
+        const bubble = bubbleIndex !== -1 ? parts[bubbleIndex + 1].trim() : '';
+        const details = detailsIndex !== -1 ? parts[detailsIndex + 1].trim() : '';
+
+        // Format details (Markdown to HTML)
+        const formattedDetails = details
+          .replace(/^### (.*$)/gm, '<h4>$1</h4>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n/g, '<br>');
+
+        html += `
+          <div class="card">
+            <div class="persona-header">
+              <img src="${session.avatar}" class="avatar" alt="${session.persona}" />
+              <div>
+                <div class="persona-name">${session.persona}</div>
+                <div class="persona-desc">${session.description || 'Persona'}</div>
+              </div>
+            </div>
+            <div class="mood-bubble ${mood.toLowerCase().includes('positive') ? 'mood-positive' : 'mood-negative'}">
+              "${bubble}"
+            </div>
+            <div class="details">
+              ${formattedDetails}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Expert Analysis
+    if (expertReport) {
+       const formattedExpert = expertReport
+          .replace(/^### (.*$)/gm, '<h4>$1</h4>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/^- (.*$)/gm, '<li>$1</li>')
+          .replace(/\n/g, '<br>');
+       
+       html += `
+        <div class="card">
+          <h3>Expert Analysis</h3>
+          <div class="details">${formattedExpert}</div>
+        </div>
+       `;
+    }
+
+    // Actions (Share / Blog)
+    if (reportId) {
+      const publicUrl = `${API_BASE_URL}/api/public-report/${reportId}`;
+      html += `
+        <div style="display: flex; gap: 8px; flex-direction: column; margin-top: 16px;">
+          <a href="${publicUrl}" target="_blank" class="btn" style="text-decoration: none;">
+            Share Full Report
+          </a>
+          <button id="draftBlogBtn" class="btn-outline" data-report-id="${reportId}">
+            Draft to Blog (Admin)
+          </button>
+        </div>
+      `;
+    }
+
+    resultsContainer.innerHTML = html;
+
+    // Attach listener for Draft Blog
+    const draftBtn = document.getElementById('draftBlogBtn');
+    if (draftBtn) {
+      draftBtn.addEventListener('click', async () => {
+        if (!currentUserEmail) return setStatus('Error: Email not found. Please re-login.', 'error');
+        
+        setStatus('Drafting blog post...', 'neutral');
+        try {
+           const res = await fetch(`${API_BASE_URL}/api/admin/draft-blog-post`, {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ reportId: reportId, email: currentUserEmail })
+           });
+           const d = await res.json();
+           if (d.success) {
+             setStatus('Draft created! Check CMS.', 'success');
+           } else {
+             setStatus('Failed: ' + (d.error || 'Unknown error'), 'error');
+           }
+        } catch (e) {
+          setStatus('Error drafting blog.', 'error');
+        }
+      });
+    }
+  };
+
+  // Initial check
+  checkAuth(false);
 });
