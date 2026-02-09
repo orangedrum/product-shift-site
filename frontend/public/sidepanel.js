@@ -19,17 +19,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Helper Functions ---
   const setStatus = (msg, type = 'neutral') => {
-    statusDiv.textContent = msg;
-    statusDiv.className = `status ${type}`;
+    if (statusDiv) {
+      statusDiv.textContent = msg;
+      statusDiv.className = `status ${type}`;
+    }
   };
 
   const toggleView = (isAuthenticated) => {
     if (isAuthenticated) {
-      loginView.style.display = 'none';
-      appView.style.display = 'block';
+      if (loginView) loginView.style.display = 'none';
+      if (appView) appView.style.display = 'block';
     } else {
-      loginView.style.display = 'block';
-      appView.style.display = 'none';
+      if (loginView) loginView.style.display = 'block';
+      if (appView) appView.style.display = 'none';
     }
   };
 
@@ -63,68 +65,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  sendMagicLinkBtn.addEventListener('click', async () => {
-    const email = emailInput.value;
-    if (!email) return setStatus('Please enter an email.', 'error');
+  if (sendMagicLinkBtn) {
+    sendMagicLinkBtn.addEventListener('click', async () => {
+      const email = emailInput.value;
+      if (!email) return setStatus('Please enter an email.', 'error');
 
-    sendMagicLinkBtn.disabled = true;
-    sendMagicLinkBtn.innerText = 'Sending...';
-    setStatus('Sending login link...', 'neutral');
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to send link');
+      sendMagicLinkBtn.disabled = true;
+      sendMagicLinkBtn.innerText = 'Sending...';
+      setStatus('Sending login link...', 'neutral');
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to send link');
+        }
+        
+        setStatus('Magic link sent! Check your email.', 'success');
+        
+        // UI Update: Show Success Message with Retry Options
+        const loginContainer = document.querySelector('#login-view .card') || loginView;
+        // Save original content to restore if needed
+        if (!loginContainer.dataset.originalContent) {
+          loginContainer.dataset.originalContent = loginContainer.innerHTML;
+        }
+        
+        // NO EMOJIS - Clean Text Only
+        loginContainer.innerHTML = `
+          <div style="text-align: center; padding: 20px 0;">
+            <h3>Magic Link Sent!</h3>
+            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Check your inbox, click the link to log in, then come back here.</p>
+            
+            <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
+            
+            <button id="openWebAppBtn" class="btn-outline" style="width: 100%; margin-bottom: 12px; font-size: 12px;">Open Web App (Fix Session)</button>
+            
+            <button id="backToLoginBtn" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size: 12px;">Send New Link / Wrong Email</button>
+          </div>
+        `;
+        
+        // Re-attach listener to the new button
+        document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth(false));
+        
+        document.getElementById('openWebAppBtn').addEventListener('click', () => {
+          window.open(`${API_BASE_URL}/ai-powered-ux`, '_blank');
+        });
+
+        document.getElementById('backToLoginBtn').addEventListener('click', () => {
+          loginContainer.innerHTML = loginContainer.dataset.originalContent;
+          // Reload to reset event listeners cleanly
+          window.location.reload();
+        });
+
+      } catch (err) {
+        setStatus(`Error: ${err.message}`, 'error');
+      } finally {
+        if (sendMagicLinkBtn) {
+          sendMagicLinkBtn.disabled = false;
+          sendMagicLinkBtn.innerText = 'Send Login Link';
+        }
       }
-      
-      setStatus('Magic link sent! Check your email, then click "I\'ve Logged In".', 'success');
-      
-      // UI Update: Show Success Message with Retry Options
-      const loginContainer = document.querySelector('#login-view .card') || loginView;
-      // Save original content to restore if needed
-      if (!loginContainer.dataset.originalContent) {
-        loginContainer.dataset.originalContent = loginContainer.innerHTML;
-      }
-      
-      loginContainer.innerHTML = `
-        <div style="text-align: center; padding: 20px 0;">
-          <div style="font-size: 32px; margin-bottom: 10px;">✉️</div>
-          <h3>Magic Link Sent!</h3>
-          <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Check your inbox, click the link to log in, then come back here.</p>
-          
-          <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
-          
-          <button id="openWebAppBtn" class="btn-outline" style="width: 100%; margin-bottom: 12px; font-size: 12px;">Open Web App (Fix Session)</button>
-          
-          <button id="backToLoginBtn" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size: 12px;">Send New Link / Wrong Email</button>
-        </div>
-      `;
-      
-      // Re-attach listener to the new button
-      document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth(false));
-      
-      document.getElementById('openWebAppBtn').addEventListener('click', () => {
-        window.open(`${API_BASE_URL}/ai-powered-ux`, '_blank');
-      });
-
-      document.getElementById('backToLoginBtn').addEventListener('click', () => {
-        loginContainer.innerHTML = loginContainer.dataset.originalContent;
-        // Re-bind original events since innerHTML wiped them
-        window.location.reload();
-      });
-
-    } catch (err) {
-      setStatus(`Error: ${err.message}`, 'error');
-    } finally {
-      sendMagicLinkBtn.disabled = false;
-      sendMagicLinkBtn.innerText = 'Send Login Link';
-    }
-  });
+    });
+  }
 
   if (checkAuthBtn) {
     checkAuthBtn.addEventListener('click', () => checkAuth(false));
@@ -133,62 +139,61 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Auto-Login Polling ---
   // Check every 4 seconds if we are still on the login screen
   setInterval(() => {
-    if (appView.style.display === 'none') {
+    if (appView && appView.style.display === 'none') {
       checkAuth(true); // Silent check
     }
   }, 4000);
 
   // --- Analysis Logic ---
-  analyzeBtn.addEventListener('click', async () => {
-    setStatus('Capturing page...', 'neutral');
-    resultsContainer.innerHTML = '';
-    previewContainer.style.display = 'none';
+  if (analyzeBtn) {
+    analyzeBtn.addEventListener('click', async () => {
+      setStatus('Capturing page...', 'neutral');
+      resultsContainer.innerHTML = '';
+      previewContainer.style.display = 'none';
 
-    try {
-      // 1. Capture Visible Tab
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!tab) throw new Error('No active tab found');
+      try {
+        // 1. Capture Visible Tab
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab) throw new Error('No active tab found');
 
-      // Capture screenshot using Chrome API
-      const dataUrl = await chrome.tabs.captureVisibleTab(null, { format: 'jpeg', quality: 60 });
-      
-      // Show preview
-      screenshotImg.src = dataUrl;
-      previewContainer.style.display = 'block';
+        // Capture screenshot using Chrome API
+        const dataUrl = await chrome.tabs.captureVisibleTab(null, { format: 'jpeg', quality: 60 });
+        
+        // Show preview
+        screenshotImg.src = dataUrl;
+        previewContainer.style.display = 'block';
 
-      setStatus('Analyzing with AI... (this may take a moment)', 'neutral');
+        setStatus('Analyzing with AI... (this may take a moment)', 'neutral');
 
-      // 2. Send to Backend
-      const res = await fetch(`${API_BASE_URL}/api/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Important for auth
-        body: JSON.stringify({
-          url: tab.url,
-          personaIds: ['alex-busy-pro'],
-          goal: 'Identify immediate UX friction points.',
-          // We don't send the screenshot here to save bandwidth; 
-          // the backend will re-scrape or we can add it if needed.
-          // For now, let's stick to the backend scraping pattern to match your index.ts logic.
-        })
-      });
+        // 2. Send to Backend
+        const res = await fetch(`${API_BASE_URL}/api/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include', // Important for auth
+          body: JSON.stringify({
+            url: tab.url,
+            personaIds: ['alex-busy-pro'],
+            goal: 'Identify immediate UX friction points.',
+          })
+        });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Server Error: ${res.status} ${errText}`);
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Server Error: ${res.status} ${errText}`);
+        }
+
+        const data = await res.json();
+
+        // 3. Render Results
+        setStatus('Analysis Complete!', 'success');
+        renderResults(data);
+
+      } catch (err) {
+        console.error(err);
+        setStatus(`Analysis Failed: ${err.message}`, 'error');
       }
-
-      const data = await res.json();
-
-      // 3. Render Results
-      setStatus('Analysis Complete!', 'success');
-      renderResults(data);
-
-    } catch (err) {
-      console.error(err);
-      setStatus(`Analysis Failed: ${err.message}`, 'error');
-    }
-  });
+    });
+  }
 
   const renderResults = (data) => {
     const { scores, userSessions, expertReport, reportId } = data;

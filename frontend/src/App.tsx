@@ -74,6 +74,7 @@ const App: React.FC = () => {
       // Fix: Ignore Supabase auth hashes (access_token, error_description) to prevent querySelector crash
       if (location.hash.includes('access_token') || location.hash.includes('error_description') || location.hash.includes('refresh_token')) {
         console.log('Ignoring auth hash to prevent crash');
+        // Prevent further processing of this hash
         return;
       }
 
