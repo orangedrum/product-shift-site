@@ -43,9 +43,6 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
         user: displaySession.user
       }]);
       
-      // Force clear existing cookie first to prevent stale token conflicts
-      document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure`;
-      
       // Critical: SameSite=None; Secure is required for the extension to send this cookie cross-origin
       document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=604800; SameSite=None; Secure`;
     }

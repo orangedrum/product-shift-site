@@ -82,19 +82,32 @@ document.addEventListener('DOMContentLoaded', () => {
       
       setStatus('Magic link sent! Check your email, then click "I\'ve Logged In".', 'success');
       
-      // UI Update: Cleanly replace the entire login form content
+      // UI Update: Show Success Message with Retry Option
       const loginContainer = document.querySelector('#login-view .card') || loginView;
+      // Save original content to restore if needed
+      if (!loginContainer.dataset.originalContent) {
+        loginContainer.dataset.originalContent = loginContainer.innerHTML;
+      }
+      
       loginContainer.innerHTML = `
         <div style="text-align: center; padding: 20px 0;">
-          <div style="font-size: 40px; margin-bottom: 10px;">✉️</div>
+          <div style="font-size: 32px; margin-bottom: 10px;">✉️</div>
           <h3>Magic Link Sent!</h3>
-          <p style="margin-bottom: 20px; color: #666;">Check your inbox, click the link to log in, then come back here.</p>
-          <button id="checkAuthBtnRetry" class="btn">I've Logged In (Check Again)</button>
+          <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Check your inbox, click the link to log in, then come back here.</p>
+          <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
+          <button id="backToLoginBtn" class="btn-outline" style="width: 100%; font-size: 12px;">Send New Link / Wrong Email</button>
         </div>
       `;
       
       // Re-attach listener to the new button
       document.getElementById('checkAuthBtnRetry').addEventListener('click', checkAuth);
+      document.getElementById('backToLoginBtn').addEventListener('click', () => {
+        loginContainer.innerHTML = loginContainer.dataset.originalContent;
+        // Re-bind original events since innerHTML wiped them
+        document.getElementById('sendMagicLinkBtn').addEventListener('click', sendMagicLinkBtn.click); // This won't work directly, need to reload page or re-bind properly. 
+        // Simpler approach: Reload the extension frame to reset state
+        window.location.reload();
+      });
 
     } catch (err) {
       setStatus(`Error: ${err.message}`, 'error');

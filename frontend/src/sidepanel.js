@@ -80,16 +80,22 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Magic Link Sent! Check your inbox, click the link, then come back here and click "Check Again".');
           sendMagicLinkBtn.innerText = 'Link Sent!';
           
-          // UI Update: Cleanly replace the login view content
+          // UI Update: Show Success Message with Retry Option
           const loginContainer = document.querySelector('#login-view .card') || loginView;
+          if (!loginContainer.dataset.originalContent) {
+            loginContainer.dataset.originalContent = loginContainer.innerHTML;
+          }
+
           loginContainer.innerHTML = `
             <div style="text-align: center; padding: 20px 0;">
               <h3>Magic Link Sent!</h3>
               <p style="margin-bottom: 20px; color: #666;">Check your inbox, click the link, then click below.</p>
-              <button id="checkAuthBtnRetry" class="btn">I've Logged In (Check Again)</button>
+              <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
+              <button id="backToLoginBtn" class="btn-outline" style="width: 100%; font-size: 12px;">Send New Link</button>
             </div>
           `;
-          document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth());
+          document.getElementById('checkAuthBtnRetry').addEventListener('click', checkAuth);
+          document.getElementById('backToLoginBtn').addEventListener('click', () => window.location.reload());
         } else {
           // Use the specific error from the backend if available
           throw new Error(data.error || `Failed to send link (${res.status})`);
