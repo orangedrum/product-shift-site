@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // NO EMOJIS - Clean Text Only
         loginContainer.innerHTML = `
           <div style="text-align: center; padding: 20px 0;">
-            <h3>Magic Link Sent!</h3>
+            <h3 style="margin: 0 0 10px 0;">Magic Link Sent!</h3>
             <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Check your inbox, click the link to log in, then come back here.</p>
             
             <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
