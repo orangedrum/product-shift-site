@@ -44,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
       }]);
       
       // Critical: SameSite=None; Secure is required for the extension to send this cookie cross-origin
-      console.log('🍪 [Header] Syncing Auth Cookie for Extension...');
+      // We overwrite any existing cookie to ensure the extension gets the freshest token
       document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=604800; SameSite=None; Secure`;
     }
   }, [displaySession]);
@@ -124,9 +124,6 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
           <div className="hidden lg:flex">
             {displaySession ? (
               <div className="flex items-center gap-4">
-                <span className={`text-sm font-medium hidden lg:block ${displaySession ? 'text-white' : 'text-gray-700'}`}>
-                  {displaySession.user.email}
-                </span>
                 <button onClick={() => navigate('/account')} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-indigo-600'} font-medium flex items-center gap-2`} title="My Account">
                   <User size={20} />
                 </button>

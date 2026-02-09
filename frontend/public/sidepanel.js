@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // --- Auth Logic ---
-  const checkAuth = async () => {
-    setStatus('Checking authentication...', 'neutral');
+  const checkAuth = async (silent = false) => {
+    if (!silent) setStatus('Checking authentication...', 'neutral');
     try {
       // We must include credentials (cookies) for the auth check to work
       // Add timestamp to prevent caching of auth status
@@ -51,12 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
         setStatus('Logged in!', 'success');
         toggleView(true);
       } else {
-        setStatus('Please log in.', 'neutral');
-        console.log('Auth Debug:', data.debug); // Log the reason from backend
+        if (!silent) {
+          setStatus('Please log in.', 'neutral');
+          console.log('Auth Debug:', data.debug); // Log the reason from backend
+        }
       }
     } catch (err) {
       console.error('Auth Error:', err);
-      setStatus('Not logged in.', 'neutral');
+      if (!silent) setStatus('Not logged in.', 'neutral');
       toggleView(false);
     }
   };
@@ -82,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       setStatus('Magic link sent! Check your email, then click "I\'ve Logged In".', 'success');
       
-      // UI Update: Show Success Message with Retry & Fix Options
+      // UI Update: Show Success Message with Retry Options
       const loginContainer = document.querySelector('#login-view .card') || loginView;
       // Save original content to restore if needed
       if (!loginContainer.dataset.originalContent) {
@@ -91,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       loginContainer.innerHTML = `
         <div style="text-align: center; padding: 20px 0;">
-          <div style="font-size: 40px; margin-bottom: 10px;">✉️</div>
+          <div style="font-size: 32px; margin-bottom: 10px;">✉️</div>
           <h3>Magic Link Sent!</h3>
           <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Check your inbox, click the link to log in, then come back here.</p>
           
@@ -104,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       
       // Re-attach listener to the new button
-      document.getElementById('checkAuthBtnRetry').addEventListener('click', checkAuth);
+      document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth(false));
       
       document.getElementById('openWebAppBtn').addEventListener('click', () => {
         window.open(`${API_BASE_URL}/ai-powered-ux`, '_blank');
@@ -124,7 +126,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  checkAuthBtn.addEventListener('click', checkAuth);
+  if (checkAuthBtn) {
+    checkAuthBtn.addEventListener('click', () => checkAuth(false));
+  }
+
+  // --- Auto-Login Polling ---
+  // Check every 4 seconds if we are still on the login screen
+  setInterval(() => {
+    if (appView.style.display === 'none') {
+      checkAuth(true); // Silent check
+    }
+  }, 4000);
 
   // --- Analysis Logic ---
   analyzeBtn.addEventListener('click', async () => {
@@ -309,5 +321,5 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Initial check
-  checkAuth();
+  checkAuth(false);
 });

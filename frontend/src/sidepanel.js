@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentUserEmail = '';
 
   // --- Auth Check Function ---
-  const checkAuth = async () => {
+  const checkAuth = async (silent = false) => {
+    if (!silent && status) status.innerText = 'Checking...';
     try {
       // Add timestamp to prevent caching of auth status
       const res = await fetch(`${API_BASE}/api/auth/status?t=${Date.now()}`, { credentials: 'include' });
@@ -31,10 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         loginView.style.display = 'block';
         appView.style.display = 'none';
-        if (data.debug) console.warn('Auth Failed Reason:', data.debug);
+        if (!silent) {
+           if (data.debug) console.warn('Auth Failed Reason:', data.debug);
+        }
       }
     } catch (e) {
-      console.error('Auth check failed', e);
+      if (!silent) console.error('Auth check failed', e);
       // Default to login view on error
       loginView.style.display = 'block';
       appView.style.display = 'none';
@@ -42,12 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Check on load
-  checkAuth();
+  checkAuth(false);
+
+  // --- Auto-Login Polling ---
+  setInterval(() => {
+    if (appView.style.display === 'none') {
+      checkAuth(true);
+    }
+  }, 4000);
   
   if (checkAuthBtn) {
     checkAuthBtn.addEventListener('click', () => {
       checkAuthBtn.innerText = 'Checking...';
-      checkAuth().then(() => checkAuthBtn.innerText = "I've Logged In (Check Again)");
+      checkAuth(false).then(() => checkAuthBtn.innerText = "I've Logged In (Check Again)");
     });
   }
 
@@ -95,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <button id="backToLoginBtn" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size: 12px;">Send New Link</button>
             </div>
           `;
-          document.getElementById('checkAuthBtnRetry').addEventListener('click', checkAuth);
+          document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth(false));
           document.getElementById('openWebAppBtn').addEventListener('click', () => {
             window.open(`${API_BASE}/ai-powered-ux`, '_blank');
           });
