@@ -71,10 +71,19 @@ const App: React.FC = () => {
   // Scroll handling: Respect hash if present, otherwise scroll to top
   React.useEffect(() => {
     if (location.hash) {
+      // Fix: Ignore Supabase auth hashes (access_token, error_description) to prevent querySelector crash
+      if (location.hash.includes('access_token') || location.hash.includes('error_description') || location.hash.includes('refresh_token')) {
+        return;
+      }
+
       setTimeout(() => {
-        const element = document.querySelector(location.hash);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+        try {
+          const element = document.querySelector(location.hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        } catch (e) {
+          console.warn('Invalid hash selector:', location.hash);
         }
       }, 100);
     } else {
