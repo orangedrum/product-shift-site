@@ -480,7 +480,11 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
     const token = JSON.parse(cookie)[0].access_token;
     const { data: { user }, error } = await supabase.auth.getUser(token);
     (req as any).user = error || !user ? null : user;
-    if (error) (req as any).authDebug = `Supabase Error: ${error.message}`;
+    if (error) {
+      (req as any).authDebug = `Supabase Error: ${error.message}`;
+      // If token is invalid/expired, explicitly nullify user to force re-login logic
+      (req as any).user = null;
+    }
   } catch (e) {
     (req as any).user = null;
     (req as any).authDebug = 'Failed to parse auth cookie';

@@ -38,7 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setStatus('Checking authentication...', 'neutral');
     try {
       // We must include credentials (cookies) for the auth check to work
-      const res = await fetch(`${API_BASE_URL}/api/auth/status`, { 
+      // Add timestamp to prevent caching of auth status
+      const res = await fetch(`${API_BASE_URL}/api/auth/status?t=${Date.now()}`, { 
         credentials: 'include' 
       });
       
@@ -81,10 +82,20 @@ document.addEventListener('DOMContentLoaded', () => {
       
       setStatus('Magic link sent! Check your email, then click "I\'ve Logged In".', 'success');
       
-      // UI Update: Hide Input, Show Success Message (Matches Login.tsx isSuccess state)
-      emailInput.style.display = 'none';
-      sendMagicLinkBtn.style.display = 'none';
-      checkAuthBtn.innerText = "I've Logged In (Check Again)";
+      // UI Update: Cleanly replace the entire login form content
+      const loginContainer = document.querySelector('#login-view .card') || loginView;
+      loginContainer.innerHTML = `
+        <div style="text-align: center; padding: 20px 0;">
+          <div style="font-size: 40px; margin-bottom: 10px;">✉️</div>
+          <h3>Magic Link Sent!</h3>
+          <p style="margin-bottom: 20px; color: #666;">Check your inbox, click the link to log in, then come back here.</p>
+          <button id="checkAuthBtnRetry" class="btn">I've Logged In (Check Again)</button>
+        </div>
+      `;
+      
+      // Re-attach listener to the new button
+      document.getElementById('checkAuthBtnRetry').addEventListener('click', checkAuth);
+
     } catch (err) {
       setStatus(`Error: ${err.message}`, 'error');
     } finally {

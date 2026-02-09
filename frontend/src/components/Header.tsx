@@ -43,6 +43,9 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
         user: displaySession.user
       }]);
       
+      // Force clear existing cookie first to prevent stale token conflicts
+      document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure`;
+      
       // Critical: SameSite=None; Secure is required for the extension to send this cookie cross-origin
       document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=604800; SameSite=None; Secure`;
     }
@@ -126,9 +129,8 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
                 <span className={`text-sm font-medium hidden lg:block ${displaySession ? 'text-white' : 'text-gray-700'}`}>
                   {displaySession.user.email}
                 </span>
-                <button onClick={() => navigate('/account')} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-indigo-600'} font-medium flex items-center gap-2`}>
+                <button onClick={() => navigate('/account')} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-indigo-600'} font-medium flex items-center gap-2`} title="My Account">
                   <User size={20} />
-                  My Account
                 </button>
                 <NeoButton variant="secondary" onClick={handleLogout} className="h-9 px-4 text-sm">
                   Sign Out

@@ -80,10 +80,16 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Magic Link Sent! Check your inbox, click the link, then come back here and click "Check Again".');
           sendMagicLinkBtn.innerText = 'Link Sent!';
           
-          // UI Update: Hide Input to reduce confusion (Matches Login.tsx flow)
-          emailInput.style.display = 'none';
-          sendMagicLinkBtn.style.display = 'none';
-          checkAuthBtn.innerText = "I've Logged In (Check Again)";
+          // UI Update: Cleanly replace the login view content
+          const loginContainer = document.querySelector('#login-view .card') || loginView;
+          loginContainer.innerHTML = `
+            <div style="text-align: center; padding: 20px 0;">
+              <h3>Magic Link Sent!</h3>
+              <p style="margin-bottom: 20px; color: #666;">Check your inbox, click the link, then click below.</p>
+              <button id="checkAuthBtnRetry" class="btn">I've Logged In (Check Again)</button>
+            </div>
+          `;
+          document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth());
         } else {
           // Use the specific error from the backend if available
           throw new Error(data.error || `Failed to send link (${res.status})`);
