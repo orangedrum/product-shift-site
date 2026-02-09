@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
   // --- GLOBAL AUTH BRIDGE: Sync Session to Cookie for Extension ---
   useEffect(() => {
-    if (displaySession) {
+    if (displaySession && displaySession.access_token) {
       const cookieName = 'sb-productshift-auth-token';
       // Format matches what the backend expects: JSON array with access_token
       const cookieValue = JSON.stringify([{
@@ -44,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
       }]);
       
       // Critical: SameSite=None; Secure is required for the extension to send this cookie cross-origin
+      console.log('🍪 [Header] Syncing Auth Cookie for Extension...');
       document.cookie = `${cookieName}=${encodeURIComponent(cookieValue)}; path=/; max-age=604800; SameSite=None; Secure`;
     }
   }, [displaySession]);

@@ -91,10 +91,14 @@ document.addEventListener('DOMContentLoaded', () => {
               <h3>Magic Link Sent!</h3>
               <p style="margin-bottom: 20px; color: #666;">Check your inbox, click the link, then click below.</p>
               <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
-              <button id="backToLoginBtn" class="btn-outline" style="width: 100%; font-size: 12px;">Send New Link</button>
+              <button id="openWebAppBtn" class="btn-outline" style="width: 100%; margin-bottom: 12px; font-size: 12px;">Open Web App (Fix Session)</button>
+              <button id="backToLoginBtn" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size: 12px;">Send New Link</button>
             </div>
           `;
           document.getElementById('checkAuthBtnRetry').addEventListener('click', checkAuth);
+          document.getElementById('openWebAppBtn').addEventListener('click', () => {
+            window.open(`${API_BASE}/ai-powered-ux`, '_blank');
+          });
           document.getElementById('backToLoginBtn').addEventListener('click', () => window.location.reload());
         } else {
           // Use the specific error from the backend if available
