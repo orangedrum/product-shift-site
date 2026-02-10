@@ -767,7 +767,7 @@ async function runTestHandler(req: express.Request, res: express.Response) {
         code: `
 export default async function({ page, context }) {
   const url = context.url;
-  await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   
   const title = await page.title();
   const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
@@ -892,9 +892,9 @@ export default async function({ page, context }) {
     };
     })(); // End of analysisPromise
 
-    // Safety Valve: 48 second timeout
+    // Safety Valve: 58 second timeout
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 48000)
+      setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 58000)
     );
 
     const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
