@@ -50,10 +50,10 @@ const generateContentWithFallback = async (prompt: string, screenshot?: string):
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   const modelsToTry = [
-    'gemini-1.5-flash',        // Current Stable Workhorse (Fast & Reliable)
-    'gemini-1.5-pro',          // High Intelligence Fallback
-    'gemini-flash-latest',     // Generic Alias (Safety Net)
-    'gemini-pro',              // Legacy Fallback
+    'gemini-flash-latest',     // Proven to work from Vercel logs
+    'gemini-pro',              // Standard, stable model
+    'gemini-1.5-flash',        // New model, keep as fallback
+    'gemini-1.5-pro',          // Slower, high-intelligence fallback
   ];
 
   // Prepare image part if available
