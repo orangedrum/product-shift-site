@@ -14,14 +14,8 @@
   ],
   "side_panel": {
     "default_path": "index.html"
-  },
   "action": {
-    "default_title": "Open User Mirror",
-    "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
-    }
+    "default_title": "Open User Mirror"
   },
   "icons": {
     "16": "icon16.png",

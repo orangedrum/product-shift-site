@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsContainer = document.getElementById('results-container');
   const screenshotImg = document.getElementById('screenshot');
   const previewContainer = document.getElementById('preview');
-  const creditCountSpan = document.getElementById('creditCount');
-  const clearCacheBtn = document.getElementById('clearCacheBtn');
 
   // --- Helper Functions ---
   const setStatus = (msg, type = 'neutral') => {
@@ -54,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUserEmail = data.email;
         setStatus('Logged in!', 'success');
         toggleView(true);
-        fetchUserStats(); // Fetch credits
       } else {
         if (!silent) {
           setStatus('Please log in.', 'neutral');
@@ -65,21 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Auth Error:', err);
       if (!silent) setStatus('Not logged in.', 'neutral');
       toggleView(false);
-    }
-  };
-
-  // --- Fetch User Stats (Credits) ---
-  const fetchUserStats = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/user/check-account`, { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        if (creditCountSpan) {
-          creditCountSpan.textContent = data.plan_status === 'active' ? 'Unlimited' : data.credits;
-        }
-      }
-    } catch (e) {
-      console.error('Failed to fetch stats', e);
     }
   };
 
@@ -159,13 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (checkAuthBtn) {
     checkAuthBtn.addEventListener('click', () => checkAuth(false));
-  }
-
-  // --- Clear Cache / Reset ---
-  if (clearCacheBtn) {
-    clearCacheBtn.addEventListener('click', () => {
-      window.location.reload();
-    });
   }
 
   // --- Auto-Login Polling ---
