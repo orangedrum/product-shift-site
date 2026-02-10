@@ -87,39 +87,43 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setStatus('Magic link sent! Check your email.', 'success');
         
-        // UI Update: Show Success Message with Retry Options
-        const loginContainer = document.querySelector('#login-view .card') || loginView;
-        // Save original content to restore if needed
-        if (!loginContainer.dataset.originalContent) {
-          loginContainer.dataset.originalContent = loginContainer.innerHTML;
+        // UI Update: Simple hide/show (No innerHTML replacement)
+        emailInput.style.display = 'none';
+        sendMagicLinkBtn.style.display = 'none';
+        
+        // Create Retry Button if it doesn't exist
+        let retryBtn = document.getElementById('checkAuthBtnRetry');
+        if (!retryBtn) {
+          retryBtn = document.createElement('button');
+          retryBtn.id = 'checkAuthBtnRetry';
+          retryBtn.className = 'btn';
+          retryBtn.textContent = "I've Logged In (Check Again)";
+          retryBtn.style.marginTop = '10px';
+          retryBtn.style.width = '100%';
+          // Insert after the send button
+          sendMagicLinkBtn.parentNode.insertBefore(retryBtn, sendMagicLinkBtn.nextSibling);
+          retryBtn.addEventListener('click', () => checkAuth(false));
         }
-        
-        // NO EMOJIS - Clean Text Only
-        loginContainer.innerHTML = `
-          <div style="text-align: center; padding: 20px 0;">
-            <h3>Magic Link Sent!</h3>
-            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Check your inbox, click the link to log in, then come back here.</p>
-            
-            <button id="checkAuthBtnRetry" class="btn" style="width: 100%; margin-bottom: 12px;">I've Logged In (Check Again)</button>
-            
-            <button id="openWebAppBtn" class="btn-outline" style="width: 100%; margin-bottom: 12px; font-size: 12px;">Open Web App (Fix Session)</button>
-            
-            <button id="backToLoginBtn" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; font-size: 12px;">Send New Link / Wrong Email</button>
-          </div>
-        `;
-        
-        // Re-attach listener to the new button
-        document.getElementById('checkAuthBtnRetry').addEventListener('click', () => checkAuth(false));
-        
-        document.getElementById('openWebAppBtn').addEventListener('click', () => {
-          window.open(`${API_BASE_URL}/ai-powered-ux`, '_blank');
-        });
+        retryBtn.style.display = 'block';
 
-        document.getElementById('backToLoginBtn').addEventListener('click', () => {
-          loginContainer.innerHTML = loginContainer.dataset.originalContent;
-          // Reload to reset event listeners cleanly
-          window.location.reload();
-        });
+        // Create Reset Link
+        let resetBtn = document.getElementById('resetLoginBtn');
+        if (!resetBtn) {
+            resetBtn = document.createElement('button');
+            resetBtn.id = 'resetLoginBtn';
+            resetBtn.textContent = 'Use different email / Retry';
+            resetBtn.style.background = 'none';
+            resetBtn.style.border = 'none';
+            resetBtn.style.color = '#666';
+            resetBtn.style.textDecoration = 'underline';
+            resetBtn.style.fontSize = '12px';
+            resetBtn.style.marginTop = '10px';
+            resetBtn.style.cursor = 'pointer';
+            resetBtn.style.width = '100%';
+            sendMagicLinkBtn.parentNode.insertBefore(resetBtn, retryBtn.nextSibling);
+            resetBtn.addEventListener('click', () => window.location.reload());
+        }
+        resetBtn.style.display = 'block';
 
       } catch (err) {
         setStatus(`Error: ${err.message}`, 'error');
