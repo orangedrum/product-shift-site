@@ -312,6 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
       draftBtn.addEventListener('click', async () => {
         if (!currentUserEmail) return setStatus('Error: Email not found. Please re-login.', 'error');
         
+        draftBtn.disabled = true;
+        draftBtn.textContent = 'Drafting...';
         setStatus('Drafting blog post...', 'neutral');
         try {
            const res = await fetch(`${API_BASE_URL}/api/admin/draft-blog-post`, {
@@ -320,13 +322,17 @@ document.addEventListener('DOMContentLoaded', () => {
              body: JSON.stringify({ reportId: reportId, email: currentUserEmail })
            });
            const d = await res.json();
-           if (d.success) {
-             setStatus('Draft created! Check CMS.', 'success');
+           if (d.success && d.cmsLink) {
+             setStatus('Draft created! Opening CMS...', 'success');
+             window.open(`${API_BASE_URL}${d.cmsLink}`, '_blank');
            } else {
              setStatus('Failed: ' + (d.error || 'Unknown error'), 'error');
            }
         } catch (e) {
           setStatus('Error drafting blog.', 'error');
+        } finally {
+          draftBtn.disabled = false;
+          draftBtn.textContent = 'Draft to Blog (Admin)';
         }
       });
     }

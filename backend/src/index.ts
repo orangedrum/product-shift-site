@@ -231,6 +231,31 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
   return generateContentWithFallback(prompt, data.screenshot);
 };
 
+const generateEnhancedContent = async (expertReport: string, userSessions: any[], title: string): Promise<{ blogContent: string, excerpt: string }> => {
+  const excerptPrompt = `
+    You are an SEO expert. Based on the following UX audit summary, write a concise, compelling, and keyword-rich meta description of no more than 160 characters.
+    Audit Title: "${title}"
+    Summary: ${expertReport.substring(0, 500)}
+  `;
+  const excerpt = await generateContentWithFallback(excerptPrompt);
+
+  const blogContentPrompt = `
+    You are a content writer specializing in UX and technology. Your task is to transform a raw AI-generated UX audit into a well-structured and engaging blog post.
+
+    **Instructions:**
+    1.  Write a brief, compelling introduction (2-3 sentences) that hooks the reader by stating the website being audited and the key takeaway from the audit.
+    2.  Present the "Expert Analysis" section clearly.
+    3.  Integrate the "User Feedback" smoothly, perhaps under a heading like "What Real Users Thought".
+    4.  Conclude with a short summary of the findings and a call to action for readers to get their own audit.
+    5.  The tone should be professional, insightful, and easy to read.
+
+    **Raw Data:**
+    ${JSON.stringify({ expertReport, userSessions }, null, 2)}
+  `;
+  const blogContent = await generateContentWithFallback(blogContentPrompt);
+  return { blogContent, excerpt: excerpt.replace(/"/g, '') };
+};
+
 // Initialize Express App
 const app = express();
 app.set('trust proxy', 1);
@@ -421,21 +446,44 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
         return res.json({ success: true, cmsLink: '/admin-blog' });
     }
 
-    const { data: run } = await supabase.from('analysis_runs').select('report_data').eq('id', reportId).single();
+    const { data: run } = await supabase.from('analysis_runs').select('report_data, url').eq('id', reportId).single();
     if (!run || !run.report_data) return res.status(404).json({ error: 'Report data not found.' });
 
-    const { title, expertReport, scores, url } = run.report_data;
+    const { title, expertReport, scores, userSessions, screenshot } = run.report_data;
     const safeTitle = title || 'Untitled Audit';
+    const seoTitle = `AI UX Audit of ${safeTitle} (${new Date().getFullYear()})`;
     const slug = `ux-audit-${safeTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
-    const seoSchema = generateStructuredData(url, `UX Audit: ${safeTitle}`, scores, expertReport);
+    const seoSchema = generateStructuredData(run.url, seoTitle, scores, expertReport);
+
+    // Generate enhanced content
+    const { blogContent, excerpt } = await generateEnhancedContent(expertReport, userSessions, seoTitle);
+
+    // Handle screenshot upload
+    let coverImageUrl: string | null = null;
+    if (screenshot) {
+      try {
+        const imageBuffer = Buffer.from(screenshot, 'base64');
+        const imagePath = `public/${slug}.jpg`;
+        const { error: uploadError } = await supabase.storage.from('blog-images').upload(imagePath, imageBuffer, { contentType: 'image/jpeg', upsert: true });
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage.from('blog-images').getPublicUrl(imagePath);
+        coverImageUrl = publicUrlData.publicUrl;
+      } catch (uploadError) {
+        console.error('Screenshot upload failed:', uploadError);
+        // Continue without a cover image if upload fails
+      }
+    }
 
     // GEO STRATEGY: Append SEO Schema to content so it's accessible in the CMS
-    const contentWithSchema = `${expertReport}\n\n## SEO Data (JSON-LD)\nCopy this block into your page <head>:\n\`\`\`json\n${JSON.stringify(seoSchema, null, 2)}\n\`\`\``;
+    const finalContent = `${blogContent}\n\n--- \n\n## SEO Data (JSON-LD)\n\nCopy this block into your page's \`<head>\` section:\n\n\`\`\`json\n${JSON.stringify(seoSchema, null, 2)}\n\`\`\``;
 
     const { error: insertError } = await supabase.from('posts').insert({
-      title: `UX Audit: ${safeTitle}`,
+      title: seoTitle,
       slug: slug,
-      content: contentWithSchema,
+      content: finalContent,
+      excerpt: excerpt,
+      cover_image_url: coverImageUrl,
       status: 'draft',
       category: 'Website Optimization',
       published_at: new Date().toISOString()
@@ -862,6 +910,7 @@ export default async function({ page, context }) {
           revenue: revenue,
           report_data: {
             title: result.title,
+            screenshot: result.screenshot, // Save screenshot to DB
             url: url,
             scores,
             expertReport: rawExpertReport,
