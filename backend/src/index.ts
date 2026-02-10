@@ -426,7 +426,6 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
 
     const { title, expertReport, scores, url } = run.report_data;
     const safeTitle = title || 'Untitled Audit';
-    const newId = randomUUID();
     const slug = `ux-audit-${safeTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
     const seoSchema = generateStructuredData(url, `UX Audit: ${safeTitle}`, scores, expertReport);
 
@@ -434,7 +433,6 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
     const contentWithSchema = `${expertReport}\n\n## SEO Data (JSON-LD)\nCopy this block into your page <head>:\n\`\`\`json\n${JSON.stringify(seoSchema, null, 2)}\n\`\`\``;
 
     const { error: insertError } = await supabase.from('posts').insert({
-      id: newId,
       title: `UX Audit: ${safeTitle}`,
       slug: slug,
       content: contentWithSchema,
