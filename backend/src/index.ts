@@ -478,12 +478,18 @@ app.post('/api/admin/draft-blog-post', async (req, res) => {
     // GEO STRATEGY: Append SEO Schema to content so it's accessible in the CMS
     const finalContent = `${blogContent}\n\n--- \n\n## SEO Data (JSON-LD)\n\nCopy this block into your page's \`<head>\` section:\n\n\`\`\`json\n${JSON.stringify(seoSchema, null, 2)}\n\`\`\``;
 
+    // Graceful Image Handling: If we have a cover image, prepend it to content (Markdown) 
+    // This ensures the image appears even if the DB column 'cover_image_url' is missing.
+    let contentToSave = finalContent;
+    if (coverImageUrl) {
+      contentToSave = `!Cover Image\n\n${finalContent}`;
+    }
+
     const { error: insertError } = await supabase.from('posts').insert({
       title: seoTitle,
       slug: slug,
-      content: finalContent,
+      content: contentToSave,
       excerpt: excerpt,
-      cover_image_url: coverImageUrl,
       status: 'draft',
       category: 'Website Optimization',
       published_at: new Date().toISOString()
