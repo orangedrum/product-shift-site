@@ -71,7 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Fetch User Stats (Credits) ---
   const fetchUserStats = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/user/check-account`, { credentials: 'include' });
+      // Add timestamp to prevent caching
+      const res = await fetch(`${API_BASE_URL}/api/user/check-account?t=${Date.now()}`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         if (creditCountSpan) {
@@ -219,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Render Results
         setStatus('Analysis Complete!', 'success');
         renderResults(data);
-        fetchUserStats(); // Re-fetch credits after successful analysis
 
       } catch (err) {
         console.error(err);

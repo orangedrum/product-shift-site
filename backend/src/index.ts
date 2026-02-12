@@ -626,20 +626,51 @@ app.post('/api/join-waitlist', async (req, res) => {
   return res.status(200).json({ message: 'Successfully joined waitlist.' });
 });
 
-// --- User Account Check (Fixes 404 Error) ---
+// --- User Account Existence Check (Public for Login.tsx) ---
+app.post('/api/user/check-account', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  
+  try {
+    const { count } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('email', email);
+    return res.json({ exists: (count || 0) > 0 });
+  } catch (e: any) {
+    console.error('Check account existence error:', e);
+    return res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// --- User Account Stats (Authenticated for Extension/App) ---
 app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
-  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  if (!user) {
+    return res.status(401).json({ 
+      error: 'Not authenticated', 
+      debug: (req as any).authDebug || 'Session not found or expired.' 
+    });
+  }
 
   // Fetch customer details to return credits/plan info
-  const { data: customer } = await supabase.from('customers').select('*').eq('email', user.email).single();
-  
-  res.json({ 
-    authenticated: true, 
-    email: user.email,
-    credits: customer?.credits || 0,
-    plan_status: customer?.plan_status || 'free'
-  });
+  try {
+    let { data: customer } = await supabase.from('customers').select('*').eq('email', user.email).single();
+
+    // If customer does not exist, create them (lazy initialization)
+    if (!customer) {
+      const { data: newCustomer, error: insertError } = await supabase
+        .from('customers')
+        .insert({ email: user.email, credits: 0, plan_status: 'free' })
+        .select()
+        .single();
+      if (insertError) throw insertError;
+      customer = newCustomer;
+    }
+    
+    res.json({ authenticated: true, email: user.email, credits: customer.credits, plan_status: customer.plan_status });
+
+  } catch (dbError: any) {
+    console.error('Check-account DB Error:', dbError);
+    res.status(500).json({ error: 'Database error while checking account.' });
+  }
 });
 
 // --- Admin Stats Endpoint ---
