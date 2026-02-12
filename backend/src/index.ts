@@ -797,6 +797,7 @@ async function runTestHandler(req: express.Request, res: express.Response) {
   let useFreeTier = true;
   let shouldDeductCredit = false;
   let runId: string | null = null;
+  let creditDeducted = false;
 
   // --- CREDIT & SUBSCRIPTION CHECK ---
   if (email && supabaseUrl && supabaseServiceKey) {
@@ -836,6 +837,16 @@ async function runTestHandler(req: express.Request, res: express.Response) {
   try {
     // --- TIMEOUT RACE START ---
     const analysisPromise = (async () => {
+    
+    // 1. Optimistic Deduction: Deduct before expensive operations
+    if (supabaseUrl && supabaseServiceKey && shouldDeductCredit) {
+        const { error: deductError } = await supabase.rpc('deduct_credit', { user_email: email });
+        if (deductError) {
+            throw new Error(`Credit deduction failed: ${deductError.message}`);
+        }
+        creditDeducted = true;
+    }
+
     console.log('Sending request to Browserless...');
 
     const browserlessToken = process.env.BROWSERLESS_TOKEN;
@@ -924,9 +935,7 @@ export default async function({ page, context }) {
 
     // --- USAGE TRACKING ---
     if (supabaseUrl && supabaseServiceKey) {
-      if (shouldDeductCredit) {
-        await supabase.rpc('deduct_credit', { user_email: email });
-      } else if (useFreeTier) {
+      if (useFreeTier) {
         const today = new Date().toISOString().split('T')[0];
         const { error: upsertError } = await supabase
           .from('daily_usage')
@@ -987,6 +996,12 @@ export default async function({ page, context }) {
   } catch (error: any) {
     if (error.message === 'GRACEFUL_TIMEOUT') {
       console.error('⚠️ Analysis timed out. Returning graceful fallback.');
+      
+      // Refund if we deducted but timed out
+      if (creditDeducted && supabaseUrl && supabaseServiceKey) {
+         await supabase.rpc('add_credits', { user_email: email, amount: 1 });
+      }
+
       return res.json({
         message: 'Analysis Delayed',
         title: 'Analysis In Progress',
@@ -1007,7 +1022,7 @@ export default async function({ page, context }) {
     const errorMessage = error.message || 'An unknown error occurred.';
     
     // Refund credit if error was not a timeout (and we deducted it)
-    if (shouldDeductCredit && supabaseUrl && supabaseServiceKey) {
+    if (creditDeducted && supabaseUrl && supabaseServiceKey) {
        await supabase.rpc('add_credits', { user_email: email, amount: 1 });
     }
 
