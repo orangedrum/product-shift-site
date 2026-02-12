@@ -774,7 +774,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
              {/* 1. Available Tests (Vertical) */}
              <div className="bg-black rounded-xl border-2 border-gray-800 shadow-lg overflow-hidden">
                 <div className="p-5 text-center">
-                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Available Tests</span>
+                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Available Credits</span>
                    <div className="flex justify-center items-center gap-3 mb-1">
                       {credits === null ? (
                         <span className="text-5xl font-black text-gray-600 font-mono leading-none animate-pulse">--</span>
@@ -787,7 +787,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       <button 
                         onClick={handleReplenish}
                         className="text-gray-500 hover:text-white transition-colors transform hover:scale-110 active:scale-95"
-                        title="Add Tests"
+                        title="Add Credits"
                       >
                         <PlusCircle size={28} />
                       </button>
@@ -796,7 +796,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 
                 <div className="bg-gray-900 p-3 border-t border-gray-800 text-center">
                   <p className="text-[10px] font-bold text-white leading-relaxed">
-                    Low on Tests?{' '}
+                    Low on Credits?{' '}
                     <button onClick={handleReplenish} className="underline hover:text-gray-300 transition-all">
                       Refill
                     </button>
@@ -969,7 +969,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
            {/* --- AFTER RESULTS: Horizontal Widget --- */}
            <div className="bg-black text-white p-3 rounded-xl border-2 border-gray-800 shadow-lg flex items-center justify-between gap-4 max-w-md mx-auto mb-8">
              <div className="flex items-center gap-4">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available Tests</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available Credits</span>
                 {credits === null ? (
                    <span className="text-xl font-black text-gray-500 font-mono animate-pulse">--</span>
                  ) : (

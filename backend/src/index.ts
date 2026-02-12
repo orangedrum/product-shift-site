@@ -105,10 +105,9 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 2px solid #000000; border-radius: 12px; overflow: hidden; box-shadow: 8px 8px 0px 0px #000000;">
     
     <!-- Brand Header -->
-    <div style="text-align: center; padding: 32px; border-bottom: 2px solid #f3f4f6;">
-      <a href="${baseUrl}" style="text-decoration: none;">
-        <img src="https://www.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
-      </a>
+    <div style="background: linear-gradient(90deg, #ff1493 0%, #ff8c00 100%); padding: 24px; text-align: center; border-bottom: 2px solid #000000;">
+       <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">User Mirror</h1>
+       <p style="margin: 4px 0 0 0; font-size: 14px; color: #ffffff; font-weight: 600; opacity: 0.9;">by The Product Shift</p>
     </div>
 
     <div style="padding: 40px;">
@@ -717,13 +716,38 @@ app.post('/api/user/generate-referral', authenticateRequest, async (req, res) =>
     // Generate a simple random code
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    const { data, error } = await supabase
-      .from('customers')
-      .update({ referral_code: code })
-      .eq('email', user.email)
-      .select('referral_code')
-      .single();
+    // Check if customer exists first
+    const { data: existing } = await supabase.from('customers').select('id').eq('email', user.email).maybeSingle();
 
+    let data, error;
+
+    if (!existing) {
+        // Self-Healing: Create new customer with credits AND referral code if missing
+        console.log(`Generating referral for new user: ${user.email}`);
+        const result = await supabase
+            .from('customers')
+            .insert({ 
+                email: user.email, 
+                credits: 3, 
+                plan_status: 'free',
+                referral_code: code 
+            })
+            .select('referral_code')
+            .single();
+        data = result.data;
+        error = result.error;
+    } else {
+        // Update existing
+        const result = await supabase
+            .from('customers')
+            .update({ referral_code: code })
+            .eq('email', user.email)
+            .select('referral_code')
+            .single();
+        data = result.data;
+        error = result.error;
+    }
+    
     if (error) throw error;
     res.json({ referralCode: data.referral_code });
   } catch (e: any) {

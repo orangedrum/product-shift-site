@@ -325,7 +325,7 @@ const MyAccount: React.FC = () => {
             </div>
             <div>
               <h3 className="text-lg font-bold text-red-900">Danger Zone</h3>
-              <p className="text-sm text-red-700 mb-4">Cancelling your account will stop $29.00 monthly payments and you will no longer receive 10 tests a month.</p>
+              <p className="text-sm text-red-700 mb-4">Cancelling your account will stop $29.00 monthly payments and you will no longer receive 50 credits a month.</p>
               <button onClick={() => setShowUnsubscribeModal(true)} className="px-4 py-2 bg-white border border-red-200 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors text-sm">
                 Unsubscribe
               </button>
