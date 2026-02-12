@@ -313,7 +313,7 @@ const AgencyUserTestingPage: React.FC = () => {
             <div className="relative p-8 bg-white border-2 border-black rounded-xl shadow-[8px_8px_0px_0px_#000] flex flex-col">
               <div className="mb-4">
                 <h3 className="text-2xl font-black text-black">Pay As You Go</h3>
-                <p className="text-gray-600 mt-2">Perfect for occasional testing.</p>
+                <p className="text-gray-600 mt-2">Start free, pay only for what you use.</p>
               </div>
               <div className="mb-8">
                 <span className="text-5xl font-black text-black">$0</span>
@@ -322,15 +322,31 @@ const AgencyUserTestingPage: React.FC = () => {
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">3 Free Credits on Signup</span>
+                  <span className="font-bold">No commitment required</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">Full AI UX Analysis</span>
+                  <span className="font-bold">$3 free credits to start</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">No Credit Card Required</span>
+                  <span className="font-bold">Top up credits anytime</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  <span className="font-bold text-sm">Full read-through of each persona's experience</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  <span className="font-bold text-sm">Summary of experiences boiled down into digestible report</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  <span className="font-bold text-sm">Report includes: Pass/fail, Final score, Performance Metrics</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  <span className="font-bold">Downloadable & shareable reports</span>
                 </li>
               </ul>
               <button 
@@ -344,11 +360,11 @@ const AgencyUserTestingPage: React.FC = () => {
             {/* Pro Subscription Card */}
             <div className="relative p-8 bg-[#f3f4f6] border-2 border-black rounded-xl shadow-[8px_8px_0px_0px_#000] flex flex-col opacity-75 hover:opacity-100 transition-opacity">
               <div className="absolute -top-4 right-8 bg-[#ff1493] text-white font-black px-4 py-1 border-2 border-black rounded-full text-sm transform rotate-2">
-                BEST VALUE
+                WAITLIST
               </div>
               <div className="mb-4">
-                <h3 className="text-2xl font-black text-black">Pro</h3>
-                <p className="text-gray-600 mt-2">For agencies & power users.</p>
+                <h3 className="text-2xl font-black text-black">Bring Your Own Key</h3>
+                <p className="text-gray-600 mt-2">Manage LLM cost internally.</p>
               </div>
               <div className="mb-8">
                 <span className="text-5xl font-black text-black">$29</span>
@@ -357,22 +373,30 @@ const AgencyUserTestingPage: React.FC = () => {
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">50 Credits / Month</span>
+                  <span className="font-bold">Everything in the free plan</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">Priority Processing</span>
+                  <span className="font-bold">Unlimited tests with your keys</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">Rollover Credits</span>
+                  <span className="font-bold">Use your own API keys (e.g. OpenAI, Anthropic)</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  <span className="font-bold">300 EC2 compute minutes / month</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  <span className="font-bold">CI / API integration</span>
                 </li>
               </ul>
               <a 
-                href="/login?plan=starter" 
+                href="/waitlist" 
                 className="block w-full py-4 bg-white text-black border-2 border-black font-black text-lg rounded-lg text-center hover:bg-gray-50 transition-all"
               >
-                Subscribe
+                Join Waitlist
               </a>
             </div>
 

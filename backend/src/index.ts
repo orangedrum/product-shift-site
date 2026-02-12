@@ -101,17 +101,21 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Shift</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 40px 20px;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
-    <div style="text-align: center; margin-bottom: 32px;">
-      <a href="${baseUrl}">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 40px 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 2px solid #000000; border-radius: 12px; overflow: hidden; box-shadow: 8px 8px 0px 0px #000000;">
+    
+    <!-- Brand Header -->
+    <div style="text-align: center; padding: 32px; border-bottom: 2px solid #f3f4f6;">
+      <a href="${baseUrl}" style="text-decoration: none;">
         <img src="${baseUrl}/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
       </a>
     </div>
-    ${content}
-    <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 32px 0;" />
-    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0 0 8px 0;">&copy; ${new Date().getFullYear()} Product Shift. All rights reserved.</p>
-    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">Sent with ❤️ from the Product Shift team.</p>
+
+    <div style="padding: 40px;">
+      ${content}
+      <hr style="border: none; border-top: 2px solid #f3f4f6; margin: 32px 0;" />
+      <p style="font-size: 12px; color: #6b7280; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} The Product Shift. All rights reserved.</p>
+    </div>
   </div>
 </body>
 </html>
