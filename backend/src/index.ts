@@ -736,7 +736,7 @@ async function runTestHandler(req: express.Request, res: express.Response) {
   // --- TEST MODE BYPASS ---
   if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
     const scores = { usability: 88, desirability: 92, clarity: 95 };
-    const expertReport = '### TEST RESULT: PASS\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.';
+    const expertReport = '### TEST RESULT: PASS\n**Overall Score:** 92/100\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.';
     const userSessions = [
       {
         persona: 'Alex',
@@ -932,6 +932,17 @@ export default async function({ page, context }) {
       }
       rawExpertReport = expertReportText; // Update report text to exclude JSON
     }
+
+    // --- OVERALL SCORE & PASS/FAIL LOGIC ---
+    // Calculate Average Score
+    const overallScore = Math.round((scores.usability + scores.desirability + scores.clarity) / 3);
+    const calculatedResult = overallScore >= 60 ? 'PASS' : 'FAIL';
+
+    // Enforce consistency: Replace AI's Pass/Fail with calculated one and add the score
+    rawExpertReport = rawExpertReport.replace(
+      /### TEST RESULT:.*(\n|$)/i, 
+      `### TEST RESULT: ${calculatedResult}\n**Overall Score:** ${overallScore}/100\n`
+    );
 
     // --- USAGE TRACKING ---
     if (supabaseUrl && supabaseServiceKey) {
