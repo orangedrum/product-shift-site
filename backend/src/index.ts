@@ -658,7 +658,7 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
     if (!customer) {
       const { data: newCustomer, error: insertError } = await supabase
         .from('customers')
-        .insert({ email: user.email, credits: 0, plan_status: 'free' })
+        .insert({ email: user.email, credits: 3, plan_status: 'free' })
         .select()
         .single();
       if (insertError) throw insertError;
