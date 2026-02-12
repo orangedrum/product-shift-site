@@ -184,6 +184,41 @@ const Login: React.FC = () => {
     }
   };
 
+  // New function to handle signup directly from the modal
+  const handleNewUserSignup = async (selectedSegment: string) => {
+    setShowOnboardingModal(false);
+    setLoading(true);
+    setMessage(null);
+
+    // Construct the Redirect URL with the SELECTED segment
+    const redirectParams = new URLSearchParams();
+    if (plan) redirectParams.append('plan', plan);
+    redirectParams.append('segment', selectedSegment); // Use the user's selection
+    if (refCode) redirectParams.append('ref', refCode);
+    if (coupon) redirectParams.append('coupon', coupon);
+
+    const origin = window.location.origin;
+    const redirectTo = `${origin}/login?${redirectParams.toString()}`;
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, redirectTo, coupon })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to send login email');
+
+      setMessage('Check your email for the magic link!');
+      setIsSuccess(true);
+    } catch (err: any) {
+      setMessage(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -204,7 +239,7 @@ const Login: React.FC = () => {
     >
       <div className="max-w-md w-full">
         <h1 className="text-3xl font-black text-center mb-6 text-black">
-          {plan ? "Complete Your Purchase" : "Sign in to Product Shift"}
+          {plan ? "Complete Your Purchase" : "Sign in or signup for User Mirror"}
         </h1>
         <NeoCard>
           <p className="text-gray-600 mb-6">
@@ -269,13 +304,13 @@ const Login: React.FC = () => {
                 </p>
                 <div className="space-y-4">
                   <button 
-                    onClick={() => window.location.href = '/simple-website-checkup#pricing'}
+                    onClick={() => handleNewUserSignup('smb')}
                     className="w-full flex items-center justify-center gap-3 p-4 border-2 border-black bg-white hover:bg-gray-50 rounded-xl transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
                   >
                     <Briefcase className="text-indigo-600" /> <span className="font-bold text-black">I'm a Small Business Owner</span>
                   </button>
                   <button 
-                    onClick={() => window.location.href = '/landingpg-aiuxagent#pricing'}
+                    onClick={() => handleNewUserSignup('tech')}
                     className="w-full flex items-center justify-center gap-3 p-4 border-2 border-black bg-white hover:bg-gray-50 rounded-xl transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
                   >
                     <PenTool className="text-purple-600" /> <span className="font-bold text-black">I'm a UX Professional</span>
