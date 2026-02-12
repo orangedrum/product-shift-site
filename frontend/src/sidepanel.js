@@ -5,18 +5,19 @@ const API_BASE_URL = 'https://product-shift-site-git-plugin-paluza-jeans-project
 
 let currentUserEmail = ''; // Store email for admin actions
 
-const loginView = document.getElementById('login-view');
-const appView = document.getElementById('app-view');
-const emailInput = document.getElementById('emailInput');
-const sendMagicLinkBtn = document.getElementById('sendMagicLinkBtn');
-const checkAuthBtn = document.getElementById('checkAuthBtn');
-const analyzeBtn = document.getElementById('analyzeBtn');
-const statusDiv = document.getElementById('status');
-const resultsContainer = document.getElementById('results-container');
-const screenshotImg = document.getElementById('screenshot');
-const previewContainer = document.getElementById('preview');
-const creditCountSpan = document.getElementById('creditCount');
-const clearCacheBtn = document.getElementById('clearCacheBtn');
+document.addEventListener('DOMContentLoaded', () => {
+  const loginView = document.getElementById('login-view');
+  const appView = document.getElementById('app-view');
+  const emailInput = document.getElementById('emailInput');
+  const sendMagicLinkBtn = document.getElementById('sendMagicLinkBtn');
+  const checkAuthBtn = document.getElementById('checkAuthBtn');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const statusDiv = document.getElementById('status');
+  const resultsContainer = document.getElementById('results-container');
+  const screenshotImg = document.getElementById('screenshot');
+  const previewContainer = document.getElementById('preview');
+  const creditCountSpan = document.getElementById('creditCount');
+  const clearCacheBtn = document.getElementById('clearCacheBtn');
 
   // --- Helper Functions ---
   const setStatus = (msg, type = 'neutral') => {
@@ -365,3 +366,4 @@ const clearCacheBtn = document.getElementById('clearCacheBtn');
 
   // Initial check
   checkAuth(false);
+});
