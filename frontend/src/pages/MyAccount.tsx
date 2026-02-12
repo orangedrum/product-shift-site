@@ -221,13 +221,13 @@ const MyAccount: React.FC = () => {
               <CreditCard className="text-amber-600" size={32} />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-bold uppercase">Available Tests</p>
+              <p className="text-sm text-gray-500 font-bold uppercase">Available Credits</p>
               <p className="text-2xl font-black text-black">{customer?.credits ?? '--'}</p>
             </div>
           </div>
           <div className="mt-6">
             <NeoButton onClick={() => setShowRefillModal(true)} className="w-full">
-              Add More Tests <ArrowRight size={16} />
+              Add More Credits <ArrowRight size={16} />
             </NeoButton>
           </div>
         </NeoCard>
@@ -338,7 +338,7 @@ const MyAccount: React.FC = () => {
       {showRefillModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
           <div className="max-w-md w-full relative">
-            <NeoCard title="Refill Tests" className="relative">
+            <NeoCard title="Refill Credits" className="relative">
               <button 
                 onClick={() => setShowRefillModal(false)}
                 className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
@@ -346,14 +346,14 @@ const MyAccount: React.FC = () => {
                 <X size={24} />
               </button>
               
-              <p className="text-gray-600 mb-6 font-medium">Select a test pack to continue testing immediately.</p>
+              <p className="text-gray-600 mb-6 font-medium">Select a credit pack to continue testing immediately.</p>
               
               <div className="space-y-4">
                 <button 
                   onClick={() => handleCheckout('pack-3')}
                   className="w-full flex items-center justify-between p-4 border-2 border-black rounded-xl hover:bg-gray-50 transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
                 >
-                  <span className="font-bold text-lg text-black">3 Tests</span>
+                  <span className="font-bold text-lg text-black">3 Credits</span>
                   <span className="font-black text-xl text-black">$14</span>
                 </button>
 
@@ -362,7 +362,7 @@ const MyAccount: React.FC = () => {
                   className="w-full flex items-center justify-between p-4 border-2 border-black bg-[#ff8c00] rounded-xl hover:bg-[#ffa500] transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
                 >
                   <div className="text-left">
-                    <span className="block font-bold text-lg text-black">15 Tests</span>
+                    <span className="block font-bold text-lg text-black">15 Credits</span>
                     <span className="text-xs text-black font-medium">Best Value</span>
                   </div>
                   <span className="font-black text-xl text-black">$69</span>
@@ -372,7 +372,7 @@ const MyAccount: React.FC = () => {
               <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
                 <p className="text-sm text-gray-600">
                   Need consistent testing? <br/>
-                  Keeping your existing tests and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
+                  Keep your existing credits and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
                 </p>
               </div>
             </NeoCard>

@@ -107,7 +107,7 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
     <!-- Brand Header -->
     <div style="text-align: center; padding: 32px; border-bottom: 2px solid #f3f4f6;">
       <a href="${baseUrl}" style="text-decoration: none;">
-        <img src="${baseUrl}/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
+        <img src="https://www.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
       </a>
     </div>
 
@@ -656,7 +656,7 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
 
   // Fetch customer details to return credits/plan info
   try {
-    let { data: customer } = await supabase.from('customers').select('*').eq('email', user.email).single();
+    let { data: customer } = await supabase.from('customers').select('*').eq('email', user.email).maybeSingle();
 
     // If customer does not exist, create them (lazy initialization)
     if (!customer) {
