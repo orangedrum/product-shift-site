@@ -656,6 +656,7 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
 
     // If customer does not exist, create them (lazy initialization)
     if (!customer) {
+      console.log(`New user detected: ${user.email}. Granting 3 free credits.`);
       const { data: newCustomer, error: insertError } = await supabase
         .from('customers')
         .insert({ email: user.email, credits: 3, plan_status: 'free' })
