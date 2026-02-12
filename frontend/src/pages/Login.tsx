@@ -242,7 +242,7 @@ const Login: React.FC = () => {
           <h1 className="text-4xl font-black text-black mb-2">
             {plan ? "Complete Your Purchase" : "User Mirror"}
           </h1>
-          {!plan && <p className="text-lg font-bold text-gray-500 uppercase tracking-wider">Sign In / Sign Up</p>}
+          {!plan && <p className="text-lg font-bold text-black uppercase tracking-wider">Sign In / Sign Up</p>}
         </div>
         <NeoCard>
           <p className="text-gray-600 mb-6">

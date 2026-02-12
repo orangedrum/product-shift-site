@@ -121,6 +121,21 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
 </html>
 `;
 
+// --- Magic Link Email Template ---
+const getMagicLinkTemplate = (link: string, baseUrl: string) => `
+  <div style="text-align: center;">
+    <h2 style="color: #000000; font-size: 24px; font-weight: 900; margin-bottom: 16px;">Sign in to User Mirror</h2>
+    <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px;">Click the button below to sign in. This link expires in 24 hours.</p>
+    <a href="${link}" style="background-color: #000000; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 4px 4px 0px 0px #ff1493;">
+      Sign In Now
+    </a>
+    <p style="color: #9ca3af; font-size: 14px; margin-top: 32px;">
+      Or copy and paste this URL into your browser:<br>
+      <a href="${link}" style="color: #00bfff; text-decoration: underline;">${link}</a>
+    </p>
+  </div>
+`;
+
 // --- Email Helper ---
 const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -567,23 +582,38 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   try {
-    const { error } = await supabase.auth.signInWithOtp({
+    // 1. Ensure user exists (Create if not)
+    // We use admin.createUser to ensure the user exists in Auth before generating a link.
+    // We suppress the default email by setting email_confirm: true (auto-confirm) 
+    // or we just catch the "User already exists" error.
+    const { data: user, error: createError } = await supabase.auth.admin.createUser({
       email,
-      options: {
-        emailRedirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux',
-      },
+      email_confirm: true // Auto-confirm so they can sign in immediately
     });
 
-    if (error) {
-      console.error('SUPABASE AUTH ERROR:', error);
-      if (error.status === 429) {
-        return res.status(429).json({ error: 'Too many login attempts. Please wait a minute.' });
-      }
-      return res.status(500).json({ error: error.message });
+    if (createError && !createError.message.includes('already registered')) {
+       throw createError;
     }
+
+    // 2. Generate Magic Link (Server-Side)
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: {
+        redirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux'
+      }
+    });
+
+    if (linkError || !linkData.properties?.action_link) throw linkError || new Error('Failed to generate link');
+
+    // 3. Send Branded Email via Resend
+    const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+    const emailHtml = getMagicLinkTemplate(linkData.properties.action_link, baseUrl);
+    await sendEmail(email, 'Sign in to User Mirror', emailHtml, baseUrl);
+
     return res.json({ success: true });
   } catch (err: any) {
-    console.error('UNEXPECTED AUTH EXCEPTION:', err);
+    console.error('AUTH ERROR:', err);
     return res.status(500).json({ error: 'Email Service Error. Please try again later.' });
   }
 });
@@ -675,6 +705,30 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
   } catch (dbError: any) {
     console.error('Check-account DB Error:', dbError);
     res.status(500).json({ error: 'Database error while checking account.' });
+  }
+});
+
+// --- Generate Referral Code Endpoint (Fixes 404 Error) ---
+app.post('/api/user/generate-referral', authenticateRequest, async (req, res) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    // Generate a simple random code
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    const { data, error } = await supabase
+      .from('customers')
+      .update({ referral_code: code })
+      .eq('email', user.email)
+      .select('referral_code')
+      .single();
+
+    if (error) throw error;
+    res.json({ referralCode: data.referral_code });
+  } catch (e: any) {
+    console.error('Generate Referral Error:', e);
+    res.status(500).json({ error: 'Failed to generate referral code' });
   }
 });
 
