@@ -5,7 +5,7 @@ const API_BASE_URL = 'https://product-shift-site-git-plugin-paluza-jeans-project
 
 let currentUserEmail = ''; // Store email for admin actions
 
-document.addEventListener('DOMContentLoaded', () => {
+const init = () => {
   const loginView = document.getElementById('login-view');
   const appView = document.getElementById('app-view');
   const emailInput = document.getElementById('emailInput');
@@ -366,4 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial check
   checkAuth(false);
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
