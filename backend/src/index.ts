@@ -621,6 +621,51 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// --- Update Email Endpoint (Branded) ---
+app.post('/api/user/update-email', authenticateRequest, async (req, res) => {
+  const user = (req as any).user;
+  const { newEmail } = req.body;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  if (!newEmail) return res.status(400).json({ error: 'New email required' });
+
+  try {
+    const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+    const redirectTo = `${baseUrl}/account?email_updated=true`;
+
+    // Generate the confirmation link for the NEW email
+    const { data, error } = await supabase.auth.admin.generateLink({
+      type: 'email_change_new',
+      email: user.email,
+      newEmail: newEmail,
+      options: { redirectTo }
+    });
+
+    if (error) throw error;
+    if (!data.properties?.action_link) throw new Error('Failed to generate link');
+
+    // Send Branded Email via Resend
+    const emailHtml = `
+      <div style="text-align: center;">
+        <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Confirm Email Change</h2>
+        <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">
+          You requested to change your email to <strong>${newEmail}</strong>.<br>
+          Click the button below to confirm this change.
+        </p>
+        <a href="${data.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          Confirm Email Change
+        </a>
+      </div>
+    `;
+    
+    await sendEmail(newEmail, 'Confirm Email Change - User Mirror', emailHtml, baseUrl);
+
+    res.json({ success: true });
+  } catch (e: any) {
+    console.error('Update Email Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // --- Debug: Test Email Endpoint ---
 app.post('/api/admin/test-email', async (req, res) => {
   const { email } = req.body;

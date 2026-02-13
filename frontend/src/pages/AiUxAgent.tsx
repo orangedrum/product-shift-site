@@ -1074,8 +1074,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
               <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
                 <p className="text-sm text-gray-600">
-                  Need consistent testing? <br/>
-                  Keep your existing credits and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
+                  Have your own AI API Keys and want infinite tests? <br/>
+                  <button onClick={() => navigate('/waitlist')} className="text-indigo-600 font-bold hover:underline">Switch to our Agency plan</button>
                 </p>
               </div>
             </NeoCard>

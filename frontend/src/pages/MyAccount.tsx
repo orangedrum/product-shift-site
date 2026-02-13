@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -7,6 +7,7 @@ import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ti
 
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
   const [customer, setCustomer] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -29,6 +30,14 @@ const MyAccount: React.FC = () => {
       else fetchData(session.user.email);
     });
   }, [navigate]);
+
+  useEffect(() => {
+    if (searchParams.get('email_updated') === 'true') {
+      setEmailMessage({ type: 'success', text: 'Email address updated successfully!' });
+      searchParams.delete('email_updated');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
 
   const fetchData = async (email: string | undefined) => {
     if (!email) return;
@@ -173,10 +182,15 @@ const MyAccount: React.FC = () => {
     setEmailLoading(true);
     setEmailMessage(null);
     
-    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    const res = await fetch('/api/user/update-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newEmail })
+    });
     
-    if (error) {
-      setEmailMessage({ type: 'error', text: error.message });
+    if (!res.ok) {
+      const data = await res.json();
+      setEmailMessage({ type: 'error', text: data.error || 'Failed to update email' });
     } else {
       setEmailMessage({ type: 'success', text: 'Confirmation link sent to both emails. Please click to verify.' });
       setIsEditingEmail(false);
@@ -430,8 +444,8 @@ const MyAccount: React.FC = () => {
 
               <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
                 <p className="text-sm text-gray-600">
-                  Need consistent testing? <br/>
-                  Keep your existing credits and <button onClick={() => handleCheckout('starter')} className="text-indigo-600 font-bold hover:underline">switch to a Monthly Plan</button>
+                  Have your own AI API Keys and want infinite tests? <br/>
+                  <button onClick={() => navigate('/waitlist')} className="text-indigo-600 font-bold hover:underline">Switch to our Agency plan</button>
                 </p>
               </div>
             </NeoCard>
