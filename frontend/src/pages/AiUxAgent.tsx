@@ -380,7 +380,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       // 3c. Lazy Initialization (Ensure Customer Row Exists)
       // This call forces the backend to create the customer row with 3 credits if it doesn't exist
       try {
-        await fetch('/api/user/check-account');
+        await fetch('/api/user/check-account', { credentials: 'include' });
       } catch (e) { console.error('Lazy init failed', e); }
 
       // 4. Data Fetching (The Source of Truth)
@@ -682,11 +682,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   };
 
   const handleReplenish = () => {
-    if (userSegment === 'smb') {
-      setShowRefillModal(true);
-    } else {
-      handleCheckout('starter');
-    }
+    setShowRefillModal(true);
   };
 
   const copyReferralLink = () => {
@@ -831,7 +827,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               ) : (
                 // SMB Users see Give 3 Get 3 (Referral)
                 referralCode && (
-                <div className="bg-gradient-to-br from-pink-500 to-orange-400 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white animate-fade-in">
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white animate-fade-in">
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🎁</div>
                     <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 whitespace-nowrap">Give 3, Get 3</h3>

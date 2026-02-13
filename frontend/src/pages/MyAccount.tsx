@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ticket } from 'lucide-react';
+import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ticket, Edit, Check, Loader2 } from 'lucide-react';
 
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +17,10 @@ const MyAccount: React.FC = () => {
   const [couponCode, setCouponCode] = useState('');
   const [redeemMessage, setRedeemMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
   const [redeemLoading, setRedeemLoading] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailMessage, setEmailMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -164,6 +168,22 @@ const MyAccount: React.FC = () => {
     }
   };
 
+  const handleUpdateEmail = async () => {
+    if (!newEmail || newEmail === session?.user?.email) return;
+    setEmailLoading(true);
+    setEmailMessage(null);
+    
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    
+    if (error) {
+      setEmailMessage({ type: 'error', text: error.message });
+    } else {
+      setEmailMessage({ type: 'success', text: 'Confirmation link sent to both emails. Please click to verify.' });
+      setIsEditingEmail(false);
+    }
+    setEmailLoading(false);
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       {/* Cancellation Notification Bar */}
@@ -201,6 +221,45 @@ const MyAccount: React.FC = () => {
         <NeoButton onClick={() => navigate('/ai-powered-ux')} variant="secondary">
           Back to Testing
         </NeoButton>
+      </div>
+
+      {/* Profile Information */}
+      <div className="mb-8">
+        <NeoCard title="Profile Information">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
+              <div className="flex gap-2">
+                <input 
+                  type="email" 
+                  value={isEditingEmail ? newEmail : (session?.user?.email || '')}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  disabled={!isEditingEmail}
+                  className={`w-full p-2 border-2 rounded-lg transition-colors ${isEditingEmail ? 'border-black bg-white' : 'border-gray-200 bg-gray-100 text-gray-500'}`}
+                />
+                {isEditingEmail ? (
+                  <>
+                    <NeoButton onClick={handleUpdateEmail} disabled={emailLoading} className="px-4">
+                      {emailLoading ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
+                    </NeoButton>
+                    <button onClick={() => { setIsEditingEmail(false); setNewEmail(''); setEmailMessage(null); }} className="p-2 text-gray-500 hover:text-black">
+                      <X size={18} />
+                    </button>
+                  </>
+                ) : (
+                  <NeoButton variant="secondary" onClick={() => { setIsEditingEmail(true); setNewEmail(session?.user?.email); }} className="px-4">
+                    <Edit size={18} />
+                  </NeoButton>
+                )}
+              </div>
+              {emailMessage && (
+                <p className={`text-xs mt-2 font-bold ${emailMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                  {emailMessage.text}
+                </p>
+              )}
+            </div>
+          </div>
+        </NeoCard>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 mb-12">
