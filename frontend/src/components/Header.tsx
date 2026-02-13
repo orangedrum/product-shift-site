@@ -130,6 +130,7 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
               <div className="flex items-center gap-4">
                 <button onClick={() => navigate('/account')} className={`${displaySession ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-indigo-600'} font-medium flex items-center gap-2`} title="My Account">
                   <User size={20} />
+                  <span>Account</span>
                 </button>
                 <NeoButton variant="secondary" onClick={handleLogout} className="h-9 px-4 text-sm">
                   Sign Out

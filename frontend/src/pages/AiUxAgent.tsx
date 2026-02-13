@@ -804,8 +804,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
               </div>
 
-              {/* 2. Referral Card (Vertical) */}
-              {planStatus === 'active' ? (
+              {/* 2. Referral/Partner Card Logic */}
+              {userSegment === 'tech' ? (
+                // Tech Users see Partner Program (Affiliate)
                 <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white">
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🤝</div>
@@ -821,21 +822,24 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     </a>
                   </div>
                 </div>
-              ) : (referralCode && (
-                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white animate-fade-in">
+              ) : (
+                // SMB Users see Give 3 Get 3 (Referral)
+                referralCode && (
+                <div className="bg-gradient-to-br from-pink-500 to-orange-400 rounded-xl border-2 border-black shadow-lg overflow-hidden text-white animate-fade-in">
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🎁</div>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 whitespace-nowrap">Give 1, Get 1</h3>
-                    <p className="text-[10px] leading-tight mb-3 opacity-90">Share a free test, get a free test when a new user uses it.</p>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 whitespace-nowrap">Give 3, Get 3</h3>
+                    <p className="text-[10px] leading-tight mb-3 opacity-90">Share 3 free credits, get 3 free credits when they sign up.</p>
                     <button 
                       onClick={copyReferralLink}
-                      className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
+                      className="w-full bg-white text-pink-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
                     >
                       {copyButtonText === 'Link Copied!' ? null : <Copy size={12} />} {copyButtonText}
                     </button>
                   </div>
                 </div>
-              ))}
+                )
+              )}
           </div>
         )}
 

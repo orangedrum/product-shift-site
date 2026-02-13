@@ -101,13 +101,15 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Shift</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 40px 20px;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 2px solid #000000; border-radius: 12px; overflow: hidden; box-shadow: 8px 8px 0px 0px #000000;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 40px 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
     
     <!-- Brand Header -->
-    <div style="background: linear-gradient(90deg, #ff1493 0%, #ff8c00 100%); padding: 24px; text-align: center; border-bottom: 2px solid #000000;">
-       <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 1px;">User Mirror</h1>
-       <p style="margin: 4px 0 0 0; font-size: 14px; color: #ffffff; font-weight: 600; opacity: 0.9;">by The Product Shift</p>
+    <div style="text-align: center; padding: 32px; border-bottom: 1px solid #f3f4f6;">
+      <a href="${baseUrl}" style="text-decoration: none;">
+        <img src="https://www.theproductshift.com/logo.png" alt="Product Shift" style="height: 40px; width: auto; border: 0;" />
+      </a>
+      <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280; font-weight: 500;">User Mirror by Product Shift</p>
     </div>
 
     <div style="padding: 40px;">
@@ -123,14 +125,14 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
 // --- Magic Link Email Template ---
 const getMagicLinkTemplate = (link: string, baseUrl: string) => `
   <div style="text-align: center;">
-    <h2 style="color: #000000; font-size: 24px; font-weight: 900; margin-bottom: 16px;">Sign in to User Mirror</h2>
-    <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px;">Click the button below to sign in. This link expires in 24 hours.</p>
-    <a href="${link}" style="background-color: #000000; color: #ffffff; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 4px 4px 0px 0px #ff1493;">
+    <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Sign in to User Mirror</h2>
+    <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">Click the button below to sign in. This link expires in 24 hours.</p>
+    <a href="${link}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
       Sign In Now
     </a>
     <p style="color: #9ca3af; font-size: 14px; margin-top: 32px;">
       Or copy and paste this URL into your browser:<br>
-      <a href="${link}" style="color: #00bfff; text-decoration: underline;">${link}</a>
+      <a href="${link}" style="color: #2563eb; text-decoration: underline; word-break: break-all;">${link}</a>
     </p>
   </div>
 `;
