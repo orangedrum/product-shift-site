@@ -915,8 +915,43 @@ async function runTestHandler(req: express.Request, res: express.Response) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  // --- REAL ANALYSIS LOGIC PREP ---
+  let userIdentifier = req.ip || 'unknown';
+  let planType = 'free';
+  let revenue = 0;
+  let useFreeTier = true;
+  let shouldDeductCredit = false;
+  let runId: string | null = null;
+  let creditDeducted = false;
+
+  // --- CREDIT & SUBSCRIPTION CHECK ---
+  if (email && supabaseUrl && supabaseServiceKey) {
+    userIdentifier = email;
+    const { data: customer } = await supabase.from('customers').select('*').eq('email', email).single();
+    
+    if (customer) {
+      if (customer.plan_status === 'active') {
+        planType = 'subscription';
+        useFreeTier = false; // Unlimited
+      } else if (customer.credits > 0) {
+        planType = 'credit_pack';
+        useFreeTier = false;
+        shouldDeductCredit = true;
+      }
+    }
+  }
+
   // --- TEST MODE BYPASS ---
   if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
+    
+    // DEDUCT CREDIT FOR TEST MODE IF LOGGED IN
+    if (shouldDeductCredit && supabaseUrl && supabaseServiceKey) {
+        const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: email, amount: 3 });
+        if (deductError) {
+            return res.status(402).json({ error: 'Insufficient Credits', details: 'Please top up to run this test.' });
+        }
+    }
+
     const scores = { usability: 88, desirability: 92, clarity: 95 };
     const expertReport = '### TEST RESULT: PASS\n**Overall Score:** 92/100\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.';
     const userSessions = [
@@ -970,32 +1005,6 @@ async function runTestHandler(req: express.Request, res: express.Response) {
         scores,
         seoSchema
     });
-  }
-
-  // --- REAL ANALYSIS LOGIC ---
-  let userIdentifier = req.ip || 'unknown';
-  let planType = 'free';
-  let revenue = 0;
-  let useFreeTier = true;
-  let shouldDeductCredit = false;
-  let runId: string | null = null;
-  let creditDeducted = false;
-
-  // --- CREDIT & SUBSCRIPTION CHECK ---
-  if (email && supabaseUrl && supabaseServiceKey) {
-    userIdentifier = email;
-    const { data: customer } = await supabase.from('customers').select('*').eq('email', email).single();
-    
-    if (customer) {
-      if (customer.plan_status === 'active') {
-        planType = 'subscription';
-        useFreeTier = false; // Unlimited
-      } else if (customer.credits > 0) {
-        planType = 'credit_pack';
-        useFreeTier = false;
-        shouldDeductCredit = true;
-      }
-    }
   }
 
   // --- FREE TIER LIMIT CHECK ---

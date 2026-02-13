@@ -53,9 +53,13 @@ const MyAccount: React.FC = () => {
         body: JSON.stringify({ token, sig })
       })
       .then(res => res.json())
-      .then(data => {
+      .then(async (data) => {
         if (data.success) {
-          supabase.auth.refreshSession();
+          const { data: { session: newSession } } = await supabase.auth.refreshSession();
+          if (newSession) {
+            setSession(newSession);
+            fetchData(newSession.user.email);
+          }
           setEmailMessage({ type: 'success', text: 'Email address updated successfully!' });
         } else {
           setEmailMessage({ type: 'error', text: data.error || 'Failed to verify email change.' });

@@ -218,7 +218,8 @@ const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose
 const contentConfig = {
   tech: {
     title: "AI-Powered UX Agent",
-    subtitle: "Select 3-5 personas and define their goal to run a simulated usability analysis. * 3 credits = about 1 URL",
+    subtitle: "Select 3-5 personas and define their goal to run a simulated usability analysis.",
+    subtitleNote: "* 3 credits = about 1 URL",
     card1Title: "The What",
     card1Subtitle: "What url are we testing today?",
     card2Title: "The Who",
@@ -233,7 +234,8 @@ const contentConfig = {
   },
   smb: {
     title: "Instant Insight Website Tester",
-    subtitle: "See your website through the eyes of your visitors to find ways to improve conversion. * 3 credits = about 1 URL",
+    subtitle: "See your website through the eyes of your visitors to find ways to improve conversion.",
+    subtitleNote: "* 3 credits = about 1 URL",
     card1Title: "The What",
     card1Subtitle: "Which website or URL do you want to check?",
     card2Title: "The Who",
@@ -408,7 +410,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
       // Initialize State
       setCredits(customerData?.credits ?? 0);
       setPlanStatus(customerData?.plan_status);
-      setSavedSegment(customerData?.segment || null);
+      
+      if (customerData?.segment) {
+        setSavedSegment(customerData.segment);
+      }
       
       if (customerData?.referral_code) {
         setReferralCode(customerData.referral_code);
@@ -851,6 +856,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
             <p className="text-lg text-black font-medium">{text.subtitle}</p>
+            <p className="text-xs text-gray-500 mt-2 font-medium">{text.subtitleNote}</p>
           </div>
       
           <form onSubmit={handleSubmit} className="space-y-8">

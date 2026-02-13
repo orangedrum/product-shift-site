@@ -326,7 +326,7 @@ const AgencyUserTestingPage: React.FC = () => {
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">$3 free credits to start</span>
+                  <span className="font-bold">Get 3 Free Credits</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
@@ -334,19 +334,19 @@ const AgencyUserTestingPage: React.FC = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold text-sm">See each persona's full experience</span>
+                  <span className="font-bold text-sm">3-5 Persona's Perspectives</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold text-sm">All experiences summarized into digestible report</span>
+                  <span className="font-bold text-sm">Data-based, Actionable Report</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold text-sm">Pass/fail, Final score, Performance Metrics</span>
+                  <span className="font-bold text-sm">Clear Performance Metrics</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold">Downloadable & shareable reports</span>
+                  <span className="font-bold">Download & Share Reports</span>
                 </li>
               </ul>
               <button 
