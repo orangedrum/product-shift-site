@@ -242,7 +242,12 @@ const Login: React.FC = () => {
           <h1 className="text-4xl font-black text-black mb-2">
             {plan ? "Complete Your Purchase" : "User Mirror"}
           </h1>
-          {!plan && <p className="text-lg font-bold text-black uppercase tracking-wider">Sign In / Sign Up</p>}
+          {!plan && (
+            <>
+              <p className="text-lg font-bold text-black uppercase tracking-wider">Sign In / Sign Up</p>
+              <a href="/agency-user-testing" target="_blank" className="text-xs text-gray-500 hover:text-indigo-600 underline mt-1 block">what the heck's User Mirror?</a>
+            </>
+          )}
         </div>
         <NeoCard>
           <p className="text-gray-600 mb-6">

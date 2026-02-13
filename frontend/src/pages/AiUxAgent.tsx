@@ -377,6 +377,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       }
 
+      // 3c. Lazy Initialization (Ensure Customer Row Exists)
+      // This call forces the backend to create the customer row with 3 credits if it doesn't exist
+      try {
+        await fetch('/api/user/check-account');
+      } catch (e) { console.error('Lazy init failed', e); }
+
       // 4. Data Fetching (The Source of Truth)
       // Retry logic: If we just claimed a referral, ensure we see the credit (handle potential DB latency)
       let customerData = null;

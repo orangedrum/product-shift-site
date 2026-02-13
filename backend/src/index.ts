@@ -585,15 +585,17 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     // 1. Ensure user exists (Create if not)
     // We use admin.createUser to ensure the user exists in Auth before generating a link.
-    // We suppress the default email by setting email_confirm: true (auto-confirm) 
-    // or we just catch the "User already exists" error.
     const { data: user, error: createError } = await supabase.auth.admin.createUser({
       email,
       email_confirm: true // Auto-confirm so they can sign in immediately
     });
 
-    if (createError && !createError.message.includes('already registered')) {
-       throw createError;
+    // Robust Error Handling: If user exists, we proceed. If other error, we throw.
+    if (createError) {
+      const msg = createError.message.toLowerCase();
+      if (!msg.includes('registered') && !msg.includes('exists') && !msg.includes('duplicate')) {
+         throw createError;
+      }
     }
 
     // 2. Generate Magic Link (Server-Side)
