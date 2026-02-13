@@ -856,7 +856,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
             <p className="text-lg text-black font-medium">{text.subtitle}</p>
-            <p className="text-xs text-gray-500 mt-2 font-medium">{text.subtitleNote}</p>
+            <p className="text-xs text-black mt-2 font-medium">{text.subtitleNote}</p>
           </div>
       
           <form onSubmit={handleSubmit} className="space-y-8">

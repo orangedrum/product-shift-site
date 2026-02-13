@@ -732,6 +732,76 @@ app.post('/api/admin/test-email', async (req, res) => {
   return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
 });
 
+// --- Create Checkout Session ---
+app.post('/api/create-checkout-session', async (req, res) => {
+  const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
+  if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
+
+  const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+  const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
+  const cancelUrl = `${baseUrl}/account`;
+
+  try {
+    const sessionConfig: any = {
+      payment_method_types: ['card'],
+      customer_email: email,
+      line_items: [],
+      mode: 'payment',
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: {
+        segment: segment || 'tech',
+        promotekit_referral: promotekit_referral || '',
+        credits: '0'
+      }
+    };
+
+    if (planId === 'pack-3') {
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Quick Check (9 Credits)', description: '3 Full URL Tests' },
+          unit_amount: 1400,
+        },
+        quantity: 1,
+      });
+      sessionConfig.metadata.credits = '9';
+    } else if (planId === 'pack-15') {
+      let amount = 6900;
+      if (applyDiscount) amount = Math.round(amount * 0.9);
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Pro Pack (45 Credits)', description: '15 Full URL Tests' },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      });
+      sessionConfig.metadata.credits = '45';
+    } else if (planId === 'starter') {
+      sessionConfig.mode = 'subscription';
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Monthly Audit Plan', description: '10 Tests / Month (30 Credits)' },
+          unit_amount: 2900,
+          recurring: { interval: 'month' },
+        },
+        quantity: 1,
+      });
+      sessionConfig.metadata.credits = '30';
+    } else {
+      return res.status(400).json({ error: 'Invalid plan ID' });
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+    res.json({ url: session.url });
+  } catch (e: any) {
+    console.error('Checkout Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/run-test', runTestHandler);
 
 app.post('/api/analyze', authenticateRequest, async (req, res) => {

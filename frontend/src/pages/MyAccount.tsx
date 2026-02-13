@@ -452,7 +452,7 @@ const MyAccount: React.FC = () => {
                 <X size={24} />
               </button>
               
-              <p className="text-gray-600 mb-6 font-medium">Select a credit pack to continue testing immediately. <span className="text-xs text-gray-500 block mt-1">(3 credits = about 1 URL)</span></p>
+              <p className="text-gray-600 mb-6 font-medium">Select a credit pack to continue testing immediately. <span className="text-xs text-black block mt-1">(3 credits = about 1 URL)</span></p>
               
               <div className="space-y-4">
                 <button 
