@@ -86,7 +86,7 @@ const PaymentConfirmation = () => {
           <div className="animate-fade-in">
             <Loader2 className="h-12 w-12 text-indigo-600 mx-auto mb-4 animate-spin" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Confirming Payment...</h2>
-            <p className="text-gray-600">We're syncing your subscription with our secure database. This usually takes just a moment.</p>
+            <p className="text-gray-600">We're syncing your payment to your account. This usually takes just a moment.</p>
             
             <div className="mt-8">
               <button onClick={() => navigate('/account')} className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center justify-center gap-1 mx-auto">

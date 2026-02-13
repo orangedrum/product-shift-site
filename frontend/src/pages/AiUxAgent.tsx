@@ -72,6 +72,20 @@ const formatText = (text: string) => {
       );
     }
 
+    // Overall Score Styling (Aligned with Pass/Fail)
+    if (line.includes('**Overall Score:**')) {
+      const scoreMatch = line.match(/(\d+)\/100/);
+      const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+      const colorClass = score >= 60 ? 'text-green-600' : 'text-red-600';
+      return (
+        <div key={index} className="mb-8 -mt-4">
+           <h3 className={`text-2xl font-black ${colorClass} flex items-center gap-2`}>
+             {line.replace(/\*\*/g, '')}
+           </h3>
+        </div>
+      );
+    }
+
     if (line.startsWith('### ')) return <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-black">{line.replace('### ', '')}</h3>;
     if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-black">{line.replace('## ', '')}</h2>;
     

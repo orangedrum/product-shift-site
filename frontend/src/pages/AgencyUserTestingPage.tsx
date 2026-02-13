@@ -334,7 +334,7 @@ const AgencyUserTestingPage: React.FC = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  <span className="font-bold text-sm">3-5 Persona's Perspectives</span>
+                  <span className="font-bold text-sm">Choose From 9 Personas</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-6 h-6 text-green-500 mt-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>

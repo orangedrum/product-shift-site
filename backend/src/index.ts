@@ -802,6 +802,30 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
+// --- Verify Payment Endpoint (Fixes 404 Error) ---
+app.post('/api/verify-payment', async (req, res) => {
+  const { session_id } = req.body;
+  if (!session_id) return res.status(400).json({ error: 'Session ID required' });
+
+  try {
+    // 1. Check DB first (Fastest)
+    const { data: payment } = await supabase
+      .from('payments')
+      .select('id, status')
+      .eq('stripe_session_id', session_id)
+      .single();
+
+    if (payment) return res.json({ verified: true, status: payment.status });
+
+    // 2. Check Stripe directly (Fallback if webhook is slow)
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    return res.json({ verified: session.payment_status === 'paid', status: session.payment_status });
+  } catch (e: any) {
+    console.error('Verify Payment Error:', e);
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/run-test', runTestHandler);
 
 app.post('/api/analyze', authenticateRequest, async (req, res) => {
