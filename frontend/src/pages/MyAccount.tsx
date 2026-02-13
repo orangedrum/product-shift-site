@@ -29,10 +29,23 @@ const MyAccount: React.FC = () => {
       if (!session) navigate('/login');
       else fetchData(session.user.email);
     });
+
+    // Listen for Auth Changes (Critical for Email Updates)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'USER_UPDATED' || event === 'SIGNED_IN') {
+        setSession(session);
+        if (session) fetchData(session.user.email);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   useEffect(() => {
     if (searchParams.get('email_updated') === 'true') {
+      // Force a session refresh to ensure we have the latest user object
+      supabase.auth.refreshSession();
+      
       setEmailMessage({ type: 'success', text: 'Email address updated successfully!' });
       searchParams.delete('email_updated');
       setSearchParams(searchParams);
