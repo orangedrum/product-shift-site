@@ -42,13 +42,29 @@ const MyAccount: React.FC = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (searchParams.get('email_updated') === 'true') {
-      // Force a session refresh to ensure we have the latest user object
-      supabase.auth.refreshSession();
-      
-      setEmailMessage({ type: 'success', text: 'Email address updated successfully!' });
-      searchParams.delete('email_updated');
-      setSearchParams(searchParams);
+    const token = searchParams.get('verify_email_token');
+    const sig = searchParams.get('sig');
+
+    if (token && sig) {
+      setEmailLoading(true);
+      fetch('/api/user/verify-email-change', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, sig })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          supabase.auth.refreshSession();
+          setEmailMessage({ type: 'success', text: 'Email address updated successfully!' });
+        } else {
+          setEmailMessage({ type: 'error', text: data.error || 'Failed to verify email change.' });
+        }
+      })
+      .finally(() => {
+        setEmailLoading(false);
+        setSearchParams({}); // Clean URL
+      });
     }
   }, [searchParams, setSearchParams]);
 
@@ -205,7 +221,7 @@ const MyAccount: React.FC = () => {
       const data = await res.json();
       setEmailMessage({ type: 'error', text: data.error || 'Failed to update email' });
     } else {
-      setEmailMessage({ type: 'success', text: 'Confirmation link sent to both emails. Please click to verify.' });
+      setEmailMessage({ type: 'success', text: 'Confirmation link sent to your NEW email. Please click it to verify.' });
       setIsEditingEmail(false);
     }
     setEmailLoading(false);
@@ -432,14 +448,14 @@ const MyAccount: React.FC = () => {
                 <X size={24} />
               </button>
               
-              <p className="text-gray-600 mb-6 font-medium">Select a credit pack to continue testing immediately.</p>
+              <p className="text-gray-600 mb-6 font-medium">Select a credit pack to continue testing immediately. <span className="text-xs text-gray-500 block mt-1">(3 credits = about 1 URL)</span></p>
               
               <div className="space-y-4">
                 <button 
                   onClick={() => handleCheckout('pack-3')}
                   className="w-full flex items-center justify-between p-4 border-2 border-black rounded-xl hover:bg-gray-50 transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
                 >
-                  <span className="font-bold text-lg text-black">3 Credits</span>
+                  <span className="font-bold text-lg text-black">9 Credits</span>
                   <span className="font-black text-xl text-black">$14</span>
                 </button>
 
@@ -448,7 +464,7 @@ const MyAccount: React.FC = () => {
                   className="w-full flex items-center justify-between p-4 border-2 border-black bg-[#ff8c00] rounded-xl hover:bg-[#ffa500] transition-all shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000]"
                 >
                   <div className="text-left">
-                    <span className="block font-bold text-lg text-black">15 Credits</span>
+                    <span className="block font-bold text-lg text-black">45 Credits</span>
                     <span className="text-xs text-black font-medium">Best Value</span>
                   </div>
                   <span className="font-black text-xl text-black">$69</span>
