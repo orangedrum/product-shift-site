@@ -413,7 +413,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
           customerData = data;
 
           // If we didn't claim a referral, or if we found credits, stop retrying
-          if (
+          if ((!referralClaimed && !urlNewCredit) || (data && data.credits > 0)) break;
+          
           // If we claimed but found 0 credits, wait and retry
           if (i < 2) await new Promise(r => setTimeout(r, 500));
       }
