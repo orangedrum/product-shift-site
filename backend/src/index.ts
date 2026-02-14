@@ -122,6 +122,76 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
 </html>
 `;
 
+// --- Marketing Email Sequence (Daniel Priestley Method) ---
+const marketingEmails = {
+  welcome: {
+    subject: "Your AI test results are ready (and they’re honest)",
+    body: (baseUrl: string) => `
+      <p>You just saw your website through a stranger's eyes. That uncomfortable feeling? That's where your growth is hiding.</p>
+      <p><strong>UX Fact:</strong> Users form an opinion about your site in 0.05 seconds. If they're confused, they leave.</p>
+      <p>Use your <strong>3 free credits</strong> to test your most important page (Checkout or Pricing). Don't waste them on the About page.</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${baseUrl}/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Run Your First Test</a>
+      </div>
+    `
+  },
+  day1: {
+    subject: "Stop arguing about button colors",
+    body: (baseUrl: string) => `
+      <p>Most teams waste hours debating design based on personal preference. "I like blue, you like green." Who cares? What does the <em>user</em> need?</p>
+      <p><strong>Priestley Principle:</strong> Become a Key Person of Influence by using data, not opinions.</p>
+      <p><strong>CRM Tip:</strong> Data-backed decisions speed up approval cycles by 40%.</p>
+      <p>Run a test on a competitor's site. See what they do wrong, and steal what they do right.</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${baseUrl}/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Test a Competitor</a>
+      </div>
+    `
+  },
+  day3: {
+    subject: "The $10,000 mistake on your homepage",
+    body: (baseUrl: string) => `
+      <p>We analyzed 1,000+ sites. The #1 revenue killer isn't price—it's <em>clarity</em>. If a user has to ask "What do I do next?", you've lost them.</p>
+      <p><strong>UX Fact:</strong> Every $1 invested in UX brings $100 in return (Forrester).</p>
+      <p>Use the <strong>'Busy Professional'</strong> persona on your site. They have zero patience. If they can't buy in 2 minutes, fix your flow.</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${baseUrl}/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Test for Clarity</a>
+      </div>
+    `
+  },
+  day5: {
+    subject: "How agencies cut bounce rates in half",
+    body: (baseUrl: string) => `
+      <p>They thought their new design was perfect. User Mirror showed them that the 'Sign Up' button looked like a banner ad. They fixed it in 5 minutes.</p>
+      <p><strong>Priestley Principle:</strong> "Signaling"—show that others are getting results.</p>
+      <p>You have credits left. Use them before you launch your next campaign.</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${baseUrl}/ai-powered-ux" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Use Your Credits</a>
+      </div>
+    `
+  },
+  day7: {
+    subject: "I want to help you scale this",
+    body: (baseUrl: string) => `
+      <p>You've seen the insights. Now it's time to make this a habit. Consistent testing is the difference between a stagnant site and a growth engine.</p>
+      <p>Upgrade to the <strong>Agency Plan</strong> today and get unlimited tests with your own API key. Stop guessing, start knowing.</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${baseUrl}/agency-user-testing" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get the Agency Plan</a>
+      </div>
+    `
+  }
+};
+
+// --- Helper: Identify Test Users (Mirrors Frontend Logic) ---
+const isTestEmail = (email: string) => {
+  if (!email) return false;
+  const lower = email.toLowerCase();
+  return lower.includes('test') || 
+         lower.includes('demo') || 
+         lower.includes('example') || 
+         lower.includes('localhost') ||
+         lower.includes('+smb');
+};
+
 // --- Magic Link Email Template ---
 const getMagicLinkTemplate = (link: string, baseUrl: string) => `
   <div style="text-align: center;">
@@ -741,7 +811,7 @@ app.post('/api/user/update-segment', authenticateRequest, async (req, res) => {
 
 // --- Debug: Test Email Endpoint ---
 app.post('/api/admin/test-email', async (req, res) => {
-  const { email } = req.body;
+  const { email, template } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
 
   // Check Key Presence explicitly for the test endpoint
@@ -750,7 +820,17 @@ app.post('/api/admin/test-email', async (req, res) => {
   }
 
   const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
-  const result = await sendEmail(email, 'Test Email from Backend', '<p>If you see this, Resend is working!</p>', baseUrl);
+  
+  let subject = 'Test Email from Backend';
+  let content = '<p>If you see this, Resend is working!</p>';
+
+  if (template && (marketingEmails as any)[template]) {
+    const tmpl = (marketingEmails as any)[template];
+    subject = `[TEST] ${tmpl.subject}`;
+    content = tmpl.body(baseUrl);
+  }
+
+  const result = await sendEmail(email, subject, content, baseUrl);
   if (result.success) return res.json({ success: true });
   return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
 });
@@ -946,6 +1026,13 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
         .single();
       if (insertError) throw insertError;
       customer = newCustomer;
+
+      // Marketing: Send Immediate Welcome Email (Email 1)
+      if (!isTestEmail(user.email)) {
+        const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+        const emailContent = marketingEmails.welcome.body(baseUrl);
+        sendEmail(user.email, marketingEmails.welcome.subject, emailContent, baseUrl).catch(console.error);
+      }
     }
     
     res.json({ authenticated: true, email: user.email, credits: customer.credits, plan_status: customer.plan_status });
@@ -953,6 +1040,67 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
   } catch (dbError: any) {
     console.error('Check-account DB Error:', dbError);
     res.status(500).json({ error: 'Database error while checking account.' });
+  }
+});
+
+// --- Daily Marketing Cron Endpoint ---
+// Call this once a day via Vercel Cron or external scheduler
+app.get('/api/cron/daily-marketing', async (req, res) => {
+  // Simple security check (Set CRON_SECRET in Vercel env vars)
+  const authHeader = req.headers.authorization;
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const baseUrl = 'https://www.theproductshift.com';
+
+  try {
+    // Fetch active free users who haven't finished the sequence
+    const { data: users, error } = await supabase
+      .from('customers')
+      .select('id, email, created_at, marketing_step, plan_status')
+      .eq('plan_status', 'free')
+      .lt('marketing_step', 4); // Stop after Day 7 (step 4)
+
+    if (error) throw error;
+
+    let sentCount = 0;
+    const now = new Date();
+
+    for (const user of users) {
+      // Skip test users
+      if (isTestEmail(user.email)) continue;
+
+      const createdAt = new Date(user.created_at);
+      const diffDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      
+      let nextStep = user.marketing_step || 0;
+      let emailToSend = null;
+      let newStep = nextStep;
+
+      // Sequence Logic:
+      // Step 0 (Welcome sent) -> Wait for Day 1 -> Send Day 1 Email -> Set Step 1
+      // Step 1 (Day 1 sent) -> Wait for Day 3 -> Send Day 3 Email -> Set Step 2
+      // Step 2 (Day 3 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 3
+      // Step 3 (Day 5 sent) -> Wait for Day 7 -> Send Day 7 Email -> Set Step 4
+
+      if (nextStep === 0 && diffDays >= 1) { emailToSend = marketingEmails.day1; newStep = 1; }
+      else if (nextStep === 1 && diffDays >= 3) { emailToSend = marketingEmails.day3; newStep = 2; }
+      else if (nextStep === 2 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 3; }
+      else if (nextStep === 3 && diffDays >= 7) { emailToSend = marketingEmails.day7; newStep = 4; }
+
+      if (emailToSend) {
+        const content = emailToSend.body(baseUrl);
+        await sendEmail(user.email, emailToSend.subject, content, baseUrl);
+        await supabase.from('customers').update({ marketing_step: newStep }).eq('id', user.id);
+        sentCount++;
+      }
+    }
+
+    res.json({ success: true, sent: sentCount });
+  } catch (e: any) {
+    console.error('Cron Error:', e);
+    res.status(500).json({ error: e.message });
   }
 });
 

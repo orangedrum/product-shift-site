@@ -52,6 +52,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [testUsers, setTestUsers] = useState<any[]>([]);
   const [selectedTestUsers, setSelectedTestUsers] = useState<string[]>([]);
   const [blogStats, setBlogStats] = useState<any[]>([]);
+  const [testEmailTarget, setTestEmailTarget] = useState('');
+  const [testEmailLoading, setTestEmailLoading] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -301,6 +303,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     } catch (e) {
       alert('Failed to delete users');
     }
+  };
+
+  const handleTestEmail = async (template: string) => {
+    if (!testEmailTarget) return alert('Please enter a target email address');
+    setTestEmailLoading(template);
+    try {
+      await fetch('/api/admin/test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: testEmailTarget, template })
+      });
+      alert(`Sent ${template} email to ${testEmailTarget}!`);
+    } catch (e) { console.error(e); alert('Failed to send test email'); }
+    setTestEmailLoading(null);
   };
 
   // Helper to categorize errors
@@ -603,6 +619,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             </div>
           </NeoCard>
         </div>
+      </div>
+
+      {/* --- EMAIL MARKETING TESTER --- */}
+      <div className="mb-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Send size={20} /> Email Sequence Tester</h3>
+        <NeoCard title="Manual Trigger">
+          <p className="text-sm text-gray-600 mb-4">Send marketing emails to any address to verify content and branding.</p>
+          <div className="mb-4">
+            <label className="block text-sm font-bold mb-1">Target Email</label>
+            <input 
+              type="email" 
+              value={testEmailTarget}
+              onChange={(e) => setTestEmailTarget(e.target.value)}
+              className="w-full p-2 border-2 border-gray-300 rounded-lg max-w-md"
+              placeholder="you@example.com"
+            />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            {['welcome', 'day1', 'day3', 'day5', 'day7'].map((day) => (
+              <button key={day} onClick={() => handleTestEmail(day)} disabled={!!testEmailLoading} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-xs font-bold flex items-center justify-center gap-2">
+                {testEmailLoading === day ? <Loader2 className="animate-spin" size={12} /> : <Send size={12} />}
+                {day.charAt(0).toUpperCase() + day.slice(1)}
+              </button>
+            ))}
+          </div>
+        </NeoCard>
       </div>
 
       {/* --- TEST USER MANAGEMENT (Only visible when showing test data) --- */}
