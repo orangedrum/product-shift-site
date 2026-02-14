@@ -1058,18 +1058,29 @@ async function runTestHandler(req: express.Request, res: express.Response) {
   let creditDeducted = false;
 
   // --- CREDIT & SUBSCRIPTION CHECK ---
-  if (email && supabaseUrl && supabaseServiceKey) {
-    userIdentifier = email;
-    const { data: customer } = await supabase.from('customers').select('*').eq('email', email).single();
+  if (email && typeof email === 'string' && supabaseUrl && supabaseServiceKey) {
+    const safeEmail = email.trim().toLowerCase();
+    userIdentifier = safeEmail;
+    useFreeTier = false; // CRITICAL FIX: Logged-in users NEVER use the anonymous free tier
+
+    let { data: customer } = await supabase.from('customers').select('*').eq('email', safeEmail).maybeSingle();
     
-    if (customer) {
-      useFreeTier = false; // Logged-in users do not use the anonymous free tier
-      if (customer.plan_status === 'active') {
-        planType = 'subscription';
-      } else {
-        planType = 'credit_pack';
-        shouldDeductCredit = true;
-      }
+    // Self-Healing: If customer missing during test, create them now (with 3 credits if new)
+    if (!customer) {
+        console.log(`Lazy init during test for: ${safeEmail}`);
+        const { data: newCust, error: createErr } = await supabase
+            .from('customers')
+            .insert({ email: safeEmail, credits: 3, plan_status: 'free' })
+            .select()
+            .single();
+        if (!createErr) customer = newCust;
+    }
+
+    if (customer && customer.plan_status === 'active') {
+      planType = 'subscription';
+    } else {
+      planType = 'credit_pack';
+      shouldDeductCredit = true; // Enforce deduction
     }
   }
 
@@ -1078,7 +1089,7 @@ async function runTestHandler(req: express.Request, res: express.Response) {
     
     // DEDUCT CREDIT FOR TEST MODE IF LOGGED IN
     if (shouldDeductCredit && supabaseUrl && supabaseServiceKey) {
-        const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: email, amount: 3 });
+        const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
         if (deductError) {
             return res.status(402).json({ error: 'Insufficient Credits', details: 'Please top up to run this test.' });
         }
@@ -1164,7 +1175,7 @@ async function runTestHandler(req: express.Request, res: express.Response) {
     // 1. Optimistic Deduction: Deduct before expensive operations
     if (supabaseUrl && supabaseServiceKey && shouldDeductCredit) {
         // COST: 3 Credits per URL Test
-        const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: email, amount: 3 });
+        const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
         if (deductError) {
             throw new Error(`Credit deduction failed: ${deductError.message}`);
         }
@@ -1334,7 +1345,7 @@ export default async function({ page, context }) {
       
       // Refund if we deducted but timed out
       if (creditDeducted && supabaseUrl && supabaseServiceKey) {
-         await supabase.rpc('add_credits', { user_email: email, amount: 3 });
+         await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
       }
 
       return res.json({
@@ -1358,7 +1369,7 @@ export default async function({ page, context }) {
     
     // Refund credit if error was not a timeout (and we deducted it)
     if (creditDeducted && supabaseUrl && supabaseServiceKey) {
-       await supabase.rpc('add_credits', { user_email: email, amount: 3 });
+       await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
     }
 
     res.status(500).json({ 
