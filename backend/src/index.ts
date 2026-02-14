@@ -825,6 +825,39 @@ app.post('/api/verify-payment', async (req, res) => {
 
     // 2. Check Stripe directly (Fallback if webhook is slow)
     const session = await stripe.checkout.sessions.retrieve(session_id);
+    
+    if (session.payment_status === 'paid') {
+        // SELF-HEALING: Provision credits if webhook missed it
+        const customerEmail = session.customer_details?.email;
+        if (customerEmail) {
+            // Ensure customer exists
+            const { data: customer } = await supabase.from('customers').select('id').eq('email', customerEmail).maybeSingle();
+            if (!customer) {
+                await supabase.from('customers').insert({ email: customerEmail, credits: 0, plan_status: 'free' });
+            }
+
+            // Calculate credits (Mirroring webhook logic)
+            let creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
+            if (session.amount_total === 1400) creditsToAdd = 9;
+            if (session.amount_total === 6900) creditsToAdd = 45;
+
+            // Attempt to record payment (Unique constraint on stripe_session_id prevents double-counting)
+            const { error: insertError } = await supabase.from('payments').insert({
+                email: customerEmail,
+                amount_total: session.amount_total,
+                currency: session.currency,
+                status: session.payment_status,
+                stripe_session_id: session.id
+            });
+
+            // Only add credits if we successfully inserted the payment record (meaning we are the first to process it)
+            if (!insertError && creditsToAdd > 0) {
+                console.log(`Self-healing payment: Adding ${creditsToAdd} credits to ${customerEmail}`);
+                await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
+            }
+        }
+    }
+
     return res.json({ verified: session.payment_status === 'paid', status: session.payment_status });
   } catch (e: any) {
     console.error('Verify Payment Error:', e);
