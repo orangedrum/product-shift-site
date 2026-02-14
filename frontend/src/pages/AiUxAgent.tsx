@@ -219,9 +219,10 @@ const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose
         </button>
         
         <div className="pt-4 border-t border-gray-200 text-center">
-             <button onClick={() => window.location.href = '/waitlist'} className="text-indigo-600 font-bold hover:underline text-sm">
-                Switch to our Agency plan
-             </button>
+             <p className="text-sm text-gray-600">
+                Have your own AI API Keys and want infinite tests? <br/>
+                <button onClick={() => window.location.href = '/waitlist'} className="text-indigo-600 font-bold hover:underline">Switch to our Agency plan</button>
+             </p>
         </div>
       </div>
     </NeoCard>
