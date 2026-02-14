@@ -323,6 +323,12 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           if (session.amount_total === 1400) creditsToAdd = 9;  // $14 = 9 Credits (3 Tests)
           if (session.amount_total === 6900) creditsToAdd = 45; // $69 = 45 Credits (15 Tests)
 
+          // FIX: Ensure customer exists before adding credits
+          const { data: customer } = await supabase.from('customers').select('id').eq('email', customerEmail).maybeSingle();
+          if (!customer) {
+             await supabase.from('customers').insert({ email: customerEmail, credits: 0, plan_status: 'free' });
+          }
+
           if (creditsToAdd > 0) await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
           if (segment) {
             const { data: updatedRows, error: segError } = await supabase.from('customers').update({ segment }).eq('email', customerEmail).select();
@@ -1024,12 +1030,11 @@ async function runTestHandler(req: express.Request, res: express.Response) {
     const { data: customer } = await supabase.from('customers').select('*').eq('email', email).single();
     
     if (customer) {
+      useFreeTier = false; // Logged-in users do not use the anonymous free tier
       if (customer.plan_status === 'active') {
         planType = 'subscription';
-        useFreeTier = false; // Unlimited
-      } else if (customer.credits > 0) {
+      } else {
         planType = 'credit_pack';
-        useFreeTier = false;
         shouldDeductCredit = true;
       }
     }
