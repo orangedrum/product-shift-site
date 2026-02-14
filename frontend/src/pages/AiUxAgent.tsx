@@ -234,7 +234,6 @@ const contentConfig = {
   tech: {
     title: "AI-Powered UX Agent",
     subtitle: "Select 3-5 personas and define their goal to run a simulated usability analysis.",
-    subtitleNote: "* 3 credits = about 1 URL",
     card1Title: "The What",
     card1Subtitle: "What url are we testing today?",
     card2Title: "The Who",
@@ -250,7 +249,6 @@ const contentConfig = {
   smb: {
     title: "Instant Insight Website Tester",
     subtitle: "See your website through the eyes of your visitors to find ways to improve conversion.",
-    subtitleNote: "* 3 credits = about 1 URL",
     card1Title: "The What",
     card1Subtitle: "Which website or URL do you want to check?",
     card2Title: "The Who",
@@ -826,6 +824,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
               </div>
 
+              {/* Credit Note */}
+              <p className="text-[10px] text-gray-500 text-center -mt-2 font-medium">* 3 credits = about 1 URL</p>
+
               {/* 2. Referral/Partner Card Logic */}
               {userSegment === 'tech' ? (
                 // Tech Users see Partner Program (Affiliate)
@@ -854,7 +855,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     <p className="text-[10px] leading-tight mb-3 opacity-90">Share 3 free credits, get 3 free credits when they sign up.</p>
                     <button 
                       onClick={copyReferralLink}
-                      className="w-full bg-white text-pink-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
+                      className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"
                     >
                       {copyButtonText === 'Link Copied!' ? null : <Copy size={12} />} {copyButtonText}
                     </button>
@@ -871,7 +872,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
             <p className="text-lg text-black font-medium">{text.subtitle}</p>
-            <p className="text-xs text-black mt-2 font-medium">{text.subtitleNote}</p>
           </div>
       
           <form onSubmit={handleSubmit} className="space-y-8">
