@@ -722,6 +722,23 @@ app.post('/api/user/verify-email-change', async (req, res) => {
   }
 });
 
+// --- Update Segment Endpoint (Fixes SMB/UX Persistence Bug) ---
+app.post('/api/user/update-segment', authenticateRequest, async (req, res) => {
+  const user = (req as any).user;
+  const { segment } = req.body;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  if (!segment) return res.status(400).json({ error: 'Segment required' });
+
+  try {
+    const { error } = await supabase.from('customers').update({ segment }).eq('email', user.email);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (e: any) {
+    console.error('Update Segment Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // --- Debug: Test Email Endpoint ---
 app.post('/api/admin/test-email', async (req, res) => {
   const { email } = req.body;
@@ -1180,6 +1197,24 @@ async function runTestHandler(req: express.Request, res: express.Response) {
             throw new Error(`Credit deduction failed: ${deductError.message}`);
         }
         creditDeducted = true;
+
+        // LOW BALANCE TRIGGER
+        // Check balance after deduction. If < 3, they can't run another test.
+        const { data: updatedCustomer } = await supabase.from('customers').select('credits').eq('email', userIdentifier).single();
+        if (updatedCustomer && updatedCustomer.credits < 3) {
+             const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+             const lowBalanceHtml = `
+               <div style="text-align: center;">
+                 <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">⚠️ Low Balance Alert</h2>
+                 <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">
+                   You have <strong>${updatedCustomer.credits} credits</strong> remaining.<br>
+                   That's not enough for a full analysis (3 credits). Top up now to keep testing without interruption.
+                 </p>
+                 <a href="${baseUrl}/ai-powered-ux" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Top Up Credits</a>
+               </div>
+             `;
+             sendEmail(userIdentifier, "⚠️ You're running low on credits", lowBalanceHtml, baseUrl).catch(console.error);
+        }
     }
 
     console.log('Sending request to Browserless...');

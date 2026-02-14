@@ -445,7 +445,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
       if (urlSegment) {
         // Only provision segment if user doesn't have one yet in the DB
         if (!customerData?.segment) {
-          await supabase.from('customers').update({ segment: urlSegment }).eq('email', currentSession.user.email);
+          // Use backend endpoint to bypass RLS issues and ensure persistence
+          await fetch('/api/user/update-segment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ segment: urlSegment })
+          });
           if (mounted) setSavedSegment(urlSegment);
         }
       }
@@ -825,7 +830,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
 
               {/* Credit Note */}
-              <p className="text-[10px] text-gray-500 text-center -mt-2 font-medium">* 3 credits = about 1 URL</p>
+              <p className="text-[10px] text-black text-center -mt-2 font-medium">* 3 credits = about 1 URL</p>
 
               {/* 2. Referral/Partner Card Logic */}
               {userSegment === 'tech' ? (
