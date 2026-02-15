@@ -244,8 +244,14 @@ router.post('/test-email', async (req, res) => {
     content = tmpl.body(baseUrl);
   }
 
+  console.log(`📧 Sending Test Email [${template}] to ${email}...`);
   const result = await sendEmail(email, subject, content, baseUrl);
-  if (result.success) return res.json({ success: true });
+  
+  if (result.success) {
+    console.log(`✅ Email sent successfully to ${email}`);
+    return res.json({ success: true });
+  }
+  console.error(`❌ Email failed:`, result.error);
   return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
 });
 

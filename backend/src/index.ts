@@ -22,36 +22,6 @@ const getMagicLinkTemplate = (link: string, baseUrl: string) => `
   </div>
 `;
 
-// --- Email Helper ---
-const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.warn('Resend API key missing. Skipping email.');
-    return { success: false, error: 'Resend API Key missing' };
-  }
-  const fullHtml = getEmailTemplate(html, baseUrl);
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({ from: emailFrom, to, subject, html: fullHtml })
-    });
-    
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.error('Resend API Error:', errorData);
-      return { success: false, error: errorData, from: emailFrom };
-    }
-    return { success: true };
-  } catch (e) {
-    console.error('Failed to send email:', e);
-    return { success: false, error: e, from: emailFrom };
-  }
-};
-
 // Initialize Express App
 const app = express();
 app.set('trust proxy', 1);
