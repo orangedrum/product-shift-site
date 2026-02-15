@@ -19,6 +19,9 @@ const requireAdminKey = (req: express.Request, res: express.Response, next: expr
 // --- Admin Stats Endpoint ---
 router.get('/stats', requireAdminKey, async (req, res) => {
   const excludeTest = req.query.exclude_test_data === 'true';
+  
+  // FORCE FRESH DATA: Disable caching to prevent 304s and ensure filters run
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
   try {
     // 1. Counts (With Filter Support)
@@ -96,6 +99,7 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     const filter = (list: any[]) => excludeTest ? list.filter(item => !isTestEmail(item.email || item.user_identifier || '')) : list;
 
     res.json({
+      _generatedAt: new Date().toISOString(), // Force response difference to break ETag caching
       totalTests: totalTests || 0,
       totalUsers: totalUsers || 0,
       totalRevenue: totalRevenue / 100,
