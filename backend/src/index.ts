@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
-import { runTestHandler } from './analysis-controller';
+import { runTestHandler, generateStructuredData } from './analysis-controller';
 import adminRouter from './routes/admin';
 
 // --- Magic Link Email Template ---
@@ -56,9 +56,6 @@ const sendEmail = async (to: string, subject: string, html: string, baseUrl: str
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors({ origin: true, credentials: true }));
-
-// --- Mount Admin Routes ---
-app.use('/api/admin', adminRouter);
 
 // --- Stripe Webhook ---
 app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
@@ -134,6 +131,9 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
 });
 
 app.use(express.json());
+
+// --- Mount Admin Routes (Must be after express.json) ---
+app.use('/api/admin', adminRouter);
 
 // --- Helper: Parse Markdown to Neo-Brutalist Tailwind HTML ---
 const parseMarkdownToTailwind = (text: string) => {
@@ -447,32 +447,6 @@ app.post('/api/user/update-segment', authenticateRequest, async (req, res) => {
     console.error('Update Segment Error:', e);
     res.status(500).json({ error: e.message });
   }
-});
-
-// --- Debug: Test Email Endpoint ---
-app.post('/api/admin/test-email', async (req, res) => {
-  const { email, template } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email required' });
-
-  // Check Key Presence explicitly for the test endpoint
-  if (!process.env.RESEND_API_KEY) {
-     return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing in Vercel Env Vars.' });
-  }
-
-  const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
-  
-  let subject = 'Test Email from Backend';
-  let content = '<p>If you see this, Resend is working!</p>';
-
-  if (template && (marketingEmails as any)[template]) {
-    const tmpl = (marketingEmails as any)[template];
-    subject = `[TEST] ${tmpl.subject}`;
-    content = tmpl.body(baseUrl);
-  }
-
-  const result = await sendEmail(email, subject, content, baseUrl);
-  if (result.success) return res.json({ success: true });
-  return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
 });
 
 // --- Create Checkout Session ---
@@ -791,158 +765,6 @@ app.post('/api/user/generate-referral', authenticateRequest, async (req, res) =>
     console.error('Generate Referral Error:', e);
     res.status(500).json({ error: 'Failed to generate referral code' });
   }
-});
-
-// --- Admin Stats Endpoint ---
-app.get('/api/admin/stats', async (req, res) => {
-  const authHeader = req.headers.authorization;
-  const secretKey = process.env.ADMIN_SECRET_KEY;
-  const excludeTest = req.query.exclude_test_data === 'true';
-
-  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  try {
-    // 1. Counts (With Filter Support)
-    let testsQuery = supabase.from('analysis_runs').select('*', { count: 'exact', head: true });
-    let usersQuery = supabase.from('customers').select('*', { count: 'exact', head: true });
-
-    if (excludeTest) {
-      // Filter out common test patterns
-      const patterns = ['%test%', '%demo%', '%example%', '%localhost%', '%+smb%'];
-      // Note: Supabase/PostgREST doesn't support OR across columns easily in one line without raw SQL, 
-      // so we focus on the most common identifier: email/user_identifier.
-      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%');
-      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%');
-    }
-
-    const { count: totalTests } = await testsQuery;
-    const { count: totalUsers } = await usersQuery;
-    const { data: revenueData } = await supabase.from('payments').select('amount_total');
-    const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.amount_total || 0), 0) || 0;
-
-    // 2. Lists (Recent Activity)
-    const { data: recentPayments } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
-    const { data: recentErrors } = await supabase.from('error_logs').select('*').order('created_at', { ascending: false }).limit(20);
-    const { data: recentRuns } = await supabase.from('analysis_runs').select('id, url, plan_type, created_at').order('created_at', { ascending: false }).limit(20);
-    const { data: recentSubscribers } = await supabase.from('customers').select('id, email, plan_status, created_at').eq('plan_status', 'active').order('created_at', { ascending: false }).limit(10);
-
-    // 3. Filter Test Data (if requested)
-    const filter = (list: any[]) => excludeTest ? list.filter(item => !isTestEmail(item.email || item.user_identifier || '')) : list;
-
-    res.json({
-      totalTests: totalTests || 0,
-      totalUsers: totalUsers || 0,
-      totalRevenue: totalRevenue / 100,
-      recentPayments: filter(recentPayments || []),
-      recentErrors: recentErrors || [], // Errors usually don't have emails directly, or we keep them for debugging
-      recentRuns: recentRuns || [], // Runs might need user_identifier lookup to filter perfectly, but we'll return raw for now
-      recentSubscribers: filter(recentSubscribers || [])
-    });
-  } catch (e: any) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// --- Admin: Coupons ---
-app.get('/api/admin/coupons', async (req, res) => {
-  // Add auth check here (omitted for brevity, assume same as stats)
-  const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
-  res.json(data || []);
-});
-
-app.post('/api/admin/create-coupon', async (req, res) => {
-  const { code, credits } = req.body;
-  const { error } = await supabase.from('coupons').insert({ code: code.toUpperCase(), credits });
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ success: true });
-});
-
-app.delete('/api/admin/coupons/:id', async (req, res) => {
-  const { error } = await supabase.from('coupons').delete().eq('id', req.params.id);
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ success: true });
-});
-
-// --- Admin: Test Users ---
-app.get('/api/admin/test-users', async (req, res) => {
-  // Fetch all users, then filter for test patterns in JS (simpler than complex SQL regex)
-  const { data } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
-  const testUsers = (data || []).filter(u => isTestEmail(u.email));
-  res.json(testUsers);
-});
-
-app.post('/api/admin/delete-users', async (req, res) => {
-  const { users } = req.body; // Expects array of user objects
-  if (!users || !Array.isArray(users)) return res.status(400).json({ error: 'Invalid users list' });
-  
-  const ids = users.map(u => u.id);
-  const emails = users.map(u => u.email);
-
-  // Delete from DB
-  await supabase.from('customers').delete().in('id', ids);
-  await supabase.from('daily_usage').delete().in('user_identifier', emails);
-  // Note: Auth user deletion requires service role key and admin API, handled below if possible
-  // For now, we just clean the DB records.
-  
-  res.json({ success: true, deletedCount: ids.length });
-});
-
-// --- Admin: Invite User ---
-app.post('/api/admin/invite-user', async (req, res) => {
-  const { email, credits, segment } = req.body;
-  
-  // 1. Create/Update Customer
-  const { error } = await supabase.from('customers').upsert({ 
-    email, 
-    credits: credits || 3, 
-    segment: segment || 'tech',
-    plan_status: 'free'
-  }, { onConflict: 'email' });
-
-  if (error) return res.status(500).json({ error: error.message });
-
-  // 2. Send Invite Email
-  const baseUrl = 'https://www.theproductshift.com';
-  const html = `
-    <p>You've been invited to try User Mirror!</p>
-    <p>We've loaded your account with <strong>${credits} credits</strong>.</p>
-    <a href="${baseUrl}/login?segment=${segment}" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Accept Invite</a>
-  `;
-  await sendEmail(email, "You're invited to User Mirror", html, baseUrl);
-
-  res.json({ success: true, message: 'Invite sent' });
-});
-
-// --- Admin: Compensate User ---
-app.post('/api/admin/compensate-user', async (req, res) => {
-  const { email, credits } = req.body;
-  await supabase.rpc('add_credits', { user_email: email, amount: credits || 2 });
-  
-  // Notify user
-  const baseUrl = 'https://www.theproductshift.com';
-  const html = `<p>We've added <strong>${credits} credits</strong> to your account as an apology for the recent issue.</p>`;
-  await sendEmail(email, "Credits Added: We're sorry!", html, baseUrl);
-
-  res.json({ success: true });
-});
-
-// --- Admin: Refund (Stub) ---
-app.post('/api/admin/refund', async (req, res) => {
-  // In a real app, this would call Stripe API
-  // For now, we just mark it in DB
-  const { paymentId } = req.body;
-  const { error } = await supabase.from('payments').update({ status: 'refunded' }).eq('id', paymentId);
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ success: true });
-});
-
-// --- Admin: Delete Error Log ---
-app.delete('/api/admin/errors/:id', async (req, res) => {
-  const { error } = await supabase.from('error_logs').delete().eq('id', req.params.id);
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ success: true });
 });
 
 // --- User: Redeem Coupon ---

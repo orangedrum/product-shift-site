@@ -310,13 +310,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     if (!testEmailTarget) return alert('Please enter a target email address');
     setTestEmailLoading(template);
     try {
-      await fetch('/api/admin/test-email', {
+      const res = await fetch('/api/admin/test-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: testEmailTarget, template })
       });
+      
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.details || 'Failed to send email');
+      }
       alert(`Sent ${template} email to ${testEmailTarget}!`);
-    } catch (e) { console.error(e); alert('Failed to send test email'); }
+    } catch (e: any) { console.error(e); alert(`Failed: ${e.message}`); }
     setTestEmailLoading(null);
   };
 
