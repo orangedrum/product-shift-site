@@ -44,6 +44,11 @@ router.get('/stats', requireAdminKey, async (req, res) => {
       ? allPayments.filter(p => !isTestEmail(p.email)) 
       : allPayments;
 
+    // DEBUG: Log the contributors to revenue to identify the "Ghost" data
+    if (excludeTest) {
+        console.log('💰 Revenue Contributors:', payments.map(p => `${p.email} ($${p.amount_total/100})`));
+    }
+
     const totalRevenue = payments.reduce((sum, p) => sum + (p.amount_total || 0), 0);
     
     // Daily Revenue
