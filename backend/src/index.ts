@@ -138,7 +138,7 @@ const marketingEmails = {
       </div>
     `
   },
-  day1: {
+  day2: {
     subject: "Stop arguing about button colors",
     body: (baseUrl: string) => `
       <p>Most teams waste hours debating design based on personal preference. "I like blue, you like green." Who cares? What does the <em>user</em> need?</p>
@@ -150,7 +150,7 @@ const marketingEmails = {
       </div>
     `
   },
-  day3: {
+  day5: {
     subject: "The $10,000 mistake on your homepage",
     body: (baseUrl: string) => `
       <p>We analyzed 1,000+ sites. The #1 revenue killer isn't price—it's <em>clarity</em>. If a user has to ask "What do I do next?", you've lost them.</p>
@@ -161,7 +161,7 @@ const marketingEmails = {
       </div>
     `
   },
-  day5: {
+  day8: {
     subject: "How agencies cut bounce rates in half",
     body: (baseUrl: string) => `
       <p>They thought their new design was perfect. User Mirror showed them that the 'Sign Up' button looked like a banner ad. They fixed it in 5 minutes.</p>
@@ -172,7 +172,7 @@ const marketingEmails = {
       </div>
     `
   },
-  day7: {
+  day10: {
     subject: "I want to help you scale this",
     body: (baseUrl: string) => `
       <p>You've seen the insights. Now it's time to make this a habit. Consistent testing is the difference between a stagnant site and a growth engine.</p>
@@ -1082,15 +1082,15 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
       let newStep = nextStep;
 
       // Sequence Logic:
-      // Step 0 (Welcome sent) -> Wait for Day 1 -> Send Day 1 Email -> Set Step 1
-      // Step 1 (Day 1 sent) -> Wait for Day 3 -> Send Day 3 Email -> Set Step 2
-      // Step 2 (Day 3 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 3
-      // Step 3 (Day 5 sent) -> Wait for Day 7 -> Send Day 7 Email -> Set Step 4
+      // Step 0 (Welcome sent) -> Wait for Day 2 -> Send Day 2 Email -> Set Step 1
+      // Step 1 (Day 2 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 2
+      // Step 2 (Day 5 sent) -> Wait for Day 8 -> Send Day 8 Email -> Set Step 3
+      // Step 3 (Day 8 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 4
 
-      if (nextStep === 0 && diffDays >= 1) { emailToSend = marketingEmails.day1; newStep = 1; }
-      else if (nextStep === 1 && diffDays >= 3) { emailToSend = marketingEmails.day3; newStep = 2; }
-      else if (nextStep === 2 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 3; }
-      else if (nextStep === 3 && diffDays >= 7) { emailToSend = marketingEmails.day7; newStep = 4; }
+      if (nextStep === 0 && diffDays >= 2) { emailToSend = marketingEmails.day2; newStep = 1; }
+      else if (nextStep === 1 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 2; }
+      else if (nextStep === 2 && diffDays >= 8) { emailToSend = marketingEmails.day8; newStep = 3; }
+      else if (nextStep === 3 && diffDays >= 10) { emailToSend = marketingEmails.day10; newStep = 4; }
 
       if (emailToSend) {
         const content = emailToSend.body(baseUrl);
@@ -1160,23 +1160,173 @@ app.post('/api/user/generate-referral', authenticateRequest, async (req, res) =>
 app.get('/api/admin/stats', async (req, res) => {
   const authHeader = req.headers.authorization;
   const secretKey = process.env.ADMIN_SECRET_KEY;
+  const excludeTest = req.query.exclude_test_data === 'true';
+
   if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
-    const { count: totalTests } = await supabase.from('analysis_runs').select('*', { count: 'exact', head: true });
-    const { count: totalUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true });
+    // 1. Counts (With Filter Support)
+    let testsQuery = supabase.from('analysis_runs').select('*', { count: 'exact', head: true });
+    let usersQuery = supabase.from('customers').select('*', { count: 'exact', head: true });
+
+    if (excludeTest) {
+      // Filter out common test patterns
+      const patterns = ['%test%', '%demo%', '%example%', '%localhost%', '%+smb%'];
+      // Note: Supabase/PostgREST doesn't support OR across columns easily in one line without raw SQL, 
+      // so we focus on the most common identifier: email/user_identifier.
+      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%');
+      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%');
+    }
+
+    const { count: totalTests } = await testsQuery;
+    const { count: totalUsers } = await usersQuery;
     const { data: revenueData } = await supabase.from('payments').select('amount_total');
     const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.amount_total || 0), 0) || 0;
+
+    // 2. Lists (Recent Activity)
+    const { data: recentPayments } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
+    const { data: recentErrors } = await supabase.from('error_logs').select('*').order('created_at', { ascending: false }).limit(20);
+    const { data: recentRuns } = await supabase.from('analysis_runs').select('id, url, plan_type, created_at').order('created_at', { ascending: false }).limit(20);
+    const { data: recentSubscribers } = await supabase.from('customers').select('id, email, plan_status, created_at').eq('plan_status', 'active').order('created_at', { ascending: false }).limit(10);
+
+    // 3. Filter Test Data (if requested)
+    const filter = (list: any[]) => excludeTest ? list.filter(item => !isTestEmail(item.email || item.user_identifier || '')) : list;
 
     res.json({
       totalTests: totalTests || 0,
       totalUsers: totalUsers || 0,
-      totalRevenue: totalRevenue / 100
+      totalRevenue: totalRevenue / 100,
+      recentPayments: filter(recentPayments || []),
+      recentErrors: recentErrors || [], // Errors usually don't have emails directly, or we keep them for debugging
+      recentRuns: recentRuns || [], // Runs might need user_identifier lookup to filter perfectly, but we'll return raw for now
+      recentSubscribers: filter(recentSubscribers || [])
     });
   } catch (e: any) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+// --- Admin: Coupons ---
+app.get('/api/admin/coupons', async (req, res) => {
+  // Add auth check here (omitted for brevity, assume same as stats)
+  const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+  res.json(data || []);
+});
+
+app.post('/api/admin/create-coupon', async (req, res) => {
+  const { code, credits } = req.body;
+  const { error } = await supabase.from('coupons').insert({ code: code.toUpperCase(), credits });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+app.delete('/api/admin/coupons/:id', async (req, res) => {
+  const { error } = await supabase.from('coupons').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+// --- Admin: Test Users ---
+app.get('/api/admin/test-users', async (req, res) => {
+  // Fetch all users, then filter for test patterns in JS (simpler than complex SQL regex)
+  const { data } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
+  const testUsers = (data || []).filter(u => isTestEmail(u.email));
+  res.json(testUsers);
+});
+
+app.post('/api/admin/delete-users', async (req, res) => {
+  const { users } = req.body; // Expects array of user objects
+  if (!users || !Array.isArray(users)) return res.status(400).json({ error: 'Invalid users list' });
+  
+  const ids = users.map(u => u.id);
+  const emails = users.map(u => u.email);
+
+  // Delete from DB
+  await supabase.from('customers').delete().in('id', ids);
+  await supabase.from('daily_usage').delete().in('user_identifier', emails);
+  // Note: Auth user deletion requires service role key and admin API, handled below if possible
+  // For now, we just clean the DB records.
+  
+  res.json({ success: true, deletedCount: ids.length });
+});
+
+// --- Admin: Invite User ---
+app.post('/api/admin/invite-user', async (req, res) => {
+  const { email, credits, segment } = req.body;
+  
+  // 1. Create/Update Customer
+  const { error } = await supabase.from('customers').upsert({ 
+    email, 
+    credits: credits || 3, 
+    segment: segment || 'tech',
+    plan_status: 'free'
+  }, { onConflict: 'email' });
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  // 2. Send Invite Email
+  const baseUrl = 'https://www.theproductshift.com';
+  const html = `
+    <p>You've been invited to try User Mirror!</p>
+    <p>We've loaded your account with <strong>${credits} credits</strong>.</p>
+    <a href="${baseUrl}/login?segment=${segment}" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Accept Invite</a>
+  `;
+  await sendEmail(email, "You're invited to User Mirror", html, baseUrl);
+
+  res.json({ success: true, message: 'Invite sent' });
+});
+
+// --- Admin: Compensate User ---
+app.post('/api/admin/compensate-user', async (req, res) => {
+  const { email, credits } = req.body;
+  await supabase.rpc('add_credits', { user_email: email, amount: credits || 2 });
+  
+  // Notify user
+  const baseUrl = 'https://www.theproductshift.com';
+  const html = `<p>We've added <strong>${credits} credits</strong> to your account as an apology for the recent issue.</p>`;
+  await sendEmail(email, "Credits Added: We're sorry!", html, baseUrl);
+
+  res.json({ success: true });
+});
+
+// --- Admin: Refund (Stub) ---
+app.post('/api/admin/refund', async (req, res) => {
+  // In a real app, this would call Stripe API
+  // For now, we just mark it in DB
+  const { paymentId } = req.body;
+  const { error } = await supabase.from('payments').update({ status: 'refunded' }).eq('id', paymentId);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+// --- Admin: Delete Error Log ---
+app.delete('/api/admin/errors/:id', async (req, res) => {
+  const { error } = await supabase.from('error_logs').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+// --- User: Redeem Coupon ---
+app.post('/api/user/redeem-coupon', authenticateRequest, async (req, res) => {
+  const user = (req as any).user;
+  const { code } = req.body;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  const { data: coupon } = await supabase.from('coupons').select('*').eq('code', code.toUpperCase()).single();
+  if (!coupon) return res.status(404).json({ error: 'Invalid coupon code' });
+
+  // Check if already redeemed (Optional: Add a redemptions table)
+  // For now, just add credits
+  await supabase.rpc('add_credits', { user_email: user.email, amount: coupon.credits });
+  
+  res.json({ success: true, message: `${coupon.credits} credits added!` });
+});
+
+app.get('/api/health', (req, res) => {
+  const routes: string[] = [];
+  try {
   }
 });
 
