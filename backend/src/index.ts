@@ -115,6 +115,9 @@ const getEmailTemplate = (content: string, baseUrl: string = 'https://www.thepro
     <div style="padding: 40px;">
       ${content}
       <hr style="border: none; border-top: 2px solid #f3f4f6; margin: 32px 0;" />
+      <p style="font-size: 12px; color: #6b7280; text-align: center; margin: 0 0 8px 0;">
+        <a href="${baseUrl}/account" style="color: #6b7280; text-decoration: underline;">Unsubscribe / Manage Preferences</a>
+      </p>
       <p style="font-size: 12px; color: #6b7280; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} The Product Shift. All rights reserved.</p>
     </div>
   </div>
