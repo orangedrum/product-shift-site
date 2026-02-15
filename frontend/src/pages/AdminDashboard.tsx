@@ -68,7 +68,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       }
 
       try {
-        const res = await fetch(`/api/admin/stats?exclude_test_data=${hideTestUsers}`, {
+        const res = await fetch(`/api/admin/stats?exclude_test_data=${hideTestUsers}&t=${Date.now()}`, {
           headers: { Authorization: `Bearer ${secretKey}` },
         });
         if (!res.ok) {

@@ -166,6 +166,9 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(cors({ origin: true, credentials: true }));
 
+// --- Mount Admin Routes ---
+app.use('/api/admin', adminRouter);
+
 // --- Stripe Webhook ---
 app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
   const sig = req.headers['stripe-signature'];

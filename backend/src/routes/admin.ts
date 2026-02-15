@@ -22,6 +22,9 @@ router.get('/stats', requireAdminKey, async (req, res) => {
   
   // FORCE FRESH DATA: Disable caching to prevent 304s and ensure filters run
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
 
   try {
     // 1. Counts (With Filter Support)
@@ -204,6 +207,25 @@ router.delete('/errors/:id', requireAdminKey, async (req, res) => {
   const { error } = await supabase.from('error_logs').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
+});
+
+// --- Admin Diagnostic Endpoint ---
+router.get('/diagnose-link', requireAdminKey, async (req, res) => {
+  try {
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: 'diagnostic@test.com',
+      options: { redirectTo: 'https://www.theproductshift.com/diagnostic-redirect' }
+    });
+
+    if (linkError) throw linkError;
+    const rawLink = linkData.properties.action_link;
+    const isCorrect = !rawLink.includes('app.theproductshift.com');
+
+    res.json({ message: "Supabase Link Diagnostic", raw_action_link: rawLink, is_configured_correctly: isCorrect });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // --- Admin: Test Email (Debug) ---
