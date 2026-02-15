@@ -26,8 +26,16 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     let usersQuery = supabase.from('customers').select('*', { count: 'exact', head: true });
 
     if (excludeTest) {
-      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%');
-      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%');
+      const patterns = ['%test%', '%demo%', '%example%', '%localhost%', '%+smb%'];
+      
+      // Apply strict filters to counts to match isTestEmail logic
+      patterns.forEach(p => {
+        usersQuery = usersQuery.not('email', 'ilike', p);
+      });
+      
+      patterns.forEach(p => {
+        testsQuery = testsQuery.not('user_identifier', 'ilike', p);
+      });
     }
 
     const { count: totalTests } = await testsQuery;
@@ -37,7 +45,10 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     // We filter in memory or SQL. For consistency with isTestEmail, we'll fetch relevant fields and filter.
     let paymentQuery = supabase.from('payments').select('amount_total, created_at, email');
     if (excludeTest) {
-      paymentQuery = paymentQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%+smb%');
+      const patterns = ['%test%', '%demo%', '%example%', '%localhost%', '%+smb%'];
+      patterns.forEach(p => {
+        paymentQuery = paymentQuery.not('email', 'ilike', p);
+      });
     }
     const { data: allPayments } = await paymentQuery;
 
