@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake, Palette, EyeOff, Eye } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
@@ -412,10 +413,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
 
       {/* --- TOP METRICS ROW --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <NeoCard title="Total Revenue">
+        <NeoCard title="Revenue (Daily / Total)">
           <div className="flex items-center gap-2 text-green-600">
             <DollarSign size={24} />
-            <span className="text-2xl font-black">${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}</span>
+            <div className="flex flex-col">
+              <span className="text-2xl font-black">${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}</span>
+              <span className="text-xs text-green-800 font-bold">+${stats.dailyRevenue ? stats.dailyRevenue.toFixed(2) : '0.00'} today</span>
+            </div>
           </div>
         </NeoCard>
         
@@ -445,9 +449,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
 
         <NeoCard title="Sales Breakdown">
           <div className="text-sm space-y-1">
-            <div className="flex justify-between"><span>3-Packs:</span> <strong>{stats.salesBreakdown?.pack3 || 0}</strong></div>
-            <div className="flex justify-between"><span>15-Packs:</span> <strong>{stats.salesBreakdown?.pack15 || 0}</strong></div>
-            <div className="flex justify-between"><span>Subscriptions:</span> <strong>{stats.salesBreakdown?.starter || 0}</strong></div>
+            <div className="flex justify-between"><span>Quick Check (9 Credits):</span> <strong>{stats.salesBreakdown?.pack3 || 0}</strong></div>
+            <div className="flex justify-between"><span>Pro Pack (45 Credits):</span> <strong>{stats.salesBreakdown?.pack15 || 0}</strong></div>
+            <div className="flex justify-between"><span>Agency Plan:</span> <strong>{stats.salesBreakdown?.starter || 0}</strong></div>
+          </div>
+        </NeoCard>
+      </div>
+
+      {/* --- REVENUE CHART --- */}
+      <div className="mb-8">
+        <NeoCard title="Revenue Trend (Last 30 Days)">
+          <div className="h-64 w-full">
+            {stats.chartData && stats.chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="date" tick={{fontSize: 12}} />
+                  <YAxis tick={{fontSize: 12}} tickFormatter={(value) => `$${value}`} />
+                  <Tooltip formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']} />
+                  <Bar dataKey="amount" fill="#10b981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400 italic">
+                No revenue data available for chart.
+              </div>
+            )}
           </div>
         </NeoCard>
       </div>

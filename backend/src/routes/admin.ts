@@ -32,8 +32,52 @@ router.get('/stats', requireAdminKey, async (req, res) => {
 
     const { count: totalTests } = await testsQuery;
     const { count: totalUsers } = await usersQuery;
-    const { data: revenueData } = await supabase.from('payments').select('amount_total');
-    const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.amount_total || 0), 0) || 0;
+    
+    // Fetch all payments to calculate breakdown and daily stats
+    // We filter in memory or SQL. For consistency with isTestEmail, we'll fetch relevant fields and filter.
+    let paymentQuery = supabase.from('payments').select('amount_total, created_at, email');
+    if (excludeTest) {
+      paymentQuery = paymentQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%+smb%');
+    }
+    const { data: allPayments } = await paymentQuery;
+
+    const payments = allPayments || [];
+    const totalRevenue = payments.reduce((sum, p) => sum + (p.amount_total || 0), 0);
+    
+    // Daily Revenue
+    const today = new Date().toISOString().split('T')[0];
+    const dailyRevenue = payments
+      .filter(p => p.created_at.startsWith(today))
+      .reduce((sum, p) => sum + (p.amount_total || 0), 0);
+
+    // Sales Breakdown
+    const salesBreakdown = { pack3: 0, pack15: 0, starter: 0 };
+    payments.forEach(p => {
+      if (p.amount_total === 1400) salesBreakdown.pack3++;
+      else if (p.amount_total === 6900) salesBreakdown.pack15++;
+      else if (p.amount_total === 2900) salesBreakdown.starter++;
+    });
+
+    // Revenue Chart (Last 30 Days)
+    const revenueChart: Record<string, number> = {};
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    payments.forEach(p => {
+      const date = p.created_at.split('T')[0];
+      if (new Date(date) >= thirtyDaysAgo) {
+        revenueChart[date] = (revenueChart[date] || 0) + (p.amount_total / 100);
+      }
+    });
+
+    // Fill in missing days with 0 for the chart
+    const chartData = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      chartData.unshift({ date: dateStr.slice(5), amount: revenueChart[dateStr] || 0 }); // slice(5) for MM-DD format
+    }
 
     // 2. Lists (Recent Activity)
     const { data: recentPayments } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
@@ -48,6 +92,9 @@ router.get('/stats', requireAdminKey, async (req, res) => {
       totalTests: totalTests || 0,
       totalUsers: totalUsers || 0,
       totalRevenue: totalRevenue / 100,
+      dailyRevenue: dailyRevenue / 100,
+      salesBreakdown,
+      chartData,
       recentPayments: filter(recentPayments || []),
       recentErrors: recentErrors || [],
       recentRuns: recentRuns || [],
