@@ -1,0 +1,278 @@
+import { Request, Response } from 'express';
+import { supabase, sendEmail, delay } from './services';
+import { generateContentWithFallback } from './ai-service';
+
+// --- Types ---
+type ScrapedData = {
+  title: string;
+  headings: { tag: string; text: string }[];
+  bodyText: string;
+  screenshot?: string;
+};
+
+type Persona = {
+  id: string;
+  name: string;
+  description: string;
+  avatar: string;
+};
+
+// --- Personas Configuration ---
+const personas: Record<string, Persona> = {
+  'alex-busy-pro': { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
+  'sam-college-student': { id: 'sam-college-student', name: 'Sam', description: 'a budget-conscious college student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
+  'charlie-family-worker': { id: 'charlie-family-worker', name: 'Charlie', description: 'a masculine, patriotic blue-collar worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
+  'beth-homemaker': { id: 'beth-homemaker', name: 'Beth', description: 'a 45+ family-oriented homemaker with poor eyesight', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
+  'sarah-social-shopper': { id: 'sarah-social-shopper', name: 'Sarah', description: 'a social influencer and avid shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
+  'elizabeth-wealthy-elite': { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', description: 'a highly educated and wealthy individual with deep connections', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
+  'marcus-c-suite': { id: 'marcus-c-suite', name: 'Marcus', description: 'a C-level executive of a Fortune 500 company', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
+  'linda-business-owner': { id: 'linda-business-owner', name: 'Linda', description: 'a business owner with 10 employees', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' },
+};
+
+// --- Helper Functions ---
+
+export const generateStructuredData = (url: string, title: string, scores: any, summary: string) => {
+  const cleanSummary = summary.replace(/[#*]/g, '').split('\n').filter(line => line.trim().length > 0).slice(0, 3).join(' ');
+  return {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    "itemReviewed": { "@type": "WebSite", "name": title, "url": url },
+    "reviewRating": { "@type": "Rating", "ratingValue": scores.usability, "bestRating": "100", "worstRating": "0" },
+    "author": { "@type": "Organization", "name": "Product Shift AI" },
+    "reviewBody": cleanSummary,
+    "datePublished": new Date().toISOString()
+  };
+};
+
+const generateUserSession = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
+  const prompt = `
+    You are facilitating a usability test session.
+    **Context:**
+    - **Persona:** ${persona.name} (${persona.description})
+    - **Goal:** "${goal}"
+    - **URL:** ${url}
+    **Input Data:**
+    - Page Title: "${data.title}"
+    - Headings: ${JSON.stringify(data.headings.map(h => h.text))}
+    - Introductory Body Text: "${data.bodyText}"
+    - [Visual Screenshot Attached]
+    **Instructions:**
+    Adopt the persona of ${persona.name}. You are currently looking at the webpage.
+    Narrate your experience out loud. Be critical, impatient, and honest.
+    **Required Output Format:**
+    |||USER_MOOD|||
+    (One word: Positive, Neutral, or Negative)
+    |||USER_BUBBLE|||
+    (A single, genuine, emotional sentence connecting your specific problem/pain point to the solution you see on the page.)
+    |||USER_DETAILS|||
+    ### 1. My Experience
+    (2-3 sentences on your immediate reaction.)
+    ### 2. Points of Friction
+    (Specific things that confused or annoyed you.)
+    ### 3. What I Think This Is
+    (Define the product based ONLY on what you see.)
+  `;
+  return generateContentWithFallback(prompt, data.screenshot);
+};
+
+const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
+  let footerContent = `
+    ---
+    **The Product Shift** | AI-Powered UX Audits
+    Get your own report at www.theproductshift.com/landingpg-aiuxagent
+  `;
+  if (isDemo) {
+    footerContent = `
+    ---
+    **Ready for more?** Unlock the full potential of AI-powered UX research.
+    Use code **EARLYBIRD30** for 30% off your first month of Pro.
+    Upgrade Now at www.theproductshift.com/landingpg-aiuxagent
+    `;
+  }
+  const prompt = `
+    You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users.
+    **Required Output Format:**
+    ### TEST RESULT: [PASS / FAIL]
+    (Brief explanation).
+    ### Visual & Heuristic Analysis
+    (Comment on visual hierarchy, layout, and trust signals.)
+    ### Actionable Recommendations
+    - **ISSUE:** [Description]
+    - **FIX:** [Action]
+    |||SCORES_JSON|||
+    { "usability": 85, "desirability": 70, "clarity": 90 }
+    **Context:**
+    - **URL:** ${url}
+    - [Visual Screenshot Attached]
+    **User Session Transcripts:**
+    ${sessions.map(s => `--- USER: ${s.persona.name} ---\n${s.output}`).join('\n')}
+    **IMPORTANT:** Do not use markdown tables.
+    **PDF FOOTER:**
+    ${footerContent}
+  `;
+  return generateContentWithFallback(prompt, data.screenshot);
+};
+
+// --- Main Handler ---
+export const runTestHandler = async (req: Request, res: Response) => {
+  const { url, personaIds, goal, email } = req.body;
+
+  if (!url || !personaIds || !goal) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let userIdentifier = req.ip || 'unknown';
+  let planType = 'free';
+  let revenue = 0;
+  let useFreeTier = true;
+  let shouldDeductCredit = false;
+  let runId: string | null = null;
+  let creditDeducted = false;
+
+  if (email && typeof email === 'string') {
+    const safeEmail = email.trim().toLowerCase();
+    userIdentifier = safeEmail;
+    useFreeTier = false;
+
+    let { data: customer } = await supabase.from('customers').select('*').eq('email', safeEmail).maybeSingle();
+    
+    if (!customer) {
+        const { data: newCust, error: createErr } = await supabase
+            .from('customers')
+            .insert({ email: safeEmail, credits: 3, plan_status: 'free' })
+            .select()
+            .single();
+        if (!createErr) customer = newCust;
+    }
+
+    if (customer && customer.plan_status === 'active') {
+      planType = 'subscription';
+    } else {
+      planType = 'credit_pack';
+      shouldDeductCredit = true;
+    }
+  }
+
+  // --- TEST MODE BYPASS ---
+  if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
+    if (shouldDeductCredit) {
+        const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
+        if (deductError) return res.status(402).json({ error: 'Insufficient Credits', details: 'Please top up to run this test.' });
+    }
+
+    const scores = { usability: 88, desirability: 92, clarity: 95 };
+    const expertReport = '### TEST RESULT: PASS\n**Overall Score:** 92/100\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.';
+    const userSessions = [{
+        persona: 'Alex',
+        avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra',
+        analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||I instantly get what this is. The value prop is super clear.|||USER_DETAILS|||### 1. My Experience\nI landed on the page and immediately understood the offering. The headline "AI-Powered UX Audits" is punchy. I feel confident this tool could save me time.\n\n### 2. Points of Friction\nI\'m not sure about the pricing structure. It says "Pro" but doesn\'t list a price upfront. That\'s a bit annoying.\n\n### 3. What I Think This Is\nIt\'s an automated user testing tool that uses AI agents instead of real people to give quick feedback.',
+        description: 'a busy professional with two kids under 5',
+        personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' }
+    }];
+
+    const seoSchema = generateStructuredData(url, 'Test Mode: The Product Shift', scores, expertReport);
+    return res.json({
+        message: 'Analysis Complete.',
+        reportId: 'test-mode-dummy-id',
+        title: 'Test Mode: The Product Shift',
+        url: url,
+        screenshot: '', 
+        userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.description })),
+        expertReport,
+        scores,
+        seoSchema
+    });
+  }
+
+  if (useFreeTier) {
+    const today = new Date().toISOString().split('T')[0];
+    const { data: usage } = await supabase.from('daily_usage').select('count').eq('user_identifier', userIdentifier).eq('usage_date', today).single();
+    if (usage && usage.count >= 1) return res.status(402).json({ error: 'Insufficient Credits', details: 'You have reached your daily free limit. Please upgrade or buy a credit pack.' });
+  }
+
+  try {
+    const analysisPromise = (async () => {
+      if (shouldDeductCredit) {
+          const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
+          if (deductError) throw new Error(`Credit deduction failed: ${deductError.message}`);
+          creditDeducted = true;
+      }
+
+      const browserlessToken = process.env.BROWSERLESS_TOKEN;
+      if (!browserlessToken) throw new Error('BROWSERLESS_TOKEN is missing in environment variables.');
+
+      const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken.trim()}`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: `export default async function({ page, context }) {
+            const url = context.url;
+            await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+            const title = await page.title();
+            const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
+            const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText })));
+            const screenshotBuffer = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false });
+            return { data: { title, bodyText, headings, screenshot: screenshotBuffer.toString('base64') }, type: 'application/json' };
+          };`,
+          context: { url }
+        })
+      });
+
+      if (!response.ok) throw new Error(`Browserless Error: ${response.status} - ${await response.text()}`);
+      const jsonResponse = await response.json();
+      const result = jsonResponse.data;
+
+      const userSessions: any[] = [];
+      for (const pId of personaIds) {
+        const activePersona = personas[pId] || personas['alex-busy-pro'];
+        if (activePersona) {
+          if (userSessions.length > 0) await delay(1000);
+          const sessionOutput = await generateUserSession(result, activePersona, goal, url);
+          const moodMatch = sessionOutput.match(/\|\|\|USER_MOOD\|\|\|\s*(.*)/);
+          const mood = moodMatch ? moodMatch[1].trim() : 'Neutral';
+          let avatarUrl = activePersona.avatar;
+          if (mood.toLowerCase().includes('negative')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=sad`;
+          if (mood.toLowerCase().includes('positive')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=smile`;
+
+          userSessions.push({ persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona });
+        }
+      }
+
+      await delay(1000);
+      let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, false);
+      let scores = { usability: 0, desirability: 0, clarity: 0 };
+      if (rawExpertReport.includes('|||SCORES_JSON|||')) {
+        const parts = rawExpertReport.split('|||SCORES_JSON|||');
+        try { scores = JSON.parse(parts[1].match(/\{[\s\S]*?\}/)?.[0] || parts[1].trim()); } catch (e) {}
+        rawExpertReport = parts[0];
+      }
+
+      const overallScore = Math.round((scores.usability + scores.desirability + scores.clarity) / 3);
+      const calculatedResult = overallScore >= 60 ? 'PASS' : 'FAIL';
+      rawExpertReport = rawExpertReport.replace(/### TEST RESULT:.*(\n|$)/i, `### TEST RESULT: ${calculatedResult}\n**Overall Score:** ${overallScore}/100\n`);
+
+      if (useFreeTier) {
+        const today = new Date().toISOString().split('T')[0];
+        await supabase.from('daily_usage').upsert({ user_identifier: userIdentifier, usage_date: today, count: 1 });
+      }
+
+      const { data: runLog } = await supabase.from('analysis_runs').insert({
+        user_identifier: userIdentifier, url: url, persona_count: personaIds.length, estimated_cost: 0, is_demo: false, plan_type: planType, revenue: revenue,
+        report_data: { title: result.title, screenshot: result.screenshot, url: url, scores, expertReport: rawExpertReport, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })) }
+      }).select('id').single();
+      
+      if (runLog) runId = runLog.id;
+      const seoSchema = generateStructuredData(url, result.title, scores, rawExpertReport);
+
+      return { message: 'Analysis Complete.', reportId: runId, title: result.title, url: url, screenshot: result.screenshot, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })), expertReport: rawExpertReport, scores, seoSchema };
+    })();
+
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 58000));
+    const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
+    res.json(finalResponse);
+
+  } catch (error: any) {
+    if (creditDeducted) await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
+    res.status(500).json({ error: 'Analysis Failed', details: error.message, usageCounted: false });
+  }
+};
