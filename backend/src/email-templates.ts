@@ -46,7 +46,7 @@ export const marketingEmails = {
       </div>
     `
   },
-  day2: {
+  day1: {
     subject: "Stop arguing about button colors",
     body: (baseUrl: string) => `
       <p>Most teams waste hours debating design based on personal preference. "I like blue, you like green." Who cares? What does the <em>user</em> need?</p>
@@ -58,7 +58,7 @@ export const marketingEmails = {
       </div>
     `
   },
-  day5: {
+  day3: {
     subject: "The $10,000 mistake on your homepage",
     body: (baseUrl: string) => `
       <p>We analyzed 1,000+ sites. The #1 revenue killer isn't price—it's <em>clarity</em>. If a user has to ask "What do I do next?", you've lost them.</p>
@@ -69,7 +69,7 @@ export const marketingEmails = {
       </div>
     `
   },
-  day8: {
+  day5: {
     subject: "How agencies cut bounce rates in half",
     body: (baseUrl: string) => `
       <p>They thought their new design was perfect. User Mirror showed them that the 'Sign Up' button looked like a banner ad. They fixed it in 5 minutes.</p>
@@ -80,7 +80,7 @@ export const marketingEmails = {
       </div>
     `
   },
-  day10: {
+  day7: {
     subject: "I want to help you scale this",
     body: (baseUrl: string) => `
       <p>You've seen the insights. Now it's time to make this a habit. Consistent testing is the difference between a stagnant site and a growth engine.</p>

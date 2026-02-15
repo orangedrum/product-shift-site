@@ -698,10 +698,10 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
       // Step 2 (Day 5 sent) -> Wait for Day 8 -> Send Day 8 Email -> Set Step 3
       // Step 3 (Day 8 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 4
 
-      if (nextStep === 0 && diffDays >= 2) { emailToSend = marketingEmails.day2; newStep = 1; }
-      else if (nextStep === 1 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 2; }
-      else if (nextStep === 2 && diffDays >= 8) { emailToSend = marketingEmails.day8; newStep = 3; }
-      else if (nextStep === 3 && diffDays >= 10) { emailToSend = marketingEmails.day10; newStep = 4; }
+      if (nextStep === 0 && diffDays >= 1) { emailToSend = marketingEmails.day1; newStep = 1; }
+      else if (nextStep === 1 && diffDays >= 3) { emailToSend = marketingEmails.day3; newStep = 2; }
+      else if (nextStep === 2 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 3; }
+      else if (nextStep === 3 && diffDays >= 7) { emailToSend = marketingEmails.day7; newStep = 4; }
 
       if (emailToSend) {
         const content = emailToSend.body(baseUrl);
