@@ -38,7 +38,7 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     // 2. Lists (Recent Activity)
     const { data: recentPayments } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
     const { data: recentErrors } = await supabase.from('error_logs').select('*').order('created_at', { ascending: false }).limit(20);
-    const { data: recentRuns } = await supabase.from('analysis_runs').select('id, url, plan_type, created_at').order('created_at', { ascending: false }).limit(20);
+    const { data: recentRuns } = await supabase.from('analysis_runs').select('id, url, plan_type, created_at, user_identifier').order('created_at', { ascending: false }).limit(20);
     const { data: recentSubscribers } = await supabase.from('customers').select('id, email, plan_status, created_at').eq('plan_status', 'active').order('created_at', { ascending: false }).limit(10);
 
     // 3. Filter Test Data (if requested)
