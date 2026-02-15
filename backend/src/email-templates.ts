@@ -13,29 +13,26 @@ export const waitlistBody = (baseUrl: string) => `
 <p>We'll be in touch soon!</p>
 `;
 
-export const welcomeSubject = "Welcome to Product Shift Pro ⚡️";
+export const welcomeSubject = "Welcome to User Mirror ⚡️";
 export const welcomeBody = (baseUrl: string) => `
 <h2>You're in!</h2>
-<p>Thanks for upgrading to Product Shift. You now have access to advanced AI analysis and detailed reports.</p>
+<p>Thanks for joining User Mirror. You now have access to advanced AI analysis and detailed reports.</p>
 <h3>Getting Started:</h3>
 <ol>
   <li><strong>Run your first audit:</strong> Go to the dashboard and enter your URL.</li>
   <li><strong>Download the Extension:</strong> Audit pages while you browse.</li>
   <li><strong>Share reports:</strong> Use the public link feature to share findings with your team.</li>
 </ol>
-<p><a href="${baseUrl}/ai-powered-ux" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Go to Dashboard</a></p>
-`;
-
-export const onboardingSubject = "Pro Tip: Use the Chrome Extension 🧩";
-export const onboardingBody = (baseUrl: string) => `
-<h2>Audit faster with our Chrome Extension</h2>
-<p>Did you know you don't have to leave your tab to run an audit?</p>
-<p>Our Chrome Extension lets you capture and analyze any page instantly.</p>
+<p><a href="${baseUrl}/ai-powered-ux" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Go to User Mirror</a></p>
 `;
 
 // --- Marketing Email Sequence (Daniel Priestley Method) ---
 export const marketingEmails = {
   welcome: {
+    subject: welcomeSubject,
+    body: welcomeBody
+  },
+  day1: {
     subject: "Your AI test results are ready (and they’re honest)",
     body: (baseUrl: string) => `
       <p>You just saw your website through a stranger's eyes. That uncomfortable feeling? That's where your growth is hiding.</p>
@@ -46,7 +43,17 @@ export const marketingEmails = {
       </div>
     `
   },
-  day1: {
+  day3: {
+    subject: "Pro Tip: Use the User Mirror Chrome Extension 🧩",
+    body: (baseUrl: string) => `
+      <h2>Audit faster with our Chrome Extension</h2>
+      <p>Did you know you don't have to leave your tab to run an audit? Our Chrome Extension lets you capture and analyze any page instantly.</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${baseUrl}/extension" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Download Extension</a>
+      </div>
+    `
+  },
+  day5: {
     subject: "Stop arguing about button colors",
     body: (baseUrl: string) => `
       <p>Most teams waste hours debating design based on personal preference. "I like blue, you like green." Who cares? What does the <em>user</em> need?</p>
@@ -58,7 +65,7 @@ export const marketingEmails = {
       </div>
     `
   },
-  day3: {
+  day7: {
     subject: "The $10,000 mistake on your homepage",
     body: (baseUrl: string) => `
       <p>We analyzed 1,000+ sites. The #1 revenue killer isn't price—it's <em>clarity</em>. If a user has to ask "What do I do next?", you've lost them.</p>
@@ -69,7 +76,7 @@ export const marketingEmails = {
       </div>
     `
   },
-  day5: {
+  day10: {
     subject: "How agencies cut bounce rates in half",
     body: (baseUrl: string) => `
       <p>They thought their new design was perfect. User Mirror showed them that the 'Sign Up' button looked like a banner ad. They fixed it in 5 minutes.</p>
@@ -80,7 +87,7 @@ export const marketingEmails = {
       </div>
     `
   },
-  day7: {
+  day12: {
     subject: "I want to help you scale this",
     body: (baseUrl: string) => `
       <p>You've seen the insights. Now it's time to make this a habit. Consistent testing is the difference between a stagnant site and a growth engine.</p>

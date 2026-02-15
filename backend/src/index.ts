@@ -674,7 +674,7 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
       .from('customers')
       .select('id, email, created_at, marketing_step, plan_status')
       .eq('plan_status', 'free')
-      .lt('marketing_step', 4); // Stop after Day 7 (step 4)
+      .lt('marketing_step', 6); // Stop after Day 12 (step 6)
 
     if (error) throw error;
 
@@ -693,15 +693,19 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
       let newStep = nextStep;
 
       // Sequence Logic:
-      // Step 0 (Welcome sent) -> Wait for Day 2 -> Send Day 2 Email -> Set Step 1
-      // Step 1 (Day 2 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 2
-      // Step 2 (Day 5 sent) -> Wait for Day 8 -> Send Day 8 Email -> Set Step 3
-      // Step 3 (Day 8 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 4
+      // Step 0 (Welcome sent) -> Wait for Day 1 -> Send Day 1 Email -> Set Step 1
+      // Step 1 (Day 1 sent) -> Wait for Day 3 -> Send Day 3 Email -> Set Step 2
+      // Step 2 (Day 3 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 3
+      // Step 3 (Day 5 sent) -> Wait for Day 7 -> Send Day 7 Email -> Set Step 4
+      // Step 4 (Day 7 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 5
+      // Step 5 (Day 10 sent) -> Wait for Day 12 -> Send Day 12 Email -> Set Step 6
 
       if (nextStep === 0 && diffDays >= 1) { emailToSend = marketingEmails.day1; newStep = 1; }
       else if (nextStep === 1 && diffDays >= 3) { emailToSend = marketingEmails.day3; newStep = 2; }
       else if (nextStep === 2 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 3; }
       else if (nextStep === 3 && diffDays >= 7) { emailToSend = marketingEmails.day7; newStep = 4; }
+      else if (nextStep === 4 && diffDays >= 10) { emailToSend = marketingEmails.day10; newStep = 5; }
+      else if (nextStep === 5 && diffDays >= 12) { emailToSend = marketingEmails.day12; newStep = 6; }
 
       if (emailToSend) {
         const content = emailToSend.body(baseUrl);
