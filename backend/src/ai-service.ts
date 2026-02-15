@@ -50,3 +50,28 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   throw new Error(`All fallback models failed. Errors: ${errorLog.join(' | ')}`);
 };
+
+export const generateEnhancedContent = async (expertReport: string, userSessions: any[], title: string): Promise<{ blogContent: string, excerpt: string }> => {
+  const excerptPrompt = `
+    You are an SEO expert. Based on the following UX audit summary, write a concise, compelling, and keyword-rich meta description of no more than 160 characters.
+    Audit Title: "${title}"
+    Summary: ${expertReport.substring(0, 500)}
+  `;
+  const excerpt = await generateContentWithFallback(excerptPrompt);
+
+  const blogContentPrompt = `
+    You are a content writer specializing in UX and technology. Your task is to transform a raw AI-generated UX audit into a well-structured and engaging blog post.
+
+    **Instructions:**
+    1.  Write a brief, compelling introduction (2-3 sentences) that hooks the reader by stating the website being audited and the key takeaway from the audit.
+    2.  Present the "Expert Analysis" section clearly.
+    3.  Integrate the "User Feedback" smoothly, perhaps under a heading like "What Real Users Thought".
+    4.  Conclude with a short summary of the findings and a call to action for readers to get their own audit.
+    5.  The tone should be professional, insightful, and easy to read.
+
+    **Raw Data:**
+    ${JSON.stringify({ expertReport, userSessions }, null, 2)}
+  `;
+  const blogContent = await generateContentWithFallback(blogContentPrompt);
+  return { blogContent, excerpt: excerpt.replace(/"/g, '') };
+};

@@ -83,3 +83,14 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
     return { success: false, error: e, from: emailFrom };
   }
 };
+
+// --- Helper: Identify Test Users ---
+export const isTestEmail = (email: string) => {
+  if (!email) return false;
+  const lower = email.toLowerCase();
+  return lower.includes('test') || 
+         lower.includes('demo') || 
+         lower.includes('example') || 
+         lower.includes('localhost') ||
+         lower.includes('+smb');
+};

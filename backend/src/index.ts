@@ -3,20 +3,9 @@ import cors from 'cors';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
-import { supabase, stripe, sendEmail, getEmailTemplate } from './services';
-import { generateContentWithFallback } from './ai-service';
+import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
-
-// --- Helper: Identify Test Users (Mirrors Frontend Logic) ---
-const isTestEmail = (email: string) => {
-  if (!email) return false;
-  const lower = email.toLowerCase();
-  return lower.includes('test') || 
-         lower.includes('demo') || 
-         lower.includes('example') || 
-         lower.includes('localhost') ||
-         lower.includes('+smb');
-};
+import adminRouter from './routes/admin';
 
 // --- Magic Link Email Template ---
 const getMagicLinkTemplate = (link: string, baseUrl: string) => `
@@ -362,75 +351,6 @@ app.get('/api/public-report/:id', async (req, res) => {
     res.send(html);
   } catch (e: any) {
     res.status(500).send(`Error generating report: ${e.message}`);
-  }
-});
-
-// --- Admin Draft to Blog Endpoint ---
-app.post('/api/admin/draft-blog-post', async (req, res) => {
-  const { reportId, email } = req.body;
-  const isAdmin = email && (email.endsWith('@theproductshift.com') || email.includes('+smb') || email.includes('test'));
-  if (!isAdmin) return res.status(403).json({ error: 'Unauthorized' });
-
-  try {
-    if (reportId === 'test-mode-dummy-id') {
-        await new Promise(r => setTimeout(r, 1000));
-        return res.json({ success: true, cmsLink: '/admin-blog' });
-    }
-
-    const { data: run } = await supabase.from('analysis_runs').select('report_data, url').eq('id', reportId).single();
-    if (!run || !run.report_data) return res.status(404).json({ error: 'Report data not found.' });
-
-    const { title, expertReport, scores, userSessions, screenshot } = run.report_data;
-    const safeTitle = title || 'Untitled Audit';
-    const seoTitle = `AI UX Audit of ${safeTitle} (${new Date().getFullYear()})`;
-    const slug = `ux-audit-${safeTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
-    const seoSchema = generateStructuredData(run.url, seoTitle, scores, expertReport);
-
-    // Generate enhanced content
-    const { blogContent, excerpt } = await generateEnhancedContent(expertReport, userSessions, seoTitle);
-
-    // Handle screenshot upload
-    let coverImageUrl: string | null = null;
-    if (screenshot) {
-      try {
-        const imageBuffer = Buffer.from(screenshot, 'base64');
-        const imagePath = `public/${slug}.jpg`;
-        const { error: uploadError } = await supabase.storage.from('blog-images').upload(imagePath, imageBuffer, { contentType: 'image/jpeg', upsert: true });
-        if (uploadError) throw uploadError;
-
-        const { data: publicUrlData } = supabase.storage.from('blog-images').getPublicUrl(imagePath);
-        coverImageUrl = publicUrlData.publicUrl;
-      } catch (uploadError) {
-        console.error('Screenshot upload failed:', uploadError);
-        // Continue without a cover image if upload fails
-      }
-    }
-
-    // GEO STRATEGY: Append SEO Schema to content so it's accessible in the CMS
-    const finalContent = `${blogContent}\n\n--- \n\n## SEO Data (JSON-LD)\n\nCopy this block into your page's \`<head>\` section:\n\n\`\`\`json\n${JSON.stringify(seoSchema, null, 2)}\n\`\`\``;
-
-    // Graceful Image Handling: If we have a cover image, prepend it to content (Markdown) 
-    // This ensures the image appears even if the DB column 'cover_image_url' is missing.
-    let contentToSave = finalContent;
-    if (coverImageUrl) {
-      contentToSave = `!Cover Image\n\n${finalContent}`;
-    }
-
-    const { error: insertError } = await supabase.from('posts').insert({
-      title: seoTitle,
-      slug: slug,
-      content: contentToSave,
-      excerpt: excerpt,
-      status: 'draft',
-      category: 'Website Optimization',
-      published_at: new Date().toISOString()
-    });
-
-    if (insertError) throw insertError;
-    return res.json({ success: true, cmsLink: '/admin-blog' });
-  } catch (e: any) {
-    console.error('Draft Error:', e);
-    return res.status(500).json({ error: `Database Error: ${e.message}`, details: e.details || e.hint });
   }
 });
 
