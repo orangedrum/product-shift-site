@@ -26,33 +26,19 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     let usersQuery = supabase.from('customers').select('*', { count: 'exact', head: true });
 
     if (excludeTest) {
-      const patterns = ['%test%', '%demo%', '%example%', '%localhost%', '%+smb%'];
-      
-      // Apply strict filters to counts to match isTestEmail logic
-      patterns.forEach(p => {
-        usersQuery = usersQuery.not('email', 'ilike', p);
-      });
-      
-      patterns.forEach(p => {
-        testsQuery = testsQuery.not('user_identifier', 'ilike', p);
-      });
+      // Apply strict filters to counts
+      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%');
+      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%').not('user_identifier', 'ilike', '%example%').not('user_identifier', 'ilike', '%localhost%').not('user_identifier', 'ilike', '%+smb%');
     }
 
     const { count: totalTests } = await testsQuery;
     const { count: totalUsers } = await usersQuery;
     
-    // Fetch all payments to calculate breakdown and daily stats
-    // We filter in memory or SQL. For consistency with isTestEmail, we'll fetch relevant fields and filter.
-    let paymentQuery = supabase.from('payments').select('amount_total, created_at, email');
-    if (excludeTest) {
-      const patterns = ['%test%', '%demo%', '%example%', '%localhost%', '%+smb%'];
-      patterns.forEach(p => {
-        paymentQuery = paymentQuery.not('email', 'ilike', p);
-      });
-    }
-    const { data: allPayments } = await paymentQuery;
+    // UNIFIED FILTERING STRATEGY: Fetch all payments, then filter in memory using the single source of truth.
+    const { data: allPaymentsData } = await supabase.from('payments').select('amount_total, created_at, email');
+    const allPayments = allPaymentsData || [];
+    const payments = excludeTest ? allPayments.filter(p => !isTestEmail(p.email)) : allPayments;
 
-    const payments = allPayments || [];
     const totalRevenue = payments.reduce((sum, p) => sum + (p.amount_total || 0), 0);
     
     // Daily Revenue
@@ -63,9 +49,9 @@ router.get('/stats', requireAdminKey, async (req, res) => {
 
     // Sales Breakdown
     const salesBreakdown = { pack3: 0, pack15: 0, starter: 0 };
-    payments.forEach(p => {
-      if (p.amount_total === 1400) salesBreakdown.pack3++;
-      else if (p.amount_total === 6900) salesBreakdown.pack15++;
+    payments.forEach((p: any) => {
+      if (p.amount_total === 1400) salesBreakdown.pack3++; // 9 Credits
+      else if (p.amount_total === 6900) salesBreakdown.pack15++; // 45 Credits
       else if (p.amount_total === 2900) salesBreakdown.starter++;
     });
 
@@ -74,7 +60,7 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    payments.forEach(p => {
+    payments.forEach((p: any) => {
       const date = p.created_at.split('T')[0];
       if (new Date(date) >= thirtyDaysAgo) {
         revenueChart[date] = (revenueChart[date] || 0) + (p.amount_total / 100);
@@ -91,7 +77,7 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     }
 
     // 2. Lists (Recent Activity)
-    const { data: recentPayments } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
+    const { data: recentPaymentsData } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
     const { data: recentErrors } = await supabase.from('error_logs').select('*').order('created_at', { ascending: false }).limit(20);
     const { data: recentRuns } = await supabase.from('analysis_runs').select('id, url, plan_type, created_at, user_identifier').order('created_at', { ascending: false }).limit(20);
     const { data: recentSubscribers } = await supabase.from('customers').select('id, email, plan_status, created_at').eq('plan_status', 'active').order('created_at', { ascending: false }).limit(10);
@@ -106,7 +92,7 @@ router.get('/stats', requireAdminKey, async (req, res) => {
       dailyRevenue: dailyRevenue / 100,
       salesBreakdown,
       chartData,
-      recentPayments: filter(recentPayments || []),
+      recentPayments: filter(recentPaymentsData || []),
       recentErrors: recentErrors || [],
       recentRuns: recentRuns || [],
       recentSubscribers: filter(recentSubscribers || [])
