@@ -48,6 +48,11 @@ router.get('/stats', requireAdminKey, async (req, res) => {
 
     const totalRevenue = payments.reduce((sum, p) => sum + (p.amount_total || 0), 0);
     
+    // DEBUG: Log the contributors to revenue to identify the "Ghost" data
+    if (excludeTest) {
+        console.log('Revenue Contributors (Filtered):', payments.map(p => `${p.email}: ${p.amount_total}`));
+    }
+    
     // Daily Revenue
     const today = new Date().toISOString().split('T')[0];
     const dailyRevenue = payments
