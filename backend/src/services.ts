@@ -92,5 +92,6 @@ export const isTestEmail = (email: string) => {
          lower.includes('demo') || 
          lower.includes('example') || 
          lower.includes('localhost') ||
-         lower.includes('+smb');
+         lower.includes('+smb') ||
+         lower.includes('jeankaluza+');
 };

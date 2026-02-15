@@ -35,9 +35,16 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     const { count: totalUsers } = await usersQuery;
     
     // UNIFIED FILTERING STRATEGY: Fetch all payments, then filter in memory using the single source of truth.
-    const { data: allPaymentsData } = await supabase.from('payments').select('amount_total, created_at, email');
+    const { data: allPaymentsData } = await supabase.from('payments').select('amount_total, created_at, email, status');
     const allPayments = allPaymentsData || [];
-    const payments = excludeTest ? allPayments.filter(p => !isTestEmail(p.email)) : allPayments;
+    
+    const payments = allPayments.filter(p => {
+        // 1. Must be a successful payment
+        if (p.status !== 'paid') return false;
+        // 2. If filtering is on, exclude test users (including 'jeankaluza+')
+        if (excludeTest && isTestEmail(p.email)) return false;
+        return true;
+    });
 
     const totalRevenue = payments.reduce((sum, p) => sum + (p.amount_total || 0), 0);
     
