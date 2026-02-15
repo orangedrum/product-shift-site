@@ -35,23 +35,16 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     const { count: totalUsers } = await usersQuery;
     
     // UNIFIED FILTERING STRATEGY: Fetch all payments, then filter in memory using the single source of truth.
-    const { data: allPaymentsData } = await supabase.from('payments').select('amount_total, created_at, email, status');
+    // Match Golden Record: Only fetch 'paid' status
+    const { data: allPaymentsData } = await supabase.from('payments').select('amount_total, created_at, email, status').eq('status', 'paid');
     const allPayments = allPaymentsData || [];
     
-    const payments = allPayments.filter(p => {
-        // 1. Must be a successful payment
-        if (p.status !== 'paid') return false;
-        // 2. If filtering is on, exclude test users (including 'jeankaluza+')
-        if (excludeTest && isTestEmail(p.email)) return false;
-        return true;
-    });
+    // Filter using the central helper (which now includes jeankaluza+)
+    const payments = excludeTest 
+      ? allPayments.filter(p => !isTestEmail(p.email)) 
+      : allPayments;
 
     const totalRevenue = payments.reduce((sum, p) => sum + (p.amount_total || 0), 0);
-    
-    // DEBUG: Log the contributors to revenue to identify the "Ghost" data
-    if (excludeTest) {
-        console.log('Revenue Contributors (Filtered):', payments.map(p => `${p.email}: ${p.amount_total}`));
-    }
     
     // Daily Revenue
     const today = new Date().toISOString().split('T')[0];
@@ -285,6 +278,18 @@ router.post('/draft-blog-post', async (req, res) => {
     console.error('Draft Error:', e);
     return res.status(500).json({ error: `Database Error: ${e.message}`, details: e.details || e.hint });
   }
+});
+
+// --- DIAGNOSTIC: Revenue Debugger ---
+// Call this from browser: /api/admin/debug-revenue?secret=YOUR_ADMIN_KEY
+router.get('/debug-revenue', async (req, res) => {
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  if (req.query.secret !== secretKey) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { data: payments } = await supabase.from('payments').select('email, amount_total, status, created_at').order('amount_total', { ascending: false });
+  
+  const summary = (payments || []).map(p => `${p.email} | $${p.amount_total/100} | ${p.status} | TestUser? ${isTestEmail(p.email)}`);
+  res.send(`<pre>${summary.join('\n')}</pre>`);
 });
 
 export default router;
