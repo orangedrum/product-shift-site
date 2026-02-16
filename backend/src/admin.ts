@@ -171,7 +171,8 @@ router.post('/invite-user', requireAdminKey, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
 
-  const baseUrl = 'https://www.theproductshift.com';
+  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const loginUrl = `${baseUrl}/login?segment=${segment || 'tech'}`;
   const html = `
     <div style="text-align: center;">
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -179,7 +180,7 @@ router.post('/invite-user', requireAdminKey, async (req, res) => {
           <td align="center">
             <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">You've been invited to try User Mirror!</h2>
             <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">We've loaded your account with <strong>${credits} credits</strong>.</p>
-            <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Accept Invite & Log In</a>
+            <a href="${loginUrl}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Accept Invite & Log In</a>
             <p style="color: #9ca3af; font-size: 14px; margin-top: 32px;">This link expires in 24 hours.</p>
           </td>
         </tr>
@@ -196,7 +197,7 @@ router.post('/compensate-user', requireAdminKey, async (req, res) => {
   const { email, credits } = req.body;
   await supabase.rpc('add_credits', { user_email: email, amount: credits || 2 });
   
-  const baseUrl = 'https://www.theproductshift.com';
+  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
   const html = `<p>We've added <strong>${credits} credits</strong> to your account as an apology for the recent issue.</p>`;
   await sendEmail(email, "Credits Added: We're sorry!", html, baseUrl);
 
@@ -224,7 +225,7 @@ router.post('/test-email', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email required' });
   if (!process.env.RESEND_API_KEY) return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing.' });
 
-  const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
   let subject = 'Test Email from Backend';
   let content = '<p>If you see this, Resend is working!</p>';
 

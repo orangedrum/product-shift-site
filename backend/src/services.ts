@@ -57,7 +57,7 @@ export const getEmailTemplate = (content: string, baseUrl: string = 'https://www
 `;
 
 // --- Email Sender ---
-export const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
+export const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com') => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('Resend API key missing. Skipping email.');

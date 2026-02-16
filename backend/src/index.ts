@@ -23,7 +23,7 @@ const getMagicLinkTemplate = (link: string, baseUrl: string) => `
 `;
 
 // --- Email Helper ---
-const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
+const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com') => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('Resend API key missing. Skipping email.');
@@ -692,7 +692,7 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const baseUrl = 'https://www.theproductshift.com';
+  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
 
   try {
     // Fetch active free users who haven't finished the sequence
