@@ -7,6 +7,10 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './se
 import { runTestHandler } from './analysis-controller';
 import adminRouter from './admin';
 
+// --- Environment Variables ---
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
+
 // --- Magic Link Email Template ---
 const getMagicLinkTemplate = (link: string, baseUrl: string) => `
   <div style="text-align: center;">
