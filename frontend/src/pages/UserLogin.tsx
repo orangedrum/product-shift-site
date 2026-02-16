@@ -5,6 +5,8 @@ import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { Mail, Loader2, Briefcase, PenTool } from 'lucide-react';
 
+// v2.2 - Force Cache Bust
+
 const UserLogin: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
