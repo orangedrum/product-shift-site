@@ -63,6 +63,7 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
   }
   const fullHtml = getEmailTemplate(html, baseUrl);
   try {
+    console.log(`📨 Resend: Sending from [${emailFrom}] to [${to}]`);
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -77,7 +78,8 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
       console.error('Resend API Error:', errorData);
       return { success: false, error: errorData, from: emailFrom };
     }
-    return { success: true };
+    const data = await res.json();
+    return { success: true, data };
   } catch (e) {
     console.error('Failed to send email:', e);
     return { success: false, error: e, from: emailFrom };

@@ -248,8 +248,8 @@ router.post('/test-email', async (req, res) => {
   const result = await sendEmail(email, subject, content, baseUrl);
   
   if (result.success) {
-    console.log(`✅ Email sent successfully to ${email}`);
-    return res.json({ success: true });
+    console.log(`✅ Email sent successfully to ${email} (ID: ${result.data?.id})`);
+    return res.json({ success: true, id: result.data?.id });
   }
   console.error(`❌ Email failed:`, result.error);
   return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
