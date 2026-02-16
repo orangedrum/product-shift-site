@@ -41,6 +41,32 @@ const MyAccount: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Realtime Subscription (Stable)
+  useEffect(() => {
+    const email = session?.user?.email;
+    if (!email) return;
+
+    const channel = supabase
+      .channel('my-account-credits')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'customers',
+          filter: `email=eq.${email}`,
+        },
+        (payload) => {
+          setCustomer((prev: any) => ({ ...prev, ...payload.new }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.email]);
+
   useEffect(() => {
     const token = searchParams.get('verify_email_token');
     const sig = searchParams.get('sig');
@@ -86,23 +112,6 @@ const MyAccount: React.FC = () => {
       setCustomer(custData);
     }
 
-    // Subscribe to Realtime Changes
-    const channel = supabase
-      .channel('my-account-credits')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'customers',
-          filter: `email=eq.${email}`,
-        },
-        (payload) => {
-          setCustomer((prev: any) => ({ ...prev, ...payload.new }));
-        }
-      )
-      .subscribe();
-      
     // Fetch Transactions via API
     try {
       const res = await fetch(`/api/user/transactions?email=${encodeURIComponent(email)}`);

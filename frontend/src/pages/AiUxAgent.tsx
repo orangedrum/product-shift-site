@@ -327,8 +327,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // --- UNIFIED BOOT SEQUENCE ---
-  // This replaces scattered useEffects to ensure a deterministic loading order
+  // --- 1. BOOT SEQUENCE (Auth & URL Params) ---
   useEffect(() => {
     let mounted = true;
 
@@ -463,7 +462,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
     boot();
 
-    // Realtime Subscription for updates
+    return () => {
+      mounted = false;
+    };
+  }, [searchParams, setSearchParams, navigate]);
+
+  // --- 2. REALTIME SUBSCRIPTION (Stable) ---
+  useEffect(() => {
+    if (!session?.user?.email) return;
+
     const channel = supabase
       .channel('customer-credits-changes')
       .on(
@@ -472,7 +479,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           event: 'UPDATE',
           schema: 'public',
           table: 'customers',
-          filter: `email=eq.${session?.user?.email}`, // This might be stale in the closure, but boot handles initial load
+          filter: `email=eq.${session.user.email}`,
         },
         (payload) => {
           const newData = payload.new;
@@ -483,10 +490,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       .subscribe();
 
     return () => {
-      mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [searchParams, setSearchParams]); // Re-run if params change (e.g. redirect)
+  }, [session?.user?.email]);
 
   // Helper to refresh customer data (Used after test runs)
   const refreshCustomerData = async () => {
