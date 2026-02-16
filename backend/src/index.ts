@@ -4,8 +4,8 @@ import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
-import { runTestHandler, generateStructuredData } from './analysis-controller';
-import adminRouter from './admin';
+import { runTestHandler } from './analysis-controller';
+import adminRouter from './routes/admin';
 
 // --- Magic Link Email Template ---
 const getMagicLinkTemplate = (link: string, baseUrl: string) => `
@@ -22,10 +22,43 @@ const getMagicLinkTemplate = (link: string, baseUrl: string) => `
   </div>
 `;
 
+// --- Email Helper ---
+const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn('Resend API key missing. Skipping email.');
+    return { success: false, error: 'Resend API Key missing' };
+  }
+  const fullHtml = getEmailTemplate(html, baseUrl);
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({ from: emailFrom, to, subject, html: fullHtml })
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Resend API Error:', errorData);
+      return { success: false, error: errorData, from: emailFrom };
+    }
+    return { success: true };
+  } catch (e) {
+    console.error('Failed to send email:', e);
+    return { success: false, error: e, from: emailFrom };
+  }
+};
+
 // Initialize Express App
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors({ origin: true, credentials: true }));
+
+// --- Mount Admin Routes ---
+app.use('/api/admin', adminRouter);
 
 // --- Stripe Webhook ---
 app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
@@ -101,9 +134,6 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
 });
 
 app.use(express.json());
-
-// --- Mount Admin Routes (Must be after express.json) ---
-app.use('/api/admin', adminRouter);
 
 // --- Helper: Parse Markdown to Neo-Brutalist Tailwind HTML ---
 const parseMarkdownToTailwind = (text: string) => {
@@ -419,6 +449,32 @@ app.post('/api/user/update-segment', authenticateRequest, async (req, res) => {
   }
 });
 
+// --- Debug: Test Email Endpoint ---
+app.post('/api/admin/test-email', async (req, res) => {
+  const { email, template } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  // Check Key Presence explicitly for the test endpoint
+  if (!process.env.RESEND_API_KEY) {
+     return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing in Vercel Env Vars.' });
+  }
+
+  const baseUrl = req.get('origin') || 'https://www.theproductshift.com';
+  
+  let subject = 'Test Email from Backend';
+  let content = '<p>If you see this, Resend is working!</p>';
+
+  if (template && (marketingEmails as any)[template]) {
+    const tmpl = (marketingEmails as any)[template];
+    subject = `[TEST] ${tmpl.subject}`;
+    content = tmpl.body(baseUrl);
+  }
+
+  const result = await sendEmail(email, subject, content, baseUrl);
+  if (result.success) return res.json({ success: true });
+  return res.json({ success: false, error: 'Failed to send email', details: result.error, from: result.from });
+});
+
 // --- Create Checkout Session ---
 app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
@@ -644,7 +700,7 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
       .from('customers')
       .select('id, email, created_at, marketing_step, plan_status')
       .eq('plan_status', 'free')
-      .lt('marketing_step', 6); // Stop after Day 12 (step 6)
+      .lt('marketing_step', 4); // Stop after Day 7 (step 4)
 
     if (error) throw error;
 
@@ -663,19 +719,15 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
       let newStep = nextStep;
 
       // Sequence Logic:
-      // Step 0 (Welcome sent) -> Wait for Day 1 -> Send Day 1 Email -> Set Step 1
-      // Step 1 (Day 1 sent) -> Wait for Day 3 -> Send Day 3 Email -> Set Step 2
-      // Step 2 (Day 3 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 3
-      // Step 3 (Day 5 sent) -> Wait for Day 7 -> Send Day 7 Email -> Set Step 4
-      // Step 4 (Day 7 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 5
-      // Step 5 (Day 10 sent) -> Wait for Day 12 -> Send Day 12 Email -> Set Step 6
+      // Step 0 (Welcome sent) -> Wait for Day 2 -> Send Day 2 Email -> Set Step 1
+      // Step 1 (Day 2 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 2
+      // Step 2 (Day 5 sent) -> Wait for Day 8 -> Send Day 8 Email -> Set Step 3
+      // Step 3 (Day 8 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 4
 
-      if (nextStep === 0 && diffDays >= 1) { emailToSend = marketingEmails.day1; newStep = 1; }
-      else if (nextStep === 1 && diffDays >= 3) { emailToSend = marketingEmails.day3; newStep = 2; }
-      else if (nextStep === 2 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 3; }
-      else if (nextStep === 3 && diffDays >= 7) { emailToSend = marketingEmails.day7; newStep = 4; }
-      else if (nextStep === 4 && diffDays >= 10) { emailToSend = marketingEmails.day10; newStep = 5; }
-      else if (nextStep === 5 && diffDays >= 12) { emailToSend = marketingEmails.day12; newStep = 6; }
+      if (nextStep === 0 && diffDays >= 2) { emailToSend = marketingEmails.day2; newStep = 1; }
+      else if (nextStep === 1 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 2; }
+      else if (nextStep === 2 && diffDays >= 8) { emailToSend = marketingEmails.day8; newStep = 3; }
+      else if (nextStep === 3 && diffDays >= 10) { emailToSend = marketingEmails.day10; newStep = 4; }
 
       if (emailToSend) {
         const content = emailToSend.body(baseUrl);
