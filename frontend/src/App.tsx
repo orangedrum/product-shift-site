@@ -18,7 +18,7 @@ import FreeWebsiteAuditSmb from './pages/FreeWebsiteAuditSmb';
 import BlogWhyAudit from './pages/BlogWhyAudit';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './pages/MyAccount';
-import Login from './pages/Login';
+import UserLogin from './pages/UserLogin';
 import AdminLogin from './pages/AdminLogin';
 import WaitlistPage from './pages/WaitlistPage';
 import StyleGuide from './pages/StyleGuidePage';
@@ -55,7 +55,7 @@ const App: React.FC = () => {
     '/admin-blog',
     '/login', // <--- CRITICAL: Hides header on login page
     '/styleguide'
-  ].includes(normalizedPath);
+  ].includes(normalizedPath) || location.pathname.startsWith('/login');
 
   // Debugging: Log current path to ensure router is working
   React.useEffect(() => {
@@ -130,7 +130,7 @@ const App: React.FC = () => {
           <Route path="/account" element={<MyAccount />} />
           
           {/* This connects the /login URL to your new Neo-styled Login.tsx */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<UserLogin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/waitlist" element={<WaitlistPage />} />
           

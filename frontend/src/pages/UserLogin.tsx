@@ -5,7 +5,7 @@ import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { Mail, Loader2, Briefcase, PenTool } from 'lucide-react';
 
-const Login: React.FC = () => {
+const UserLogin: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
@@ -345,4 +345,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default UserLogin;
