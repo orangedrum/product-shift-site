@@ -24,7 +24,7 @@ const UserLogin: React.FC = () => {
 
   // Set background gradient
   useEffect(() => {
-    document.title = plan ? "Complete Purchase | User Mirror" : "Log in | User Mirror";
+    document.title = plan ? "Complete Purchase | User Mirror" : "Log in | User Mirror (v2)";
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
       radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
