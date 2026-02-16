@@ -89,6 +89,7 @@ const UserLogin: React.FC = () => {
         else if (segment) destParams.append('segment', segment);
         
         if (refCode) destParams.append('ref', refCode);
+        if (coupon) destParams.append('coupon', coupon);
         
         const destString = destParams.toString();
         const destination = destString ? `/ai-powered-ux?${destString}` : '/ai-powered-ux';
