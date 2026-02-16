@@ -16,7 +16,9 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 // --- Email Config ---
-export const emailFrom = process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>';
+export const emailFrom = (process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>')
+  .replace(/&lt;/g, '<')
+  .replace(/&gt;/g, '>');
 
 // --- Helper: Delay ---
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -64,7 +66,7 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
   const fullHtml = getEmailTemplate(html, baseUrl);
   try {
     const payload = { from: emailFrom.trim(), to, subject, html: fullHtml };
-    console.log(`📨 Resend Payload:`, JSON.stringify({ ...payload, html: '(html_content_hidden)' }));
+    console.log(`📨 Resend Payload (Sanitized):`, JSON.stringify({ ...payload, html: '(html_content_hidden)' }));
     
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

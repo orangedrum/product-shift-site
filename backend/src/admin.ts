@@ -19,6 +19,12 @@ const requireAdminKey = (req: express.Request, res: express.Response, next: expr
 // --- Admin Stats Endpoint ---
 router.get('/stats', requireAdminKey, async (req, res) => {
   const excludeTest = req.query.exclude_test_data === 'true';
+  
+  // FORCE FRESH DATA: Disable caching to prevent 304s and ensure filters run
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
 
   try {
     // 1. Counts (With Filter Support)
@@ -26,29 +32,84 @@ router.get('/stats', requireAdminKey, async (req, res) => {
     let usersQuery = supabase.from('customers').select('*', { count: 'exact', head: true });
 
     if (excludeTest) {
-      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%');
-      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%');
+      // Apply strict filters to counts
+      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%');
+      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%').not('user_identifier', 'ilike', '%example%').not('user_identifier', 'ilike', '%localhost%').not('user_identifier', 'ilike', '%+smb%');
     }
 
     const { count: totalTests } = await testsQuery;
     const { count: totalUsers } = await usersQuery;
-    const { data: revenueData } = await supabase.from('payments').select('amount_total');
-    const totalRevenue = revenueData?.reduce((sum, p) => sum + (p.amount_total || 0), 0) || 0;
+    
+    // UNIFIED FILTERING STRATEGY: Fetch all payments, then filter in memory using the single source of truth.
+    // Match Golden Record: Only fetch 'paid' status
+    const { data: allPaymentsData } = await supabase.from('payments').select('amount_total, created_at, email, status').eq('status', 'paid');
+    const allPayments = allPaymentsData || [];
+    
+    // Filter using the central helper (which now includes jeankaluza+)
+    const payments = excludeTest 
+      ? allPayments.filter(p => !isTestEmail(p.email)) 
+      : allPayments;
+
+    // DEBUG: Log the contributors to revenue to identify the "Ghost" data
+    if (excludeTest) {
+        console.log('💰 Revenue Contributors:', payments.map(p => `${p.email} ($${p.amount_total/100})`));
+    }
+
+    const totalRevenue = payments.reduce((sum, p) => sum + (p.amount_total || 0), 0);
+    
+    // Daily Revenue
+    const today = new Date().toISOString().split('T')[0];
+    const dailyRevenue = payments
+      .filter(p => p.created_at.startsWith(today))
+      .reduce((sum, p) => sum + (p.amount_total || 0), 0);
+
+    // Sales Breakdown
+    const salesBreakdown = { pack3: 0, pack15: 0, starter: 0 };
+    payments.forEach((p: any) => {
+      if (p.amount_total === 1400) salesBreakdown.pack3++; // 9 Credits
+      else if (p.amount_total === 6900) salesBreakdown.pack15++; // 45 Credits
+      else if (p.amount_total === 2900) salesBreakdown.starter++;
+    });
+
+    // Revenue Chart (Last 30 Days)
+    const revenueChart: Record<string, number> = {};
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    payments.forEach((p: any) => {
+      const date = p.created_at.split('T')[0];
+      if (new Date(date) >= thirtyDaysAgo) {
+        revenueChart[date] = (revenueChart[date] || 0) + (p.amount_total / 100);
+      }
+    });
+
+    // Fill in missing days with 0 for the chart
+    const chartData = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      chartData.unshift({ date: dateStr.slice(5), amount: revenueChart[dateStr] || 0 }); // slice(5) for MM-DD format
+    }
 
     // 2. Lists (Recent Activity)
-    const { data: recentPayments } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
+    const { data: recentPaymentsData } = await supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(20);
     const { data: recentErrors } = await supabase.from('error_logs').select('*').order('created_at', { ascending: false }).limit(20);
-    const { data: recentRuns } = await supabase.from('analysis_runs').select('id, url, plan_type, created_at').order('created_at', { ascending: false }).limit(20);
+    const { data: recentRuns } = await supabase.from('analysis_runs').select('id, url, plan_type, created_at, user_identifier').order('created_at', { ascending: false }).limit(20);
     const { data: recentSubscribers } = await supabase.from('customers').select('id, email, plan_status, created_at').eq('plan_status', 'active').order('created_at', { ascending: false }).limit(10);
 
     // 3. Filter Test Data (if requested)
     const filter = (list: any[]) => excludeTest ? list.filter(item => !isTestEmail(item.email || item.user_identifier || '')) : list;
 
     res.json({
+      _generatedAt: new Date().toISOString(), // Force response difference to break ETag caching
       totalTests: totalTests || 0,
       totalUsers: totalUsers || 0,
       totalRevenue: totalRevenue / 100,
-      recentPayments: filter(recentPayments || []),
+      dailyRevenue: dailyRevenue / 100,
+      salesBreakdown,
+      chartData,
+      recentPayments: filter(recentPaymentsData || []),
       recentErrors: recentErrors || [],
       recentRuns: recentRuns || [],
       recentSubscribers: filter(recentSubscribers || [])
