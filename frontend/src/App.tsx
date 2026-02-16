@@ -51,6 +51,7 @@ const App: React.FC = () => {
     '/blog/why-small-businesses-need-website-audit',
     '/admin-dashboard',
     '/admin-blog',
+    '/login',
     '/styleguide'
   ].includes(normalizedPath);
 

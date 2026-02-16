@@ -174,10 +174,16 @@ router.post('/invite-user', requireAdminKey, async (req, res) => {
   const baseUrl = 'https://www.theproductshift.com';
   const html = `
     <div style="text-align: center;">
-      <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">You've been invited to try User Mirror!</h2>
-      <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">We've loaded your account with <strong>${credits} credits</strong>.</p>
-      <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Accept Invite & Log In</a>
-      <p style="color: #9ca3af; font-size: 14px; margin-top: 32px;">This link expires in 24 hours.</p>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center">
+            <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">You've been invited to try User Mirror!</h2>
+            <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">We've loaded your account with <strong>${credits} credits</strong>.</p>
+            <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Accept Invite & Log In</a>
+            <p style="color: #9ca3af; font-size: 14px; margin-top: 32px;">This link expires in 24 hours.</p>
+          </td>
+        </tr>
+      </table>
     </div>
   `;
   await sendEmail(email, "You're invited to User Mirror", html, baseUrl);
