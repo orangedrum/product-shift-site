@@ -222,23 +222,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     e.preventDefault();
     setCouponLoading(true);
     try {
+      const codeToCreate = couponCode.toUpperCase();
       const res = await fetch('/api/admin/create-coupon', {
         method: 'POST',
         headers: { 
           Authorization: `Bearer ${secretKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ code: couponCode, credits: couponCredits })
+        body: JSON.stringify({ code: codeToCreate, credits: couponCredits })
       });
       const data = await res.json();
       if (res.ok) {
-        setNewCouponLink(`https://www.theproductshift.com/login?coupon=${couponCode.toUpperCase()}`);
         setCouponCode('');
         // Refresh list
         const couponRes = await fetch('/api/admin/coupons', {
           headers: { Authorization: `Bearer ${secretKey}` },
         });
-        if (couponRes.ok) setCoupons(await couponRes.json());
+        if (couponRes.ok) {
+          const updatedCoupons = await couponRes.json();
+          setCoupons(updatedCoupons);
+          const newCoupon = updatedCoupons.find((c: any) => c.code === codeToCreate);
+          if (newCoupon) setNewCouponLink(newCoupon.link);
+        }
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -629,7 +634,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                         <tr key={c.id}>
                           <td className="py-2">
                             <button 
-                              onClick={() => setNewCouponLink(`https://www.theproductshift.com/login?coupon=${c.code}`)}
+                              onClick={() => setNewCouponLink(c.link)}
                               className="font-bold text-indigo-600 hover:underline"
                               title="View Campaign Link"
                             >

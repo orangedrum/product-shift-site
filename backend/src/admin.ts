@@ -122,7 +122,14 @@ router.get('/stats', requireAdminKey, async (req, res) => {
 // --- Admin: Coupons ---
 router.get('/coupons', requireAdminKey, async (req, res) => {
   const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
-  res.json(data || []);
+  
+  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  
+  const coupons = (data || []).map(c => ({
+    ...c,
+    link: `${baseUrl}/login?coupon=${c.code}`
+  }));
+  res.json(coupons);
 });
 
 router.post('/create-coupon', requireAdminKey, async (req, res) => {

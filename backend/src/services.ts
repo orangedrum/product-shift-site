@@ -24,7 +24,7 @@ export const emailFrom = (process.env.EMAIL_FROM || 'Product Shift <onboarding@t
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // --- Email Template Helper ---
-export const getEmailTemplate = (content: string, baseUrl: string = 'https://www.theproductshift.com') => `
+export const getEmailTemplate = (content: string, baseUrl: string = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com') => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
