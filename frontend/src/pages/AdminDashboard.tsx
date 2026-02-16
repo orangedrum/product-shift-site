@@ -594,6 +594,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         <div>
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Tag size={20} /> Campaign Manager</h3>
           <NeoCard title="Coupons & Events">
+            <p className="text-xs text-gray-600 mb-4 font-medium">
+              Note: Coupon credits are added on top of the default 3 free credits. (e.g., entering 5 gives the user a total of 8).
+            </p>
             <form onSubmit={handleCreateCoupon} className="flex flex-col md:flex-row gap-4 items-end">
               <div className="w-full md:w-1/2">
                 <label className="block text-sm font-bold mb-1">Coupon Code</label>
@@ -607,7 +610,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 />
               </div>
               <div className="w-full md:w-1/4">
-                <label className="block text-sm font-bold mb-1">Credits <span className="text-xs text-gray-500 font-normal">(Total: {(couponCredits || 0) + 3})</span></label>
+                <label className="block text-sm font-bold mb-1">Bonus Credits</label>
                 <input type="number" value={couponCredits} onChange={(e) => setCouponCredits(parseInt(e.target.value))} className="w-full p-2 border-2 border-gray-300 rounded-lg" />
               </div>
               <div className="w-full md:w-1/4">

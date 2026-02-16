@@ -5,8 +5,6 @@ import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { Mail, Loader2, Briefcase, PenTool } from 'lucide-react';
 
-// v2.2 - Force Cache Bust
-
 const UserLogin: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -100,7 +98,7 @@ const UserLogin: React.FC = () => {
     });
 
     return () => authListener.subscription.unsubscribe();
-  }, [navigate, plan, segment, refCode]);
+  }, [navigate, plan, segment, refCode, coupon]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,7 +247,7 @@ const UserLogin: React.FC = () => {
           {!plan && (
             <>
               <p className="text-lg font-bold text-black uppercase tracking-wider">Sign In / Sign Up</p>
-              <a href="/agency-user-testing" target="_blank" className="text-xs text-black hover:text-indigo-600 underline mt-1 block">what the heck's User Mirror?</a>
+              <a href="/agency-user-testing" target="_blank" className="text-xs text-black hover:underline mt-1 block">what the heck's User Mirror?</a>
             </>
           )}
         </div>

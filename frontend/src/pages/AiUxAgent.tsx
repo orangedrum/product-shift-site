@@ -355,7 +355,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
         shouldAnimateOnMount.current = true;
       }
 
-      // 3. Referral Claiming (Priority)
+      // 3. Lazy Initialization (CRITICAL: Ensure Customer Row Exists FIRST)
+      // We must create the user (with default 3 credits) before we can add coupon credits to them.
+      try {
+        await fetch('/api/user/check-account', { 
+          headers: { 'Authorization': `Bearer ${currentSession.access_token}` } 
+        });
+      } catch (e) { console.error('Lazy init failed', e); }
+
+      // 4. Referral Claiming
       let pendingRef = urlRef || localStorage.getItem('pendingReferral');
       let referralClaimed = false;
       if (pendingRef) {
@@ -379,7 +387,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       }
 
-      // 3b. Coupon Redemption (Priority)
+      // 5. Coupon Redemption (Now safe to run because user exists)
       if (urlCoupon) {
         try {
           const res = await fetch('/api/user/redeem-coupon', {
@@ -397,13 +405,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       }
 
-      // 3c. Lazy Initialization (Ensure Customer Row Exists)
-      // This call forces the backend to create the customer row with 3 credits if it doesn't exist
-      try {
-        await fetch('/api/user/check-account', { credentials: 'include' });
-      } catch (e) { console.error('Lazy init failed', e); }
-
-      // 4. Data Fetching (The Source of Truth)
+      // 6. Data Fetching (The Source of Truth)
       // Retry logic: If we just claimed a referral, ensure we see the credit (handle potential DB latency)
       let customerData = null;
       for (let i = 0; i < 3; i++) {
@@ -446,7 +448,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         if (mounted) setReferralCode(genData.referralCode);
       }
 
-      // 5. Update Customer Segment (Source of Truth)
+      // 7. Update Customer Segment (Source of Truth)
       if (urlSegment) {
         // Only provision segment if user doesn't have one yet in the DB
         if (!customerData?.segment) {
@@ -463,7 +465,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
       }
 
-      // 6. Clean URL (Once everything is processed)
+      // 8. Clean URL (Once everything is processed)
       if (urlRef || urlSegment || urlNewCredit || urlCoupon) {
         setSearchParams({}, { replace: true });
       }
