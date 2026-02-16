@@ -38,6 +38,8 @@ const App: React.FC = () => {
   const normalizedPath = location.pathname.endsWith('/') && location.pathname.length > 1 
     ? location.pathname.slice(0, -1) 
     : location.pathname;
+  
+  // PAGES WHERE THE GLOBAL HEADER SHOULD BE HIDDEN
   const isLandingPage = [
     '/simple-website-checkup', 
     '/convert-more-real-estate-website-visitors', 
@@ -51,7 +53,7 @@ const App: React.FC = () => {
     '/blog/why-small-businesses-need-website-audit',
     '/admin-dashboard',
     '/admin-blog',
-    '/login',
+    '/login', // <--- CRITICAL: Hides header on login page
     '/styleguide'
   ].includes(normalizedPath);
 
