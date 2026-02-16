@@ -24,6 +24,7 @@ const Login: React.FC = () => {
 
   // Set background gradient
   useEffect(() => {
+    document.title = plan ? "Complete Purchase | User Mirror" : "Sign In | User Mirror";
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
       radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
@@ -32,7 +33,7 @@ const Login: React.FC = () => {
       radial-gradient(at ${r()}% ${r()}%, #ff0000 0%, transparent 50%),
       #ffffff
     `);
-  }, []);
+  }, [plan]);
 
   // --- THE TRAFFIC COP ---
   useEffect(() => {
@@ -240,7 +241,7 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-black text-black mb-2">
-            {plan ? "Complete Your Purchase" : "User Mirror"}
+            {plan ? "Complete Your Purchase" : "Sign in to User Mirror"}
           </h1>
           {!plan && (
             <>

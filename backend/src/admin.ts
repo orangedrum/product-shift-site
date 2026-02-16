@@ -162,43 +162,23 @@ router.post('/delete-users', requireAdminKey, async (req, res) => {
 router.post('/invite-user', requireAdminKey, async (req, res) => {
   const { email, credits, segment } = req.body;
   
-  // 1. Create/Update Customer Record
-  const { error: dbError } = await supabase.from('customers').upsert({ 
+  const { error } = await supabase.from('customers').upsert({ 
     email, 
     credits: credits || 3, 
     segment: segment || 'tech',
     plan_status: 'free'
   }, { onConflict: 'email' });
 
-  if (dbError) return res.status(500).json({ error: dbError.message });
+  if (error) return res.status(500).json({ error: error.message });
 
-  // 2. Ensure Auth User Exists (Idempotent)
-  const { error: createError } = await supabase.auth.admin.createUser({
-    email,
-    email_confirm: true
-  });
-  // Ignore "already registered" errors, fail on others
-  if (createError && !createError.message.includes('registered') && !createError.message.includes('exists')) {
-     console.error('Invite User Auth Error:', createError);
-  }
-
-  // 3. Generate Direct Magic Link
   const baseUrl = 'https://www.theproductshift.com';
-  const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-    type: 'magiclink',
-    email,
-    options: { redirectTo: `${baseUrl}/ai-powered-ux?new_credit=true&segment=${segment || 'tech'}` }
-  });
-
-  if (linkError) return res.status(500).json({ error: linkError.message });
-
   const html = `
-    <p>You've been invited to try User Mirror!</p>
-    <p>We've loaded your account with <strong>${credits} credits</strong>.</p>
-    <div style="text-align: center; margin-top: 20px;">
-      <a href="${linkData.properties.action_link}" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">Accept Invite & Log In</a>
+    <div style="text-align: center;">
+      <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">You've been invited to try User Mirror!</h2>
+      <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">We've loaded your account with <strong>${credits} credits</strong>.</p>
+      <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Accept Invite & Log In</a>
+      <p style="color: #9ca3af; font-size: 14px; margin-top: 32px;">This link expires in 24 hours.</p>
     </div>
-    <p style="margin-top: 20px; font-size: 12px; color: #666;">This link expires in 24 hours.</p>
   `;
   await sendEmail(email, "You're invited to User Mirror", html, baseUrl);
 
