@@ -24,7 +24,7 @@ const Login: React.FC = () => {
 
   // Set background gradient
   useEffect(() => {
-    document.title = plan ? "Complete Purchase | User Mirror" : "Sign In | User Mirror";
+    document.title = plan ? "Complete Purchase | User Mirror" : "Log in | User Mirror";
     const r = () => Math.floor(Math.random() * 100);
     setBgGradient(`
       radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
@@ -241,7 +241,7 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-black text-black mb-2">
-            {plan ? "Complete Your Purchase" : "Sign in to User Mirror"}
+            {plan ? "Complete Your Purchase" : "Log in to User Mirror"}
           </h1>
           {!plan && (
             <>
@@ -254,7 +254,7 @@ const Login: React.FC = () => {
           <p className="text-gray-600 mb-6">
             {plan 
               ? "Sign in or create an account to proceed to checkout." 
-              : "Enter your email to sign in."}
+              : "Enter your email to log in."}
           </p>
           
           {message && (
