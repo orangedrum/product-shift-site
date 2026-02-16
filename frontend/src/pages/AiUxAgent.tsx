@@ -362,7 +362,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
         try {
           const res = await fetch('/api/user/claim-referral', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentSession.access_token}`
+            },
             body: JSON.stringify({ email: currentSession.user.email, referralCode: pendingRef, segment: urlSegment })
           });
           const data = await res.json();
@@ -381,7 +384,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
         try {
           const res = await fetch('/api/user/redeem-coupon', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentSession.access_token}`
+            },
             body: JSON.stringify({ email: currentSession.user.email, code: urlCoupon })
           });
           const data = await res.json();
@@ -447,7 +453,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
           // Use backend endpoint to bypass RLS issues and ensure persistence
           await fetch('/api/user/update-segment', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentSession.access_token}`
+            },
             body: JSON.stringify({ segment: urlSegment })
           });
           if (mounted) setSavedSegment(urlSegment);

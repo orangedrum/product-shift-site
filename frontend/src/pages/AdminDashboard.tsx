@@ -607,9 +607,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 />
               </div>
               <div className="w-full md:w-1/4">
-                <label className="block text-sm font-bold mb-1">Credits</label>
+                <label className="block text-sm font-bold mb-1">Credits <span className="text-xs text-gray-500 font-normal">(Total: {(couponCredits || 0) + 3})</span></label>
                 <input type="number" value={couponCredits} onChange={(e) => setCouponCredits(parseInt(e.target.value))} className="w-full p-2 border-2 border-gray-300 rounded-lg" />
-                <p className="text-xs text-gray-500 mt-1 font-medium">Note: Adds to the default 3 (Total: {(couponCredits || 0) + 3})</p>
               </div>
               <div className="w-full md:w-1/4">
                 <NeoButton type="submit" className="w-full" disabled={couponLoading}>{couponLoading ? 'Saving...' : 'Create'}</NeoButton>

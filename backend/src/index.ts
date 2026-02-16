@@ -243,6 +243,17 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
   const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
   const cookie = authCookieKey ? cookies[authCookieKey] : null;
 
+  // Check Authorization Header (Critical for SPA fetch calls)
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (!error && user) {
+      (req as any).user = user;
+      return next();
+    }
+  }
+
   if (!cookie) {
     (req as any).user = null;
     (req as any).authDebug = 'No auth cookie found in request';
