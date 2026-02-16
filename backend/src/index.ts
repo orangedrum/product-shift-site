@@ -5,7 +5,7 @@ import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generati
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
 import { runTestHandler } from './analysis-controller';
-import adminRouter from './routes/admin';
+import adminRouter from './admin';
 
 // --- Magic Link Email Template ---
 const getMagicLinkTemplate = (link: string, baseUrl: string) => `
@@ -56,9 +56,6 @@ const sendEmail = async (to: string, subject: string, html: string, baseUrl: str
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors({ origin: true, credentials: true }));
-
-// --- Mount Admin Routes ---
-app.use('/api/admin', adminRouter);
 
 // --- Stripe Webhook ---
 app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
@@ -134,6 +131,9 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
 });
 
 app.use(express.json());
+
+// --- Mount Admin Routes (Must be after express.json) ---
+app.use('/api/admin', adminRouter);
 
 // --- Helper: Parse Markdown to Neo-Brutalist Tailwind HTML ---
 const parseMarkdownToTailwind = (text: string) => {
