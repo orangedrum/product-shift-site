@@ -63,14 +63,16 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
   }
   const fullHtml = getEmailTemplate(html, baseUrl);
   try {
-    console.log(`📨 Resend: Sending from [${emailFrom}] to [${to}]`);
+    const payload = { from: emailFrom.trim(), to, subject, html: fullHtml };
+    console.log(`📨 Resend Payload:`, JSON.stringify({ ...payload, html: '(html_content_hidden)' }));
+    
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({ from: emailFrom, to, subject, html: fullHtml })
+      body: JSON.stringify(payload)
     });
     
     if (!res.ok) {
@@ -79,6 +81,7 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
       return { success: false, error: errorData, from: emailFrom };
     }
     const data = await res.json();
+    console.log(`✅ Resend Response:`, JSON.stringify(data));
     return { success: true, data };
   } catch (e) {
     console.error('Failed to send email:', e);
