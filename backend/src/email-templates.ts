@@ -23,7 +23,9 @@ export const welcomeBody = (baseUrl: string) => `
   <li><strong>Download the Extension:</strong> Audit pages while you browse.</li>
   <li><strong>Share reports:</strong> Use the public link feature to share findings with your team.</li>
 </ol>
-<p><a href="${baseUrl}/ai-powered-ux" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Go to User Mirror</a></p>
+<div style="text-align: center; margin-top: 20px;">
+  <a href="${baseUrl}/ai-powered-ux" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Go to User Mirror</a>
+</div>
 `;
 
 // --- Marketing Email Sequence (Daniel Priestley Method) ---
