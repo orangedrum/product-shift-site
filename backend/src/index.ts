@@ -620,6 +620,8 @@ app.post('/api/user/check-account', async (req, res) => {
 // --- User Account Stats (Authenticated for Extension/App) ---
 app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
+  const skipCredits = req.query.skip_credits === 'true';
+
   if (!user) {
     return res.status(401).json({ 
       error: 'Not authenticated', 
@@ -633,10 +635,11 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
 
     // If customer does not exist, create them (lazy initialization)
     if (!customer) {
-      console.log(`New user detected: ${user.email}. Granting 3 free credits.`);
+      const initialCredits = skipCredits ? 0 : 3;
+      console.log(`New user detected: ${user.email}. Granting ${initialCredits} credits.`);
       const { data: newCustomer, error: insertError } = await supabase
         .from('customers')
-        .insert({ email: user.email, credits: 3, plan_status: 'free' })
+        .insert({ email: user.email, credits: initialCredits, plan_status: 'free' })
         .select()
         .single();
       if (insertError) throw insertError;

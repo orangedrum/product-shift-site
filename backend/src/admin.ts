@@ -179,7 +179,22 @@ router.post('/invite-user', requireAdminKey, async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
 
   const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
-  const loginUrl = `${baseUrl}/login?segment=${segment || 'tech'}`;
+  
+  // 2. Ensure Auth User Exists (Idempotent)
+  await supabase.auth.admin.createUser({
+    email,
+    email_confirm: true
+  }).catch(() => {}); // Ignore if user already exists
+
+  // 3. Generate Magic Link (Bypasses Login Screen)
+  const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+    type: 'magiclink',
+    email,
+    options: { redirectTo: `${baseUrl}/ai-powered-ux?segment=${segment || 'tech'}` }
+  });
+
+  if (linkError || !linkData.properties?.action_link) return res.status(500).json({ error: 'Failed to generate magic link' });
+
   const html = `
     <div style="text-align: center;">
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -187,7 +202,7 @@ router.post('/invite-user', requireAdminKey, async (req, res) => {
           <td align="center">
             <h2 style="color: #111827; font-size: 24px; font-weight: 800; margin-bottom: 16px;">You've been invited to try User Mirror!</h2>
             <p style="color: #4b5563; font-size: 16px; margin-bottom: 32px; line-height: 1.5;">We've loaded your account with <strong>${credits} credits</strong>.</p>
-            <a href="${loginUrl}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Accept Invite & Log In</a>
+            <a href="${linkData.properties.action_link}" style="background-color: #000000; color: #ffffff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Accept Invite & Log In</a>
             <p style="color: #9ca3af; font-size: 14px; margin-top: 32px;">This link expires in 24 hours.</p>
           </td>
         </tr>

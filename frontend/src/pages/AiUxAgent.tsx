@@ -357,8 +357,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       // 3. Lazy Initialization (CRITICAL: Ensure Customer Row Exists FIRST)
       // We must create the user (with default 3 credits) before we can add coupon credits to them.
+      // CTO FIX: If we have a coupon, skip the default 3 credits so the coupon amount is exact (Control Method).
       try {
-        await fetch('/api/user/check-account', { 
+        await fetch(`/api/user/check-account?skip_credits=${!!urlCoupon}`, { 
           headers: { 'Authorization': `Bearer ${currentSession.access_token}` } 
         });
       } catch (e) { console.error('Lazy init failed', e); }
