@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from './lib/supabase';
-import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
+import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle } from 'lucide-react';
 import { AnalysisErrorCard } from './components/AnalysisErrorCard';
 
 // ==========================================
@@ -131,22 +131,61 @@ const UseCasesSection = () => (
 );
 
 const PainSection = () => (
-  <section className="bg-transparent py-16 sm:py-24">
-    <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-      <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-        <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
-          {CONFIG.painTitle}
-        </h2>
-        <ul className="space-y-6 text-lg text-gray-700">
-          {CONFIG.painPoints.map((point, i) => (
-            <li key={i} className="flex items-start gap-4">
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 border-black ${i < 2 ? 'bg-gray-100' : 'bg-indigo-100'}`}>
-                {i < 2 ? <span className="text-gray-600 font-bold">!</span> : <Check className="text-indigo-600" size={16} />}
+  <section className="py-20 bg-white">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <h2 className="text-3xl font-black text-gray-900 mb-6">
+            Google Analytics tells you <span className="italic underline text-black">what</span> is happening.
+            <br />
+            We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            Analytics dashboards show you high bounce rates and abandoned carts, but they don't tell you <em>why</em> users are leaving. 
+            Our AI agents browse your site like real humans, verbalizing their confusion and frustration so you can fix it.
+          </p>
+          
+          <div className="relative grid grid-cols-2 gap-4">
+            {/* VS Badge */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full p-2 shadow-sm">
+              <span className="text-xs font-black text-gray-400">VS</span>
+            </div>
+
+            <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200 h-full">
+              <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm w-fit">
+                <BarChart className="w-5 h-5 text-gray-400" />
               </div>
-              <p>{point}</p>
-            </li>
-          ))}
-        </ul>
+              <div>
+                <h4 className="font-bold text-gray-900 text-sm mb-1">Analytics</h4>
+                <p className="text-xs text-gray-500 leading-relaxed">"Bounce rate on /checkout is 65%."</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 p-4 bg-indigo-50 rounded-xl border border-indigo-100 h-full">
+              <div className="p-2 bg-white rounded-lg border border-indigo-100 shadow-sm w-fit">
+                <Zap className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <h4 className="font-bold text-indigo-900 text-sm mb-1">Product Shift</h4>
+                <p className="text-xs text-indigo-700 leading-relaxed">"I can't find the shipping costs. I'm frustrated."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Actionable Fix */}
+        <div className="relative flex flex-col gap-8">
+          <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-gray-100 shadow-xl relative z-10">
+            <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-xs">
+              <CheckCircle size={16} /> Actionable Recommendation
+            </div>
+            <h3 className="text-xl font-bold mb-2">Clarify Salesforce Integration</h3>
+            <p className="text-gray-600 mb-4">Users are abandoning the purchase because they can't confirm if the software works with their existing stack.</p>
+            <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-600 flex items-center gap-2">
+              <div className="w-2 h-2 bg-pink-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip immediately below the primary CTA.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -283,7 +322,7 @@ const HeroWithDemo = () => {
             <p className="text-sm text-gray-600">by The ProductShift</p>
           </div>
           <div className="text-center mb-8">
-            <p className="text-lg text-gray-600">Demo Result for</p>
+            <p className="text-xl font-bold text-black">Demo Result for</p>
             <h2 className="text-4xl font-extrabold text-gray-900">{result.title}</h2>
           </div>
           <div className="grid lg:grid-cols-12 gap-6 items-start">
@@ -309,7 +348,7 @@ const HeroWithDemo = () => {
               </div>
               {/* CTO: High-converting compact CTA */}
               <div className="mt-6 text-center border-t-2 border-gray-100 pt-6">
-                <a href="#pricing" onClick={scrollToPricing} className="inline-block px-10 py-4 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-transform transform hover:-translate-y-0.5 shadow-lg">
+                <a href="#pricing" onClick={scrollToPricing} className="inline-block px-10 py-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-transform transform hover:-translate-y-0.5 shadow-lg">
                   Unlock Full Report
                 </a>
                 <p className="text-xs text-gray-500 mt-2">No credit card required to get started</p>
