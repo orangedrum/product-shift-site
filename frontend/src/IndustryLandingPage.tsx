@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
 // ==========================================
@@ -79,72 +79,52 @@ const formatDemoText = (text: string) => {
 
 // --- Components ---
 
-const HeroSection = () => (
-  <section className="relative bg-transparent overflow-hidden">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
-        <main className="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
-          <div className="text-center lg:text-left lg:w-1/2">
-            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              <span className="block xl:inline">{CONFIG.heroTitle}</span>{' '}
-              <span className="block text-indigo-600 xl:inline">{CONFIG.heroSubtitle}</span>
-            </h1>
-            <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-              {CONFIG.heroDescription}
-            </p>
-            <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-              <div className="rounded-md shadow">
-                <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-sm font-bold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-base">
-                  Try Our Free Demo
-                </a>
-              </div>
-              <div className="mt-3 sm:mt-0 sm:ml-3">
-                <a href="#pricing" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-sm font-bold rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-base">
-                  See Our Simple Pricing
-                </a>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
+const AuthorityBanner = () => (
+  <div className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-4 overflow-hidden relative border-y-2 border-black">
+    <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12"></div>
+    <div className="container mx-auto px-4 text-center relative z-10">
+      <p className="text-black font-black text-sm md:text-base uppercase tracking-widest drop-shadow-sm">
+        Engineered using 15+ years of Human-Centered Design heuristics
+      </p>
     </div>
-    {/* Visual Element (AI Agents) */}
-    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center pointer-events-none">
-      <div className="p-8 w-full">
-         <div className="relative w-full max-w-lg mx-auto h-[500px]">
-            {/* Card 1: Alex */}
-            <div className="absolute bottom-10 left-0 z-20 flex flex-col items-center transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
-                  <p className="text-sm text-gray-800 font-medium leading-snug">"I can't find the pricing page. I'm frustrated."</p>
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
-               </div>
-               <div className="flex flex-col items-center">
-                  <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
-                  </div>
-                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
-                     <p className="font-bold text-gray-900 text-sm">Alex (AI Customer)</p>
-                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing your site...</p>
-                  </div>
-               </div>
-            </div>
-            {/* Card 2: Marcus */}
-            <div className="absolute top-10 right-0 z-10 flex flex-col items-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
-               <div className="relative bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-3 w-56 text-center">
-                  <p className="text-sm text-gray-800 font-medium leading-snug">"This checkout form is asking for way too much info. I'm leaving."</p>
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-black transform rotate-45 -translate-x-1/2 z-10"></div>
-               </div>
-               <div className="flex flex-col items-center">
-                  <div className="p-1.5 bg-white rounded-full shadow-lg">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" className="w-24 h-24 rounded-full bg-indigo-50" alt="AI Agent" />
-                  </div>
-                  <div className="mt-3 text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100">
-                     <p className="font-bold text-gray-900 text-sm">Marcus (AI Customer)</p>
-                     <p className="text-xs text-green-600 flex items-center justify-center gap-1 mt-0.5"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Browsing your site...</p>
-                  </div>
-               </div>
-            </div>
-         </div>
+    <style>{`
+      @keyframes shimmer {
+        0% { transform: translateX(-150%); }
+        100% { transform: translateX(150%); }
+      }
+    `}</style>
+  </div>
+);
+
+const UseCasesSection = () => (
+  <section className="py-20 bg-gray-50 border-b-2 border-black">
+    <div className="container mx-auto px-4 max-w-7xl">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl font-black text-gray-900 mb-4">Your New Conversion Toolkit</h2>
+        <p className="text-xl text-gray-600">Use User Mirror whenever you need to know "Why?"</p>
+      </div>
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 transition-transform">
+          <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6 border-2 border-black">
+            <TrendingUp className="text-green-600" size={24} />
+          </div>
+          <h3 className="text-xl font-bold mb-3 text-black">The Pre-Launch</h3>
+          <p className="text-gray-600">Before you spend ad money, ensure your landing page makes sense. Fix confusion before it costs you clicks.</p>
+        </div>
+        <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 transition-transform">
+          <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-6 border-2 border-black">
+            <AlertCircle className="text-red-600" size={24} />
+          </div>
+          <h3 className="text-xl font-bold mb-3 text-black">The Slump</h3>
+          <p className="text-gray-600">Sales dropped? Bounce rate up? Find out exactly where users are getting stuck and why they are leaving.</p>
+        </div>
+        <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 transition-transform">
+          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6 border-2 border-black">
+            <Users className="text-blue-600" size={24} />
+          </div>
+          <h3 className="text-xl font-bold mb-3 text-black">The Competitor</h3>
+          <p className="text-gray-600">Run a test on your competitor's URL. See what they do right, what they do wrong, and steal their best ideas.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -219,7 +199,7 @@ const FeaturesSection = () => (
   </section>
 );
 
-const DemoSection = () => {
+const HeroWithDemo = () => {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -333,8 +313,8 @@ const DemoSection = () => {
                   <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
                   <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
                   <p className="text-sm text-indigo-700 mt-1">Get the complete analysis and feedback from 5 more personas.</p>
-                  <a href="#pricing" onClick={scrollToPricing} className="mt-4 inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-                    Get Full Access
+                  <a href="#pricing" onClick={scrollToPricing} className="mt-4 inline-block px-8 py-3 bg-black text-white border-2 border-transparent font-bold rounded-lg hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 shadow-lg">
+                    Get My Action Plan
                   </a>
                 </div>
               </div>
@@ -351,27 +331,71 @@ const DemoSection = () => {
   }
 
   return (
-    <section id="demo" className="bg-gray-800 text-white py-24 sm:py-32">
-      <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Try It Now: Free Demo Website Checkup</h2>
-        {error && error.usageCounted === false ? (
-          <div className="mt-8 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} theme="dark" /></div>
-        ) : (
-          <>
-            <p className="mt-6 text-lg text-gray-300">Our AI customer, Alex, will visit your site and tell you if she understands what you do.</p>
-            <form onSubmit={handleDemoSubmit} className="mt-8 max-w-xl mx-auto flex flex-col gap-3">
-              <div className="flex items-center bg-gray-900/50 border border-gray-600 rounded-md focus-within:ring-2 focus-within:ring-indigo-500">
-                <span className="pl-4 text-gray-400">https://</span>
-                <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} className="flex-grow px-2 py-3 text-white bg-transparent border-none focus:outline-none focus:ring-0" placeholder="your-website.com" required />
+    <section className="relative bg-transparent overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-28">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+          <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+              <span className="block xl:inline">{CONFIG.heroTitle}</span>{' '}
+              <span className="block text-indigo-600 xl:inline">{CONFIG.heroSubtitle}</span>
+            </h1>
+            <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+              {CONFIG.heroDescription}
+            </p>
+            
+            {/* Giant Input Form */}
+            <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
+              {error && error.usageCounted === false ? (
+                <div className="mb-6 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} /></div>
+              ) : (
+                <form onSubmit={handleDemoSubmit} className="mt-3 sm:flex flex-col gap-3">
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">https://</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-16 sm:text-sm border-2 border-black rounded-md py-4 text-lg"
+                      placeholder="your-website.com"
+                      required
+                    />
+                  </div>
+                  <button type="submit" disabled={isLoading} className="w-full relative overflow-hidden px-8 py-4 bg-black text-white font-bold rounded-md hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
+                    {isLoading && <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />}
+                    <span className="relative z-10 text-lg">{isLoading ? 'Analyzing...' : 'Analyze My Site'}</span>
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2 text-center lg:text-left">
+                    No credit card required • 3 free credits included
+                  </p>
+                </form>
+              )}
+              {error && error.usageCounted !== false && <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 flex items-center gap-2"><AlertCircle size={16} /><strong>Error:</strong> {error.details || error.error}</div>}
+            </div>
+          </div>
+          
+          {/* Visual Element (AI Agents) */}
+          <div className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
+            <div className="relative mx-auto w-full rounded-lg shadow-lg lg:max-w-md">
+              <div className="relative block w-full bg-white rounded-lg overflow-hidden border-2 border-black shadow-[8px_8px_0px_0px_#000]">
+                <div className="p-6">
+                   <div className="flex items-center gap-4 mb-4">
+                      <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-16 h-16 rounded-full bg-indigo-50 border-2 border-black" alt="AI Agent" />
+                      <div>
+                         <p className="font-bold text-black">Alex (AI Customer)</p>
+                         <p className="text-xs text-gray-500">Browsing your site...</p>
+                      </div>
+                   </div>
+                   <div className="bg-gray-100 p-4 rounded-lg border-2 border-black relative">
+                      <div className="absolute -top-2 left-8 w-4 h-4 bg-gray-100 border-t-2 border-l-2 border-black transform rotate-45"></div>
+                      <p className="text-sm font-medium text-gray-800">"I'm looking for the pricing page but I keep getting distracted by these popups. I'm frustrated."</p>
+                   </div>
+                </div>
               </div>
-              <button type="submit" disabled={isLoading} className="relative overflow-hidden px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
-                {isLoading && <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />}
-                <span className="relative z-10">{isLoading ? 'Checking...' : 'Check My Site'}</span>
-              </button>
-            </form>
-            {error && <div className="mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-sm text-red-200 flex items-center gap-2 max-w-xl mx-auto"><AlertCircle size={16} /><strong>Error:</strong> {error.details || error.error}</div>}
-          </>
-        )}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -684,10 +708,11 @@ const IndustryLandingPage: React.FC = () => {
         </div>
         
         <div className="relative z-10">
-          <HeroSection />
+          <HeroWithDemo />
           <PainSection />
           <hr className="border-t-2 border-black my-0" />
-          <DemoSection />
+          <AuthorityBanner />
+          <UseCasesSection />
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection />
           <hr className="border-t-2 border-black my-0" />
