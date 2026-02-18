@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { LandingFAQ } from '../components/LandingFAQ';
+import { PricingSection } from '../components/PricingSection';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { LandingFAQ } from '../components/LandingFAQ';
+import { PricingSection } from '../components/PricingSection';
 
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {

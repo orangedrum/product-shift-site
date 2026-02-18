@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle } from 'lucide-react';
 import { AnalysisErrorCard } from './components/AnalysisErrorCard';
+import { PricingSection } from './components/PricingSection';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️
@@ -317,10 +318,14 @@ const HeroWithDemo = () => {
     return (
       <section id="demo" className="relative bg-transparent py-8 sm:py-12">
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="text-left mb-4">
-            <p className="text-lg font-bold text-black">User Mirror</p>
-            <p className="text-sm text-gray-600">by The ProductShift</p>
+          {/* Plaque Header */}
+          <div className="flex justify-center mb-12">
+            <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000] transform -rotate-1">
+              <p className="text-xl font-black text-black leading-none">User Mirror</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">by The ProductShift</p>
+            </div>
           </div>
+
           <div className="text-left mb-6">
             <p className="text-xl font-bold text-black">Demo Result for</p>
             <h2 className="text-4xl font-extrabold text-gray-900">{result.title}</h2>
@@ -368,10 +373,13 @@ const HeroWithDemo = () => {
   return (
     <section className="relative bg-transparent overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <p className="text-lg font-bold text-black">User Mirror</p>
-            <p className="text-sm text-gray-600">by The ProductShift</p>
+        <div className="max-w-4xl mx-auto relative">
+          {/* Plaque Header */}
+          <div className="flex justify-center mb-12">
+            <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000] transform -rotate-1">
+              <p className="text-xl font-black text-black leading-none">User Mirror</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">by The ProductShift</p>
+            </div>
           </div>
 
           <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl mb-4">
@@ -418,71 +426,6 @@ const HeroWithDemo = () => {
     </section>
   );
 };
-
-const PricingSection = () => (
-  <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
-    <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Simple Pricing</h2>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        {/* Pack 3 */}
-        <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-center text-gray-900">Quick Check</h3>
-          <div className="text-center mt-4">
-            <p className="text-4xl font-extrabold text-gray-900">$14</p>
-            <p className="text-gray-500">one-time</p>
-          </div>
-          <p className="text-sm text-gray-600 mt-4 text-center px-2">Run 3 tests on any pages you want. Perfect for trying your homepage, booking page, and one key offer.</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>3 Tests</strong></li>
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Tests never expire</li>
-          </ul>
-          <Link to={`/login?plan=pack-3&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full text-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition-colors">
-            Buy Pack
-          </Link>
-        </div>
-
-        {/* Pack 15 */}
-        <div className="pricing-card bg-white p-6 border-2 border-indigo-500 rounded-xl shadow-xl text-left flex flex-col relative transform md:-translate-y-4">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Best Value</div>
-          <h3 className="text-xl font-bold text-center text-gray-900 mt-2">Pro Pack</h3>
-          <div className="text-center mt-4">
-            <p className="text-4xl font-extrabold text-gray-900">$69</p>
-            <p className="text-gray-500">one-time</p>
-          </div>
-          <p className="text-sm text-gray-600 mt-4 text-center px-2">15 tests you can use across any pages. Ideal if you have multiple landing pages, competitors, or want to re‑test after changes.</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>15 Tests</strong></li>
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Save $1.40 per test</li>
-          </ul>
-          <Link to={`/login?plan=pack-15&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-            Buy Pack
-          </Link>
-        </div>
-
-        {/* Subscription */}
-        <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-center text-gray-900">Monthly</h3>
-          <div className="text-center mt-4">
-            <p className="text-4xl font-extrabold text-gray-900">$29</p>
-            <p className="text-gray-500">per month</p>
-          </div>
-          <p className="text-sm text-gray-600 mt-4 text-center px-2">10 tests every month. Great for businesses that launch new pages or want a monthly website checkup. Unused tests roll over up to 30.</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Tests / mo</strong></li>
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Consistent testing</li>
-          </ul>
-          <Link to={`/login?plan=starter&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full text-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors">
-            Subscribe
-          </Link>
-        </div>
-      </div>
-    </div>
-  </section>
-);
 
 const TestimonialsSection = () => (
   <section className="bg-indigo-900 py-24">
