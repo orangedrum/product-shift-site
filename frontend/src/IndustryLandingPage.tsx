@@ -269,15 +269,22 @@ const HeroWithDemo = () => {
 
   if (result) {
     const session = result.userSessions?.[0];
-    const userBubble = session?.analysis?.split('|||USER_BUBBLE|||')[1]?.split('|||USER_DETAILS|||')[0]?.trim() || "Analysis complete.";
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
+    
+    // CTO: Ensure user bubble directly correlates to the first actionable feedback point.
+    const firstIssueMatch = recommendations.match(/\*\*ISSUE:\*\* (.*?)\n/i);
+    const userBubble = firstIssueMatch ? firstIssueMatch[1].trim().replace(/\.$/, '') + "." : "I've finished my review. Here are my thoughts.";
 
     return (
       <section id="demo" className="relative bg-transparent py-12 sm:py-20">
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-4">
+            <p className="text-lg font-bold text-black">User Mirror</p>
+            <p className="text-sm text-gray-600">by The ProductShift</p>
+          </div>
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-extrabold text-gray-900">Demo Result for <span className="text-indigo-600">{result.title}</span></h2>
-            <p className="mt-4 text-lg text-gray-600">Here is what our AI customer thought of your site.</p>
+            <p className="text-lg text-gray-600">Demo Result for</p>
+            <h2 className="text-4xl font-extrabold text-gray-900">{result.title}</h2>
           </div>
           <div className="grid lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-4 bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
@@ -300,15 +307,12 @@ const HeroWithDemo = () => {
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
               </div>
-              <div className="mt-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200 text-center relative">
-                <div className="relative z-10">
-                  <Lock className="mx-auto text-indigo-400 mb-2" size={32} />
-                  <h4 className="font-bold text-indigo-800">Unlock the Full Report</h4>
-                  <p className="text-sm text-indigo-700 mt-1">Get the complete analysis and feedback from 5 more personas.</p>
-                  <a href="#pricing" onClick={scrollToPricing} className="mt-4 inline-block px-8 py-3 bg-black text-white border-2 border-transparent font-bold rounded-lg hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 shadow-lg">
-                    Get My Action Plan
-                  </a>
-                </div>
+              {/* CTO: High-converting compact CTA */}
+              <div className="mt-6 text-center border-t-2 border-gray-100 pt-6">
+                <a href="#pricing" onClick={scrollToPricing} className="inline-block px-10 py-4 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-transform transform hover:-translate-y-0.5 shadow-lg">
+                  Unlock Full Report
+                </a>
+                <p className="text-xs text-gray-500 mt-2">No credit card required to get started</p>
               </div>
               <div className="mt-6 text-center">
                 <button onClick={() => setResult(null)} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-600 transition-colors">
@@ -690,8 +694,6 @@ const IndustryLandingPage: React.FC = () => {
           <UseCasesSection />
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection />
-          <hr className="border-t-2 border-black my-0" />
-          <TestimonialsSection />
           <hr className="border-t-2 border-black my-0" />
           <PricingSection />
           <hr className="border-t-2 border-black my-0" />
