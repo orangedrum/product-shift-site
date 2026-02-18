@@ -423,9 +423,12 @@ const PricingSection = () => (
             <p className="text-4xl font-extrabold text-gray-900">$14</p>
             <p className="text-gray-500">one-time</p>
           </div>
-          <p className="text-sm text-gray-600 mt-4 text-center px-2">Run 3  on
+          <p className="text-sm text-gray-600 mt-4 text-center px-2">Run 3 audits on any pages you want. Perfect for trying your homepage, booking page, and one key offer.</p>
+          <hr className="my-6" />
           <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check 
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>3 Audits</strong></li>
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Audits never expire</li>
+          </ul>
           <Link to={`/login?plan=pack-3&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full text-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition-colors">
             Buy Pack
           </Link>
@@ -441,10 +444,13 @@ const PricingSection = () => (
           </div>
           <p className="text-sm text-gray-600 mt-4 text-center px-2">15 audits you can use across any pages. Ideal if you have multiple landing pages, competitors, or want to re‑audit after changes.</p>
           <hr className="my-6" />
-          <ul/>
+          <ul className="space-y-3 text-gray-600 flex-grow">
+            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>15 Audits</strong></li>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Save $1.40 per audit</li>
           </ul>
-          <Link to={`/login?plan=pack-15&segment=${CONFIG.
+          <Link to={`/login?plan=pack-15&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
+            Buy Pack
+          </Link>
         </div>
 
         {/* Subscription */}
@@ -459,7 +465,8 @@ const PricingSection = () => (
           <ul className="space-y-3 text-gray-600 flex-grow">
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Audits / mo</strong></li>
             <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Consistent auditing</li>
-          </u-otransition-colors">
+          </ul>
+          <Link to={`/login?plan=starter&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full text-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors">
             Subscribe
           </Link>
         </div>
