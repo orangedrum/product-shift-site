@@ -81,10 +81,10 @@ const formatDemoText = (text: string) => {
 // --- Components ---
 
 const AuthorityBanner = () => (
-  <div className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-4 overflow-hidden relative border-y-2 border-black">
+  <div className="w-full bg-marketing-gradient py-4 overflow-hidden relative">
     <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12"></div>
     <div className="container mx-auto px-4 text-center relative z-10">
-      <p className="text-black font-black text-sm md:text-base uppercase tracking-widest drop-shadow-sm">
+      <p className="text-white font-black text-sm md:text-base uppercase tracking-widest drop-shadow-sm">
         Engineered using 15+ years of Human-Centered Design heuristics
       </p>
     </div>
@@ -326,10 +326,6 @@ const HeroWithDemo = () => {
             </div>
           </div>
 
-          <div className="text-left mb-6">
-            <p className="text-xl font-bold text-black">Demo Result for</p>
-            <h2 className="text-4xl font-extrabold text-gray-900">{result.title}</h2>
-          </div>
           <div className="grid lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-4 bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <div className="flex flex-col items-center text-center">
