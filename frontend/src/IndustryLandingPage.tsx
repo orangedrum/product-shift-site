@@ -303,7 +303,7 @@ const HeroWithDemo = () => {
 
   const scrollToPricing = (e: React.MouseEvent) => {
     e.preventDefault();
-    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    // Pricing section removed, no-op or redirect if needed
   };
 
   if (result) {
@@ -315,13 +315,13 @@ const HeroWithDemo = () => {
     const userBubble = firstIssueMatch ? firstIssueMatch[1].trim().replace(/\.$/, '') + "." : "I've finished my review. Here are my thoughts.";
 
     return (
-      <section id="demo" className="relative bg-transparent py-12 sm:py-20">
+      <section id="demo" className="relative bg-transparent py-8 sm:py-12">
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-4">
+          <div className="text-left mb-4">
             <p className="text-lg font-bold text-black">User Mirror</p>
             <p className="text-sm text-gray-600">by The ProductShift</p>
           </div>
-          <div className="text-center mb-8">
+          <div className="text-left mb-6">
             <p className="text-xl font-bold text-black">Demo Result for</p>
             <h2 className="text-4xl font-extrabold text-gray-900">{result.title}</h2>
           </div>
@@ -348,9 +348,9 @@ const HeroWithDemo = () => {
               </div>
               {/* CTO: High-converting compact CTA */}
               <div className="mt-6 text-center border-t-2 border-gray-100 pt-6">
-                <a href="#pricing" onClick={scrollToPricing} className="inline-block px-10 py-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-transform transform hover:-translate-y-0.5 shadow-lg">
+                <Link to="/login" className="inline-block px-10 py-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-transform transform hover:-translate-y-0.5 shadow-lg">
                   Unlock Full Report
-                </a>
+                </Link>
                 <p className="text-xs text-gray-500 mt-2">No credit card required to get started</p>
               </div>
               <div className="mt-6 text-center">
@@ -387,25 +387,20 @@ const HeroWithDemo = () => {
                 <div className="mb-6 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} /></div>
               ) : (
                 <form onSubmit={handleDemoSubmit} className="relative">
-                  <div className="relative flex items-center">
-                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
-                      <span className="text-gray-500 text-lg font-bold">https://</span>
-                    </div>
-                    <input
-                      type="text"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      className="block w-full border-2 border-black rounded-full py-5 pl-24 pr-40 text-lg shadow-[4px_4px_0px_0px_#000] focus:shadow-[6px_6px_0px_0px_#000] focus:outline-none transition-all"
-                      placeholder="your-website.com"
-                      required
-                    />
-                    <div className="absolute inset-y-2 right-2">
-                      <button type="submit" disabled={isLoading} className="h-full px-6 bg-black text-white font-bold rounded-full flex items-center justify-center hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full border-2 border-black rounded-full py-5 px-8 text-lg shadow-[4px_4px_0px_0px_#000] focus:shadow-[6px_6px_0px_0px_#000] transition-all"
+                    placeholder="Enter your website URL..."
+                    required
+                  />
+                  <button type="submit" disabled={isLoading} className="absolute inset-y-0 right-0 flex items-center pr-3">
                     {isLoading && <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />}
-                        <span className="relative z-10">{isLoading ? 'Analyzing...' : 'Analyze'}</span>
-                      </button>
-                    </div>
-                  </div>
+                    <span className="h-12 px-8 bg-black text-white font-bold rounded-full flex items-center justify-center hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
+                      {isLoading ? 'Analyzing...' : 'Analyze My Site'}
+                    </span>
+                  </button>
                 </form>
               )}
               <p className="text-xs text-gray-500 mt-4">
@@ -733,6 +728,8 @@ const IndustryLandingPage: React.FC = () => {
           <UseCasesSection />
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection />
+          <hr className="border-t-2 border-black my-0" />
+          <TestimonialsSection />
           <hr className="border-t-2 border-black my-0" />
           <PricingSection />
           <hr className="border-t-2 border-black my-0" />
