@@ -273,37 +273,29 @@ const HeroWithDemo = () => {
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
 
     return (
-      <section id="demo" className="bg-gray-50 py-24 sm:py-32">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+      <section id="demo" className="relative bg-transparent py-12 sm:py-20">
+        <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
             <h2 className="text-3xl font-extrabold text-gray-900">Demo Result for <span className="text-indigo-600">{result.title}</span></h2>
             <p className="mt-4 text-lg text-gray-600">Here is what our AI customer thought of your site.</p>
           </div>
-          <div className="grid lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+          <div className="grid lg:grid-cols-12 gap-6 items-start">
+            <div className="lg:col-span-4 bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <div className="flex flex-col items-center text-center">
                 <img 
                   src={session.avatar} 
                   alt={session.persona} 
                   onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4`; }}
-                  className="w-24 h-24 rounded-full border-4 border-white shadow-lg mb-3 bg-gray-100" />
+                  className="w-24 h-24 rounded-full border-2 border-black shadow-sm mb-3 bg-gray-100" />
                 <h3 className="text-xl font-bold text-gray-900">{session.persona}</h3>
                 <p className="text-sm text-gray-500">{session.description}</p>
               </div>
-              <div className="mt-6 bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100 text-gray-800 relative">
-                <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l border-t border-blue-100 transform rotate-45 -translate-x-1/2"></div>
-                <div className="relative">
-                  <p className="text-base italic text-gray-700 leading-relaxed blur-sm select-none">"{userBubble}"</p>
-                  <div className="absolute inset-0 flex items-center justify-center bg-transparent">
-                      <a href="#pricing" onClick={scrollToPricing} className="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm hover:bg-indigo-200 transition-colors cursor-pointer flex items-center">
-                          <Lock size={12} className="inline-block mr-1" />
-                          Unlock Feedback
-                      </a>
-                  </div>
-                </div>
+              <div className="mt-6 bg-blue-50 p-4 rounded-lg border-2 border-black text-gray-800 relative">
+                <div className="absolute left-1/2 -top-2 w-4 h-4 bg-blue-50 border-l-2 border-t-2 border-black transform rotate-45 -translate-x-1/2"></div>
+                <p className="text-base italic text-gray-900 leading-relaxed">"{userBubble}"</p>
               </div>
             </div>
-            <div className="lg:col-span-8 bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+            <div className="lg:col-span-8 bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Top Recommendations</h3>
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
@@ -352,20 +344,25 @@ const HeroWithDemo = () => {
                 <div className="mb-6 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} /></div>
               ) : (
                 <form onSubmit={handleDemoSubmit} className="relative">
-                  <input
-                    type="text"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full border-2 border-black rounded-full py-5 px-8 text-lg shadow-[4px_4px_0px_0px_#000] focus:shadow-[6px_6px_0px_0px_#000] transition-all"
-                    placeholder="Enter your website URL..."
-                    required
-                  />
-                  <button type="submit" disabled={isLoading} className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <div className="relative flex items-center">
+                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
+                      <span className="text-gray-500 text-lg font-bold">https://</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="block w-full border-2 border-black rounded-full py-5 pl-24 pr-40 text-lg shadow-[4px_4px_0px_0px_#000] focus:shadow-[6px_6px_0px_0px_#000] focus:outline-none transition-all"
+                      placeholder="your-website.com"
+                      required
+                    />
+                    <div className="absolute inset-y-2 right-2">
+                      <button type="submit" disabled={isLoading} className="h-full px-6 bg-black text-white font-bold rounded-full flex items-center justify-center hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
                     {isLoading && <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />}
-                    <span className="h-12 px-8 bg-black text-white font-bold rounded-full flex items-center justify-center hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
-                      {isLoading ? 'Analyzing...' : 'Analyze My Site'}
-                    </span>
-                  </button>
+                        <span className="relative z-10">{isLoading ? 'Analyzing...' : 'Analyze'}</span>
+                      </button>
+                    </div>
+                  </div>
                 </form>
               )}
               <p className="text-xs text-gray-500 mt-4">
