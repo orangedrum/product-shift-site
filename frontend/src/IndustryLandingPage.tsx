@@ -320,7 +320,7 @@ const HeroWithDemo = () => {
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           {/* Plaque Header */}
           <div className="flex justify-center mb-12">
-            <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000] transform -rotate-1">
+            <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000]">
               <p className="text-xl font-black text-black leading-none">User Mirror</p>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">by The ProductShift</p>
             </div>
@@ -376,7 +376,7 @@ const HeroWithDemo = () => {
         <div className="max-w-4xl mx-auto relative">
           {/* Plaque Header */}
           <div className="flex justify-center mb-12">
-            <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000] transform -rotate-1">
+            <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000]">
               <p className="text-xl font-black text-black leading-none">User Mirror</p>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">by The ProductShift</p>
             </div>

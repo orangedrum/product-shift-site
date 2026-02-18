@@ -31,9 +31,15 @@ export const PricingSection = () => (
               <Check className="w-6 h-6 text-green-500" />
               <span className="font-bold">Get 3 Free Credits</span>
             </li>
-            <li className="flex items-center gap-3">
+            <li className="flex items-center gap-3 group relative w-fit">
               <Check className="w-6 h-6 text-green-500" />
-              <span className="font-bold">Top up credits anytime</span>
+              <span className="font-bold border-b border-dotted border-gray-400 cursor-help">Top up credits anytime</span>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 text-center shadow-xl">
+                <p className="font-bold mb-1">$14 for 9 credits</p>
+                <p className="font-bold mb-1">$69 for 45 credits</p>
+                <p className="text-gray-300">(3 credits covers ~ 1 url)</p>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-black"></div>
+              </div>
             </li>
             <li className="flex items-start gap-3">
               <Check className="w-6 h-6 text-green-500 mt-1 shrink-0" />
