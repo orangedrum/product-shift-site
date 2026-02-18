@@ -12,6 +12,7 @@ import AiUxAgent from './pages/AiUxAgent';
 import MarketingLandingPage from './pages/MarketingLandingPage';
 import SmbLandingPageVideo from './pages/SmbLandingPageVideo';
 import RealtorLandingPageVideo from './pages/RealtorLandingPageVideo';
+import IndustryLandingPage from './pages/IndustryLandingPage';
 import EcommerceLandingPageVideo from './pages/EcommerceLandingPageVideo';
 import MarketingLandingPageVideo from './pages/MarketingLandingPageVideo';
 import FreeWebsiteAuditSmb from './pages/FreeWebsiteAuditSmb';
@@ -116,6 +117,9 @@ const App: React.FC = () => {
           <Route path="/increase-ecommerce-conversion-rates" element={<EcommerceLandingPage />} />
 
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
+
+          {/* New Template Route */}
+          <Route path="/landing-template" element={<IndustryLandingPage />} />
           
           {/* Video Landing Page Variants */}
           <Route path="/simple-website-checkup-video" element={<SmbLandingPageVideo />} />

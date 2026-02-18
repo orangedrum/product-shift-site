@@ -552,6 +552,12 @@ const StyleGuide: React.FC = () => {
                     <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/landingpg-aiuxagent</code>
                   </li>
                   <li>
+                    <Link to="/landing-template" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      New High-Conversion Template ↗
+                    </Link>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/landing-template</code>
+                  </li>
+                  <li>
                     <span className="text-gray-400 font-semibold flex items-center gap-1 cursor-not-allowed">
                       Lovable Site Reference (Local Only)
                     </span>
