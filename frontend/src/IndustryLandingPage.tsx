@@ -85,7 +85,7 @@ const AuthorityBanner = () => (
     <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12"></div>
     <div className="container mx-auto px-4 text-center relative z-10">
       <p className="text-white font-black text-sm md:text-base uppercase tracking-widest drop-shadow-sm">
-        Engineered using 15+ years of Human-Centered Design heuristics
+        Backed by 15+ years of UX Research Experience & Industry Standard heuristics
       </p>
     </div>
     <style>{`
@@ -132,63 +132,65 @@ const UseCasesSection = () => (
 );
 
 const PainSection = () => (
-  <section className="py-20 bg-white border-t-2 border-black">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-      <div className="grid lg:grid-cols-2 gap-16 items-center">
-        <div>
+  <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
+    {/* Diagonal Line Separator */}
+    <div className="absolute inset-0 pointer-events-none hidden lg:block">
+      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 transform -skew-x-12 origin-top"></div>
+    </div>
+
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative">
+      {/* VS Badge */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full p-3 shadow-sm hidden lg:block">
+        <span className="text-sm font-black text-gray-400">VS</span>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-16">
+        {/* Left: Analytics (The What) */}
+        <div className="flex flex-col justify-center lg:pr-12">
           <h2 className="text-3xl font-black text-gray-900 mb-6">
             Google Analytics tells you <span className="italic underline text-black">what</span> is happening.
-            <br />
-            We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
           </h2>
           <p className="text-lg text-gray-600 mb-8 leading-relaxed">
             Analytics dashboards show you high bounce rates and abandoned carts, but they don't tell you <em>why</em> users are leaving. 
-            Our AI agents browse your site like real humans, verbalizing their confusion and frustration so you can fix it.
           </p>
           
-          <div className="relative grid grid-cols-2 gap-4">
-            {/* Diagonal Line */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-              <div className="w-[120%] border-t-2 border-gray-200 transform -rotate-12"></div>
-            </div>
-
-            {/* VS Badge */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full p-2 shadow-sm">
-              <span className="text-xs font-black text-gray-400">VS</span>
-            </div>
-
-            <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200 h-full">
+          <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm max-w-md mx-auto lg:mx-0 w-full">
+            <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm w-fit">
                 <BarChart className="w-5 h-5 text-gray-400" />
               </div>
-              <div>
-                <h4 className="font-bold text-gray-900 text-sm mb-1">Analytics</h4>
-                <p className="text-xs text-gray-500 leading-relaxed">"Bounce rate on /checkout is 65%."</p>
-              </div>
+              <h4 className="font-bold text-gray-900">Analytics Dashboard</h4>
             </div>
-
-            <div className="flex flex-col gap-3 p-4 bg-indigo-50 rounded-xl border border-indigo-100 h-full">
-              <div className="p-2 bg-white rounded-lg border border-indigo-100 shadow-sm w-fit">
-                <Zap className="w-5 h-5 text-indigo-600" />
-              </div>
-              <div>
-                <h4 className="font-bold text-indigo-900 text-sm mb-1">Product Shift</h4>
-                <p className="text-xs text-indigo-700 leading-relaxed">"I can't find the shipping costs. I'm frustrated."</p>
-              </div>
+            <div className="space-y-3">
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-gray-500">Bounce Rate</span>
+                 <span className="font-mono font-bold text-red-500">65%</span>
+               </div>
+               <div className="w-full bg-gray-200 rounded-full h-2">
+                 <div className="bg-red-400 h-2 rounded-full" style={{ width: '65%' }}></div>
+               </div>
+               <p className="text-xs text-gray-400 mt-2">"Users are leaving /checkout"</p>
             </div>
           </div>
         </div>
 
-        {/* Actionable Fix */}
-        <div className="relative flex flex-col gap-8">
-          <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-gray-100 shadow-xl relative z-10">
+        {/* Right: Product Shift (The Why) */}
+        <div className="flex flex-col justify-center lg:pl-12">
+          <h2 className="text-3xl font-black text-gray-900 mb-6">
+            We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            Our AI agents browse your site like real humans, verbalizing their confusion and frustration so you can fix it.
+          </p>
+
+          <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-gray-100 shadow-xl relative z-10 max-w-md mx-auto lg:mx-0 w-full">
             <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-xs">
               <CheckCircle size={16} /> Actionable Recommendation
             </div>
             <h3 className="text-xl font-bold mb-2">Clarify Salesforce Integration</h3>
             <p className="text-gray-600 mb-4">Users are abandoning the purchase because they can't confirm if the software works with their existing stack.</p>
             <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-600 flex items-center gap-2">
-              <div className="w-2 h-2 bg-pink-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip immediately below the primary CTA.
+              <div className="w-2 h-2 bg-pink-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip.
             </div>
           </div>
         </div>
