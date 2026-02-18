@@ -376,71 +376,102 @@ const DemoSection = () => {
 };
 
 const PricingSection = () => (
-  <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
-    <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Plans for Every Stage</h2>
-      <p className="mt-4 text-lg text-gray-600">Choose the plan that fits your testing volume.</p>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+  <section id="pricing" className="py-24 bg-white border-t-2 border-black">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="text-center mb-16">
+        <h2 className="text-4xl font-black text-black mb-4">Simple, Transparent Pricing</h2>
+        <p className="text-xl text-gray-600">Start for free. Scale as you grow.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         
-        {/* Basic */}
-        <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-gray-900">Basic</h3>
-          <div className="mt-4 flex items-baseline text-gray-900">
-            <p className="text-4xl font-extrabold tracking-tight">$29</p>
-            <span className="ml-1 text-xl font-semibold text-gray-500">/mo</span>
+        {/* Pay As You Go Card */}
+        <div className="relative p-8 bg-white border-2 border-black rounded-xl shadow-[8px_8px_0px_0px_#000] flex flex-col">
+          <div className="mb-4">
+            <h3 className="text-2xl font-black text-black">Pay As You Go</h3>
+            <p className="text-gray-600 mt-2">Start free, pay only for what you use.</p>
           </div>
-          <p className="mt-2 text-sm text-gray-500">For freelancers and solo founders.</p>
-          <hr className="my-6" />
-          <ul className="space-y-4 flex-1">
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">10 Tests / mo</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Rollover up to 20</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Standard Support</span></li>
+          <div className="mb-8">
+            <span className="text-5xl font-black text-black">$0</span>
+            <span className="text-gray-600 font-bold"> / mo</span>
+          </div>
+          <ul className="space-y-4 mb-8 flex-1">
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-green-500" />
+              <span className="font-bold">No commitment required</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-green-500" />
+              <span className="font-bold">Get 3 Free Credits</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-green-500" />
+              <span className="font-bold">Top up credits anytime</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Check className="w-6 h-6 text-green-500 mt-1 shrink-0" />
+              <span className="font-bold text-sm">Choose From 9 Personas</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Check className="w-6 h-6 text-green-500 mt-1 shrink-0" />
+              <span className="font-bold text-sm">Data-based, Actionable Report</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Check className="w-6 h-6 text-green-500 mt-1 shrink-0" />
+              <span className="font-bold text-sm">Clear Performance Metrics</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-green-500" />
+              <span className="font-bold">Download & Share Reports</span>
+            </li>
           </ul>
-          <Link to={`/login?plan=starter&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full py-3 px-6 border border-indigo-600 rounded-md text-center font-medium text-indigo-600 hover:bg-indigo-50">
-            Start Basic
+          <Link 
+            to="/login"
+            className="w-full block text-center py-4 bg-black text-white font-black text-lg rounded-lg hover:translate-y-[-2px] hover:shadow-lg transition-all"
+          >
+            Get Started
           </Link>
         </div>
 
-        {/* Pro */}
-        <div className="pricing-card bg-white p-8 border-2 border-indigo-600 rounded-xl shadow-xl text-left flex flex-col relative transform md:-translate-y-4">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Most Popular</div>
-          <h3 className="text-xl font-bold text-gray-900 mt-2">Pro</h3>
-          <div className="mt-4 flex items-baseline text-gray-900">
-            <p className="text-4xl font-extrabold tracking-tight">$99</p>
-            <span className="ml-1 text-xl font-semibold text-gray-500">/mo</span>
+        {/* Pro Subscription Card */}
+        <div className="relative p-8 bg-[#f3f4f6] border-2 border-black rounded-xl shadow-[8px_8px_0px_0px_#000] flex flex-col opacity-75 hover:opacity-100 transition-opacity">
+          <div className="absolute -top-4 right-8 bg-[#ff1493] text-white font-black px-4 py-1 border-2 border-black rounded-full text-sm transform rotate-2">
+            WAITLIST
           </div>
-          <p className="mt-2 text-sm text-gray-500">For growing product teams.</p>
-          <hr className="my-6" />
-          <ul className="space-y-4 flex-1">
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">50 Tests / mo</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">3 Seats</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">1 Custom Persona</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Rollover up to 100</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Priority Support</span></li>
-          </ul>
-          <Link to="/waitlist" className="mt-8 block w-full py-3 px-6 bg-indigo-600 rounded-md text-center font-medium text-white hover:bg-indigo-700">
-            Join Waitlist
-          </Link>
-        </div>
-
-        {/* Agency */}
-        <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-gray-900">Agency</h3>
-          <div className="mt-4 flex items-baseline text-gray-900">
-            <p className="text-4xl font-extrabold tracking-tight">$489</p>
-            <span className="ml-1 text-xl font-semibold text-gray-500">/mo</span>
+          <div className="mb-4">
+            <h3 className="text-2xl font-black text-black">Bring Your Own Key</h3>
+            <p className="text-gray-600 mt-2">Manage LLM cost internally.</p>
           </div>
-          <p className="mt-2 text-sm text-gray-500">For agencies and power users.</p>
-          <hr className="my-6" />
-          <ul className="space-y-4 flex-1">
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">100 Tests / mo</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">5 Seats</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">5 Custom Personas</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">White Label Reports</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Multi-client Support</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Rollover up to 200</span></li>
+          <div className="mb-8">
+            <span className="text-5xl font-black text-black">$29</span>
+            <span className="text-gray-600 font-bold"> / mo</span>
+          </div>
+          <ul className="space-y-4 mb-8 flex-1">
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-black" />
+              <span className="font-bold">Everything in the free plan</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-black" />
+              <span className="font-bold">Unlimited tests with your keys</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-black" />
+              <span className="font-bold">Use your own API keys (e.g. OpenAI, Anthropic)</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-black" />
+              <span className="font-bold">300 EC2 compute minutes / month</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <Check className="w-6 h-6 text-black" />
+              <span className="font-bold">CI / API integration</span>
+            </li>
           </ul>
-          <Link to="/waitlist" className="mt-8 block w-full py-3 px-6 border border-indigo-600 rounded-md text-center font-medium text-indigo-600 hover:bg-indigo-50">
+          <Link 
+            to="/waitlist" 
+            className="block w-full py-4 bg-white text-black border-2 border-black font-black text-lg rounded-lg text-center hover:bg-gray-50 transition-all"
+          >
             Join Waitlist
           </Link>
         </div>
