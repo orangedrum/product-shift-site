@@ -132,7 +132,7 @@ const UseCasesSection = () => (
 );
 
 const PainSection = () => (
-  <section className="py-20 bg-white">
+  <section className="py-20 bg-white border-t-2 border-black">
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
       <div className="grid lg:grid-cols-2 gap-16 items-center">
         <div>
@@ -147,6 +147,11 @@ const PainSection = () => (
           </p>
           
           <div className="relative grid grid-cols-2 gap-4">
+            {/* Diagonal Line */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+              <div className="w-[120%] border-t-2 border-gray-200 transform -rotate-12"></div>
+            </div>
+
             {/* VS Badge */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full p-2 shadow-sm">
               <span className="text-xs font-black text-gray-400">VS</span>
@@ -667,7 +672,6 @@ const IndustryLandingPage: React.FC = () => {
         <div className="relative z-10">
           <HeroWithDemo />
           <PainSection />
-          <hr className="border-t-2 border-black my-0" />
           <AuthorityBanner />
           <UseCasesSection />
           <hr className="border-t-2 border-black my-0" />
