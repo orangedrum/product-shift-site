@@ -332,70 +332,48 @@ const HeroWithDemo = () => {
 
   return (
     <section className="relative bg-transparent overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-28">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-          <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
-            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              <span className="block xl:inline">{CONFIG.heroTitle}</span>{' '}
-              <span className="block text-indigo-600 xl:inline">{CONFIG.heroSubtitle}</span>
-            </h1>
-            <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-              {CONFIG.heroDescription}
-            </p>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <p className="text-lg font-bold text-black">User Mirror</p>
+            <p className="text-sm text-gray-600">by The ProductShift</p>
+          </div>
+
+          <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl mb-4">
+            Find out why your users are converting or leaving
+          </h1>
+          <p className="mt-3 text-xl text-gray-600 sm:mt-5 max-w-2xl mx-auto">
+            See your site through the eyes of your customer.
+          </p>
             
             {/* Giant Input Form */}
-            <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
+            <div className="mt-12 max-w-2xl mx-auto">
               {error && error.usageCounted === false ? (
                 <div className="mb-6 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} /></div>
               ) : (
-                <form onSubmit={handleDemoSubmit} className="mt-3 sm:flex flex-col gap-3">
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 sm:text-sm">https://</span>
-                    </div>
-                    <input
-                      type="text"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-16 sm:text-sm border-2 border-black rounded-md py-4 text-lg"
-                      placeholder="your-website.com"
-                      required
-                    />
-                  </div>
-                  <button type="submit" disabled={isLoading} className="w-full relative overflow-hidden px-8 py-4 bg-black text-white font-bold rounded-md hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
+                <form onSubmit={handleDemoSubmit} className="relative">
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full border-2 border-black rounded-full py-5 px-8 text-lg shadow-[4px_4px_0px_0px_#000] focus:shadow-[6px_6px_0px_0px_#000] transition-all"
+                    placeholder="Enter your website URL..."
+                    required
+                  />
+                  <button type="submit" disabled={isLoading} className="absolute inset-y-0 right-0 flex items-center pr-3">
                     {isLoading && <div className="absolute inset-0 bg-white/20" style={{ width: `${progress}%` }} />}
-                    <span className="relative z-10 text-lg">{isLoading ? 'Analyzing...' : 'Analyze My Site'}</span>
+                    <span className="h-12 px-8 bg-black text-white font-bold rounded-full flex items-center justify-center hover:bg-gray-800 transition-transform transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-wait">
+                      {isLoading ? 'Analyzing...' : 'Analyze My Site'}
+                    </span>
                   </button>
-                  <p className="text-xs text-gray-500 mt-2 text-center lg:text-left">
-                    No credit card required • 3 free credits included
-                  </p>
                 </form>
               )}
+              <p className="text-xs text-gray-500 mt-4">
+                No credit card nor sign in required
+              </p>
               {error && error.usageCounted !== false && <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 flex items-center gap-2"><AlertCircle size={16} /><strong>Error:</strong> {error.details || error.error}</div>}
             </div>
           </div>
-          
-          {/* Visual Element (AI Agents) */}
-          <div className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
-            <div className="relative mx-auto w-full rounded-lg shadow-lg lg:max-w-md">
-              <div className="relative block w-full bg-white rounded-lg overflow-hidden border-2 border-black shadow-[8px_8px_0px_0px_#000]">
-                <div className="p-6">
-                   <div className="flex items-center gap-4 mb-4">
-                      <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Avery" className="w-16 h-16 rounded-full bg-indigo-50 border-2 border-black" alt="AI Agent" />
-                      <div>
-                         <p className="font-bold text-black">Alex (AI Customer)</p>
-                         <p className="text-xs text-gray-500">Browsing your site...</p>
-                      </div>
-                   </div>
-                   <div className="bg-gray-100 p-4 rounded-lg border-2 border-black relative">
-                      <div className="absolute -top-2 left-8 w-4 h-4 bg-gray-100 border-t-2 border-l-2 border-black transform rotate-45"></div>
-                      <p className="text-sm font-medium text-gray-800">"I'm looking for the pricing page but I keep getting distracted by these popups. I'm frustrated."</p>
-                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
