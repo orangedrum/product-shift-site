@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { supabase } from './lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
-import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
+import { AnalysisErrorCard } from './components/AnalysisErrorCard';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️
