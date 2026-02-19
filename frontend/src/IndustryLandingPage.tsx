@@ -169,19 +169,19 @@ const PainSection = () => (
             <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm max-w-md mx-auto lg:mx-0 w-full">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm w-fit">
-                  <BarChart className="w-5 h-5 text-gray-400" />
+                  <BarChart className="w-4 h-4 text-gray-400" />
                 </div>
-                <h4 className="font-bold text-gray-900">Analytics Dashboard</h4>
+                <h4 className="font-bold text-gray-900 text-sm">Analytics Dashboard</h4>
               </div>
               <div className="space-y-3">
-                 <div className="flex justify-between items-center text-sm">
+                 <div className="flex justify-between items-center text-[10px]">
                    <span className="text-gray-500">Bounce Rate</span>
-                   <span className="font-mono font-bold text-gray-700">65%</span>
+                   <span className="font-mono font-bold text-gray-700 text-xs">65%</span>
                  </div>
-                 <div className="w-full bg-gray-200 rounded-full h-2">
-                   <div className="bg-gray-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+                 <div className="w-full bg-gray-200 rounded-full h-1.5">
+                   <div className="bg-gray-500 h-1.5 rounded-full" style={{ width: '65%' }}></div>
                  </div>
-                 <p className="text-xs text-gray-400 mt-2">"Users are leaving /checkout"</p>
+                 <p className="text-[10px] text-gray-400 mt-2">"Users are leaving /checkout"</p>
               </div>
             </div>
           </div>
@@ -200,9 +200,9 @@ const PainSection = () => (
             {/* Anchored Persona */}
             <div className="relative z-10 mt-auto w-full flex items-end justify-between">
                  {/* 1. Marcus Group (Left) */}
-                 <div className="flex flex-col items-start relative z-20" style={{ marginBottom: '-2.5rem', marginLeft: '-5rem' }}>
+                 <div className="flex flex-col items-start relative z-20" style={{ marginBottom: '-2rem', marginLeft: '-2rem' }}>
                     {/* Bubble */}
-                    <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-[280px] transform -rotate-1 ml-12">
+                    <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-sm transform -rotate-1 ml-12">
                         <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
                         <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
                     </div>
@@ -266,8 +266,8 @@ const FeaturesSection = () => (
         <div className="grid md:grid-cols-3 gap-12 text-center">
           {/* Step 1 */}
           <div className="relative flex flex-col items-center group">
-            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2">
-              <span className="font-black text-5xl">1</span>
+            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2 overflow-hidden">
+              <img src="/youput.gif" alt="Input" className="w-full h-full object-cover" />
             </div>
             <h3 className="text-2xl font-black text-gray-900 mb-3">Input</h3>
             <p className="text-gray-600 font-medium px-4">Enter your website URL. No code to install, just paste and go.</p>
@@ -275,8 +275,8 @@ const FeaturesSection = () => (
 
           {/* Step 2 - Offset for "Swirl" effect */}
           <div className="relative flex flex-col items-center md:mt-16 group">
-             <div className="w-32 h-32 bg-marketing-gradient rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 text-white transition-transform group-hover:-translate-y-2">
-              <span className="font-black text-5xl">2</span>
+             <div className="w-32 h-32 bg-marketing-gradient rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 text-white transition-transform group-hover:-translate-y-2 overflow-hidden">
+              <img src="/wedo.gif" alt="Simulate" className="w-full h-full object-cover" />
             </div>
             <h3 className="text-2xl font-black text-gray-900 mb-3">Simulate</h3>
             <p className="text-gray-600 font-medium px-4">Our AI agents browse your site like real humans, voicing their thoughts.</p>
@@ -284,8 +284,8 @@ const FeaturesSection = () => (
 
           {/* Step 3 */}
           <div className="relative flex flex-col items-center group">
-            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2">
-              <span className="font-black text-5xl">3</span>
+            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2 overflow-hidden">
+              <img src="/youget.gif" alt="Reveal" className="w-full h-full object-cover" />
             </div>
             <h3 className="text-2xl font-black text-gray-900 mb-3">Reveal</h3>
             <p className="text-gray-600 font-medium px-4">Get an instant report showing exactly where users get stuck.</p>
