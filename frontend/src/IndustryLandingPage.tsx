@@ -135,13 +135,13 @@ const PainSection = () => (
   <section className="pt-20 pb-0 bg-white border-t-2 border-black relative overflow-hidden">
       {/* Diagonal Line Separator */}
       <div className="absolute inset-0 pointer-events-none hidden lg:block z-10">
-      <div className="absolute left-[40%] top-0 bottom-0 w-1 bg-black transform -skew-x-6 origin-top"></div>
+      <div className="absolute left-[50%] top-0 bottom-0 w-1 bg-black transform -skew-x-6 origin-top"></div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-20">
         {/* VS Badge */}
         <div 
-        className="absolute top-1/2 left-[40%] z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
+        className="absolute top-1/2 left-[50%] z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
         style={{ transform: 'translate(-50%, -50%)' }}
         >
           <span className="text-sm font-black text-white">VS</span>
@@ -203,7 +203,7 @@ const PainSection = () => (
                  <img 
                     src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
                     alt="Marcus" 
-                    className="w-96 h-96 object-contain flex-shrink-0" 
+                    className="w-64 h-64 object-contain flex-shrink-0" 
                  />
                  
                  <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-32 -ml-24 max-w-[260px] transform -rotate-2 z-20">
