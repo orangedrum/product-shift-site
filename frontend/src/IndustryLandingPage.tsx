@@ -149,7 +149,7 @@ const PainSection = () => (
 
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Left: Analytics (The What) */}
-        <div className="flex flex-col justify-center lg:pr-24 pb-12 lg:pb-0 relative">
+        <div className="flex flex-col justify-start pt-12 lg:pr-24 pb-12 lg:pb-0 relative">
             <h2 className="text-3xl font-black text-gray-500 mb-6">
             Other Analytics tell you <span className="italic underline text-black">what</span> is happening.
             </h2>
@@ -186,6 +186,11 @@ const PainSection = () => (
                 <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
                   Our AI agents browse your site like real humans, verbalizing their confusion so you can fix it.
                 </p>
+
+            <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-6 max-w-[280px] transform -rotate-1 z-20">
+              <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
+              <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
+            </div>
 
                 <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_#000] relative z-10 w-full">
                   <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-[10px]">
