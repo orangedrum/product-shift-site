@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle } from 'lucide-react';
 import { AnalysisErrorCard } from './components/AnalysisErrorCard';
 import { PricingSection } from './components/PricingSection';
+import { VideoPlayer } from './components/VideoPlayer';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️
@@ -98,33 +99,40 @@ const AuthorityBanner = () => (
 );
 
 const UseCasesSection = () => (
-  <section className="py-20 bg-gray-50 border-b-2 border-black">
+  <section className="py-24 bg-gray-50">
     <div className="container mx-auto px-4 max-w-7xl">
       <div className="text-center mb-16">
         <h2 className="text-3xl font-black text-gray-900 mb-4">Your New Conversion Toolkit</h2>
         <p className="text-xl text-gray-600">Use User Mirror whenever you need to know "Why?"</p>
       </div>
       <div className="grid md:grid-cols-3 gap-8">
-        <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 transition-transform">
-          <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6 border-2 border-black">
-            <TrendingUp className="text-green-600" size={24} />
+        <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
+          <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <TrendingUp className="h-6 w-6 text-white" />
           </div>
-          <h3 className="text-xl font-bold mb-3 text-black">The Pre-Launch</h3>
-          <p className="text-gray-600">Before you spend ad money, ensure your landing page makes sense. Fix confusion before it costs you clicks.</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">The Pre-Launch</h3>
+          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Before you spend ad money, ensure your landing page makes sense. Fix confusion before it costs you clicks.</p>
         </div>
-        <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 transition-transform">
-          <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-6 border-2 border-black">
-            <AlertCircle className="text-red-600" size={24} />
+        <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
+          <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <AlertCircle className="h-6 w-6 text-white" />
           </div>
-          <h3 className="text-xl font-bold mb-3 text-black">The Slump</h3>
-          <p className="text-gray-600">Sales dropped? Bounce rate up? Find out exactly where users are getting stuck and why they are leaving.</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">The Slump</h3>
+          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Sales dropped? Bounce rate up? Find out exactly where users are getting stuck and why they are leaving.</p>
         </div>
-        <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 transition-transform">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6 border-2 border-black">
-            <Users className="text-blue-600" size={24} />
+        <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
+          <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <Users className="h-6 w-6 text-white" />
           </div>
-          <h3 className="text-xl font-bold mb-3 text-black">The Competitor</h3>
-          <p className="text-gray-600">Run a test on your competitor's URL. See what they do right, what they do wrong, and steal their best ideas.</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">The Competitor</h3>
+          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Run a test on your competitor's URL. See what they do right, what they do wrong, and steal their best ideas.</p>
+        </div>
+      </div>
+      <div className="mt-16 text-center">
+        <div className="inline-block">
+          <a href="#demo" className="inline-flex items-center justify-center h-14 px-10 text-lg font-bold text-white bg-marketing-gradient rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            Start Free Now
+          </a>
         </div>
       </div>
     </div>
@@ -224,47 +232,61 @@ const PainSection = () => (
   );
 
 const FeaturesSection = () => (
-  <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-      <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative">
-      <div className="text-center">
-        <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">How It Works</h2>
-        <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
-          Check your website in 3 simple steps
-        </p>
-        <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-          Our AI customers browse your site just like real people, so you can fix confusing parts before you lose sales.
-        </p>
+  <section id="how-it-works" className="py-24 bg-white">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl font-black text-gray-900 mb-4">How It Works</h2>
+        <p className="text-xl text-gray-600">See your site through the eyes of your customer in 3 steps.</p>
       </div>
-      <div className="mt-20 grid md:grid-cols-3 gap-x-8 gap-y-12 text-left">
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-            <Users size={28} className="text-indigo-600" />
+
+      <div className="grid lg:grid-cols-2 gap-16 items-center">
+        {/* Left: 3 Steps */}
+        <div className="space-y-12 relative">
+          {/* Connecting Line (Desktop) */}
+          <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gray-200 hidden md:block"></div>
+
+          {/* Step 1 */}
+          <div className="relative flex gap-6">
+            <div className="w-12 h-12 bg-white border-2 border-black rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm">
+              <span className="font-black text-lg">1</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Input <span className="text-sm font-normal text-gray-500 ml-2">(You do this)</span></h3>
+              <p className="text-gray-600">Enter your website URL. No code to install, no complex setup. Just paste and go.</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">1. Choose Who Tests</h3>
-            <p className="mt-1 text-base text-gray-600">Choose from 8 different types of customers (like "Busy Mom" or "College Student") to see who matches your audience.</p>
+
+          {/* Step 2 */}
+          <div className="relative flex gap-6">
+            <div className="w-12 h-12 bg-marketing-gradient rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm text-white">
+              <span className="font-black text-lg">2</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Simulate <span className="text-sm font-normal text-gray-500 ml-2">(We do this)</span></h3>
+              <p className="text-gray-600">Our AI agents browse your site like real humans, attempting to complete goals and voicing their thoughts.</p>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="relative flex gap-6">
+            <div className="w-12 h-12 bg-white border-2 border-black rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm">
+              <span className="font-black text-lg">3</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Reveal <span className="text-sm font-normal text-gray-500 ml-2">(You get this)</span></h3>
+              <p className="text-gray-600">Get an instant report showing exactly where users get stuck, confused, or frustrated.</p>
+            </div>
           </div>
         </div>
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-            <Bot size={28} className="text-indigo-600" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">2. Run the Check</h3>
-            <p className="mt-1 text-base text-gray-600">The AI visits your site and tries to understand what you sell, noting anything that is confusing.</p>
-          </div>
+
+        {/* Right: Video */}
+        <div className="relative">
+           <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-black transform rotate-2 hover:rotate-0 transition-transform duration-500">
+             <VideoPlayer src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" />
+           </div>
+           {/* Decorative elements */}
+           <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-marketing-gradient rounded-full opacity-20 blur-2xl -z-10"></div>
         </div>
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-            <BarChart size={28} className="text-indigo-600" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">3. Get Your Results</h3>
-            <p className="mt-1 text-base text-gray-600">Get a simple report showing exactly what to fix to help more visitors become customers.</p>
-          </div>
-        </div>
-      </div>
       </div>
     </div>
   </section>
