@@ -135,19 +135,19 @@ const PainSection = () => (
   <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
     {/* Diagonal Line Separator */}
     <div className="absolute inset-0 pointer-events-none hidden lg:block">
-      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 transform -skew-x-12 origin-top"></div>
+      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-black transform -skew-x-12 origin-top z-10"></div>
     </div>
 
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative">
       {/* VS Badge */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full p-3 shadow-sm hidden lg:block">
-        <span className="text-sm font-black text-gray-400">VS</span>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-black border-2 border-black rounded-full p-3 shadow-sm hidden lg:block">
+        <span className="text-sm font-black text-white">VS</span>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-16">
         {/* Left: Analytics (The What) */}
         <div className="flex flex-col justify-center lg:pr-12">
-          <h2 className="text-3xl font-black text-gray-900 mb-6">
+          <h2 className="text-3xl font-black text-gray-500 mb-6">
             Google Analytics tells you <span className="italic underline text-black">what</span> is happening.
           </h2>
           <p className="text-lg text-gray-600 mb-8 leading-relaxed">
@@ -164,10 +164,10 @@ const PainSection = () => (
             <div className="space-y-3">
                <div className="flex justify-between items-center text-sm">
                  <span className="text-gray-500">Bounce Rate</span>
-                 <span className="font-mono font-bold text-red-500">65%</span>
+                 <span className="font-mono font-bold text-gray-700">65%</span>
                </div>
                <div className="w-full bg-gray-200 rounded-full h-2">
-                 <div className="bg-red-400 h-2 rounded-full" style={{ width: '65%' }}></div>
+                 <div className="bg-gray-500 h-2 rounded-full" style={{ width: '65%' }}></div>
                </div>
                <p className="text-xs text-gray-400 mt-2">"Users are leaving /checkout"</p>
             </div>
@@ -175,7 +175,10 @@ const PainSection = () => (
         </div>
 
         {/* Right: Product Shift (The Why) */}
-        <div className="flex flex-col justify-center lg:pl-12">
+        <div className="flex flex-col justify-center lg:pl-12 relative">
+          {/* Lavalamp Background Effect */}
+          <div className="absolute inset-0 bg-marketing-gradient opacity-10 blur-3xl rounded-full -z-10 animate-pulse"></div>
+          
           <h2 className="text-3xl font-black text-gray-900 mb-6">
             We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
           </h2>
