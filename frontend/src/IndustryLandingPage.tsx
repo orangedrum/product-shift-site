@@ -149,7 +149,7 @@ const PainSection = () => (
 
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Left: Analytics (The What) */}
-        <div className="flex flex-col justify-start pt-12 lg:pr-24 pb-12 lg:pb-0 relative">
+        <div className="flex flex-col justify-center lg:pr-24 pb-12 lg:pb-0 relative">
             <h2 className="text-3xl font-black text-gray-500 mb-6">
             Other Analytics tell you <span className="italic underline text-black">what</span> is happening.
             </h2>
@@ -186,35 +186,35 @@ const PainSection = () => (
                 <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
                   Our AI agents browse your site like real humans, verbalizing their confusion so you can fix it.
                 </p>
-
-            <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-6 max-w-[280px] transform -rotate-1 z-20">
-              <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
-              <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
-            </div>
-
-                <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_#000] relative z-10 w-full">
-                  <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-[10px]">
-                    <CheckCircle size={14} /> Actionable Recommendation
-                  </div>
-                  <h3 className="text-base font-bold mb-4">Clarify Salesforce Integration</h3>
-                  <div className="p-3 bg-indigo-50 border-2 border-indigo-100 rounded text-xs font-bold text-indigo-900 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip.
-                  </div>
-                </div>
             </div>
 
             {/* Anchored Persona */}
-            <div className="relative z-10 mt-auto flex items-end -mb-12 -ml-12">
-                 <img 
-                    src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
-                    alt="Marcus" 
-                    className="w-64 h-64 object-contain flex-shrink-0" 
-                    style={{ transform: 'translateX(-10%)' }}
-                 />
-                 
-                 <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-32 -ml-24 max-w-[260px] transform -rotate-2 z-20">
+            <div className="relative z-10 mt-auto w-full">
+                 {/* 1. The Word Bubble (Top) */}
+                 <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-[280px] transform -rotate-1 z-20 ml-12">
                     <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
-                    <div className="absolute bottom-6 -left-3 w-6 h-6 bg-white border-l-2 border-b-2 border-black transform rotate-45"></div>
+                    <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
+                 </div>
+
+                 <div className="flex items-end">
+                     {/* 2. Marcus (Left) */}
+                     <img 
+                        src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
+                        alt="Marcus" 
+                        className="w-80 h-80 object-contain -mb-8 -ml-12 flex-shrink-0 z-10" 
+                     />
+                     
+                     {/* 3. Actionable Recommendation (Right) */}
+                     <div className="bg-white text-gray-900 p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative z-20 w-full mb-12 -ml-8">
+                        <div className="flex items-center gap-2 mb-3 text-indigo-600 font-bold uppercase tracking-wider text-[10px]">
+                          <CheckCircle size={14} /> Actionable Recommendation
+                        </div>
+                        <h3 className="text-sm font-bold mb-3 leading-tight">Clarify Salesforce Integration</h3>
+                        <div className="p-2 bg-indigo-50 border-2 border-indigo-100 rounded text-[10px] font-bold text-indigo-900 flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1 flex-shrink-0"></div> 
+                          <span>FIX: Add "Works with Salesforce" logo strip.</span>
+                        </div>
+                     </div>
                  </div>
             </div>
           </div>
