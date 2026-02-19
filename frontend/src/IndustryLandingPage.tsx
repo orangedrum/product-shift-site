@@ -156,13 +156,13 @@ const PainSection = () => {
   return (
     <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
       {/* Diagonal Line Separator */}
-      <div className="absolute inset-0 pointer-events-none hidden lg:block">
-        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-100 transform -skew-x-12 origin-top z-0"></div>
+      <div className="absolute inset-0 pointer-events-none hidden lg:block z-10">
+        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-black transform -skew-x-12 origin-top"></div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-20">
         {/* VS Badge */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block">
           <span className="text-sm font-black text-white">VS</span>
         </div>
 
@@ -197,11 +197,11 @@ const PainSection = () => {
           </div>
 
           {/* Right: Product Shift (The Why) */}
-          <div className="flex flex-col justify-center lg:pl-12 relative p-8 rounded-3xl overflow-hidden">
+          <div className="flex flex-col justify-between lg:pl-12 relative p-8 rounded-3xl overflow-hidden min-h-[600px]">
             {/* Lavalamp Background Effect */}
             <div 
               ref={containerRef}
-              className="absolute inset-0 -z-10"
+              className="absolute inset-0 z-0"
               style={{
                 background: `
                   radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
@@ -223,29 +223,40 @@ const PainSection = () => {
               @property --pos-y-3 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
             `}</style>
             
-            <h2 className="text-3xl font-black text-gray-900 mb-6">
-              We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
-            </h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Our AI agents browse your site like real humans, verbalizing their confusion so you can fix it.
-            </p>
+            <div className="relative z-10">
+                <h2 className="text-3xl font-black text-gray-900 mb-6">
+                  We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
+                </h2>
+                <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
+                  Our AI agents browse your site like real humans, verbalizing their confusion so you can fix it.
+                </p>
 
-            <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_#000] relative z-10 max-w-md mx-auto lg:mx-0 w-full">
-              <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-xs">
-                <CheckCircle size={16} /> Actionable Recommendation
-              </div>
-              <h3 className="text-xl font-bold mb-6">Clarify Salesforce Integration</h3>
-              
-              <div className="flex gap-4 mb-6">
-                <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" alt="Marcus" className="w-16 h-16 rounded-full border-2 border-black bg-gray-100 flex-shrink-0" />
-                <div className="bg-gray-100 p-4 rounded-xl rounded-tl-none border-2 border-black relative">
-                   <p className="text-sm font-medium italic text-gray-800">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
+                <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_#000] relative z-10 w-full">
+                  <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-xs">
+                    <CheckCircle size={16} /> Actionable Recommendation
+                  </div>
+                  <h3 className="text-xl font-bold mb-4">Clarify Salesforce Integration</h3>
+                  <div className="p-3 bg-indigo-50 border-2 border-indigo-100 rounded text-sm font-bold text-indigo-900 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip.
+                  </div>
                 </div>
-              </div>
+            </div>
 
-              <div className="p-3 bg-indigo-50 border-2 border-indigo-100 rounded text-sm font-bold text-indigo-900 flex items-center gap-2">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip.
-              </div>
+            {/* Anchored Persona */}
+            <div className="relative z-10 mt-12 flex flex-col items-center">
+                 {/* Speech Bubble */}
+                 <div className="relative bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-6 max-w-sm transform -rotate-1">
+                    <p className="text-xl font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
+                 </div>
+                 
+                 <div className="flex items-center gap-4">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" alt="Marcus" className="w-24 h-24 rounded-full border-4 border-black bg-gray-100 shadow-lg" />
+                    <div className="text-left">
+                        <p className="font-black text-2xl text-black">Marcus</p>
+                        <p className="text-sm font-bold text-gray-700 uppercase tracking-widest">C-Suite Exec</p>
+                    </div>
+                 </div>
             </div>
           </div>
         </div>
