@@ -171,7 +171,7 @@ router.post('/invite-user', requireAdminKey, async (req, res) => {
   
   const { error } = await supabase.from('customers').upsert({ 
     email, 
-    credits: credits || 3, 
+    credits: credits || 5, 
     segment: segment || 'tech',
     plan_status: 'free'
   }, { onConflict: 'email' });

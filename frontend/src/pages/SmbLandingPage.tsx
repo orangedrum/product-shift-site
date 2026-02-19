@@ -411,7 +411,7 @@ const PricingSection = () => (
             </li>
             <li className="flex items-center gap-3">
               <Check className="w-6 h-6 text-green-500" />
-              <span className="font-bold">Get 3 Free Credits</span>
+              <span className="font-bold">Get 5 Free Credits</span>
             </li>
             <li className="flex items-center gap-3">
               <Check className="w-6 h-6 text-green-500" />

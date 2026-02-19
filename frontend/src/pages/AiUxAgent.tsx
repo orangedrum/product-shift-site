@@ -875,7 +875,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   <div className="p-4 text-center">
                     <div className="flex justify-center mb-2 text-2xl">🎁</div>
                     <h3 className="text-[10px] font-black uppercase tracking-widest mb-1 whitespace-nowrap">Give 3, Get 3</h3>
-                    <p className="text-[10px] leading-tight mb-3 opacity-90">Share 3 free credits, get 3 free credits when they sign up.</p>
+                    <p className="text-[10px] leading-tight mb-3 opacity-90">Share 5 free credits, get 5 free credits when they sign up.</p>
                     <button 
                       onClick={copyReferralLink}
                       className="w-full bg-white text-indigo-600 text-xs font-bold py-2 rounded flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors"

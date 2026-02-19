@@ -635,7 +635,7 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
 
     // If customer does not exist, create them (lazy initialization)
     if (!customer) {
-      const initialCredits = skipCredits ? 0 : 3;
+      const initialCredits = skipCredits ? 0 : 5;
       console.log(`New user detected: ${user.email}. Granting ${initialCredits} credits.`);
       const { data: newCustomer, error: insertError } = await supabase
         .from('customers')
@@ -743,7 +743,7 @@ app.post('/api/user/generate-referral', authenticateRequest, async (req, res) =>
             .from('customers')
             .insert({ 
                 email: user.email, 
-                credits: 3, 
+                credits: 5, 
                 plan_status: 'free',
                 referral_code: code 
             })

@@ -139,7 +139,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
     if (!customer) {
         const { data: newCust, error: createErr } = await supabase
             .from('customers')
-            .insert({ email: safeEmail, credits: 3, plan_status: 'free' })
+            .insert({ email: safeEmail, credits: 5, plan_status: 'free' })
             .select()
             .single();
         if (!createErr) customer = newCust;
