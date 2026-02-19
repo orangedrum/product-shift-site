@@ -209,7 +209,7 @@ const PainSection = () => (
                      <img 
                         src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
                         alt="Marcus" 
-                        className="w-80 h-80 object-contain -mb-8 -ml-12 flex-shrink-0 z-10" 
+                        className="w-56 h-56 object-contain -mb-6 -ml-8 flex-shrink-0 z-10" 
                      />
                      
                      {/* 3. Actionable Recommendation (Right) */}
@@ -232,61 +232,62 @@ const PainSection = () => (
   );
 
 const FeaturesSection = () => (
-  <section id="how-it-works" className="py-24 bg-white">
+  <section id="how-it-works" className="py-24 bg-white overflow-hidden">
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-      <div className="text-center mb-16">
+      <div className="text-center mb-24">
         <h2 className="text-3xl font-black text-gray-900 mb-4">How It Works</h2>
         <p className="text-xl text-gray-600">See your site through the eyes of your customer in 3 steps.</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-16 items-center">
-        {/* Left: 3 Steps */}
-        <div className="space-y-12 relative">
-          {/* Connecting Line (Desktop) */}
-          <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gray-200 hidden md:block"></div>
+      <div className="relative max-w-6xl mx-auto mb-24">
+        {/* Desktop Connecting Line - The "Swirl" */}
+        <div className="hidden md:block absolute top-1/2 left-0 w-full -translate-y-1/2 -z-10">
+           <svg className="w-full h-48" viewBox="0 0 1200 200" fill="none" preserveAspectRatio="none">
+             <path 
+               d="M100,100 C250,100 300,50 400,50 C500,50 550,150 650,150 C750,150 800,100 900,100 C1000,100 1050,100 1100,100" 
+               stroke="#CBD5E1" 
+               strokeWidth="4" 
+               strokeDasharray="12 12" 
+               strokeLinecap="round"
+             />
+           </svg>
+        </div>
 
+        <div className="grid md:grid-cols-3 gap-12 text-center">
           {/* Step 1 */}
-          <div className="relative flex gap-6">
-            <div className="w-12 h-12 bg-white border-2 border-black rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm">
-              <span className="font-black text-lg">1</span>
+          <div className="relative flex flex-col items-center group">
+            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2">
+              <span className="font-black text-5xl">1</span>
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Input <span className="text-sm font-normal text-gray-500 ml-2">(You do this)</span></h3>
-              <p className="text-gray-600">Enter your website URL. No code to install, no complex setup. Just paste and go.</p>
-            </div>
+            <h3 className="text-2xl font-black text-gray-900 mb-3">Input</h3>
+            <p className="text-gray-600 font-medium px-4">Enter your website URL. No code to install, just paste and go.</p>
           </div>
 
-          {/* Step 2 */}
-          <div className="relative flex gap-6">
-            <div className="w-12 h-12 bg-marketing-gradient rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm text-white">
-              <span className="font-black text-lg">2</span>
+          {/* Step 2 - Offset for "Swirl" effect */}
+          <div className="relative flex flex-col items-center md:mt-16 group">
+             <div className="w-32 h-32 bg-marketing-gradient rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 text-white transition-transform group-hover:-translate-y-2">
+              <span className="font-black text-5xl">2</span>
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Simulate <span className="text-sm font-normal text-gray-500 ml-2">(We do this)</span></h3>
-              <p className="text-gray-600">Our AI agents browse your site like real humans, attempting to complete goals and voicing their thoughts.</p>
-            </div>
+            <h3 className="text-2xl font-black text-gray-900 mb-3">Simulate</h3>
+            <p className="text-gray-600 font-medium px-4">Our AI agents browse your site like real humans, voicing their thoughts.</p>
           </div>
 
           {/* Step 3 */}
-          <div className="relative flex gap-6">
-            <div className="w-12 h-12 bg-white border-2 border-black rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm">
-              <span className="font-black text-lg">3</span>
+          <div className="relative flex flex-col items-center group">
+            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2">
+              <span className="font-black text-5xl">3</span>
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Reveal <span className="text-sm font-normal text-gray-500 ml-2">(You get this)</span></h3>
-              <p className="text-gray-600">Get an instant report showing exactly where users get stuck, confused, or frustrated.</p>
-            </div>
+            <h3 className="text-2xl font-black text-gray-900 mb-3">Reveal</h3>
+            <p className="text-gray-600 font-medium px-4">Get an instant report showing exactly where users get stuck.</p>
           </div>
         </div>
+      </div>
 
-        {/* Right: Video */}
-        <div className="relative">
-           <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-black transform rotate-2 hover:rotate-0 transition-transform duration-500">
-             <VideoPlayer src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" />
-           </div>
-           {/* Decorative elements */}
-           <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-marketing-gradient rounded-full opacity-20 blur-2xl -z-10"></div>
-        </div>
+      {/* Video */}
+      <div className="max-w-4xl mx-auto">
+         <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-black transform rotate-1 hover:rotate-0 transition-transform duration-500">
+           <VideoPlayer src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" />
+         </div>
       </div>
     </div>
   </section>
