@@ -10,6 +10,7 @@ import { LandingFAQ } from './components/LandingFAQ';
 // ==========================================
 // 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️
 // ==========================================
+//adding just to trigger a deployment for vercel
 const CONFIG = {
   // SEO & Meta
   industryName: "Small Businesses", // e.g. "Real Estate Agents", "Dentists", "Restaurants"
