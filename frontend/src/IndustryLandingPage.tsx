@@ -142,7 +142,7 @@ const PainSection = () => (
         {/* VS Badge */}
         <div 
         className="absolute top-1/2 left-[50%] z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
-        style={{ transform: 'translate(-50%, -50%)' }}
+        style={{ transform: 'translate(-113%, -50%)' }}
         >
           <span className="text-sm font-black text-white">VS</span>
         </div>
@@ -188,11 +188,11 @@ const PainSection = () => (
                 </p>
 
                 <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_#000] relative z-10 w-full">
-                  <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-xs">
-                    <CheckCircle size={16} /> Actionable Recommendation
+                  <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-[10px]">
+                    <CheckCircle size={14} /> Actionable Recommendation
                   </div>
-                  <h3 className="text-xl font-bold mb-4">Clarify Salesforce Integration</h3>
-                  <div className="p-3 bg-indigo-50 border-2 border-indigo-100 rounded text-sm font-bold text-indigo-900 flex items-center gap-2">
+                  <h3 className="text-base font-bold mb-4">Clarify Salesforce Integration</h3>
+                  <div className="p-3 bg-indigo-50 border-2 border-indigo-100 rounded text-xs font-bold text-indigo-900 flex items-center gap-2">
                     <div className="w-2 h-2 bg-indigo-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip.
                   </div>
                 </div>
@@ -204,6 +204,7 @@ const PainSection = () => (
                     src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
                     alt="Marcus" 
                     className="w-64 h-64 object-contain flex-shrink-0" 
+                    style={{ transform: 'translateX(-10%)' }}
                  />
                  
                  <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-32 -ml-24 max-w-[260px] transform -rotate-2 z-20">
