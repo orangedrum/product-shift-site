@@ -160,7 +160,7 @@ const PainSection = () => (
 
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Left: Analytics (The What) */}
-        <div className="flex flex-col justify-center lg:pr-24 pb-12 lg:pb-0 relative">
+        <div className="flex flex-col justify-start pt-12 lg:pr-24 pb-12 lg:pb-0 relative">
             <h2 className="text-3xl font-black text-gray-500 mb-6">
             Other Analytics tell you <span className="italic underline text-black">what</span> is happening.
             </h2>
@@ -168,7 +168,7 @@ const PainSection = () => (
               Analytics dashboards show you high bounce rates and abandoned carts, but they don't tell you <em>why</em> users are leaving. 
             </p>
             
-            <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm max-w-md mx-auto lg:mx-0 w-full">
+            <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm max-w-xs mx-auto lg:mx-0 w-full">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm w-fit">
                   <BarChart className="w-4 h-4 text-gray-400" />
@@ -189,7 +189,7 @@ const PainSection = () => (
           </div>
 
           {/* Right: Product Shift (The Why) */}
-          <div className="flex flex-col justify-between lg:pl-12 relative p-8 rounded-3xl overflow-hidden min-h-[600px]">
+          <div className="flex flex-col justify-end gap-8 lg:pl-12 relative p-8 rounded-3xl overflow-hidden min-h-[600px]">
             <div className="relative z-10">
                 <h2 className="text-3xl font-black text-gray-900 mb-6">
                   We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
@@ -202,7 +202,7 @@ const PainSection = () => (
             {/* Anchored Persona */}
             <div className="relative z-10 mt-auto w-full flex items-end justify-between">
                  {/* 1. Marcus Group (Left) */}
-                 <div className="flex flex-col items-start relative z-20" style={{ marginLeft: '-5rem' }}>
+                 <div className="flex flex-col items-start relative z-20" style={{ marginLeft: '-6rem', marginBottom: '-2rem' }}>
                     {/* Bubble */}
                     <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-sm transform -rotate-1 ml-12">
                         <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
@@ -248,7 +248,7 @@ const FeaturesSection = ({ onWatchVideo }: { onWatchVideo: () => void }) => (
         </button>
       </div>
 
-      <div className="relative max-w-lg mx-auto">
+      <div className="relative max-w-3xl mx-auto">
         {/* The Dotted Line */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-48 pointer-events-none -z-10">
           <svg width="100%" height="100%" viewBox="0 0 192 800" fill="none" preserveAspectRatio="none">
@@ -259,7 +259,7 @@ const FeaturesSection = ({ onWatchVideo }: { onWatchVideo: () => void }) => (
         <div className="space-y-24">
           {/* Step 1 */}
           <div className="flex items-center gap-8">
-            <img src="/youput.gif" alt="Input" className="w-72 h-72" />
+            <img src="/youput.gif" alt="Input" className="w-96 h-96" />
             <div className="text-left">
               <h3 className="text-2xl font-black text-gray-900 mb-2">1. Enter Your URL</h3>
               <p className="text-gray-600 font-medium">Paste your website link. No code to install, no complex setup. Just paste and go.</p>
@@ -268,7 +268,7 @@ const FeaturesSection = ({ onWatchVideo }: { onWatchVideo: () => void }) => (
 
           {/* Step 2 */}
           <div className="flex items-center gap-8 flex-row-reverse">
-            <img src="/wedo.gif" alt="Simulate" className="w-72 h-72" />
+            <img src="/wedo.gif" alt="Simulate" className="w-96 h-96" />
             <div className="text-left">
               <h3 className="text-2xl font-black text-gray-900 mb-2">2. We Simulate Traffic</h3>
               <p className="text-gray-600 font-medium">Our AI agents browse your site like real humans, voicing their confusion and frustration in real-time.</p>
