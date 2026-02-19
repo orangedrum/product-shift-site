@@ -5,6 +5,7 @@ import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, Chevro
 import { AnalysisErrorCard } from './components/AnalysisErrorCard';
 import { PricingSection } from './components/PricingSection';
 import { VideoPlayer } from './components/VideoPlayer';
+import { LandingFAQ } from './components/LandingFAQ';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️
