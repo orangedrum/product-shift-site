@@ -200,7 +200,7 @@ const PainSection = () => (
             {/* Anchored Persona */}
             <div className="relative z-10 mt-auto w-full flex items-end justify-between">
                  {/* 1. Marcus Group (Left) */}
-                 <div className="flex flex-col items-start relative z-20" style={{ marginBottom: '-2rem', marginLeft: '-2rem' }}>
+                 <div className="flex flex-col items-start relative z-20" style={{ marginLeft: '-5rem' }}>
                     {/* Bubble */}
                     <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-sm transform -rotate-1 ml-12">
                         <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
@@ -210,7 +210,7 @@ const PainSection = () => (
                     <img 
                         src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
                         alt="Marcus" 
-                        className="w-72 h-72 object-contain" 
+                        className="h-52 w-52 object-contain" 
                      />
                  </div>
 
@@ -249,46 +249,40 @@ const FeaturesSection = () => (
         </button>
       </div>
 
-      <div className="relative max-w-6xl mx-auto mb-24">
-        {/* Desktop Connecting Line - The "Swirl" */}
-        <div className="hidden md:block absolute top-1/2 left-0 w-full -translate-y-1/2 -z-10">
-           <svg className="w-full h-48" viewBox="0 0 1200 200" fill="none" preserveAspectRatio="none">
-             <path 
-               d="M100,100 C250,100 300,50 400,50 C500,50 550,150 650,150 C750,150 800,100 900,100 C1000,100 1050,100 1100,100" 
-               stroke="#CBD5E1" 
-               strokeWidth="4" 
-               strokeDasharray="12 12" 
-               strokeLinecap="round"
-             />
-           </svg>
+      <div className="relative max-w-lg mx-auto">
+        {/* The Dotted Line */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-48 pointer-events-none -z-10">
+          <svg width="100%" height="100%" viewBox="0 0 192 800" fill="none" preserveAspectRatio="none">
+            <path d="M96 0 C-30 150, 222 250, 96 400 S -30 550, 96 800" stroke="#CBD5E1" strokeWidth="4" strokeDasharray="10 10" strokeLinecap="round"/>
+          </svg>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-12 text-center">
+        <div className="space-y-24">
           {/* Step 1 */}
-          <div className="relative flex flex-col items-center group">
-            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2 overflow-hidden">
-              <img src="/youput.gif" alt="Input" className="w-full h-full object-cover" />
+          <div className="flex items-center gap-8">
+            <img src="/youput.gif" alt="Input" className="w-32 h-32" />
+            <div className="text-left">
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Input</h3>
+              <p className="text-gray-600 font-medium">Enter your website URL. No code to install, just paste and go.</p>
             </div>
-            <h3 className="text-2xl font-black text-gray-900 mb-3">Input</h3>
-            <p className="text-gray-600 font-medium px-4">Enter your website URL. No code to install, just paste and go.</p>
           </div>
 
-          {/* Step 2 - Offset for "Swirl" effect */}
-          <div className="relative flex flex-col items-center md:mt-16 group">
-             <div className="w-32 h-32 bg-marketing-gradient rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 text-white transition-transform group-hover:-translate-y-2 overflow-hidden">
-              <img src="/wedo.gif" alt="Simulate" className="w-full h-full object-cover" />
+          {/* Step 2 */}
+          <div className="flex items-center gap-8 flex-row-reverse">
+            <img src="/wedo.gif" alt="Simulate" className="w-32 h-32" />
+            <div className="text-right">
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Simulate</h3>
+              <p className="text-gray-600 font-medium">Our AI agents browse your site like real humans, voicing their thoughts.</p>
             </div>
-            <h3 className="text-2xl font-black text-gray-900 mb-3">Simulate</h3>
-            <p className="text-gray-600 font-medium px-4">Our AI agents browse your site like real humans, voicing their thoughts.</p>
           </div>
 
           {/* Step 3 */}
-          <div className="relative flex flex-col items-center group">
-            <div className="w-32 h-32 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[8px_8px_0px_0px_#000] mb-8 z-10 transition-transform group-hover:-translate-y-2 overflow-hidden">
-              <img src="/youget.gif" alt="Reveal" className="w-full h-full object-cover" />
+          <div className="flex items-center gap-8">
+            <img src="/youget.gif" alt="Reveal" className="w-32 h-32" />
+            <div className="text-left">
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Reveal</h3>
+              <p className="text-gray-600 font-medium">Get an instant report showing exactly where users get stuck.</p>
             </div>
-            <h3 className="text-2xl font-black text-gray-900 mb-3">Reveal</h3>
-            <p className="text-gray-600 font-medium px-4">Get an instant report showing exactly where users get stuck.</p>
           </div>
         </div>
       </div>
