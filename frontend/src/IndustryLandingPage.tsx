@@ -135,23 +135,23 @@ const PainSection = () => (
     <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
       {/* Diagonal Line Separator */}
       <div className="absolute inset-0 pointer-events-none hidden lg:block z-10">
-        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-black transform -skew-x-12 origin-top"></div>
+      <div className="absolute left-[60%] top-0 bottom-0 w-1 bg-black transform -skew-x-6 origin-top"></div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-20">
         {/* VS Badge */}
         <div 
-          className="absolute top-1/2 left-1/2 z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
-          style={{ transform: 'translate(-201%, -50%)' }}
+        className="absolute top-1/2 left-[60%] z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
+        style={{ transform: 'translate(-50%, -50%)' }}
         >
           <span className="text-sm font-black text-white">VS</span>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Left: Analytics (The What) */}
-          <div className="flex flex-col justify-center lg:pr-12">
+        <div className="flex flex-col justify-center lg:pr-24 pb-12 lg:pb-0 relative">
             <h2 className="text-3xl font-black text-gray-500 mb-6">
-              Google Analytics tells you <span className="italic underline text-black">what</span> is happening.
+            Other Analytics tell you <span className="italic underline text-black">what</span> is happening.
             </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
               Analytics dashboards show you high bounce rates and abandoned carts, but they don't tell you <em>why</em> users are leaving. 
