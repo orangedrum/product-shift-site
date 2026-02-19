@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from './lib/supabase';
-import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle } from 'lucide-react';
+import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle, X, Target, Puzzle } from 'lucide-react';
 import { AnalysisErrorCard } from './components/AnalysisErrorCard';
 import { PricingSection } from './components/PricingSection';
 import { VideoPlayer } from './components/VideoPlayer';
@@ -103,34 +103,35 @@ const UseCasesSection = () => (
     <div className="container mx-auto px-4 max-w-7xl">
       <div className="text-center mb-16">
         <h2 className="text-3xl font-black text-gray-900 mb-4">Your New Conversion Toolkit</h2>
-        <p className="text-xl text-gray-600">Use User Mirror whenever you need to know "Why?"</p>
+        <p className="text-xl text-gray-600">Everything you need to understand your users.</p>
       </div>
       <div className="grid md:grid-cols-3 gap-8">
         <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-            <TrendingUp className="h-6 w-6 text-white" />
+            <Zap className="h-6 w-6 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">The Pre-Launch</h3>
-          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Before you spend ad money, ensure your landing page makes sense. Fix confusion before it costs you clicks.</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">Easy</h3>
+          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Enter any URL. Our AI agents, trained on millions of data points, perform a full usability audit. You get a detailed report in minutes.</p>
         </div>
         <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-            <AlertCircle className="h-6 w-6 text-white" />
+            <Target className="h-6 w-6 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">The Slump</h3>
-          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Sales dropped? Bounce rate up? Find out exactly where users are getting stuck and why they are leaving.</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">Useful</h3>
+          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Use it before a product launch, to diagnose a drop in sales, to optimize your ad spend, or even to run a full analysis on your competitor's website.</p>
         </div>
         <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-            <Users className="h-6 w-6 text-white" />
+            <Puzzle className="h-6 w-6 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">The Competitor</h3>
-          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Run a test on your competitor's URL. See what they do right, what they do wrong, and steal their best ideas.</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">Portable</h3>
+          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Audit on the fly. Get the User Mirror Chrome Extension to analyze any page you're browsing with a single click.</p>
+          <a href="#" className="text-indigo-600 font-bold text-sm hover:underline flex items-center gap-1">Download Extension ↗</a>
         </div>
       </div>
       <div className="mt-16 text-center">
         <div className="inline-block">
-          <a href="#demo" className="inline-flex items-center justify-center h-14 px-10 text-lg font-bold text-white bg-marketing-gradient rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <a href="#pricing" className="inline-flex items-center justify-center h-14 px-10 text-lg font-bold text-white bg-marketing-gradient rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
             Start Free Now
           </a>
         </div>
