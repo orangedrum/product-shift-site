@@ -199,19 +199,16 @@ const PainSection = () => (
             </div>
 
             {/* Anchored Persona */}
-            <div className="relative z-10 mt-12 flex flex-col items-center">
-                 {/* Speech Bubble */}
-                 <div className="relative bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-xs transform -rotate-1">
-                    <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
-                 </div>
+            <div className="relative z-10 mt-auto flex items-end -mb-12 -ml-12">
+                 <img 
+                    src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
+                    alt="Marcus" 
+                    className="w-96 h-96 object-contain flex-shrink-0" 
+                 />
                  
-                 <div className="flex flex-col items-center gap-2">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" alt="Marcus" className="w-48 h-48 rounded-full border-4 border-black bg-gray-100 shadow-lg" />
-                    <div className="text-center">
-                        <p className="font-black text-xl text-black">Marcus</p>
-                        <p className="text-sm font-bold text-gray-700 uppercase tracking-widest">C-Suite Exec</p>
-                    </div>
+                 <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-32 -ml-24 max-w-[260px] transform -rotate-2 z-20">
+                    <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
+                    <div className="absolute bottom-6 -left-3 w-6 h-6 bg-white border-l-2 border-b-2 border-black transform rotate-45"></div>
                  </div>
             </div>
           </div>
