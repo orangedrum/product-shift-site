@@ -131,76 +131,128 @@ const UseCasesSection = () => (
   </section>
 );
 
-const PainSection = () => (
-  <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
-    {/* Diagonal Line Separator */}
-    <div className="absolute inset-0 pointer-events-none hidden lg:block">
-      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-black transform -skew-x-12 origin-top z-10"></div>
-    </div>
+const PainSection = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative">
-      {/* VS Badge */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-black border-2 border-black rounded-full p-3 shadow-sm hidden lg:block">
-        <span className="text-sm font-black text-white">VS</span>
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateOrbs = () => {
+      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+      container.style.setProperty('--pos-x-1', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-y-1', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-x-2', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-y-2', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-x-3', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-y-3', `${r(0, 100)}%`);
+    };
+
+    updateOrbs();
+    const interval = setInterval(updateOrbs, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
+      {/* Diagonal Line Separator */}
+      <div className="absolute inset-0 pointer-events-none hidden lg:block">
+        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-100 transform -skew-x-12 origin-top z-0"></div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-16">
-        {/* Left: Analytics (The What) */}
-        <div className="flex flex-col justify-center lg:pr-12">
-          <h2 className="text-3xl font-black text-gray-500 mb-6">
-            Google Analytics tells you <span className="italic underline text-black">what</span> is happening.
-          </h2>
-          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-            Analytics dashboards show you high bounce rates and abandoned carts, but they don't tell you <em>why</em> users are leaving. 
-          </p>
-          
-          <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm max-w-md mx-auto lg:mx-0 w-full">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm w-fit">
-                <BarChart className="w-5 h-5 text-gray-400" />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative">
+        {/* VS Badge */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block">
+          <span className="text-sm font-black text-white">VS</span>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-16">
+          {/* Left: Analytics (The What) */}
+          <div className="flex flex-col justify-center lg:pr-12">
+            <h2 className="text-3xl font-black text-gray-500 mb-6">
+              Google Analytics tells you <span className="italic underline text-black">what</span> is happening.
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              Analytics dashboards show you high bounce rates and abandoned carts, but they don't tell you <em>why</em> users are leaving. 
+            </p>
+            
+            <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-sm max-w-md mx-auto lg:mx-0 w-full">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-white rounded-lg border border-gray-200 shadow-sm w-fit">
+                  <BarChart className="w-5 h-5 text-gray-400" />
+                </div>
+                <h4 className="font-bold text-gray-900">Analytics Dashboard</h4>
               </div>
-              <h4 className="font-bold text-gray-900">Analytics Dashboard</h4>
-            </div>
-            <div className="space-y-3">
-               <div className="flex justify-between items-center text-sm">
-                 <span className="text-gray-500">Bounce Rate</span>
-                 <span className="font-mono font-bold text-gray-700">65%</span>
-               </div>
-               <div className="w-full bg-gray-200 rounded-full h-2">
-                 <div className="bg-gray-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-               </div>
-               <p className="text-xs text-gray-400 mt-2">"Users are leaving /checkout"</p>
+              <div className="space-y-3">
+                 <div className="flex justify-between items-center text-sm">
+                   <span className="text-gray-500">Bounce Rate</span>
+                   <span className="font-mono font-bold text-gray-700">65%</span>
+                 </div>
+                 <div className="w-full bg-gray-200 rounded-full h-2">
+                   <div className="bg-gray-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+                 </div>
+                 <p className="text-xs text-gray-400 mt-2">"Users are leaving /checkout"</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Right: Product Shift (The Why) */}
-        <div className="flex flex-col justify-center lg:pl-12 relative">
-          {/* Lavalamp Background Effect */}
-          <div className="absolute inset-0 bg-marketing-gradient opacity-10 blur-3xl rounded-full -z-10 animate-pulse"></div>
-          
-          <h2 className="text-3xl font-black text-gray-900 mb-6">
-            We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
-          </h2>
-          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-            Our AI agents browse your site like real humans, verbalizing their confusion and frustration so you can fix it.
-          </p>
+          {/* Right: Product Shift (The Why) */}
+          <div className="flex flex-col justify-center lg:pl-12 relative p-8 rounded-3xl overflow-hidden">
+            {/* Lavalamp Background Effect */}
+            <div 
+              ref={containerRef}
+              className="absolute inset-0 -z-10"
+              style={{
+                background: `
+                  radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+                  radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
+                  radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
+                  radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
+                  #ffffff
+                `,
+                backgroundSize: '100% 100%',
+                transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
+              }}
+            />
+            <style>{`
+              @property --pos-x-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+              @property --pos-y-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+              @property --pos-x-2 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+              @property --pos-y-2 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+              @property --pos-x-3 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+              @property --pos-y-3 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+            `}</style>
+            
+            <h2 className="text-3xl font-black text-gray-900 mb-6">
+              We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              Our AI agents browse your site like real humans, verbalizing their confusion so you can fix it.
+            </p>
 
-          <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-gray-100 shadow-xl relative z-10 max-w-md mx-auto lg:mx-0 w-full">
-            <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-xs">
-              <CheckCircle size={16} /> Actionable Recommendation
-            </div>
-            <h3 className="text-xl font-bold mb-2">Clarify Salesforce Integration</h3>
-            <p className="text-gray-600 mb-4">Users are abandoning the purchase because they can't confirm if the software works with their existing stack.</p>
-            <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-600 flex items-center gap-2">
-              <div className="w-2 h-2 bg-pink-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip.
+            <div className="bg-white text-gray-900 p-6 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_#000] relative z-10 max-w-md mx-auto lg:mx-0 w-full">
+              <div className="flex items-center gap-2 mb-4 text-indigo-600 font-bold uppercase tracking-wider text-xs">
+                <CheckCircle size={16} /> Actionable Recommendation
+              </div>
+              <h3 className="text-xl font-bold mb-6">Clarify Salesforce Integration</h3>
+              
+              <div className="flex gap-4 mb-6">
+                <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" alt="Marcus" className="w-16 h-16 rounded-full border-2 border-black bg-gray-100 flex-shrink-0" />
+                <div className="bg-gray-100 p-4 rounded-xl rounded-tl-none border-2 border-black relative">
+                   <p className="text-sm font-medium italic text-gray-800">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
+                </div>
+              </div>
+
+              <div className="p-3 bg-indigo-50 border-2 border-indigo-100 rounded text-sm font-bold text-indigo-900 flex items-center gap-2">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full"></div> FIX: Add "Works with Salesforce" logo strip.
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const FeaturesSection = () => (
   <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
