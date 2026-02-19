@@ -1,44 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { supabase } from './lib/supabase';
+import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle, X, Target, Puzzle } from 'lucide-react';
-import { AnalysisErrorCard } from './components/AnalysisErrorCard';
-import { PricingSection } from './components/PricingSection';
-import { VideoPlayer } from './components/VideoPlayer';
-import { LandingFAQ } from './components/LandingFAQ';
-import { AnalyticsSmbUser } from './components/AnalyticsSmbUser';
+import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
+import { PricingSection } from '../components/PricingSection';
+import { VideoPlayer } from '../components/VideoPlayer';
+import { LandingFAQ } from '../components/LandingFAQ';
+import { AnalyticsSmbUser } from '../components/AnalyticsSmbUser';
 
 // ==========================================
-// 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️
+// 🛠️ CONFIGURATION SECTION
 // ==========================================
-//adding just to trigger a deployment for vercel
 const CONFIG = {
   // SEO & Meta
-  industryName: "Small Businesses", // e.g. "Real Estate Agents", "Dentists", "Restaurants"
-  pageTitle: "Simple Website Checkup for Small Businesses",
-  metaDescription: "Stop losing customers. Get an instant AI website analysis based on industry usability standards.",
-  urlSlug: "simple-website-checkup", // The part of the URL after the domain
+  industryName: "UX Professionals & Product Teams",
+  pageTitle: "AI-Powered UX Research Agent | Product Shift",
+  metaDescription: "Instant usability testing with AI personas. Get feedback on your designs in seconds, not days.",
+  urlSlug: "landingpg-aiuxagent",
   
   // Hero Section
-  heroTitle: "Simple Website Checkup",
-  heroSubtitle: "for Small Businesses",
-  heroDescription: "Stop losing customers. Our AI provides instant analysis based on industry usability standards to tell you exactly why visitors aren't buying.",
+  heroTitle: "AI-Powered UX Research",
+  heroSubtitle: "Instant Usability Feedback",
+  heroDescription: "Stop waiting for user recruitment. Simulate usability tests with AI personas to identify friction points, validate copy, and optimize conversion flows instantly.",
   
   // Pain Points Section
-  painTitle: "If Your Website Isn’t Bringing in Calls, Bookings, or Sales, It’s Not Your Fault",
+  painTitle: "Traditional User Testing is Too Slow for Modern Product Teams",
   painPoints: [
-    "Most websites in this industry were never tested with real people before going live.",
-    "Visitors get confused, lost, or distracted and leave before they click “Book now” or “Buy now.”",
-    "Use our specially trained synthesized users to review your page at a fraction of the cost.",
-    "A simple website checkup shows you exactly what to fix so your existing traffic works harder.",
-    "Receive a prioritized checklist of fixes from a downloadable and comprehensive PDF report."
+    "Recruiting quality participants takes days or weeks.",
+    "Live sessions are expensive and hard to schedule.",
+    "Feedback cycles slow down your sprint velocity.",
+    "Get instant, unbiased feedback from synthesized personas.",
+    "Scale your research without scaling your budget."
   ],
 
   // Personas (Select 3 defaults relevant to the industry)
-  defaultPersonas: ['alex-busy-pro', 'charlie-family-worker', 'linda-business-owner'],
+  defaultPersonas: ['alex-busy-pro', 'marcus-c-suite', 'sarah-social-shopper'],
   
   // Pricing
-  pricingSegment: "smb" // 'smb' or 'tech' (affects pricing card links)
+  pricingSegment: "tech" 
 };
 
 // --- Helper to format results ---
@@ -248,15 +247,31 @@ const HeroWithDemo = () => {
     setResult(null);
     setError(null);
 
+    // SELF-DIAGNOSIS LOGIC
+    const cleanInputUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const currentHost = window.location.host;
+    const isSelfTest = cleanInputUrl.includes(currentHost) || cleanInputUrl.includes('localhost') || cleanInputUrl === 'self';
+
+    let requestBody: any = {
+      url: `https://${url}`,
+      personaIds: ['alex-busy-pro'],
+      goal: 'Quickly understand what this page is about.'
+    };
+
+    if (isSelfTest) {
+      console.log('🚀 Running Self-Diagnosis Mode (Bypassing Scraper)');
+      requestBody.manualData = {
+        title: document.title,
+        bodyText: document.body.innerText.substring(0, 10000),
+        headings: Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: (h as HTMLElement).innerText })),
+      };
+    }
+
     try {
       const response = await fetch('/api/run-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: `https://${url}`,
-          personaIds: ['alex-busy-pro'],
-          goal: 'Quickly understand what this page is about.'
-        }),
+        body: JSON.stringify(requestBody),
       });
       
       let data;
@@ -270,11 +285,19 @@ const HeroWithDemo = () => {
       if (!response.ok) throw data;
       setResult(data);
     } catch (err: any) {
-      setError({
+      let displayError = {
         error: err.error || 'Analysis Failed',
         details: err.details || err.message || 'An unexpected error occurred.',
         usageCounted: err.usageCounted
-      });
+      };
+
+      if (displayError.details.includes('All fallback models failed') || displayError.details.includes('providers failed')) {
+        displayError.error = 'AI Services Temporarily Unavailable';
+        displayError.details = 'We are unable to connect to our AI models at the moment. Please try again in a few minutes. You have not been charged for this attempt.';
+        displayError.usageCounted = false;
+      }
+
+      setError(displayError);
     } finally {
       setIsLoading(false);
     }
@@ -288,15 +311,12 @@ const HeroWithDemo = () => {
   if (result) {
     const session = result.userSessions?.[0];
     const recommendations = result.expertReport?.split('### Actionable Recommendations')[1] || "No recommendations found.";
-    
-    // CTO: Ensure user bubble directly correlates to the first actionable feedback point.
     const firstIssueMatch = recommendations.match(/\*\*ISSUE:\*\* (.*?)\n/i);
     const userBubble = firstIssueMatch ? firstIssueMatch[1].trim().replace(/\.$/, '') + "." : "I've finished my review. Here are my thoughts.";
 
     return (
       <section id="demo" className="relative bg-transparent py-8 sm:py-12">
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          {/* Plaque Header */}
           <div className="flex justify-center mb-12">
             <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000]">
               <p className="text-xl font-black text-black leading-none">User Mirror</p>
@@ -325,7 +345,6 @@ const HeroWithDemo = () => {
               <div className="prose prose-sm max-w-none">
                 {formatDemoText(recommendations)}
               </div>
-              {/* CTO: High-converting compact CTA */}
               <div className="mt-6 text-center border-t-2 border-gray-100 pt-6">
                 <a href="#pricing" onClick={scrollToPricing} className="inline-block px-10 py-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-transform transform hover:-translate-y-0.5 shadow-lg">
                   Unlock Full Report
@@ -348,7 +367,6 @@ const HeroWithDemo = () => {
     <section className="relative bg-transparent overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-4xl mx-auto relative">
-          {/* Plaque Header */}
           <div className="flex justify-center mb-12">
             <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000]">
               <p className="text-xl font-black text-black leading-none">User Mirror</p>
@@ -357,13 +375,12 @@ const HeroWithDemo = () => {
           </div>
 
           <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl mb-4">
-            Find out why your users are converting or leaving
+            {CONFIG.heroTitle}
           </h1>
           <p className="mt-3 text-xl text-gray-600 sm:mt-5 max-w-2xl mx-auto">
-            See your site through the eyes of your customer.
+            {CONFIG.heroSubtitle}
           </p>
             
-            {/* Giant Input Form */}
             <div className="mt-12 max-w-2xl mx-auto">
               {error && error.usageCounted === false ? (
                 <div className="mb-6 animate-fade-in"><AnalysisErrorCard error={error} onReset={() => setError(null)} /></div>
@@ -401,7 +418,7 @@ const HeroWithDemo = () => {
   );
 };
 
-const IndustryLandingPage: React.FC = () => {
+const MarketingLandingPageOptimized: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -437,7 +454,6 @@ const IndustryLandingPage: React.FC = () => {
   useEffect(() => {
     document.title = `${CONFIG.pageTitle} | Product Shift`;
     
-    // Programmatically update meta description for SEO
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', CONFIG.metaDescription);
@@ -448,7 +464,6 @@ const IndustryLandingPage: React.FC = () => {
       document.head.appendChild(meta);
     }
 
-    // Add Canonical Link
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement('link');
@@ -457,7 +472,6 @@ const IndustryLandingPage: React.FC = () => {
     }
     canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
 
-    // Add Open Graph Tags for Social SEO
     const setMeta = (attr: string, key: string, content: string) => {
       let m = document.querySelector(`meta[${attr}="${key}"]`);
       if (!m) {
@@ -479,7 +493,6 @@ const IndustryLandingPage: React.FC = () => {
     setMeta('name', 'twitter:description', CONFIG.metaDescription);
     setMeta('name', 'twitter:image', 'https://www.theproductshift.com/social-share.png');
 
-    // Add JSON-LD Structured Data
     const scriptId = 'json-ld-software-app';
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
@@ -579,4 +592,4 @@ const IndustryLandingPage: React.FC = () => {
   );
 };
 
-export default IndustryLandingPage;
+export default MarketingLandingPageOptimized;

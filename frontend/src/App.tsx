@@ -13,6 +13,7 @@ import MarketingLandingPage from './pages/MarketingLandingPage';
 import SmbLandingPageVideo from './pages/SmbLandingPageVideo';
 import RealtorLandingPageVideo from './pages/RealtorLandingPageVideo';
 import IndustryLandingPage from './IndustryLandingPage';
+import MarketingLandingPageOptimized from './pages/MarketingLandingPageOptimized';
 import EcommerceLandingPageVideo from './pages/EcommerceLandingPageVideo';
 import MarketingLandingPageVideo from './pages/MarketingLandingPageVideo';
 import FreeWebsiteAuditSmb from './pages/FreeWebsiteAuditSmb';
@@ -47,6 +48,7 @@ const App: React.FC = () => {
     '/increase-ecommerce-conversion-rates', 
     '/landingpg-aiuxagent',
     '/simple-website-checkup-video',
+    '/marketing-optimized',
     '/convert-more-real-estate-website-visitors-video',
     '/increase-ecommerce-conversion-rates-video',
     '/landingpg-aiuxagent-video',
@@ -117,6 +119,7 @@ const App: React.FC = () => {
           <Route path="/increase-ecommerce-conversion-rates" element={<EcommerceLandingPage />} />
 
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
+          <Route path="/marketing-optimized" element={<MarketingLandingPageOptimized />} />
 
           {/* New Template Route */}
           <Route path="/landing-template" element={<IndustryLandingPage />} />
