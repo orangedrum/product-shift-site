@@ -132,16 +132,16 @@ const UseCasesSection = () => (
 );
 
 const PainSection = () => (
-    <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
+  <section className="pt-20 pb-0 bg-white border-t-2 border-black relative overflow-hidden">
       {/* Diagonal Line Separator */}
       <div className="absolute inset-0 pointer-events-none hidden lg:block z-10">
-      <div className="absolute left-[60%] top-0 bottom-0 w-1 bg-black transform -skew-x-6 origin-top"></div>
+      <div className="absolute left-[40%] top-0 bottom-0 w-1 bg-black transform -skew-x-6 origin-top"></div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-20">
         {/* VS Badge */}
         <div 
-        className="absolute top-1/2 left-[60%] z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
+        className="absolute top-1/2 left-[40%] z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
         style={{ transform: 'translate(-50%, -50%)' }}
         >
           <span className="text-sm font-black text-white">VS</span>
