@@ -113,21 +113,34 @@ const UseCasesSection = () => (
             <Zap className="h-6 w-6 text-white" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-3">Easy</h3>
-          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Enter any URL. Our AI agents, trained on millions of data points, perform a full usability audit. You get a detailed report in minutes.</p>
+          <ul className="text-gray-500 mb-6 text-sm leading-relaxed space-y-2">
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Enter any URL</li>
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>AI trained on millions of data points</li>
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Full usability audit in minutes</li>
+          </ul>
         </div>
         <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
             <Target className="h-6 w-6 text-white" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-3">Useful</h3>
-          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Use it before a product launch, to diagnose a drop in sales, to optimize your ad spend, or even to run a full analysis on your competitor's website.</p>
+          <ul className="text-gray-500 mb-6 text-sm leading-relaxed space-y-2">
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Pre-launch validation</li>
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Diagnose sales drops</li>
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Optimize ad spend</li>
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Analyze competitors</li>
+          </ul>
         </div>
         <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
             <Puzzle className="h-6 w-6 text-white" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-3">Portable</h3>
-          <p className="text-gray-500 mb-6 text-sm leading-relaxed">Audit on the fly. Get the User Mirror Chrome Extension to analyze any page you're browsing with a single click.</p>
+          <ul className="text-gray-500 mb-6 text-sm leading-relaxed space-y-2">
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Audit on the fly</li>
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Chrome Extension included</li>
+            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Analyze any page with 1-click</li>
+          </ul>
           <a href="#" className="text-indigo-600 font-bold text-sm hover:underline flex items-center gap-1">Download Extension ↗</a>
         </div>
       </div>
@@ -160,7 +173,7 @@ const PainSection = () => (
 
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Left: Analytics (The What) */}
-        <div className="flex flex-col justify-start pt-12 lg:pr-24 pb-12 lg:pb-0 relative">
+        <div className="flex flex-col justify-start lg:pr-24 pb-12 lg:pb-0 relative">
             <h2 className="text-3xl font-black text-gray-500 mb-6">
             Other Analytics tell you <span className="italic underline text-black">what</span> is happening.
             </h2>
@@ -256,7 +269,7 @@ const FeaturesSection = ({ onWatchVideo }: { onWatchVideo: () => void }) => (
           </svg>
         </div>
 
-        <div className="space-y-24">
+        <div className="space-y-16">
           {/* Step 1 */}
           <div className="flex items-center gap-8">
             <img src="/youput.gif" alt="Input" className="w-96 h-96" />
