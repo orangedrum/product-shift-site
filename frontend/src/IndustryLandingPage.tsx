@@ -232,17 +232,14 @@ const PainSection = () => (
     </section>
   );
 
-const FeaturesSection = () => (
+const FeaturesSection = ({ onWatchVideo }: { onWatchVideo: () => void }) => (
   <section id="how-it-works" className="py-24 bg-white overflow-hidden">
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
       <div className="text-center mb-24">
-        <h2 className="text-3xl font-black text-gray-900 mb-4">How It Works</h2>
-        <p className="text-xl text-gray-600">See your site through the eyes of your customer in 3 steps.</p>
+        <h2 className="text-3xl font-black text-gray-900 mb-4">Turn Visitors Into Buyers in 3 Steps</h2>
+        <p className="text-xl text-gray-600">Stop guessing. Start converting. Here is how we reveal the hidden revenue on your site.</p>
         <button 
-          onClick={() => {
-            const modal = document.getElementById('video-modal');
-            if (modal) modal.classList.remove('hidden');
-          }}
+          onClick={onWatchVideo}
           className="text-gray-500 font-medium hover:text-indigo-600 transition-colors inline-flex items-center gap-2 mt-4"
         >
           Watch Video 🎬
@@ -260,31 +257,37 @@ const FeaturesSection = () => (
         <div className="space-y-24">
           {/* Step 1 */}
           <div className="flex items-center gap-8">
-            <img src="/youput.gif" alt="Input" className="w-32 h-32" />
+            <img src="/youput.gif" alt="Input" className="w-72 h-72" />
             <div className="text-left">
-              <h3 className="text-2xl font-black text-gray-900 mb-2">Input</h3>
-              <p className="text-gray-600 font-medium">Enter your website URL. No code to install, just paste and go.</p>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">1. Enter Your URL</h3>
+              <p className="text-gray-600 font-medium">Paste your website link. No code to install, no complex setup. Just paste and go.</p>
             </div>
           </div>
 
           {/* Step 2 */}
           <div className="flex items-center gap-8 flex-row-reverse">
-            <img src="/wedo.gif" alt="Simulate" className="w-32 h-32" />
-            <div className="text-right">
-              <h3 className="text-2xl font-black text-gray-900 mb-2">Simulate</h3>
-              <p className="text-gray-600 font-medium">Our AI agents browse your site like real humans, voicing their thoughts.</p>
+            <img src="/wedo.gif" alt="Simulate" className="w-72 h-72" />
+            <div className="text-left">
+              <h3 className="text-2xl font-black text-gray-900 mb-2">2. We Simulate Traffic</h3>
+              <p className="text-gray-600 font-medium">Our AI agents browse your site like real humans, voicing their confusion and frustration in real-time.</p>
             </div>
           </div>
 
           {/* Step 3 */}
           <div className="flex items-center gap-8">
-            <img src="/youget.gif" alt="Reveal" className="w-32 h-32" />
+            <img src="/youget.gif" alt="Reveal" className="w-72 h-72" />
             <div className="text-left">
-              <h3 className="text-2xl font-black text-gray-900 mb-2">Reveal</h3>
-              <p className="text-gray-600 font-medium">Get an instant report showing exactly where users get stuck.</p>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">3. You Get The Fixes</h3>
+              <p className="text-gray-600 font-medium">Receive a prioritized checklist of exactly what to fix to stop losing sales immediately.</p>
             </div>
           </div>
         </div>
+      </div>
+      
+      <div className="mt-20 text-center">
+        <a href="#pricing" className="inline-flex items-center justify-center h-14 px-10 text-lg font-bold text-white bg-marketing-gradient rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          Start Free Now
+        </a>
       </div>
     </div>
   </section>
@@ -474,81 +477,10 @@ const HeroWithDemo = () => {
   );
 };
 
-const FAQSection = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  
-  const scrollToDemo = (e: React.MouseEvent) => {
-    e.preventDefault();
-    document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const faqs = [
-    { 
-      q: "Is the free demo really free?", 
-      a: (<span>
-          Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required. <a href="#demo" onClick={scrollToDemo} className="text-indigo-600 font-bold hover:underline">Try it now ➡️</a>
-         </span>)
-    },
-    { 
-      q: "How can I test if my website works for customers?", 
-      a: "You paste your website link, pick who you want to test as (new visitor, potential client, etc.), and the tool walks through your page like a visitor would. You get a short report showing where they’d get confused and what to fix first." 
-    },
-    { 
-      q: "Do I need to be technical to use this website checkup?", 
-      a: "No. Everything is written in plain language. You don’t need to know UX or analytics—just read the suggestions and decide which fixes to try." 
-    },
-    { 
-      q: "Can I use tests across multiple landing pages?", 
-      a: "Yes. You can use your tests on any pages you own: homepages, booking pages, sales pages, or link‑in‑bio landing pages." 
-    },
-    { 
-      q: "What’s the difference between packs and the monthly plan?", 
-      a: "Packs are one‑time purchases you can use whenever you want. The monthly plan gives you fresh tests every month so you can stay on top of new pages, campaigns, and changes." 
-    },
-    { 
-      q: "How is this different from Google Analytics?", 
-      a: "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')." 
-    },
-    { 
-      q: "Do I need to install anything?", 
-      a: "No. Just enter your URL and we do the rest." 
-    },
-    { 
-      q: "Can I test my competitor's site?", 
-      a: "Absolutely. It's a great way to see what they are doing right (or wrong)." 
-    }
-  ];
-
-  return (
-    <section className="bg-transparent py-24">
-      <div className="max-w-3xl mx-auto px-4">
-        <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Common Questions</h2>
-        <div className="space-y-4">
-          {faqs.map((faq, i) => (
-            <div key={i} className="bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-xl overflow-hidden">
-              <button 
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex justify-between items-center p-4 text-left bg-white hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-bold text-gray-900">{faq.q}</span>
-                {openIndex === i ? <ChevronUp size={20} className="text-black" /> : <ChevronDown size={20} className="text-black" />}
-              </button>
-              {openIndex === i && (
-                <div className="p-4 bg-gray-200 border-t border-gray-300 text-gray-800 animate-fade-in">
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
 const IndustryLandingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     // 1. Capture from URL
@@ -695,12 +627,30 @@ const IndustryLandingPage: React.FC = () => {
           <AuthorityBanner />
           <UseCasesSection />
           <hr className="border-t-2 border-black my-0" />
-          <FeaturesSection />
+          <FeaturesSection onWatchVideo={() => setIsVideoOpen(true)} />
           <hr className="border-t-2 border-black my-0" />
           <PricingSection />
           <hr className="border-t-2 border-black my-0" />
-          <FAQSection />
+          <LandingFAQ />
         </div>
+
+        {/* Video Modal */}
+        {isVideoOpen && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setIsVideoOpen(false)}>
+            <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+              <button 
+                onClick={() => setIsVideoOpen(false)}
+                className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+              >
+                <X size={24} />
+              </button>
+              <VideoPlayer 
+                src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
+                className="w-full"
+              />
+            </div>
+          </div>
+        )}
       </main>
   );
 };
