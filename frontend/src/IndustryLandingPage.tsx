@@ -131,29 +131,7 @@ const UseCasesSection = () => (
   </section>
 );
 
-const PainSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const updateOrbs = () => {
-      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-      container.style.setProperty('--pos-x-1', `${r(0, 100)}%`);
-      container.style.setProperty('--pos-y-1', `${r(0, 100)}%`);
-      container.style.setProperty('--pos-x-2', `${r(0, 100)}%`);
-      container.style.setProperty('--pos-y-2', `${r(0, 100)}%`);
-      container.style.setProperty('--pos-x-3', `${r(0, 100)}%`);
-      container.style.setProperty('--pos-y-3', `${r(0, 100)}%`);
-    };
-
-    updateOrbs();
-    const interval = setInterval(updateOrbs, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
+const PainSection = () => (
     <section className="py-20 bg-white border-t-2 border-black relative overflow-hidden">
       {/* Diagonal Line Separator */}
       <div className="absolute inset-0 pointer-events-none hidden lg:block z-10">
@@ -162,7 +140,10 @@ const PainSection = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-20">
         {/* VS Badge */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block">
+        <div 
+          className="absolute top-1/2 left-1/2 z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
+          style={{ transform: 'translate(-201%, -50%)' }}
+        >
           <span className="text-sm font-black text-white">VS</span>
         </div>
 
@@ -198,31 +179,6 @@ const PainSection = () => {
 
           {/* Right: Product Shift (The Why) */}
           <div className="flex flex-col justify-between lg:pl-12 relative p-8 rounded-3xl overflow-hidden min-h-[600px]">
-            {/* Lavalamp Background Effect */}
-            <div 
-              ref={containerRef}
-              className="absolute inset-0 z-0"
-              style={{
-                background: `
-                  radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
-                  radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
-                  radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
-                  radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
-                  #ffffff
-                `,
-                backgroundSize: '100% 100%',
-                transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
-              }}
-            />
-            <style>{`
-              @property --pos-x-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
-              @property --pos-y-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
-              @property --pos-x-2 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
-              @property --pos-y-2 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
-              @property --pos-x-3 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
-              @property --pos-y-3 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
-            `}</style>
-            
             <div className="relative z-10">
                 <h2 className="text-3xl font-black text-gray-900 mb-6">
                   We tell you <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">WHY</span>.
@@ -245,15 +201,15 @@ const PainSection = () => {
             {/* Anchored Persona */}
             <div className="relative z-10 mt-12 flex flex-col items-center">
                  {/* Speech Bubble */}
-                 <div className="relative bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-6 max-w-sm transform -rotate-1">
-                    <p className="text-xl font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
+                 <div className="relative bg-white p-4 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-xs transform -rotate-1">
+                    <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
                     <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
                  </div>
                  
-                 <div className="flex items-center gap-4">
-                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" alt="Marcus" className="w-24 h-24 rounded-full border-4 border-black bg-gray-100 shadow-lg" />
-                    <div className="text-left">
-                        <p className="font-black text-2xl text-black">Marcus</p>
+                 <div className="flex flex-col items-center gap-2">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" alt="Marcus" className="w-48 h-48 rounded-full border-4 border-black bg-gray-100 shadow-lg" />
+                    <div className="text-center">
+                        <p className="font-black text-xl text-black">Marcus</p>
                         <p className="text-sm font-bold text-gray-700 uppercase tracking-widest">C-Suite Exec</p>
                     </div>
                  </div>
@@ -263,7 +219,6 @@ const PainSection = () => {
       </div>
     </section>
   );
-};
 
 const FeaturesSection = () => (
   <section id="how-it-works" className="relative bg-transparent py-16 sm:py-24 z-10">
