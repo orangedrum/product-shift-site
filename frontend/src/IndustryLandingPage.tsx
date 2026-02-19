@@ -198,32 +198,32 @@ const PainSection = () => (
             </div>
 
             {/* Anchored Persona */}
-            <div className="relative z-10 mt-auto w-full">
-                 {/* 1. The Word Bubble (Top) */}
-                 <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-[280px] transform -rotate-1 z-20 ml-12">
-                    <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
-                    <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
-                 </div>
-
-                 <div className="flex items-end">
-                     {/* 2. Marcus (Left) */}
-                     <img 
+            <div className="relative z-10 mt-auto w-full flex items-end justify-between">
+                 {/* 1. Marcus Group (Left) */}
+                 <div className="flex flex-col items-start relative z-20" style={{ marginBottom: '-2.5rem', marginLeft: '-5rem' }}>
+                    {/* Bubble */}
+                    <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-[280px] transform -rotate-1 ml-12">
+                        <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
+                        <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
+                    </div>
+                    {/* Marcus */}
+                    <img 
                         src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus" 
                         alt="Marcus" 
-                        className="w-56 h-56 object-contain -mb-6 -ml-8 flex-shrink-0 z-10" 
+                        className="w-72 h-72 object-contain" 
                      />
-                     
-                     {/* 3. Actionable Recommendation (Right) */}
-                     <div className="bg-white text-gray-900 p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative z-20 w-full mb-12 -ml-8">
-                        <div className="flex items-center gap-2 mb-3 text-indigo-600 font-bold uppercase tracking-wider text-[10px]">
-                          <CheckCircle size={14} /> Actionable Recommendation
-                        </div>
-                        <h3 className="text-sm font-bold mb-3 leading-tight">Clarify Salesforce Integration</h3>
-                        <div className="p-2 bg-indigo-50 border-2 border-indigo-100 rounded text-[10px] font-bold text-indigo-900 flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1 flex-shrink-0"></div> 
-                          <span>FIX: Add "Works with Salesforce" logo strip.</span>
-                        </div>
-                     </div>
+                 </div>
+
+                 {/* 3. Actionable Recommendation (Right) */}
+                 <div className="bg-white text-gray-900 p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] relative z-10 w-full max-w-xs mb-12 ml-4">
+                    <div className="flex items-center gap-2 mb-3 text-indigo-600 font-bold uppercase tracking-wider text-[10px]">
+                      <CheckCircle size={14} /> Actionable Recommendation
+                    </div>
+                    <h3 className="text-sm font-bold mb-3 leading-tight">Clarify Salesforce Integration</h3>
+                    <div className="p-2 bg-indigo-50 border-2 border-indigo-100 rounded text-[10px] font-bold text-indigo-900 flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1 flex-shrink-0"></div> 
+                      <span>FIX: Add "Works with Salesforce" logo strip.</span>
+                    </div>
                  </div>
             </div>
           </div>
@@ -238,6 +238,15 @@ const FeaturesSection = () => (
       <div className="text-center mb-24">
         <h2 className="text-3xl font-black text-gray-900 mb-4">How It Works</h2>
         <p className="text-xl text-gray-600">See your site through the eyes of your customer in 3 steps.</p>
+        <button 
+          onClick={() => {
+            const modal = document.getElementById('video-modal');
+            if (modal) modal.classList.remove('hidden');
+          }}
+          className="text-gray-500 font-medium hover:text-indigo-600 transition-colors inline-flex items-center gap-2 mt-4"
+        >
+          Watch Video 🎬
+        </button>
       </div>
 
       <div className="relative max-w-6xl mx-auto mb-24">
@@ -282,13 +291,6 @@ const FeaturesSection = () => (
             <p className="text-gray-600 font-medium px-4">Get an instant report showing exactly where users get stuck.</p>
           </div>
         </div>
-      </div>
-
-      {/* Video */}
-      <div className="max-w-4xl mx-auto">
-         <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-black transform rotate-1 hover:rotate-0 transition-transform duration-500">
-           <VideoPlayer src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" />
-         </div>
       </div>
     </div>
   </section>
@@ -477,32 +479,6 @@ const HeroWithDemo = () => {
     </section>
   );
 };
-
-const TestimonialsSection = () => (
-  <section className="bg-indigo-900 py-24">
-    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold text-white mb-12">Trusted by {CONFIG.industryName}</h2>
-      <p className="text-indigo-200 text-lg mb-12 -mt-8">What Other Business Owners See After a Website Checkup</p>
-      <div className="grid md:grid-cols-3 gap-8">
-        {[
-          { name: "Sarah J.", role: "Business Owner", text: "I thought my site was clear until Alex pointed out I didn't have a buy button above the fold. Fixed it and sales went up." },
-          { name: "Mike T.", role: "Local Service Provider", text: "Simple, fast, and brutal. Exactly what I needed to hear to fix my contact form." },
-          { name: "Elena R.", role: "Freelancer", text: "I use this for all my clients now before I launch their sites. It catches things I miss." }
-        ].map((t, i) => (
-          <div key={i} className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left relative">
-            <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
-            <div className="flex justify-center mb-4 text-yellow-400">
-              {[...Array(5)].map((_, j) => <Star key={j} size={16} fill="currentColor" />)}
-            </div>
-            <p className="text-gray-700 mb-4 italic">"{t.text}"</p>
-            <p className="text-gray-900 font-bold">{t.name}</p>
-            <p className="text-indigo-600 text-sm">{t.role}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-);
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -726,8 +702,6 @@ const IndustryLandingPage: React.FC = () => {
           <UseCasesSection />
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection />
-          <hr className="border-t-2 border-black my-0" />
-          <TestimonialsSection />
           <hr className="border-t-2 border-black my-0" />
           <PricingSection />
           <hr className="border-t-2 border-black my-0" />
