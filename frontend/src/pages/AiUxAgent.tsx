@@ -1300,7 +1300,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 {result.scores ? (
                   <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
                     <h3 className="text-lg font-bold text-black mb-4">Performance Metrics</h3>
-                    <div className="h-64 w-full">
+                    <div className="h-64 w-full mb-6">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={[
                       { name: 'Usability', score: result.scores.usability },
@@ -1319,6 +1319,20 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
+
+                    {/* Overall Score Summary */}
+                    <div className="flex flex-col items-center justify-center pt-6 border-t-2 border-gray-100">
+                       <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Overall Score</div>
+                       <div className="flex items-center gap-4">
+                         <span className={`text-5xl font-black ${Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3) >= 60 ? 'text-green-600' : 'text-red-600'}`}>
+                           {Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3)}<span className="text-2xl text-gray-400">/100</span>
+                         </span>
+                         <div className={`px-4 py-1.5 rounded-full text-sm font-black border-2 uppercase tracking-wide ${Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3) >= 60 ? 'bg-green-100 text-green-800 border-green-600' : 'bg-red-100 text-red-800 border-red-600'}`}>
+                           Test Result: {Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3) >= 60 ? 'PASS' : 'FAIL'}
+                         </div>
+                       </div>
+                    </div>
+
                   </div>
                 ) : null}
 
