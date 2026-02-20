@@ -306,16 +306,15 @@ const AgencyUserTestingPage: React.FC = () => {
       {/* Video Modal */}
       {showVideoModal && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowVideoModal(false)}>
-          <div className="relative w-auto max-w-4xl mx-auto" onClick={e => e.stopPropagation()}>
+          <div className="relative" onClick={e => e.stopPropagation()}>
             <button 
               onClick={() => setShowVideoModal(false)}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300 z-50"
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 z-50"
             >
               <X size={32} />
             </button>
             <VideoPlayer 
               src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
-              className="w-full max-w-none"
             />
           </div>
         </div>
