@@ -520,7 +520,7 @@ const MarketingLandingPageOptimized: React.FC = () => {
         {/* Video Modal */}
         {isVideoOpen && (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setIsVideoOpen(false)}>
-            <div className="relative w-full max-w-5xl" onClick={e => e.stopPropagation()}>
+            <div className="relative w-auto max-w-4xl mx-auto" onClick={e => e.stopPropagation()}>
               <button 
                 onClick={() => setIsVideoOpen(false)}
                 className="absolute -top-10 right-0 text-white hover:text-gray-300 z-50"
