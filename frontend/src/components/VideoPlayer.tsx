@@ -19,9 +19,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, className
 
   return (
     <div 
-      className={`relative w-full max-w-lg mx-auto ${className}`}
+      className={`relative inline-block ${className}`}
     >
-      <div className="rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden bg-white">
+      <div className="rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden bg-black line-height-0">
         <video 
           ref={videoRef}
           src={src} 
@@ -29,7 +29,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster, className
           autoPlay 
           loop 
           playsInline 
-          className="w-full h-auto block"
+          className="block max-w-full max-h-[80vh] w-auto h-auto"
         />
       </div>
       <button
