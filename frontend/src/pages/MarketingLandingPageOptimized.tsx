@@ -520,16 +520,16 @@ const MarketingLandingPageOptimized: React.FC = () => {
         {/* Video Modal */}
         {isVideoOpen && (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setIsVideoOpen(false)}>
-            <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="relative w-full max-w-5xl" onClick={e => e.stopPropagation()}>
               <button 
                 onClick={() => setIsVideoOpen(false)}
-                className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+                className="absolute -top-10 right-0 text-white hover:text-gray-300 z-50"
               >
-                <X size={24} />
+                <X size={32} />
               </button>
               <VideoPlayer 
                 src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
-                className="w-full"
+                className="w-full max-w-none"
               />
             </div>
           </div>

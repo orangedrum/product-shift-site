@@ -383,104 +383,6 @@ const DemoSection = () => {
   );
 };
 
-const PricingSection = () => (
-  <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
-    <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Simple Pricing</h2>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        {/* Pack 3 */}
-        <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-center text-gray-900">Quick Check</h3>
-          <div className="text-center mt-4">
-            <p className="text-4xl font-extrabold text-gray-900">$14</p>
-            <p className="text-gray-500">one-time</p>
-          </div>
-          <p className="text-sm text-gray-600 mt-4 text-center px-2">Run 3 audits on any pages you want. Perfect for trying your homepage, booking page, and one key offer.</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>3 Audits</strong></li>
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Audits never expire</li>
-          </ul>
-          <Link 
-            to="/login?plan=pack-3&segment=smb" 
-            onClick={() => {
-              if ((window as any).gtag) {
-                (window as any).gtag('event', 'begin_checkout', {
-                  item_name: 'Quick Check (3 Pack)',
-                  value: 14.00,
-                  currency: 'USD'
-                });
-              }
-            }}
-            className="mt-8 block w-full text-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-bold rounded-lg hover:bg-indigo-50 transition-colors">
-            Buy Pack
-          </Link>
-        </div>
-
-        {/* Pack 15 */}
-        <div className="pricing-card bg-white p-6 border-2 border-indigo-500 rounded-xl shadow-xl text-left flex flex-col relative transform md:-translate-y-4">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Best Value</div>
-          <h3 className="text-xl font-bold text-center text-gray-900 mt-2">Pro Pack</h3>
-          <div className="text-center mt-4">
-            <p className="text-4xl font-extrabold text-gray-900">$69</p>
-            <p className="text-gray-500">one-time</p>
-          </div>
-          <p className="text-sm text-gray-600 mt-4 text-center px-2">15 audits you can use across any pages. Ideal if you have multiple landing pages, competitors, or want to re‑audit after changes.</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>15 Audits</strong></li>
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Save $1.40 per audit</li>
-          </ul>
-          <Link 
-            to="/login?plan=pack-15&segment=smb" 
-            onClick={() => {
-              if ((window as any).gtag) {
-                (window as any).gtag('event', 'begin_checkout', {
-                  item_name: 'Pro Pack (15 Pack)',
-                  value: 69.00,
-                  currency: 'USD'
-                });
-              }
-            }}
-            className="mt-8 block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-95 transition-transform transform hover:-translate-y-0.5">
-            Buy Pack
-          </Link>
-        </div>
-
-        {/* Subscription */}
-        <div className="pricing-card bg-white p-6 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-center text-gray-900">Monthly</h3>
-          <div className="text-center mt-4">
-            <p className="text-4xl font-extrabold text-gray-900">$29</p>
-            <p className="text-gray-500">per month</p>
-          </div>
-          <p className="text-sm text-gray-600 mt-4 text-center px-2">10 audits every month. Great for businesses that launch new pages or want a monthly website checkup. Unused audits roll over up to 30.</p>
-          <hr className="my-6" />
-          <ul className="space-y-3 text-gray-600 flex-grow">
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} /><strong>10 Audits / mo</strong></li>
-            <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-1" size={20} />Consistent auditing</li>
-          </ul>
-          <Link 
-            to="/login?plan=starter&segment=smb" 
-            onClick={() => {
-              if ((window as any).gtag) {
-                (window as any).gtag('event', 'begin_checkout', {
-                  item_name: 'Monthly Subscription',
-                  value: 29.00,
-                  currency: 'USD'
-                });
-              }
-            }}
-            className="mt-8 block w-full text-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors">
-            Subscribe
-          </Link>
-        </div>
-      </div>
-    </div>
-  </section>
-);
-
 const TestimonialsSection = () => (
   <section className="bg-indigo-900 py-24">
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
@@ -717,7 +619,7 @@ const SmbLandingPageVideo: React.FC = () => {
           <hr className="border-t-2 border-black my-0" />
           <TestimonialsSection />
           <hr className="border-t-2 border-black my-0" />
-          <PricingSection />
+          <PricingSection segment="smb" />
           <hr className="border-t-2 border-black my-0" />
           <LandingFAQ />
         </div>

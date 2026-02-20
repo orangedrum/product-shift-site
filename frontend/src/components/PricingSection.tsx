@@ -77,8 +77,8 @@ export const PricingSection: React.FC = () => {
               WAITLIST
             </div>
             <div className="mb-4">
-              <h3 className="text-2xl font-black text-black">Bring Your Own Key</h3>
-              <p className="text-gray-600 mt-2">Manage LLM cost internally.</p>
+            <h3 className="text-2xl font-black text-black">Pro Plan</h3>
+            <p className="text-gray-600 mt-2">Bring Your Own Key. Manage LLM cost internally.</p>
             </div>
             <div className="mb-8">
               <span className="text-5xl font-black text-black">$29</span>
@@ -110,7 +110,7 @@ export const PricingSection: React.FC = () => {
               to="/waitlist" 
               className="block w-full py-4 bg-white text-black border-2 border-black font-black text-lg rounded-lg text-center hover:bg-gray-50 transition-all"
             >
-              Join Waitlist
+                Early Access
             </Link>
           </div>
         </div>

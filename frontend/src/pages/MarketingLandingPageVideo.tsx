@@ -599,7 +599,7 @@ const MarketingLandingPageVideo: React.FC = () => {
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection />
           <hr className="border-t-2 border-black my-0" />
-          <PricingSection />
+          <PricingSection segment="tech" />
           <hr className="border-t-2 border-black my-0" />
           <LandingFAQ />
         </div>
