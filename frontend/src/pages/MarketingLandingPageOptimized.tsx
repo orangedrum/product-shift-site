@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle, X, Target, Puzzle } from 'lucide-react';
+import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle, X } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { PricingSection } from '../components/PricingSection';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { LandingFAQ } from '../components/LandingFAQ';
 import { AnalyticsSmbUser } from '../components/AnalyticsSmbUser';
+import { ToolkitUxTech } from '../components/ToolkitUxTech';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION
@@ -98,61 +99,6 @@ const AuthorityBanner = () => (
       }
     `}</style>
   </div>
-);
-
-const UseCasesSection = () => (
-  <section className="py-24 bg-gray-50">
-    <div className="container mx-auto px-4 max-w-7xl">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl font-black text-gray-900 mb-4">Your New Conversion Toolkit</h2>
-        <p className="text-xl text-gray-600">Everything you need to understand your users.</p>
-      </div>
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
-          <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-            <Zap className="h-6 w-6 text-white" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">Easy</h3>
-          <ul className="text-gray-500 mb-6 text-sm leading-relaxed space-y-2">
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Enter any URL</li>
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>AI trained on millions of data points</li>
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Full usability audit in minutes</li>
-          </ul>
-        </div>
-        <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
-          <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-            <Target className="h-6 w-6 text-white" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">Useful</h3>
-          <ul className="text-gray-500 mb-6 text-sm leading-relaxed space-y-2">
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Pre-launch validation</li>
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Diagnose sales drops</li>
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Optimize ad spend</li>
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Analyze competitors</li>
-          </ul>
-        </div>
-        <div className="h-full p-8 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(250,66,91,0.3)] transition-all duration-300 hover:-translate-y-1 group">
-          <div className="w-12 h-12 bg-marketing-gradient rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-            <Puzzle className="h-6 w-6 text-white" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">Portable</h3>
-          <ul className="text-gray-500 mb-6 text-sm leading-relaxed space-y-2">
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Audit on the fly</li>
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Chrome Extension included</li>
-            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 shrink-0"></div>Analyze any page with 1-click</li>
-          </ul>
-          <a href="#" className="text-indigo-600 font-bold text-sm hover:underline flex items-center gap-1">Download Extension ↗</a>
-        </div>
-      </div>
-      <div className="mt-16 text-center">
-        <div className="inline-block">
-          <a href="#pricing" className="inline-flex items-center justify-center h-14 px-10 text-lg font-bold text-white bg-marketing-gradient rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-            Start Free Now
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
 );
 
 const FeaturesSection = ({ onWatchVideo }: { onWatchVideo: () => void }) => (
@@ -562,7 +508,7 @@ const MarketingLandingPageOptimized: React.FC = () => {
           <HeroWithDemo />
           <AnalyticsSmbUser />
           <AuthorityBanner />
-          <UseCasesSection />
+          <ToolkitUxTech />
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection onWatchVideo={() => setIsVideoOpen(true)} />
           <hr className="border-t-2 border-black my-0" />

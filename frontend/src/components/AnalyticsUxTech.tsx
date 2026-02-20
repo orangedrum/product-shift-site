@@ -47,6 +47,14 @@ export const AnalyticsUxTech = () => (
             </div>
           </div>
 
+          {/* Mobile Separator (Horizontal) */}
+          <div className="relative h-12 lg:hidden flex items-center justify-center">
+            <div className="absolute inset-x-0 top-1/2 h-0.5 bg-gray-200"></div>
+            <div className="relative z-10 bg-black border-4 border-white rounded-full p-3 shadow-lg">
+              <span className="text-xs font-black text-white">VS</span>
+            </div>
+          </div>
+
           {/* Right: Product Shift (The Why) */}
           <div className="flex flex-col justify-end gap-8 lg:pl-12 relative p-8 rounded-3xl overflow-hidden min-h-[600px]">
             <div className="relative z-10">
