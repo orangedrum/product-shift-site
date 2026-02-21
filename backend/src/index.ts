@@ -64,6 +64,8 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string,
             plan_status: 'active',
+            is_regular_user: true,
+            date_became_regular: new Date().toISOString(),
             ...(segment ? { segment } : {})
           }, { onConflict: 'email' });
         } else if (session.mode === 'payment') {
@@ -85,6 +87,24 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             if (segError || !updatedRows || updatedRows.length === 0) {
               await supabase.from('customers').upsert({ email: customerEmail, segment }, { onConflict: 'email' });
             }
+          }
+
+          // --- FLYWHEEL TRACKING ---
+          // Check payment count to determine status
+          const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', customerEmail).eq('status', 'paid');
+          const currentCount = (paymentCount || 0) + 1; // +1 for this current payment
+
+          const updates: any = {};
+          if (currentCount === 1) {
+            updates.is_regular_user = true;
+            updates.date_became_regular = new Date().toISOString();
+          } else if (currentCount >= 2) {
+            updates.is_power_user = true;
+            updates.date_became_power_user = new Date().toISOString();
+          }
+          
+          if (Object.keys(updates).length > 0) {
+            await supabase.from('customers').update(updates).eq('email', customerEmail);
           }
         }
         await supabase.from('payments').insert({
@@ -785,6 +805,20 @@ app.post('/api/user/redeem-coupon', authenticateRequest, async (req, res) => {
   await supabase.rpc('add_credits', { user_email: user.email, amount: coupon.credits });
   
   res.json({ success: true, message: `${coupon.credits} credits added!` });
+});
+
+// --- User: Submit Feedback ---
+app.post('/api/user/feedback', authenticateRequest, async (req, res) => {
+  const user = (req as any).user;
+  const { rating, testimonial, feedback } = req.body;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  const { error } = await supabase.from('user_feedback').insert({
+    user_email: user.email, rating, testimonial, feedback
+  });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
 });
 
 app.get('/api/health', (req, res) => {

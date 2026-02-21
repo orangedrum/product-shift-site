@@ -108,7 +108,7 @@ export const marketingEmails = {
       <div style="text-align: center; margin-top: 20px;">
         <a href="${baseUrl}/account" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get More Credits</a>
       </div>
-      <p style="margin-top: 20px; font-size: 14px; color: #666;">Or upgrade to a monthly plan to get 50 credits every month.</p>
+      <p style="margin-top: 20px; font-size: 14px; color: #666;">Superior usability always beats the competition.</p>
     `
   },
   lowCreditsReminder: {

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -248,6 +248,64 @@ const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose
     </NeoCard>
   </div>
 );
+
+// Custom Feedback Card
+const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (rating === 0) return;
+    setLoading(true);
+    try {
+      await fetch('/api/user/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating, feedback, testimonial: feedback }) // Using feedback as testimonial for simplicity v1
+      });
+      setSubmitted(true);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center animate-fade-in">
+        <p className="text-green-800 font-bold">Thank you for your feedback! 🙌</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white border-2 border-black rounded-xl p-6 shadow-[4px_4px_0px_0px_#000] mb-8 no-print">
+      <h3 className="text-lg font-black text-black mb-2 flex items-center gap-2">
+        <MessageSquare size={20} /> How was this analysis?
+      </h3>
+      <div className="flex gap-2 mb-4">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-110">
+            <Star size={24} className={star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+          </button>
+        ))}
+      </div>
+      <textarea 
+        className="w-full p-3 border-2 border-gray-200 rounded-lg mb-4 focus:border-black focus:outline-none"
+        placeholder="What did you think? (Optional)"
+        rows={3}
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+      />
+      <NeoButton onClick={handleSubmit} disabled={loading || rating === 0} className="w-full justify-center">
+        {loading ? 'Sending...' : 'Submit Feedback'}
+      </NeoButton>
+    </div>
+  );
+};
 
 // --- Content Configuration (The "Chameleon" Logic) ---
 const contentConfig = {
@@ -1172,6 +1230,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Feedback Card (V1 Implementation) */}
+          <div className="max-w-2xl mx-auto"><FeedbackCard email={session?.user?.email} /></div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
