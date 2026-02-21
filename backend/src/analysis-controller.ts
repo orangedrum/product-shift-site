@@ -211,8 +211,8 @@ export const runTestHandler = async (req: Request, res: Response) => {
             const title = await page.title();
             const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
             const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText })));
-            const screenshot = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false, encoding: 'base64' });
-            return { data: { title, bodyText, headings, screenshot }, type: 'application/json' };
+            const screenshotBuffer = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false });
+            return { data: { title, bodyText, headings, screenshot: screenshotBuffer.toString('base64') }, type: 'application/json' };
           };`,
           context: { url }
         })

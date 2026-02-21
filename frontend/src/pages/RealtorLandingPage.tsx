@@ -33,9 +33,6 @@ const CONFIG = {
 
   // Personas (Select 3 defaults relevant to the industry)
   defaultPersonas: ['alex-busy-pro', 'charlie-family-worker', 'elizabeth-wealthy-elite'],
-  
-  // Pricing
-  pricingSegment: "smb" 
 };
 
 // --- Helper to format results ---

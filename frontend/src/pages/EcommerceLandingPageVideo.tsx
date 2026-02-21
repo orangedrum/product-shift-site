@@ -32,9 +32,6 @@ const CONFIG = {
 
   // Personas (Select 3 defaults relevant to the industry)
   defaultPersonas: ['alex-busy-pro', 'charlie-family-worker', 'elizabeth-wealthy-elite'],
-  
-  // Pricing
-  pricingSegment: "smb" 
 };
 
 // --- Helper to format results ---
@@ -659,7 +656,7 @@ const EcommerceLandingPageVideo: React.FC = () => {
           <hr className="border-t-2 border-black my-0" />
           <TestimonialsSection />
           <hr className="border-t-2 border-black my-0" />
-          <PricingSection segment="smb" />
+          <PricingSection />
           <hr className="border-t-2 border-black my-0" />
           <LandingFAQ />
         </div>

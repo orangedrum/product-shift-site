@@ -8,7 +8,7 @@ import AdminHeader from '../components/AdminHeader';
 import { supabase } from '../lib/supabase';
 
 interface AdminDashboardProps {
-  secretKey: string;
+  secretKey?: string;
 }
 
 interface Payment {
@@ -23,7 +23,11 @@ interface Payment {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }) => {
   const [secretKey, setSecretKey] = useState(() => {
-    return initialKey || localStorage.getItem('productShiftAdminKey') || '';
+    try {
+      return initialKey || localStorage.getItem('productShiftAdminKey') || '';
+    } catch {
+      return initialKey || '';
+    }
   });
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -68,9 +72,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       }
 
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
         const res = await fetch(`/api/admin/stats?exclude_test_data=${hideTestUsers}&t=${Date.now()}`, {
           headers: { Authorization: `Bearer ${secretKey}` },
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
+
         if (!res.ok) {
           // Handle non-JSON errors (like 500 crashes)
           const text = await res.text();
@@ -113,7 +123,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         if (posts) setBlogStats(posts);
 
       } catch (e: any) {
-        setError(e.message);
+        if (e.name === 'AbortError') {
+          setError('Connection timed out. Is the backend running?');
+        } else {
+          setError(e.message);
+        }
       } finally {
         setLoading(false);
       }

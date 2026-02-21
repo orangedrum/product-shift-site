@@ -619,7 +619,7 @@ const SmbLandingPageVideo: React.FC = () => {
           <hr className="border-t-2 border-black my-0" />
           <TestimonialsSection />
           <hr className="border-t-2 border-black my-0" />
-          <PricingSection segment="smb" />
+          <PricingSection />
           <hr className="border-t-2 border-black my-0" />
           <LandingFAQ />
         </div>
