@@ -370,6 +370,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       const urlSegment = searchParams.get('segment');
       const urlNewCredit = searchParams.get('new_credit');
       const urlCoupon = searchParams.get('coupon');
+      const urlTarget = searchParams.get('url');
 
       if (urlNewCredit === 'true') {
         shouldAnimateOnMount.current = true;
@@ -467,6 +468,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
         });
         const genData = await genRes.json();
         if (mounted) setReferralCode(genData.referralCode);
+      }
+
+      // Pre-fill URL if passed from landing page
+      if (urlTarget) {
+        setUrl(urlTarget);
       }
 
       // 7. Update Customer Segment (Source of Truth)
