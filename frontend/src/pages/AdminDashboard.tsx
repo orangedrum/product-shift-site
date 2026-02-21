@@ -71,15 +71,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         return;
       }
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
+      try {
         const res = await fetch(`/api/admin/stats?exclude_test_data=${hideTestUsers}&t=${Date.now()}`, {
           headers: { Authorization: `Bearer ${secretKey}` },
           signal: controller.signal
         });
-        clearTimeout(timeoutId);
 
         if (!res.ok) {
           // Handle non-JSON errors (like 500 crashes)
@@ -129,6 +128,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           setError(e.message);
         }
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
