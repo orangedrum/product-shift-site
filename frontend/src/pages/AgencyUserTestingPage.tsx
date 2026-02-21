@@ -8,6 +8,7 @@ import { SpeechBubble } from '../components/SpeechBubble';
 import { PricingSection } from '../components/PricingSection';
 import { AnalyticsUxTech } from '../components/AnalyticsUxTech';
 import { ToolkitUxTech } from '../components/ToolkitUxTech';
+import { HeroWithDemo } from '../components/HeroWithDemo';
 
 const CONFIG = {
   pageTitle: "White Label User Testing for Agencies | Product Shift",
@@ -17,7 +18,9 @@ const CONFIG = {
 
 const AgencyUserTestingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [demoUrl, setDemoUrl] = useState(searchParams.get('url') || '');
 
   useEffect(() => {
     document.title = CONFIG.pageTitle;
@@ -93,6 +96,15 @@ const AgencyUserTestingPage: React.FC = () => {
 
     window.scrollTo(0, 0);
   }, []);
+
+  const handleDemoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (demoUrl) {
+      // Redirect to the main tool with the URL pre-filled
+      const targetUrl = demoUrl.startsWith('http') ? demoUrl : `https://${demoUrl}`;
+      navigate(`/ai-powered-ux?url=${encodeURIComponent(targetUrl)}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
