@@ -49,7 +49,7 @@ export const AnalyticsUxTech = () => (
 
           {/* Mobile Separator (Horizontal) */}
           <div className="relative h-12 lg:hidden flex items-center justify-center">
-            <div className="absolute inset-x-0 top-1/2 h-0.5 bg-gray-200"></div>
+            <div className="absolute inset-x-0 top-1/2 h-0.5 bg-black"></div>
             <div className="relative z-10 bg-black border-4 border-white rounded-full p-3 shadow-lg">
               <span className="text-xs font-black text-white">VS</span>
             </div>
@@ -69,9 +69,9 @@ export const AnalyticsUxTech = () => (
             {/* Anchored Persona */}
             <div className="relative z-10 mt-auto w-full flex items-end justify-between">
                  {/* 1. Marcus Group (Left) */}
-                 <div className="flex flex-col items-start relative z-20" style={{ marginLeft: '-6rem', marginBottom: '-2rem' }}>
+                 <div className="flex flex-col items-start relative z-20 lg:-ml-24 lg:-mb-8">
                     {/* Bubble */}
-                    <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-sm transform -rotate-1 ml-12">
+                    <div className="relative bg-white p-5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-4 max-w-sm transform -rotate-1 ml-4 sm:ml-12">
                         <p className="text-sm font-bold italic text-gray-900 leading-snug">"I'm ready to buy, but I have no idea if this integrates with Salesforce. I can't risk it."</p>
                         <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white border-b-2 border-r-2 border-black transform rotate-45"></div>
                     </div>

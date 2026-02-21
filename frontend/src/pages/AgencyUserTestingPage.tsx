@@ -162,7 +162,12 @@ const AgencyUserTestingPage: React.FC = () => {
             className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl cursor-pointer group border-4 border-black bg-black"
             onClick={() => setShowVideoModal(true)}
           >
-            <img src="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" alt="Demo Video" className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
+            <video 
+              src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity"
+              muted
+              playsInline
+            />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
                 <PlayCircle className="w-12 h-12 text-indigo-600 ml-1" />
@@ -174,7 +179,9 @@ const AgencyUserTestingPage: React.FC = () => {
 
       {/* Analytics Section */}
       <AnalyticsUxTech />
-      <ToolkitUxTech />
+      <div className="max-w-5xl mx-auto w-full">
+        <ToolkitUxTech />
+      </div>
 
       {/* Use Cases Grid */}
       <section id="use-cases" className="py-24 bg-white">
