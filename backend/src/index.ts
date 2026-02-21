@@ -130,6 +130,34 @@ app.use(express.json());
 // --- Mount Admin Routes (Must be after express.json) ---
 app.use('/api/admin', adminRouter);
 
+// --- Admin: Flywheel Stats Endpoint ---
+app.get('/api/admin/flywheel-stats', async (req, res) => {
+  // Basic auth check via header presence (AdminDashboard sends it)
+  if (!req.headers.authorization) return res.status(401).json({ error: 'Unauthorized' });
+
+  try {
+    // 1. Flywheel Counts
+    const { count: totalUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true });
+    const { count: regularUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_regular_user', true);
+    const { count: powerUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_power_user', true);
+    const { count: champions } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_champion', true);
+
+    // 2. Recent Feedback
+    const { data: feedback } = await supabase
+      .from('user_feedback')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    res.json({
+      counts: { users: totalUsers || 0, regular: regularUsers || 0, power: powerUsers || 0, champions: champions || 0 },
+      feedback: feedback || []
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // --- Helper: Parse Markdown to Neo-Brutalist Tailwind HTML ---
 const parseMarkdownToTailwind = (text: string) => {
   if (!text) return '';

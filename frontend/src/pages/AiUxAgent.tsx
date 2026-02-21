@@ -251,10 +251,13 @@ const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose
 
 // Custom Feedback Card
 const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
+  const [isVisible, setIsVisible] = useState(true);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  if (!isVisible) return null;
 
   const handleSubmit = async () => {
     if (rating === 0) return;
@@ -274,15 +277,23 @@ const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
   };
 
   if (submitted) {
+    // Auto-hide after 3 seconds
+    setTimeout(() => setIsVisible(false), 3000);
     return (
-      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center animate-fade-in">
+      <div className="fixed bottom-6 right-6 z-50 bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center animate-fade-in shadow-2xl max-w-sm">
         <p className="text-green-800 font-bold">Thank you for your feedback! 🙌</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border-2 border-black rounded-xl p-6 shadow-[4px_4px_0px_0px_#000] mb-8 no-print">
+    <div className="fixed bottom-6 right-6 z-50 bg-white border-2 border-black rounded-xl p-6 shadow-[4px_4px_0px_0px_#000] mb-0 no-print max-w-sm animate-slide-up">
+      <button 
+        onClick={() => setIsVisible(false)}
+        className="absolute top-2 right-2 text-gray-400 hover:text-black transition-colors"
+      >
+        <X size={16} />
+      </button>
       <h3 className="text-lg font-black text-black mb-2 flex items-center gap-2">
         <MessageSquare size={20} /> How was this analysis?
       </h3>
@@ -1231,8 +1242,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
           </div>
 
-          {/* Feedback Card (V1 Implementation) */}
-          <div className="max-w-2xl mx-auto"><FeedbackCard email={session?.user?.email} /></div>
+          {/* Feedback Toast (Fixed Position) */}
+          <FeedbackCard email={session?.user?.email} />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             

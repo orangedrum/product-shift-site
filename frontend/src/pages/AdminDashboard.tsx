@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake, Palette, EyeOff, Eye } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, Activity, Users, DollarSign, FileText, Gift, BookOpen, Terminal, ExternalLink, Filter, Send, Tag, Copy, X, HeartHandshake, Palette, EyeOff, Eye, MessageSquare, Star, Trophy, Zap } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import AdminHeader from '../components/AdminHeader';
@@ -59,6 +59,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [blogStats, setBlogStats] = useState<any[]>([]);
   const [testEmailTarget, setTestEmailTarget] = useState('');
   const [testEmailLoading, setTestEmailLoading] = useState<string | null>(null);
+  const [flywheelStats, setFlywheelStats] = useState<any>(null);
+  const [recentFeedback, setRecentFeedback] = useState<any[]>([]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -124,6 +126,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
           .order('views', { ascending: false })
           .limit(5);
         if (posts) setBlogStats(posts);
+
+        // 5. Fetch Flywheel Stats
+        const flywheelRes = await fetch('/api/admin/flywheel-stats', {
+          headers: { Authorization: `Bearer ${secretKey}` },
+          signal: controller.signal
+        });
+        if (flywheelRes.ok) {
+          const fwData = await flywheelRes.json();
+          setFlywheelStats(fwData.counts);
+          setRecentFeedback(fwData.feedback);
+        }
 
       } catch (e: any) {
         if (e.name === 'AbortError') {
@@ -487,6 +500,71 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             <div className="flex justify-between"><span>Agency Plan:</span> <strong>{stats.salesBreakdown?.starter || 0}</strong></div>
           </div>
         </NeoCard>
+      </div>
+
+      {/* --- PRODUCT FLYWHEEL TRACKER --- */}
+      <div className="mb-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Trophy size={20} /> Product Flywheel</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Funnel Metrics */}
+          <NeoCard title="User Journey Funnel">
+            {flywheelStats ? (
+              <div className="space-y-6">
+                <div className="relative pt-2">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-bold text-gray-600 flex items-center gap-2"><Users size={16} /> Total Users</span>
+                    <span className="text-sm font-black text-black">{flywheelStats.users}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5"><div className="bg-gray-500 h-2.5 rounded-full" style={{ width: '100%' }}></div></div>
+                </div>
+
+                <div className="relative pl-4 border-l-2 border-gray-200">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-bold text-indigo-600 flex items-center gap-2"><DollarSign size={16} /> Regular Users (Paid)</span>
+                    <span className="text-sm font-black text-indigo-600">{flywheelStats.regular}</span>
+                  </div>
+                  <div className="w-full bg-indigo-100 rounded-full h-2.5"><div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${(flywheelStats.regular / (flywheelStats.users || 1)) * 100}%` }}></div></div>
+                </div>
+
+                <div className="relative pl-8 border-l-2 border-gray-200">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-bold text-purple-600 flex items-center gap-2"><Zap size={16} /> Power Users (2+ Buys)</span>
+                    <span className="text-sm font-black text-purple-600">{flywheelStats.power}</span>
+                  </div>
+                  <div className="w-full bg-purple-100 rounded-full h-2.5"><div className="bg-purple-600 h-2.5 rounded-full" style={{ width: `${(flywheelStats.power / (flywheelStats.users || 1)) * 100}%` }}></div></div>
+                </div>
+
+                <div className="relative pl-12 border-l-2 border-gray-200">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-bold text-pink-600 flex items-center gap-2"><HeartHandshake size={16} /> Champions (Referrers)</span>
+                    <span className="text-sm font-black text-pink-600">{flywheelStats.champions}</span>
+                  </div>
+                  <div className="w-full bg-pink-100 rounded-full h-2.5"><div className="bg-pink-600 h-2.5 rounded-full" style={{ width: `${(flywheelStats.champions / (flywheelStats.users || 1)) * 100}%` }}></div></div>
+                </div>
+              </div>
+            ) : <p className="text-gray-500 italic">Loading flywheel data...</p>}
+          </NeoCard>
+
+          {/* Recent Feedback */}
+          <NeoCard title="Latest User Feedback">
+            {recentFeedback.length > 0 ? (
+              <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                {recentFeedback.map((fb: any) => (
+                  <div key={fb.id} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-1 text-yellow-500">
+                        {[...Array(5)].map((_, i) => <Star key={i} size={12} fill={i < fb.rating ? "currentColor" : "none"} className={i < fb.rating ? "" : "text-gray-300"} />)}
+                      </div>
+                      <span className="text-xs text-gray-400">{new Date(fb.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-sm text-gray-800 italic mb-2">"{fb.feedback}"</p>
+                    <p className="text-xs text-gray-500 font-mono">{fb.user_email}</p>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-gray-500 italic">No feedback received yet.</p>}
+          </NeoCard>
+        </div>
       </div>
 
       {/* --- REVENUE CHART --- */}
