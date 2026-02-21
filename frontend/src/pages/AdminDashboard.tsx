@@ -61,6 +61,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [testEmailLoading, setTestEmailLoading] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s global timeout for ALL requests
+
     const fetchStats = async () => {
       setLoading(true);
       setError(null);
@@ -68,13 +71,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
       if (!secretKey) {
         setLoading(false);
         setError('Unauthorized: Key missing');
+        clearTimeout(timeoutId);
         return;
       }
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-
       try {
+        // 1. Main Stats
         const res = await fetch(`/api/admin/stats?exclude_test_data=${hideTestUsers}&t=${Date.now()}`, {
           headers: { Authorization: `Bearer ${secretKey}` },
           signal: controller.signal
@@ -96,24 +98,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         // Auto-tag this device as internal for Google Analytics
         localStorage.setItem('ga_internal_user', 'true');
 
-        // Fetch Coupons
+        // 2. Fetch Coupons (Protected)
         const couponRes = await fetch('/api/admin/coupons', {
           headers: { Authorization: `Bearer ${secretKey}` },
+          signal: controller.signal
         });
         if (couponRes.ok) {
           const couponData = await couponRes.json();
           setCoupons(couponData);
         }
 
-        // Fetch Test Users if showing test data
+        // 3. Fetch Test Users (Protected)
         if (!hideTestUsers) {
           const usersRes = await fetch('/api/admin/test-users', {
             headers: { Authorization: `Bearer ${secretKey}` },
+            signal: controller.signal
           });
           if (usersRes.ok) setTestUsers(await usersRes.json());
         }
 
-        // Fetch Blog Stats (Direct Supabase call since it's public data)
+        // 4. Fetch Blog Stats (Direct Supabase call)
         const { data: posts } = await supabase
           .from('posts')
           .select('title, views, slug')
@@ -134,6 +138,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     };
 
     fetchStats();
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [secretKey, hideTestUsers]);
 
   const handleRefund = async () => {
