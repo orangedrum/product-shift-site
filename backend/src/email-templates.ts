@@ -98,5 +98,17 @@ export const marketingEmails = {
         <a href="${baseUrl}/waitlist" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get the Agency Plan</a>
       </div>
     `
+  },
+  lowCredits: {
+    subject: "Action Required: Low Credits Warning ⚠️",
+    body: (baseUrl: string) => `
+      <h2>You're running low on credits</h2>
+      <p>You've just used credits for a deep dive analysis. You have <strong>2 or fewer credits remaining</strong>.</p>
+      <p>Since a full test costs 3 credits, you'll need to top up to run your next analysis.</p>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="${baseUrl}/account" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get More Credits</a>
+      </div>
+      <p style="margin-top: 20px; font-size: 14px; color: #666;">Or upgrade to a monthly plan to get 50 credits every month.</p>
+    `
   }
 };

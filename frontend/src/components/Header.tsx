@@ -64,7 +64,17 @@ export const Header: React.FC<HeaderProps> = ({ session, className = '' }) => {
 
   const handleLogin = () => {
     // Smart Redirect: If on the SMB landing page, pass the segment param to the login page
-    if (location.pathname.includes('instantinsights')) {
+    const path = location.pathname;
+    const isSmbPage = 
+      path.includes('simple-website-checkup') || 
+      path.includes('free-website-audit') || 
+      path.includes('convert-more-real-estate') || 
+      path.includes('increase-ecommerce') || 
+      path.includes('dentist-website-audit') ||
+      path.includes('ecommerce-optimized') ||
+      path.includes('why-small-businesses-need-website-audit');
+
+    if (isSmbPage) {
       navigate('/login?segment=smb');
     } else {
       navigate('/login');

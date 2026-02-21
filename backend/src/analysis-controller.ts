@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { supabase, sendEmail, delay } from './services';
 import { generateContentWithFallback } from './ai-service';
+import { marketingEmails } from './email-templates';
 
 // --- Types ---
 type ScrapedData = {
@@ -212,6 +213,22 @@ export const runTestHandler = async (req: Request, res: Response) => {
           const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
           if (deductError) throw new Error(`Credit deduction failed: ${deductError.message}`);
           creditDeducted = true;
+
+          // Check for low credits (2 remaining) - Trigger for conversion
+          const { data: customerData } = await supabase
+            .from('customers')
+            .select('credits')
+            .eq('email', userIdentifier)
+            .single();
+
+          if (customerData && customerData.credits <= 2) {
+             const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com';
+             sendEmail(
+               userIdentifier,
+               marketingEmails.lowCredits.subject,
+               marketingEmails.lowCredits.body(baseUrl)
+             ).catch(err => console.error('Failed to send low credit email:', err));
+          }
       }
 
       const browserlessToken = process.env.BROWSERLESS_TOKEN;
