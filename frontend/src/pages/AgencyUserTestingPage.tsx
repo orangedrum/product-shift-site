@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, BarChart, Users, Zap, FileText, TrendingUp, PlayCircle, X, Check, ArrowRightLeft, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle, BarChart, Users, Zap, FileText, TrendingUp, PlayCircle, X, Check, ArrowRightLeft } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import { VideoPlayer } from '../components/VideoPlayer';
@@ -17,9 +17,7 @@ const CONFIG = {
 
 const AgencyUserTestingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [demoUrl, setDemoUrl] = useState(searchParams.get('url') || '');
 
   useEffect(() => {
     document.title = CONFIG.pageTitle;
@@ -96,64 +94,36 @@ const AgencyUserTestingPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleDemoSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (demoUrl) {
-      // Redirect to the main tool with the URL pre-filled
-      const targetUrl = demoUrl.startsWith('http') ? demoUrl : `https://${demoUrl}`;
-      navigate(`/ai-powered-ux?url=${encodeURIComponent(targetUrl)}`);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-24 overflow-hidden border-b border-gray-200">
-        {/* Video Background with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="w-full h-full object-cover"
-            src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4"
-          />
-          {/* White overlay to ensure text readability while keeping video texture */}
-          <div className="absolute inset-0 bg-white/90 backdrop-blur-[2px]"></div>
-        </div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl text-center relative z-10">
+      <HeroWithDemo 
+        title={
+          <>
+            The Secret Weapon for <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-marketing-gradient">Selling & Delivering</span> High-Converting Web Services
+          </>
+        }
+        subtitle=""
+        description=""
+        badge={
           <div className="inline-flex items-center px-3 py-1 rounded-full border border-purple-200 bg-purple-50 text-xs font-bold text-purple-700 mb-6 uppercase tracking-wider">
             For High-Growth Agencies
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 leading-tight">
-            The Secret Weapon for <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-marketing-gradient">Selling & Delivering</span> High-Converting Web Services
-          </h1>
-          
-          {/* Demo Input Form */}
-          <div className="max-w-xl mx-auto bg-white p-2 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <form onSubmit={handleDemoSubmit} className="flex flex-col sm:flex-row gap-2">
-              <input 
-                type="text" 
-                placeholder="Enter client website (e.g. client.com)" 
-                className="flex-grow p-3 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none font-medium"
-                value={demoUrl}
-                onChange={(e) => setDemoUrl(e.target.value)}
-                required
-              />
-              <button type="submit" className="bg-black text-white font-bold px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
-                Run Audit <ArrowRight size={18} />
-              </button>
-            </form>
-          </div>
-          <p className="text-sm text-gray-500 mt-4 font-medium">
-            <Zap size={14} className="inline text-yellow-500 mr-1" /> 
-            Generates a white-label ready report in 2 minutes. No sign-in or credit card required.
-          </p>
-        </div>
-      </section>
+        }
+        backgroundElement={
+          <>
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="w-full h-full object-cover"
+              src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4"
+            />
+            <div className="absolute inset-0 bg-white/90 backdrop-blur-[2px]"></div>
+          </>
+        }
+      />
 
       {/* Video Trigger Section */}
       <section className="py-20 bg-gray-50 border-b border-gray-200">

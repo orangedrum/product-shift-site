@@ -121,7 +121,10 @@ export const runTestHandler = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  let userIdentifier = req.ip || 'unknown';
+  // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
+  const forwarded = req.headers['x-forwarded-for'];
+  const clientIp = typeof forwarded === 'string' ? forwarded.split(',')[0] : req.ip;
+  let userIdentifier = clientIp || 'unknown';
   let planType = 'free';
   let revenue = 0;
   let useFreeTier = true;

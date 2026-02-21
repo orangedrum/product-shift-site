@@ -45,12 +45,14 @@ const formatDemoText = (text: string) => {
 };
 
 interface HeroWithDemoProps {
-  title: string;
-  subtitle?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
   description?: string;
+  backgroundElement?: React.ReactNode;
+  badge?: React.ReactNode;
 }
 
-export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, description }) => {
+export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, description, backgroundElement, badge }) => {
   const [searchParams] = useSearchParams();
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [result, setResult] = useState<any>(null);
@@ -207,13 +209,18 @@ export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, des
 
   return (
     <section className="relative bg-transparent overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-28">
+      {backgroundElement && (
+        <div className="absolute inset-0 z-0">
+          {backgroundElement}
+        </div>
+      )}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="max-w-4xl mx-auto relative">
+        <div className="max-w-4xl mx-auto relative z-10">
           <div className="flex justify-center mb-12">
-            <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000]">
+            {badge || <div className="text-center border-2 border-black bg-white px-8 py-3 rounded-xl shadow-[4px_4px_0px_0px_#000]">
               <p className="text-xl font-black text-black leading-none">User Mirror</p>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">by The ProductShift</p>
-            </div>
+            </div>}
           </div>
 
           <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl mb-4">
