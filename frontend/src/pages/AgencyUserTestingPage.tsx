@@ -98,6 +98,7 @@ const AgencyUserTestingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
       <HeroWithDemo 
+        className="border-b border-black"
         title={
           <>
             The Secret Weapon for <br className="hidden md:block" />

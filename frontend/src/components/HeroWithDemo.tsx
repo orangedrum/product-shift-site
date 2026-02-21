@@ -50,9 +50,10 @@ interface HeroWithDemoProps {
   description?: string;
   backgroundElement?: React.ReactNode;
   badge?: React.ReactNode;
+  className?: string;
 }
 
-export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, description, backgroundElement, badge }) => {
+export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, description, backgroundElement, badge, className = '' }) => {
   const [searchParams] = useSearchParams();
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [result, setResult] = useState<any>(null);
@@ -208,7 +209,7 @@ export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, des
   }
 
   return (
-    <section className="relative bg-transparent overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-28">
+    <section className={`relative bg-transparent overflow-hidden pt-10 pb-20 lg:pt-20 lg:pb-28 ${className}`}>
       {backgroundElement && (
         <div className="absolute inset-0 z-0">
           {backgroundElement}
