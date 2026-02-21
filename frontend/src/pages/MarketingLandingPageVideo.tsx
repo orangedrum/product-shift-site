@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, Zap, VolumeX, Volume2 } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { LandingFAQ } from '../components/LandingFAQ';
+import { PricingSection } from '../components/PricingSection';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION
@@ -377,80 +378,6 @@ const DemoSection = () => {
     </section>
   );
 };
-
-const PricingSection = () => (
-  <section id="pricing" className="bg-gray-50 py-24 sm:py-32">
-    <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-      <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Plans for Every Stage</h2>
-      <p className="mt-4 text-lg text-gray-600">Choose the plan that fits your testing volume.</p>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        {/* Basic */}
-        <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-gray-900">Basic</h3>
-          <div className="mt-4 flex items-baseline text-gray-900">
-            <p className="text-4xl font-extrabold tracking-tight">$29</p>
-            <span className="ml-1 text-xl font-semibold text-gray-500">/mo</span>
-          </div>
-          <p className="mt-2 text-sm text-gray-500">For freelancers and solo founders.</p>
-          <hr className="my-6" />
-          <ul className="space-y-4 flex-1">
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">10 Tests / mo</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Rollover up to 20</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Standard Support</span></li>
-          </ul>
-          <Link to={`/login?plan=starter&segment=${CONFIG.pricingSegment}`} className="mt-8 block w-full py-3 px-6 border border-indigo-600 rounded-md text-center font-medium text-indigo-600 hover:bg-indigo-50">
-            Start Basic
-          </Link>
-        </div>
-
-        {/* Pro */}
-        <div className="pricing-card bg-white p-8 border-2 border-indigo-600 rounded-xl shadow-xl text-left flex flex-col relative transform md:-translate-y-4">
-          <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-full">Most Popular</div>
-          <h3 className="text-xl font-bold text-gray-900 mt-2">Pro</h3>
-          <div className="mt-4 flex items-baseline text-gray-900">
-            <p className="text-4xl font-extrabold tracking-tight">$99</p>
-            <span className="ml-1 text-xl font-semibold text-gray-500">/mo</span>
-          </div>
-          <p className="mt-2 text-sm text-gray-500">For growing product teams.</p>
-          <hr className="my-6" />
-          <ul className="space-y-4 flex-1">
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">50 Tests / mo</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">3 Seats</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">1 Custom Persona</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Rollover up to 100</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Priority Support</span></li>
-          </ul>
-          <Link to="/waitlist" className="mt-8 block w-full py-3 px-6 bg-indigo-600 rounded-md text-center font-medium text-white hover:bg-indigo-700">
-            Join Waitlist
-          </Link>
-        </div>
-
-        {/* Agency */}
-        <div className="pricing-card bg-white p-8 border border-gray-200 rounded-xl shadow-sm text-left flex flex-col hover:shadow-md transition-shadow">
-          <h3 className="text-xl font-bold text-gray-900">Agency</h3>
-          <div className="mt-4 flex items-baseline text-gray-900">
-            <p className="text-4xl font-extrabold tracking-tight">$489</p>
-            <span className="ml-1 text-xl font-semibold text-gray-500">/mo</span>
-          </div>
-          <p className="mt-2 text-sm text-gray-500">For agencies and power users.</p>
-          <hr className="my-6" />
-          <ul className="space-y-4 flex-1">
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">100 Tests / mo</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">5 Seats</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">5 Custom Personas</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">White Label Reports</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Multi-client Support</span></li>
-            <li className="flex items-start"><Check className="text-green-500 flex-shrink-0" /> <span className="ml-3 text-gray-600">Rollover up to 200</span></li>
-          </ul>
-          <Link to="/waitlist" className="mt-8 block w-full py-3 px-6 border border-indigo-600 rounded-md text-center font-medium text-indigo-600 hover:bg-indigo-50">
-            Join Waitlist
-          </Link>
-        </div>
-      </div>
-    </div>
-  </section>
-);
 
 const MarketingLandingPageVideo: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

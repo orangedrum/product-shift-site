@@ -571,7 +571,7 @@ const MarketingLandingPage: React.FC = () => {
           <hr className="border-t-2 border-black my-0" />
           <FeaturesSection />
           <hr className="border-t-2 border-black my-0" />
-          <PricingSection segment="tech" />
+          <PricingSection />
           <hr className="border-t-2 border-black my-0" />
           <LandingFAQ />
         </div>
