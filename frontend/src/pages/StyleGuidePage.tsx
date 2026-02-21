@@ -558,6 +558,12 @@ const StyleGuide: React.FC = () => {
                     <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/marketing-optimized</code>
                   </li>
                   <li>
+                    <Link to="/ecommerce-optimized" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      E-commerce Landing (Optimized) ↗
+                    </Link>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/ecommerce-optimized</code>
+                  </li>
+                  <li>
                     <Link to="/landing-template" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
                       New High-Conversion Template ↗
                     </Link>

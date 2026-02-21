@@ -33,8 +33,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if (appView) appView.style.display = 'block';
     } else {
       if (loginView) loginView.style.display = 'block';
+      resetLoginView(); // CTO FIX: Ensure input is visible when showing login view
       if (appView) appView.style.display = 'none';
     }
+  };
+
+  // CTO FIX: Reset Login UI State
+  const resetLoginView = () => {
+    if (emailInput) emailInput.style.display = 'block';
+    if (sendMagicLinkBtn) {
+      sendMagicLinkBtn.style.display = 'block';
+      sendMagicLinkBtn.disabled = false;
+      sendMagicLinkBtn.innerText = 'Send Login Link';
+    }
+    const retryBtn = document.getElementById('checkAuthBtnRetry');
+    if (retryBtn) retryBtn.style.display = 'none';
+    const resetBtn = document.getElementById('resetLoginBtn');
+    if (resetBtn) resetBtn.style.display = 'none';
   };
 
   // --- Auth Logic ---
@@ -209,6 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
             goal: 'Identify immediate UX friction points.',
           })
         });
+
+        // CTO FIX: Graceful 401 Handling
+        if (res.status === 401) {
+          setStatus('Session expired. Please sign in again.', 'error');
+          toggleView(false); // Switch back to login screen
+          return;
+        }
 
         if (!res.ok) {
           const errText = await res.text();
