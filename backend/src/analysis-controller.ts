@@ -200,7 +200,10 @@ export const runTestHandler = async (req: Request, res: Response) => {
   if (useFreeTier) {
     const today = new Date().toISOString().split('T')[0];
     const { data: usage } = await supabase.from('daily_usage').select('count').eq('user_identifier', userIdentifier).eq('usage_date', today).single();
-    if (usage && usage.count >= 1) return res.status(402).json({ error: 'Insufficient Credits', details: 'You have reached your daily free limit. Please upgrade or buy a credit pack.' });
+    if (usage && usage.count >= 3) {
+      console.log(`[Limit Reached] User: ${userIdentifier}, Count: ${usage.count}`);
+      return res.status(402).json({ error: 'Insufficient Credits', details: 'You have reached your daily free limit. Please upgrade or buy a credit pack.' });
+    }
   }
 
   try {
