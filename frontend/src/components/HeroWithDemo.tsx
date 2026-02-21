@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AlertCircle, Lock, RefreshCw } from 'lucide-react';
 import { AnalysisErrorCard } from './AnalysisErrorCard';
 
@@ -50,7 +51,8 @@ interface HeroWithDemoProps {
 }
 
 export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, description }) => {
-  const [url, setUrl] = useState('');
+  const [searchParams] = useSearchParams();
+  const [url, setUrl] = useState(searchParams.get('url') || '');
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
@@ -73,6 +75,13 @@ export const HeroWithDemo: React.FC<HeroWithDemoProps> = ({ title, subtitle, des
     }
     return () => clearInterval(interval);
   }, [isLoading]);
+
+  // Auto-scroll to demo if URL is provided in query params
+  useEffect(() => {
+    if (searchParams.get('url')) {
+      document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [searchParams]);
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

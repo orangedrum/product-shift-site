@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, BarChart, Users, Zap, FileText, TrendingUp, PlayCircle, X, Check, ArrowRightLeft, ArrowRight } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
@@ -17,8 +17,9 @@ const CONFIG = {
 
 const AgencyUserTestingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [demoUrl, setDemoUrl] = useState('');
+  const [demoUrl, setDemoUrl] = useState(searchParams.get('url') || '');
 
   useEffect(() => {
     document.title = CONFIG.pageTitle;

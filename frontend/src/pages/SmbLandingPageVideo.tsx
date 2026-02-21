@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, VolumeX, Volume2 } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { LandingFAQ } from '../components/LandingFAQ';
+import { PricingSection } from '../components/PricingSection';
 
 // --- Helper to format results ---
 const formatDemoText = (text: string) => {
@@ -218,7 +219,8 @@ const FeaturesSection = () => (
 );
 
 const DemoSection = () => {
-  const [url, setUrl] = useState('');
+  const [searchParams] = useSearchParams();
+  const [url, setUrl] = useState(searchParams.get('url') || '');
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
@@ -241,6 +243,13 @@ const DemoSection = () => {
     }
     return () => clearInterval(interval);
   }, [isLoading]);
+
+  // Auto-scroll to demo if URL is provided in query params
+  useEffect(() => {
+    if (searchParams.get('url')) {
+      document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [searchParams]);
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
@@ -24,11 +25,11 @@ const CONFIG = {
   // Pain Points Section
   painTitle: "Why You Aren't Converting More Real Estate Website Visitors into Clients",
   painPoints: [
-    "Most agent websites are generic templates that weren't tested with real home buyers.",
-    "Visitors get overwhelmed by IDX search tools and leave before clicking 'Schedule Showing'.",
-    "Use our AI home buyer personas (like 'First Time Buyer' or 'Wealthy Investor') to review your page.",
-    "A simple checkup shows you exactly what to fix so your existing traffic turns into commissions.",
-    "Receive a prioritized checklist of fixes to improve your lead capture immediately."
+    "You're losing leads to Zillow because your site doesn't offer unique local value or neighborhood insights.",
+    "IDX feeds are overwhelming. Buyers leave because they can't easily filter for what they actually want (e.g., 'fenced yard').",
+    "Your 'About' page doesn't build trust. Sellers choose agents who look like local experts, not just another headshot.",
+    "Mobile browsing is broken. 70% of home searches happen on phones, but generic map views are often unusable.",
+    "No clear path to 'Schedule a Showing'. You're forcing motivated buyers to hunt for your phone number."
   ],
 
   // Personas (Select 3 defaults relevant to the industry)
@@ -219,7 +220,8 @@ const FeaturesSection = () => (
 );
 
 const DemoSection = () => {
-  const [url, setUrl] = useState('');
+  const [searchParams] = useSearchParams();
+  const [url, setUrl] = useState(searchParams.get('url') || '');
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
@@ -242,6 +244,13 @@ const DemoSection = () => {
     }
     return () => clearInterval(interval);
   }, [isLoading]);
+
+  // Auto-scroll to demo if URL is provided in query params
+  useEffect(() => {
+    if (searchParams.get('url')) {
+      document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [searchParams]);
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -414,6 +423,34 @@ const RealtorLandingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // SEO Configuration
+  const canonicalUrl = `https://www.theproductshift.com/${CONFIG.urlSlug}`;
+  const socialImage = "https://www.theproductshift.com/social-share.png";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Product Shift for Realtors",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Realtor Website Audit" },
+        "description": CONFIG.metaDescription,
+        "featureList": "IDX Analysis, Lead Capture Optimization, Mobile Responsiveness Check",
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Real Estate Agents & Brokers"
+        },
+        "offeredBy": {
+          "@type": "Organization",
+          "name": "Product Shift",
+          "url": "https://www.theproductshift.com"
+        }
+      }
+    ]
+  };
+
   useEffect(() => {
     // 1. Capture from URL
     const ref = searchParams.get('ref');
@@ -442,80 +479,6 @@ const RealtorLandingPage: React.FC = () => {
     checkAndClaim();
   }, [searchParams]);
 
-  useEffect(() => {
-    document.title = `${CONFIG.pageTitle} | Product Shift`;
-    
-    // Programmatically update meta description for SEO
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', CONFIG.metaDescription);
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = "description";
-      meta.content = CONFIG.metaDescription;
-      document.head.appendChild(meta);
-    }
-
-    // Add Canonical Link
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
-
-    // Add Open Graph Tags for Social SEO
-    const setMeta = (attr: string, key: string, content: string) => {
-      let m = document.querySelector(`meta[${attr}="${key}"]`);
-      if (!m) {
-        m = document.createElement('meta');
-        m.setAttribute(attr, key);
-        document.head.appendChild(m);
-      }
-      m.setAttribute('content', content);
-    };
-    
-    setMeta('property', 'og:title', CONFIG.pageTitle);
-    setMeta('property', 'og:description', CONFIG.metaDescription);
-    setMeta('property', 'og:url', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
-    setMeta('property', 'og:type', 'website');
-    setMeta('property', 'og:image', 'https://www.theproductshift.com/social-share.png');
-
-    setMeta('name', 'twitter:card', 'summary_large_image');
-    setMeta('name', 'twitter:title', CONFIG.pageTitle);
-    setMeta('name', 'twitter:description', CONFIG.metaDescription);
-    setMeta('name', 'twitter:image', 'https://www.theproductshift.com/social-share.png');
-
-    // Add JSON-LD Structured Data
-    const scriptId = 'json-ld-software-app';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify({
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "SoftwareApplication",
-            "name": "Product Shift Instant Insights",
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "Web Browser",
-            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
-            "description": CONFIG.metaDescription,
-            "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations",
-            "offeredBy": {
-              "@type": "Organization",
-              "name": "Product Shift",
-              "url": "https://www.theproductshift.com"
-            }
-          }
-        ]
-      });
-      document.head.appendChild(script);
-    }
-  }, []);
-
   // Background Animation Effect
   useEffect(() => {
     const container = containerRef.current;
@@ -536,6 +499,22 @@ const RealtorLandingPage: React.FC = () => {
 
   return (
       <main className="relative bg-white overflow-hidden" ref={containerRef}>
+        <Helmet>
+          <title>{CONFIG.pageTitle} | Product Shift</title>
+          <meta name="description" content={CONFIG.metaDescription} />
+          <link rel="canonical" href={canonicalUrl} />
+          
+          {/* Open Graph */}
+          <meta property="og:title" content={CONFIG.pageTitle} />
+          <meta property="og:description" content={CONFIG.metaDescription} />
+          <meta property="og:url" content={canonicalUrl} />
+          <meta property="og:type" content="website" />
+          <meta property="og:image" content={socialImage} />
+
+          {/* JSON-LD */}
+          <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+        </Helmet>
+
         {/* Global Background Blobs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
             {[...Array(15)].map((_, i) => (

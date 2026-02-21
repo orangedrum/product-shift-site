@@ -8,7 +8,7 @@ export const AnalyticsSmbUser = () => (
         <div className="absolute left-[50%] top-0 bottom-0 w-1 bg-black transform -skew-x-6 origin-top"></div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-20">
+      <div className="container mx-auto px-6 sm:px-6 lg:px-8 max-w-7xl relative z-20">
         {/* VS Badge */}
         <div 
           className="absolute top-1/2 left-[50%] z-30 bg-black border-4 border-white rounded-full p-4 shadow-xl hidden lg:block"
@@ -48,8 +48,8 @@ export const AnalyticsSmbUser = () => (
           </div>
 
           {/* Mobile Separator (Horizontal) */}
-          <div className="relative h-12 lg:hidden flex items-center justify-center">
-            <div className="absolute inset-x-0 top-1/2 h-0.5 bg-gray-200"></div>
+          <div className="relative h-12 lg:hidden flex items-center justify-center -mx-6">
+            <div className="absolute inset-x-0 top-1/2 h-0.5 bg-black"></div>
             <div className="relative z-10 bg-black border-4 border-white rounded-full p-3 shadow-lg">
               <span className="text-xs font-black text-white">VS</span>
             </div>

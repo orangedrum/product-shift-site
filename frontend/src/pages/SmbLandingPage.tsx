@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../lib/supabase';
 import { BarChart, Bot, BrainCircuit, Check, Users, AlertCircle, Lock, PartyPopper, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
@@ -219,7 +220,8 @@ const FeaturesSection = () => (
 );
 
 const DemoSection = () => {
-  const [url, setUrl] = useState('');
+  const [searchParams] = useSearchParams();
+  const [url, setUrl] = useState(searchParams.get('url') || '');
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
@@ -242,6 +244,13 @@ const DemoSection = () => {
     }
     return () => clearInterval(interval);
   }, [isLoading]);
+
+  // Auto-scroll to demo if URL is provided in query params
+  useEffect(() => {
+    if (searchParams.get('url')) {
+      document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [searchParams]);
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -444,6 +453,75 @@ const SmbLandingPage: React.FC = () => {
     checkAndClaim();
   }, [searchParams]);
 
+  // SEO Configuration
+  const pageTitle = "Simple Website Checkup for Small Businesses | Product Shift";
+  const metaDescription = "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.";
+  const canonicalUrl = "https://www.theproductshift.com/simple-website-checkup";
+  const socialImage = "https://www.theproductshift.com/social-share.png";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Product Shift Instant Insights",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
+        "description": "AI-powered website usability checkup for small businesses.",
+        "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations",
+        "offeredBy": {
+          "@type": "Organization",
+          "name": "Product Shift",
+          "url": "https://www.theproductshift.com"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is the free demo really free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is this different from Google Analytics?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to install anything?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Just enter your URL and we do the rest."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I test my competitor's site?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely. It's a great way to see what they are doing right (or wrong)."
+            }
+          }
+        ]
+      }
+    ]
+  };
+
+  /* 
+     REMOVED: Manual DOM manipulation useEffect for SEO. 
+     Replaced with <Helmet> below for better stability and SSR compatibility.
+  */
+
+  /*
   useEffect(() => {
     document.title = "Simple Website Checkup for Small Businesses | Product Shift";
     
@@ -556,6 +634,7 @@ const SmbLandingPage: React.FC = () => {
       document.head.appendChild(script);
     }
   }, []);
+  */
 
   // Background Animation Effect
   useEffect(() => {
@@ -579,6 +658,22 @@ const SmbLandingPage: React.FC = () => {
 
   return (
       <main className="relative bg-white overflow-hidden" ref={containerRef}>
+        <Helmet>
+          <title>{pageTitle}</title>
+          <meta name="description" content={metaDescription} />
+          <link rel="canonical" href={canonicalUrl} />
+          
+          {/* Open Graph */}
+          <meta property="og:title" content={pageTitle} />
+          <meta property="og:description" content={metaDescription} />
+          <meta property="og:url" content={canonicalUrl} />
+          <meta property="og:type" content="website" />
+          <meta property="og:image" content={socialImage} />
+
+          {/* JSON-LD */}
+          <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+        </Helmet>
+
         {/* Global Background Blobs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
             {[...Array(15)].map((_, i) => (
