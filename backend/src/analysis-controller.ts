@@ -123,6 +123,9 @@ export const runTestHandler = async (req: Request, res: Response) => {
 
   // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
   const forwarded = req.headers['x-forwarded-for'];
+  const realIp = req.headers['x-real-ip'];
+  const cfConnectingIp = req.headers['cf-connecting-ip'];
+  
   let clientIp: string | undefined;
 
   if (typeof forwarded === 'string') {
@@ -131,7 +134,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
     clientIp = forwarded[0].trim();
   }
 
-  let userIdentifier = clientIp || req.ip || 'unknown';
+  let userIdentifier = clientIp || (typeof realIp === 'string' ? realIp : undefined) || (typeof cfConnectingIp === 'string' ? cfConnectingIp : undefined) || req.ip || 'unknown';
   let planType = 'free';
   let revenue = 0;
   let useFreeTier = true;
