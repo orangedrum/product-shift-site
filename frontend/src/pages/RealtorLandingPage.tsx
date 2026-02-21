@@ -220,7 +220,7 @@ const FeaturesSection = () => (
 );
 
 const DemoSection = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [url, setUrl] = useState(searchParams.get('url') || '');
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -254,6 +254,14 @@ const DemoSection = () => {
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Update URL to enable "Smart Link" sharing
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('url', url);
+      return newParams;
+    }, { replace: true });
+
     setIsLoading(true);
     setResult(null);
     setError(null);
