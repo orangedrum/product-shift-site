@@ -697,7 +697,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
             />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-            {['welcome', 'day1', 'day3', 'day5', 'day7', 'day10', 'day12', 'lowCredits'].map((day) => (
+            {['welcome', 'day1', 'day3', 'day5', 'day7', 'day10', 'day12', 'lowCredits', 'lowCreditsReminder'].map((day) => (
               <button key={day} onClick={() => handleTestEmail(day)} disabled={!!testEmailLoading} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-xs font-bold flex items-center justify-center gap-2">
                 {testEmailLoading === day ? <Loader2 className="animate-spin" size={12} /> : <Send size={12} />}
                 {day.charAt(0).toUpperCase() + day.slice(1)}

@@ -100,15 +100,25 @@ export const marketingEmails = {
     `
   },
   lowCredits: {
-    subject: "Action Required: Low Credits Warning ⚠️",
+    subject: "Uh oh! Low Credits Warning 😱",
     body: (baseUrl: string) => `
-      <h2>You're running low on credits</h2>
+      <h2>Top Off Now To Keep Testing</h2>
       <p>You've just used credits for a deep dive analysis. You have <strong>2 or fewer credits remaining</strong>.</p>
-      <p>Since a full test costs 3 credits, you'll need to top up to run your next analysis.</p>
+      <p>Credits can be topped off anytime. Top off now to be ready for more testing now.</p>
       <div style="text-align: center; margin-top: 20px;">
         <a href="${baseUrl}/account" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get More Credits</a>
       </div>
       <p style="margin-top: 20px; font-size: 14px; color: #666;">Or upgrade to a monthly plan to get 50 credits every month.</p>
+    `
+  },
+  lowCreditsReminder: {
+    subject: "Low Credits Reminder + Plugin Bonus 🔌",
+    body: (baseUrl: string) => `
+      <h2>Hope you topped off. Here's a pro tip to improve test speed.</h2>
+      <p>To perform tests directly on a client's page, all you need is the User Mirror Chrome Extension to check sites on the fly.</p>
+      <div style="text-align: center; margin: 20px 0;">
+        <a href="https://chromewebstore.google.com/detail/user-mirror-by-product-sh/..." style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get the Plugin</a>
+      </div>
     `
   }
 };

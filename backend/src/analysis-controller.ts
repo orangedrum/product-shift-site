@@ -214,27 +214,40 @@ export const runTestHandler = async (req: Request, res: Response) => {
           if (deductError) throw new Error(`Credit deduction failed: ${deductError.message}`);
           creditDeducted = true;
 
-          // Check for low credits (2 remaining) - Trigger for conversion
-          const { data: customerData } = await supabase
-            .from('customers')
-            .select('credits')
-            .eq('email', userIdentifier)
-            .single();
+        // Trigger emails based on remaining credit and time since last low credit warning
+        const { data: customerData } = await supabase
+          .from('customers')
+          .select('credits, last_low_credit_warning')
+          .eq('email', userIdentifier)
+          .single();
 
-          if (customerData && customerData.credits <= 2) {
-             const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com';
-             sendEmail(
-               userIdentifier,
-               marketingEmails.lowCredits.subject,
-               marketingEmails.lowCredits.body(baseUrl)
-             ).catch(err => console.error('Failed to send low credit email:', err));
+        if (customerData && customerData.credits <= 2) {
+          const now = new Date();
+          const lastWarning = customerData.last_low_credit_warning ? new Date(customerData.last_low_credit_warning) : null;
+          const diffDays = lastWarning ? Math.floor((now.getTime() - lastWarning.getTime()) / (1000 * 60 * 60 * 24)) : Infinity;
+          const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com';
+
+          // 1. Immediate Low Credit Warning
+          if (!lastWarning) {
+            sendEmail(userIdentifier, marketingEmails.lowCredits.subject, marketingEmails.lowCredits.body(baseUrl))
+              .catch(err => console.error('Failed to send low credit email:', err));
+            await supabase.from('customers').update({ last_low_credit_warning: now.toISOString() }).eq('email', userIdentifier);
+          } 
+          // 2. Week Later - Check If Credits are still low && has not been warned a second time in a week.
+          else if (diffDays >= 7 && diffDays < 14) {
+            sendEmail(userIdentifier, marketingEmails.lowCreditsReminder.subject, marketingEmails.lowCreditsReminder.body(baseUrl))
+              .catch(err => console.error('Failed to send low credit reminder email:', err));
           }
+          else {
+            console.warn(`Throttling low credits email for ${userIdentifier}: last sent ${diffDays} days ago`);
+          }
+        }
       }
 
       const browserlessToken = process.env.BROWSERLESS_TOKEN;
       if (!browserlessToken) throw new Error('BROWSERLESS_TOKEN is missing in environment variables.');
 
-      const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken.trim()}`, { 
+      const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken.trim()}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
