@@ -17,12 +17,12 @@ const CONFIG = {
   // SEO & Meta
   industryName: "Real Estate Agents",
   pageTitle: "Convert More Real Estate Website Visitors into Clients | AI Audit",
-  metaDescription: "Struggling to convert more real estate website visitors into clients? Our AI provides instant analysis based on home buyer psychology.",
+  metaDescription: "Convert more local home buyers into clients. Our AI audits your real estate agent website to identify lead generation blockers and improve local SEO performance.",
   urlSlug: "convert-more-real-estate-website-visitors-optimized",
   
   // Hero Section
   heroTitle: "Convert More Real Estate Website Visitors",
-  heroSubtitle: "into Clients",
+  heroSubtitle: "Turn Website Visitors into Qualified Real Estate Leads",
   heroDescription: "" 
 };
 

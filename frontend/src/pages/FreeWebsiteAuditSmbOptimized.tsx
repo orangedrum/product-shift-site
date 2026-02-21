@@ -17,12 +17,12 @@ const CONFIG = {
   // SEO & Meta
   industryName: "Small Businesses",
   pageTitle: "Free Website Audit for Small Businesses | Product Shift",
-  metaDescription: "Is your website losing customers? Get an instant, AI-powered audit based on industry usability standards.",
+  metaDescription: "Is your small business website losing local customers? Get a free, instant AI-powered audit to fix usability issues and rank higher in local search.",
   urlSlug: "free-website-audit-smb-optimized",
   
   // Hero Section
   heroTitle: "Free Website Audit for Small Businesses",
-  heroSubtitle: "Stop losing customers. Get an instant AI website analysis.",
+  heroSubtitle: "Stop Losing Local Customers. Instant AI Website Analysis for Small Businesses.",
   heroDescription: "" // Unused in new HeroWithDemo but kept for config consistency
 };
 

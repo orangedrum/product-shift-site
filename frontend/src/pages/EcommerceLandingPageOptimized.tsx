@@ -17,12 +17,12 @@ const CONFIG = {
   // SEO & Meta
   industryName: "E-commerce Stores",
   pageTitle: "Increase E-commerce Conversion Rates | AI Audit",
-  metaDescription: "Reduce cart abandonment and increase sales. Our AI analyzes your online store to find the exact friction points causing customers to leave without buying.",
+  metaDescription: "Reduce cart abandonment and boost e-commerce revenue. Our AI analyzes your Shopify or WooCommerce store to find friction points causing shoppers to leave.",
   urlSlug: "increase-ecommerce-conversion-rates",
   
   // Hero Section
-  heroTitle: "Increase E-commerce Conversion Rates Instantly",
-  heroSubtitle: "Stop losing sales to confusing checkout flows. Our AI provides instant analysis based on shopper psychology.",
+  heroTitle: "Increase E-commerce Conversion Rates",
+  heroSubtitle: "Stop Losing Sales. AI-Driven Conversion Rate Optimization for E-commerce Stores.",
   heroDescription: "" // Unused in new HeroWithDemo but kept for config consistency
 };
 

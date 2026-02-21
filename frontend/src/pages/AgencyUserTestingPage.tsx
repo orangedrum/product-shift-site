@@ -6,12 +6,12 @@ import { NeoCard } from '../components/NeoCard';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { SpeechBubble } from '../components/SpeechBubble';
 import { PricingSection } from '../components/PricingSection';
-import { AnalyticsSmbUser } from '../components/AnalyticsSmbUser';
+import { AnalyticsUxTech } from '../components/AnalyticsUxTech';
 import { ToolkitUxTech } from '../components/ToolkitUxTech';
 
 const CONFIG = {
   pageTitle: "White Label User Testing for Agencies | Product Shift",
-  metaDescription: "Scale your agency with AI-powered user testing. Validate designs instantly, prove ROI to clients, and deliver data-driven websites without the wait.",
+  metaDescription: "Scale your digital agency with white-label AI user testing. Validate client designs instantly, prove ROI, and deliver data-driven website audits without the wait.",
   urlSlug: "agency-user-testing",
 };
 
@@ -128,7 +128,7 @@ const AgencyUserTestingPage: React.FC = () => {
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 leading-tight">
             The Secret Weapon for <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-marketing-gradient">Selling & Delivering</span> Web Services
+            <span className="text-transparent bg-clip-text bg-marketing-gradient">Selling & Delivering</span> High-Converting Web Services
           </h1>
           
           {/* Demo Input Form */}
@@ -149,15 +149,15 @@ const AgencyUserTestingPage: React.FC = () => {
           </div>
           <p className="text-sm text-gray-500 mt-4 font-medium">
             <Zap size={14} className="inline text-yellow-500 mr-1" /> 
-            Generates a white-label ready report in 2 minutes
+            Generates a white-label ready report in 2 minutes. No sign-in or credit card required.
           </p>
         </div>
       </section>
 
       {/* Video Trigger Section */}
       <section className="py-20 bg-gray-50 border-b border-gray-200">
-        <div className="container mx-auto px-4 max-w-5xl text-center">
-          <h2 className="text-3xl font-black text-gray-900 mb-8">See Product Shift in Action</h2>
+        <div className="container mx-auto px-4 max-w-3xl text-center">
+          <h2 className="text-3xl font-black text-gray-900 mb-8">See User Mirror In Action</h2>
           <div 
             className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl cursor-pointer group border-4 border-black bg-black"
             onClick={() => setShowVideoModal(true)}
@@ -173,7 +173,7 @@ const AgencyUserTestingPage: React.FC = () => {
       </section>
 
       {/* Analytics Section */}
-      <AnalyticsSmbUser />
+      <AnalyticsUxTech />
       <ToolkitUxTech />
 
       {/* Use Cases Grid */}

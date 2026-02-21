@@ -13,13 +13,13 @@ const CONFIG = {
   // SEO & Meta
   industryName: "Real Estate Agents",
   pageTitle: "Convert More Real Estate Website Visitors into Clients | AI Audit",
-  metaDescription: "Learn how to convert more real estate website visitors into clients. Our AI analyzes your realtor website to find the exact friction points costing you commissions.",
+  metaDescription: "Convert more local home buyers into clients. Our AI audits your real estate agent website to identify lead generation blockers and improve local SEO performance.",
   urlSlug: "convert-more-real-estate-website-visitors",
   
   // Hero Section
   heroTitle: "Convert More Real Estate",
-  heroSubtitle: "Website Visitors into Clients",
-  heroDescription: "Struggling to convert more real estate website visitors into clients? Most realtor websites look the same and leak leads. Our AI provides instant analysis based on home buyer psychology to tell you exactly why visitors aren't booking showings.",
+  heroSubtitle: "Website Visitors into Qualified Leads",
+  heroDescription: "Struggling to convert more real estate website visitors into clients? Most realtor websites look the same and leak leads. Our AI provides instant analysis based on home buyer psychology to tell you exactly why visitors aren't booking showings or calling you.",
   
   // Pain Points Section
   painTitle: "Why You Aren't Converting More Real Estate Website Visitors into Clients",

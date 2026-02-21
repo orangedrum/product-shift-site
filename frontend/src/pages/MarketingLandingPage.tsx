@@ -13,12 +13,12 @@ const CONFIG = {
   // SEO & Meta
   industryName: "UX Professionals & Product Teams",
   pageTitle: "AI-Powered UX Research Agent | Product Shift",
-  metaDescription: "Instant usability testing with AI personas. Get feedback on your designs in seconds, not days.",
+  metaDescription: "Instant AI usability testing for UX professionals and product managers. Get unbiased feedback on your SaaS interface in seconds.",
   urlSlug: "landingpg-aiuxagent",
   
   // Hero Section
   heroTitle: "AI-Powered UX Research",
-  heroSubtitle: "Instant Usability Feedback",
+  heroSubtitle: "Instant Usability Feedback for SaaS",
   heroDescription: "Stop waiting for user recruitment. Simulate usability tests with AI personas to identify friction points, validate copy, and optimize conversion flows instantly.",
   
   // Pain Points Section

@@ -17,12 +17,12 @@ const CONFIG = {
   // SEO & Meta
   industryName: "Dentists",
   pageTitle: "Get More New Patients from Your Dental Website | AI Audit",
-  metaDescription: "Stop losing patients to confusing booking forms. Our AI analyzes your dental practice website to find the exact friction points.",
+  metaDescription: "Increase new patient bookings for your dental practice. Our AI analyzes your dental website to fix booking friction and improve local patient conversion.",
   urlSlug: "dentist-website-audit",
   
   // Hero Section
   heroTitle: "Get More New Patients",
-  heroSubtitle: "from Your Dental Website",
+  heroSubtitle: "Turn Local Website Traffic into Booked Dental Appointments",
   heroDescription: "" 
 };
 
