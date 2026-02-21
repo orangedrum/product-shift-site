@@ -546,6 +546,18 @@ const StyleGuide: React.FC = () => {
                     <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/agency-user-testing</code>
                   </li>
                   <li>
+                    <Link to="/free-website-audit-smb-optimized" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      SMB Audit (Optimized) ↗
+                    </Link>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/free-website-audit-smb-optimized</code>
+                  </li>
+                  <li>
+                    <Link to="/dentist-website-audit" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      Dentist Audit (Optimized) ↗
+                    </Link>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/dentist-website-audit</code>
+                  </li>
+                  <li>
                     <Link to="/landingpg-aiuxagent" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
                       Tech / UX Landing (Original) ↗
                     </Link>
@@ -556,6 +568,12 @@ const StyleGuide: React.FC = () => {
                       Tech / UX Landing (Optimized) ↗
                     </Link>
                     <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/marketing-optimized</code>
+                  </li>
+                  <li>
+                    <Link to="/convert-more-real-estate-website-visitors-optimized" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+                      Realtor Landing (Optimized) ↗
+                    </Link>
+                    <code className="text-xs text-gray-500 bg-gray-100 p-1 rounded block mt-1 truncate">/convert-more-real-estate-website-visitors-optimized</code>
                   </li>
                   <li>
                     <Link to="/ecommerce-optimized" target="_blank" className="text-indigo-600 hover:underline font-semibold flex items-center gap-1">

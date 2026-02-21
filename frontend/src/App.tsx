@@ -17,6 +17,9 @@ import MarketingLandingPageOptimized from './pages/MarketingLandingPageOptimized
 import EcommerceLandingPageOptimized from './pages/EcommerceLandingPageOptimized';
 import EcommerceLandingPageVideo from './pages/EcommerceLandingPageVideo';
 import MarketingLandingPageVideo from './pages/MarketingLandingPageVideo';
+import FreeWebsiteAuditSmbOptimized from './pages/FreeWebsiteAuditSmbOptimized';
+import RealtorLandingPageOptimized from './pages/RealtorLandingPageOptimized';
+import DentistLandingPageOptimized from './pages/DentistLandingPageOptimized';
 import FreeWebsiteAuditSmb from './pages/FreeWebsiteAuditSmb';
 import BlogWhyAudit from './pages/BlogWhyAudit';
 import AdminDashboard from './pages/AdminDashboard';
@@ -47,6 +50,9 @@ const App: React.FC = () => {
     '/simple-website-checkup', 
     '/convert-more-real-estate-website-visitors', 
     '/increase-ecommerce-conversion-rates', 
+    '/free-website-audit-smb-optimized',
+    '/convert-more-real-estate-website-visitors-optimized',
+    '/dentist-website-audit',
     '/landingpg-aiuxagent',
     '/simple-website-checkup-video',
     '/marketing-optimized',
@@ -119,6 +125,9 @@ const App: React.FC = () => {
           <Route path="/simple-website-checkup" element={<SmbLandingPage />} />
           <Route path="/convert-more-real-estate-website-visitors" element={<RealtorLandingPage />} />
           <Route path="/increase-ecommerce-conversion-rates" element={<EcommerceLandingPage />} />
+          <Route path="/free-website-audit-smb-optimized" element={<FreeWebsiteAuditSmbOptimized />} />
+          <Route path="/convert-more-real-estate-website-visitors-optimized" element={<RealtorLandingPageOptimized />} />
+          <Route path="/dentist-website-audit" element={<DentistLandingPageOptimized />} />
 
           <Route path="/landingpg-aiuxagent" element={<MarketingLandingPage />} />
           <Route path="/marketing-optimized" element={<MarketingLandingPageOptimized />} />
