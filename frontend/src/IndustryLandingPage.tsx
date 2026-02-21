@@ -37,10 +37,7 @@ const CONFIG = {
   ],
 
   // Personas (Select 3 defaults relevant to the industry)
-  defaultPersonas: ['alex-busy-pro', 'charlie-family-worker', 'linda-business-owner'],
-  
-  // Pricing
-  pricingSegment: "smb" // 'smb' or 'tech' (affects pricing card links)
+  defaultPersonas: ['alex-busy-pro', 'charlie-family-worker', 'linda-business-owner']
 };
 
 // --- Components ---

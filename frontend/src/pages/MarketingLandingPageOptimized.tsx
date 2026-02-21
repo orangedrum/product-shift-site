@@ -37,9 +37,6 @@ const CONFIG = {
 
   // Personas (Select 3 defaults relevant to the industry)
   defaultPersonas: ['alex-busy-pro', 'marcus-c-suite', 'sarah-social-shopper'],
-  
-  // Pricing
-  pricingSegment: "tech" 
 };
 
 // --- Components ---

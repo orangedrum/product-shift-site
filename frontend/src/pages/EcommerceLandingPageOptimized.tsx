@@ -23,10 +23,7 @@ const CONFIG = {
   // Hero Section
   heroTitle: "Increase E-commerce Conversion Rates Instantly",
   heroSubtitle: "Stop losing sales to confusing checkout flows. Our AI provides instant analysis based on shopper psychology.",
-  heroDescription: "", // Unused in new HeroWithDemo but kept for config consistency
-  
-  // Pricing
-  pricingSegment: "smb" 
+  heroDescription: "" // Unused in new HeroWithDemo but kept for config consistency
 };
 
 // --- Components ---
