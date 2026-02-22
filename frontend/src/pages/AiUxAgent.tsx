@@ -250,7 +250,7 @@ const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose
 );
 
 // Custom Feedback Card
-const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
+const FeedbackCard: React.FC<{ email: string; isFirstBuy?: boolean }> = ({ email, isFirstBuy: propIsFirstBuy }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
@@ -259,7 +259,7 @@ const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
   const [loading, setLoading] = useState(false);
   const [flywheelStage, setFlywheelStage] = useState<'new' | 'regular' | 'power' | 'champion'>('new');
   const [searchParams] = useSearchParams();
-  const isFirstBuy = searchParams.get('first_buy') === 'true';
+  const isFirstBuy = propIsFirstBuy || searchParams.get('first_buy') === 'true';
 
   useEffect(() => {
     if (!email) return;
@@ -425,6 +425,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [highlightCredits, setHighlightCredits] = useState(false);
   const prevCreditsRef = useRef<number | null>(null);
   const shouldAnimateOnMount = useRef(false);
+  
+  // Capture first_buy param on mount before it gets cleared by the boot sequence
+  const [isFirstBuy] = useState(() => searchParams.get('first_buy') === 'true');
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1296,7 +1299,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
 
           {/* Feedback Toast (Fixed Position) */}
-          <FeedbackCard email={session?.user?.email} />
+          <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
