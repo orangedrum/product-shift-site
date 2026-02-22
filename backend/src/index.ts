@@ -102,6 +102,15 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             updates.is_power_user = true;
             updates.date_became_power_user = new Date().toISOString();
           }
+
+          // Champion Logic: 3+ Purchases AND Has Referred Someone
+          if (currentCount >= 3) {
+            const { data: customerData } = await supabase.from('customers').select('referral_count').eq('email', customerEmail).single();
+            if (customerData && (customerData.referral_count || 0) > 0) {
+              updates.is_champion = true;
+              updates.date_became_champion = new Date().toISOString();
+            }
+          }
           
           if (Object.keys(updates).length > 0) {
             await supabase.from('customers').update(updates).eq('email', customerEmail);
@@ -134,13 +143,24 @@ app.use('/api/admin', adminRouter);
 app.get('/api/admin/flywheel-stats', async (req, res) => {
   // Basic auth check via header presence (AdminDashboard sends it)
   if (!req.headers.authorization) return res.status(401).json({ error: 'Unauthorized' });
+  
+  const excludeTest = req.query.exclude_test_data === 'true';
+
+  // Helper to apply filters
+  const getBaseQuery = () => {
+    let q = supabase.from('customers').select('*', { count: 'exact', head: true });
+    if (excludeTest) {
+      q = q.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%');
+    }
+    return q;
+  };
 
   try {
     // 1. Flywheel Counts
-    const { count: totalUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true });
-    const { count: regularUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_regular_user', true);
-    const { count: powerUsers } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_power_user', true);
-    const { count: champions } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_champion', true);
+    const { count: totalUsers } = await getBaseQuery();
+    const { count: regularUsers } = await getBaseQuery().eq('is_regular_user', true);
+    const { count: powerUsers } = await getBaseQuery().eq('is_power_user', true);
+    const { count: champions } = await getBaseQuery().eq('is_champion', true);
 
     // 2. Recent Feedback
     const { data: feedback } = await supabase
@@ -581,7 +601,11 @@ app.post('/api/verify-payment', async (req, res) => {
       .eq('stripe_session_id', session_id)
       .single();
 
-    if (payment) return res.json({ verified: true, status: payment.status });
+    if (payment) {
+      // Check if this is the first payment
+      const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', (payment as any).email || '').eq('status', 'paid');
+      return res.json({ verified: true, status: payment.status, isFirstPayment: count === 1 });
+    }
 
     // 2. Check Stripe directly (Fallback if webhook is slow)
     const session = await stripe.checkout.sessions.retrieve(session_id);
@@ -618,7 +642,10 @@ app.post('/api/verify-payment', async (req, res) => {
         }
     }
 
-    return res.json({ verified: session.payment_status === 'paid', status: session.payment_status });
+    // Check payment count for first payment flag
+    const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', session.customer_details?.email || '').eq('status', 'paid');
+
+    return res.json({ verified: session.payment_status === 'paid', status: session.payment_status, isFirstPayment: (count || 0) <= 1 });
   } catch (e: any) {
     console.error('Verify Payment Error:', e);
     return res.status(500).json({ error: e.message });

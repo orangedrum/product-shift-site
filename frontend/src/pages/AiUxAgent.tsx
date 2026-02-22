@@ -258,6 +258,8 @@ const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [flywheelStage, setFlywheelStage] = useState<'new' | 'regular' | 'power' | 'champion'>('new');
+  const [searchParams] = useSearchParams();
+  const isFirstBuy = searchParams.get('first_buy') === 'true';
 
   useEffect(() => {
     if (!email) return;
@@ -277,6 +279,7 @@ const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
   }, [email]);
 
   const getCopy = () => {
+      if (isFirstBuy) return { button: "Quick Question", header: "What made you buy?" };
       switch(flywheelStage) {
           case 'champion': return { button: "Quick Question", header: "How can we improve?" };
           case 'power': return { button: "Love User Mirror?", header: "Enjoying the tool?" };

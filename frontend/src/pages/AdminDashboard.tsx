@@ -128,7 +128,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         if (posts) setBlogStats(posts);
 
         // 5. Fetch Flywheel Stats
-        const flywheelRes = await fetch('/api/admin/flywheel-stats', {
+        const flywheelRes = await fetch(`/api/admin/flywheel-stats?exclude_test_data=${hideTestUsers}`, {
           headers: { Authorization: `Bearer ${secretKey}` },
           signal: controller.signal
         });

@@ -10,6 +10,7 @@ const PaymentConfirmation = () => {
   const segment = searchParams.get('segment');
   const [status, setStatus] = useState<'loading' | 'success' | 'timeout'>('loading');
   const [verifiedViaApi, setVerifiedViaApi] = useState(false);
+  const [isFirstPayment, setIsFirstPayment] = useState(false);
 
   useEffect(() => {
     if (!sessionId) {
@@ -22,7 +23,7 @@ const PaymentConfirmation = () => {
     if (verifiedViaApi) {
       setStatus('success');
       const timer = setTimeout(() => {
-        navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`);
+        navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}${isFirstPayment ? '&first_buy=true' : ''}`);
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -42,7 +43,10 @@ const PaymentConfirmation = () => {
       })
       .then(res => res.json())
       .then(data => {
-        if (data.verified) setVerifiedViaApi(true); // Triggers re-render -> Fast Lane
+        if (data.verified) {
+          if (data.isFirstPayment) setIsFirstPayment(true);
+          setVerifiedViaApi(true); // Triggers re-render -> Fast Lane
+        }
       })
       .catch(err => console.error('Verification API failed:', err));
 
@@ -64,7 +68,7 @@ const PaymentConfirmation = () => {
           clearInterval(pollInterval);
           setStatus('success');
           // Short delay to show the success state before redirecting
-          setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}`), 1500);
+          setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}${isFirstPayment ? '&first_buy=true' : ''}`), 1500);
         } else if (attempts >= maxAttempts) {
           clearInterval(pollInterval);
           setStatus('timeout');
@@ -77,7 +81,7 @@ const PaymentConfirmation = () => {
     return () => {
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [navigate, sessionId, verifiedViaApi, segment]);
+  }, [navigate, sessionId, verifiedViaApi, segment, isFirstPayment]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
