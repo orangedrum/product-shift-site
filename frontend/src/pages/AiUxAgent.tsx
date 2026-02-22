@@ -251,7 +251,7 @@ const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose
 
 // Custom Feedback Card
 const FeedbackCard: React.FC<{ email: string; isFirstBuy?: boolean }> = ({ email, isFirstBuy: propIsFirstBuy }) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false); // Hidden by default until loaded/ready
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
@@ -260,6 +260,10 @@ const FeedbackCard: React.FC<{ email: string; isFirstBuy?: boolean }> = ({ email
   const [flywheelStage, setFlywheelStage] = useState<'new' | 'regular' | 'power' | 'champion'>('new');
   const [searchParams] = useSearchParams();
   const isFirstBuy = propIsFirstBuy || searchParams.get('first_buy') === 'true';
+
+  useEffect(() => {
+      setIsVisible(true);
+  }, []);
 
   useEffect(() => {
     if (!email) return;
@@ -277,6 +281,36 @@ const FeedbackCard: React.FC<{ email: string; isFirstBuy?: boolean }> = ({ email
     };
     fetchFlywheel();
   }, [email]);
+
+  const fireConfetti = () => {
+    const colors = ['#ff1493', '#ff8c00', '#00bfff'];
+    const particleCount = 150;
+    
+    for (let i = 0; i < particleCount; i++) {
+      const el = document.createElement('div');
+      el.style.position = 'fixed';
+      el.style.right = '100px'; // Origin near the toast
+      el.style.bottom = '100px';
+      const size = Math.floor(Math.random() * 8) + 5;
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
+      el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      el.style.borderRadius = '50%';
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '9999';
+      document.body.appendChild(el);
+
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 10 + Math.random() * 10;
+      const tx = Math.cos(angle) * velocity * 20;
+      const ty = Math.sin(angle) * velocity * 20 - 100; // Upward bias
+
+      el.animate([
+        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+        { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+      ], { duration: 1000 + Math.random() * 1000, easing: 'cubic-bezier(0, .9, .57, 1)' }).onfinish = () => el.remove();
+    }
+  };
 
   const getCopy = () => {
       if (isFirstBuy) return { button: "Quick Question", header: "What made you buy today?" };
@@ -302,6 +336,7 @@ const FeedbackCard: React.FC<{ email: string; isFirstBuy?: boolean }> = ({ email
         body: JSON.stringify({ rating, feedback, testimonial: feedback }) // Using feedback as testimonial for simplicity v1
       });
       setSubmitted(true);
+      fireConfetti();
     } catch (e) {
       console.error(e);
     } finally {
@@ -426,8 +461,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const prevCreditsRef = useRef<number | null>(null);
   const shouldAnimateOnMount = useRef(false);
   
-  // Capture first_buy param on mount before it gets cleared by the boot sequence
-  const [isFirstBuy] = useState(() => searchParams.get('first_buy') === 'true');
+  // State to track if this is a first purchase event (Robust detection)
+  const [isFirstBuy, setIsFirstBuy] = useState(false);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -607,6 +642,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
           });
           if (mounted) setSavedSegment(urlSegment);
         }
+      }
+
+      // 8. Robust First Buy Detection
+      // If credits were just added (new_credit=true) AND user is Regular (1 payment) but NOT Power (2+), it's the first buy.
+      if (urlNewCredit === 'true' && customerData?.is_regular_user && !customerData?.is_power_user) {
+          setIsFirstBuy(true);
       }
 
       // 8. Clean URL (Once everything is processed)
