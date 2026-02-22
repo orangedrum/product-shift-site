@@ -252,10 +252,40 @@ const InsufficientCreditsCard: React.FC<{ onBuy: (plan: string) => void; onClose
 // Custom Feedback Card
 const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [flywheelStage, setFlywheelStage] = useState<'new' | 'regular' | 'power' | 'champion'>('new');
+
+  useEffect(() => {
+    if (!email) return;
+    const fetchFlywheel = async () => {
+        try {
+            const { data } = await supabase.from('customers').select('is_regular_user, is_power_user, is_champion').eq('email', email).maybeSingle();
+            if (data) {
+                if (data.is_champion) setFlywheelStage('champion');
+                else if (data.is_power_user) setFlywheelStage('power');
+                else if (data.is_regular_user) setFlywheelStage('regular');
+            }
+        } catch (e) {
+            // Silent fail, default to 'new'
+        }
+    };
+    fetchFlywheel();
+  }, [email]);
+
+  const getCopy = () => {
+      switch(flywheelStage) {
+          case 'champion': return { button: "Quick Question", header: "How can we improve?" };
+          case 'power': return { button: "Love User Mirror?", header: "Enjoying the tool?" };
+          case 'regular': return { button: "How's it going?", header: "How is User Mirror working for you?" };
+          default: return { button: "Give Feedback", header: "How was this analysis?" };
+      }
+  };
+
+  const copy = getCopy();
 
   if (!isVisible) return null;
 
@@ -286,16 +316,28 @@ const FeedbackCard: React.FC<{ email: string }> = ({ email }) => {
     );
   }
 
+  if (!isOpen) {
+    return (
+      <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-indigo-600 to-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-[4px_4px_0px_0px_#000] border-2 border-black hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] transition-all animate-bounce-subtle flex items-center gap-2"
+      >
+          <MessageSquare size={20} />
+          {copy.button}
+      </button>
+    );
+  }
+
   return (
     <div className="fixed bottom-6 right-6 z-50 bg-white border-2 border-black rounded-xl p-6 shadow-[4px_4px_0px_0px_#000] mb-0 no-print max-w-sm animate-slide-up">
       <button 
-        onClick={() => setIsVisible(false)}
+        onClick={() => setIsOpen(false)}
         className="absolute top-2 right-2 text-gray-400 hover:text-black transition-colors"
       >
         <X size={16} />
       </button>
       <h3 className="text-lg font-black text-black mb-2 flex items-center gap-2">
-        <MessageSquare size={20} /> How was this analysis?
+        <MessageSquare size={20} /> {copy.header}
       </h3>
       <div className="flex gap-2 mb-4">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -904,6 +946,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
           /* Force Neo Styling in Print */
           .border-2 { border-width: 2px !important; border-color: #000 !important; }
+        }
+
+        @keyframes bounce-subtle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-subtle {
+          animation: bounce-subtle 3s infinite ease-in-out;
         }
       `}</style>
 
