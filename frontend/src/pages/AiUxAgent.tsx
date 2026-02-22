@@ -279,7 +279,7 @@ const FeedbackCard: React.FC<{ email: string; isFirstBuy?: boolean }> = ({ email
   }, [email]);
 
   const getCopy = () => {
-      if (isFirstBuy) return { button: "Quick Question", header: "What made you buy?" };
+      if (isFirstBuy) return { button: "Quick Question", header: "What made you buy today?" };
       switch(flywheelStage) {
           case 'champion': return { button: "Quick Question", header: "How can we improve?" };
           case 'power': return { button: "Love User Mirror?", header: "Enjoying the tool?" };

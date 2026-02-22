@@ -66,9 +66,14 @@ const PaymentConfirmation = () => {
           
         if (payments && payments.length > 0) {
           clearInterval(pollInterval);
+          
+          // Check if this is the first payment (Explicit check to avoid stale state closure)
+          const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', session.user.email).eq('status', 'paid');
+          const isFirst = count === 1;
+
           setStatus('success');
           // Short delay to show the success state before redirecting
-          setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}${isFirstPayment ? '&first_buy=true' : ''}`), 1500);
+          setTimeout(() => navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}${isFirst ? '&first_buy=true' : ''}`), 1500);
         } else if (attempts >= maxAttempts) {
           clearInterval(pollInterval);
           setStatus('timeout');
