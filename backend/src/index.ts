@@ -638,6 +638,23 @@ app.post('/api/verify-payment', async (req, res) => {
             if (!insertError && creditsToAdd > 0) {
                 console.log(`Self-healing payment: Adding ${creditsToAdd} credits to ${customerEmail}`);
                 await supabase.rpc('add_credits', { user_email: customerEmail, amount: creditsToAdd });
+
+                // --- FLYWHEEL TRACKING (Self-Healing) ---
+                const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', customerEmail).eq('status', 'paid');
+                
+                const updates: any = {};
+                // paymentCount includes the one we just inserted
+                if (paymentCount === 1) {
+                  updates.is_regular_user = true;
+                  updates.date_became_regular = new Date().toISOString();
+                } else if ((paymentCount || 0) >= 2) {
+                  updates.is_power_user = true;
+                  updates.date_became_power_user = new Date().toISOString();
+                }
+                
+                if (Object.keys(updates).length > 0) {
+                  await supabase.from('customers').update(updates).eq('email', customerEmail);
+                }
             }
         }
     }

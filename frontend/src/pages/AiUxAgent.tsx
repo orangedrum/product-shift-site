@@ -643,10 +643,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
           if (mounted) setSavedSegment(urlSegment);
         }
       }
-
+      
       // 8. Robust First Buy Detection
-      // If credits were just added (new_credit=true) AND user is Regular (1 payment) but NOT Power (2+), it's the first buy.
-      if (urlNewCredit === 'true' && customerData?.is_regular_user && !customerData?.is_power_user) {
+      // Trust the URL param from PaymentConfirmation OR the DB status
+      const urlFirstBuy = searchParams.get('first_buy');
+      if ((urlNewCredit === 'true' && customerData?.is_regular_user && !customerData?.is_power_user) || urlFirstBuy === 'true') {
           setIsFirstBuy(true);
       }
 
