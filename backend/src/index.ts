@@ -856,8 +856,8 @@ app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
       await supabase.from('customers').update(updates).eq('id', referrer.id);
 
       // 4. Reward Current User (The Friend)
-      await supabase.rpc('add_credits', { user_email: user.email, amount: 5 }); // Give 5 credits
-      return res.json({ success: true, message: 'Referral claimed! 5 credits added.' });
+      await supabase.rpc('add_credits', { user_email: user.email, amount: 3 }); // Give 3 credits
+      return res.json({ success: true, message: 'Referral claimed! 3 credits added.' });
     }
     return res.status(404).json({ error: 'Invalid referral code' });
   } catch (e: any) {

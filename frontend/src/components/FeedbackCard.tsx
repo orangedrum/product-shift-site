@@ -8,9 +8,10 @@ export interface FeedbackCardProps {
   email: string;
   isFirstBuy?: boolean;
   justPurchased?: boolean;
+  hasResult?: boolean;
 }
 
-export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: propIsFirstBuy, justPurchased }) => {
+export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: propIsFirstBuy, justPurchased, hasResult }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
@@ -91,6 +92,9 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: p
   };
 
   const copy = getCopy();
+
+  // Hide "Give Feedback" (Analysis question) if no result is present
+  if (copy.button === "Give Feedback" && !hasResult) return null;
 
   if (!isVisible) return null;
 

@@ -1275,7 +1275,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {/* Feedback Toast (Fixed Position) - Moved outside result check to appear immediately on load */}
-      <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} justPurchased={justPurchased} />
+      <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} justPurchased={justPurchased} hasResult={!!result} />
       </div>
     </div>
     </div>
