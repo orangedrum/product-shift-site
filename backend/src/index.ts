@@ -830,6 +830,41 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
   }
 });
 
+// --- User: Claim Referral (Flywheel Champion Logic) ---
+app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
+  const user = (req as any).user;
+  const { referralCode } = req.body;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  if (!referralCode) return res.status(400).json({ error: 'Referral code required' });
+
+  try {
+    // 1. Find Referrer
+    const { data: referrer } = await supabase.from('customers').select('id, email, referral_count').eq('referral_code', referralCode).single();
+    
+    if (referrer && referrer.email !== user.email) {
+      // 2. Increment Referrer Count
+      const newCount = (referrer.referral_count || 0) + 1;
+      const updates: any = { referral_count: newCount };
+
+      // 3. Check Champion Status (3+ Buys AND Referral)
+      const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrer.email).eq('status', 'paid');
+      if ((paymentCount || 0) >= 3) {
+        updates.is_champion = true;
+        updates.date_became_champion = new Date().toISOString();
+      }
+      
+      await supabase.from('customers').update(updates).eq('id', referrer.id);
+
+      // 4. Reward Current User (The Friend)
+      await supabase.rpc('add_credits', { user_email: user.email, amount: 5 }); // Give 5 credits
+      return res.json({ success: true, message: 'Referral claimed! 5 credits added.' });
+    }
+    return res.status(404).json({ error: 'Invalid referral code' });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 // --- Generate Referral Code Endpoint (Fixes 404 Error) ---
 app.post('/api/user/generate-referral', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
