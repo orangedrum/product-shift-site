@@ -35,6 +35,7 @@ import AgencyUserTestingPage from './pages/AgencyUserTestingPage';
 import AdminBlog from './components/AdminBlog';
 import BlogPost from './components/BlogPost';
 import Blog from './components/Blog';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 
 const App: React.FC = () => {
@@ -160,6 +161,7 @@ const App: React.FC = () => {
           <Route path="/admin-blog" element={<AdminBlog />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
