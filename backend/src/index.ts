@@ -192,6 +192,22 @@ const parseMarkdownToTailwind = (text: string) => {
   return `<div class="prose-neo"><p class="mb-4 text-gray-800 leading-relaxed font-medium">${html}</p></div>`;
 };
 
+// --- Helper: Generate Structured Data ---
+const generateStructuredData = (url: string, name: string, scores: any, expertReport: string) => {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "url": url,
+    "name": name,
+    "review": {
+      "@type": "Review",
+      "reviewRating": { "@type": "Rating", "ratingValue": scores.usability, "bestRating": "100", "worstRating": "0" },
+      "author": { "@type": "Organization", "name": "Product Shift AI" },
+      "reviewBody": expertReport
+    }
+  };
+};
+
 // --- Public Report Endpoint ---
 app.get('/api/public-report/:id', async (req, res) => {
   const { id } = req.params;
@@ -603,7 +619,7 @@ app.post('/api/verify-payment', async (req, res) => {
 
     if (payment) {
       // Check if this is the first payment
-      const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', (payment as any).email || '').eq('status', 'paid');
+      const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', (payment as any)?.email || '').eq('status', 'paid');
       return res.json({ verified: true, status: payment.status, isFirstPayment: count === 1 });
     }
 
@@ -789,14 +805,14 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
       let newStep = nextStep;
 
       // Sequence Logic:
-      // Step 0 (Welcome sent) -> Wait for Day 2 -> Send Day 2 Email -> Set Step 1
-      // Step 1 (Day 2 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 2
-      // Step 2 (Day 5 sent) -> Wait for Day 8 -> Send Day 8 Email -> Set Step 3
-      // Step 3 (Day 8 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 4
+      // Step 0 (Welcome sent) -> Wait for Day 3 -> Send Day 3 Email -> Set Step 1
+      // Step 1 (Day 3 sent) -> Wait for Day 5 -> Send Day 5 Email -> Set Step 2
+      // Step 2 (Day 5 sent) -> Wait for Day 7 -> Send Day 7 Email -> Set Step 3
+      // Step 3 (Day 7 sent) -> Wait for Day 10 -> Send Day 10 Email -> Set Step 4
 
-      if (nextStep === 0 && diffDays >= 2) { emailToSend = marketingEmails.day2; newStep = 1; }
+      if (nextStep === 0 && diffDays >= 3) { emailToSend = marketingEmails.day3; newStep = 1; }
       else if (nextStep === 1 && diffDays >= 5) { emailToSend = marketingEmails.day5; newStep = 2; }
-      else if (nextStep === 2 && diffDays >= 8) { emailToSend = marketingEmails.day8; newStep = 3; }
+      else if (nextStep === 2 && diffDays >= 7) { emailToSend = marketingEmails.day7; newStep = 3; }
       else if (nextStep === 3 && diffDays >= 10) { emailToSend = marketingEmails.day10; newStep = 4; }
 
       if (emailToSend) {
@@ -891,12 +907,6 @@ app.post('/api/user/feedback', authenticateRequest, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
-});
-
-app.get('/api/health', (req, res) => {
-  const routes: string[] = [];
-  try {
-  }
 });
 
 // --- Health Check ---
