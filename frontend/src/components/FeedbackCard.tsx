@@ -7,9 +7,10 @@ import { supabase } from '../lib/supabase';
 export interface FeedbackCardProps {
   email: string;
   isFirstBuy?: boolean;
+  justPurchased?: boolean;
 }
 
-export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: propIsFirstBuy }) => {
+export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: propIsFirstBuy, justPurchased }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
@@ -72,11 +73,19 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: p
   };
 
   const getCopy = () => {
-      if (isFirstBuy) return { button: "Quick Question", header: "What made you buy today?" };
+      // 1. Purchase Events (Immediate Feedback)
+      if (isFirstBuy) return { button: "Quick Question", header: "What made you make your purchase today?" };
+      
+      if (justPurchased) {
+          if (flywheelStage === 'champion') return { button: "Where did you come from?", header: "Please tell us how we earned such a great customer:" };
+          if (flywheelStage === 'power') return { button: "How's it going?", header: "What has you purchasing again today?" };
+      }
+
+      // 2. General Usage (Return Visits)
       switch(flywheelStage) {
           case 'champion': return { button: "Quick Question", header: "How can we improve?" };
-          case 'power': return { button: "Love User Mirror?", header: "Enjoying the tool?" };
-          case 'regular': return { button: "How's it going?", header: "How is User Mirror working for you?" };
+          case 'power': return { button: "How's it going?", header: "How is User Mirror working for you?" };
+          case 'regular': return { button: "Love User Mirror?", header: "Enjoying the tool?" };
           default: return { button: "Give Feedback", header: "How was this analysis?" };
       }
   };
@@ -92,7 +101,7 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: p
       await fetch('/api/user/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, feedback: `[Q: ${copy.header}] ${feedback}`, testimonial: feedback })
+        body: JSON.stringify({ rating, feedback: `[Stage: ${isFirstBuy ? 'First Buy' : flywheelStage}] [Q: ${copy.header}] ${feedback}`, testimonial: feedback })
       });
       setSubmitted(true);
       fireConfetti();

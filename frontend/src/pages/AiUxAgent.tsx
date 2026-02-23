@@ -163,6 +163,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   
   // State to track if this is a first purchase event (Robust detection)
   const [isFirstBuy, setIsFirstBuy] = useState(false);
+  const [justPurchased, setJustPurchased] = useState(false);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -226,6 +227,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       if (urlNewCredit === 'true') {
         shouldAnimateOnMount.current = true;
+        setJustPurchased(true);
       }
 
       // 3. Lazy Initialization (CRITICAL: Ensure Customer Row Exists FIRST)
@@ -1273,7 +1275,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {/* Feedback Toast (Fixed Position) - Moved outside result check to appear immediately on load */}
-      <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} />
+      <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} justPurchased={justPurchased} />
       </div>
     </div>
     </div>
