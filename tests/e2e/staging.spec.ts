@@ -113,7 +113,7 @@ test.describe('Critical Integration Flows', () => {
     
     // 2. Verify critical UI elements exist
     await expect(page.locator('input[placeholder="your-website.com"]')).toBeVisible();
-    await expect(page.locator('button:has-text("Analyze")')).toBeVisible();
+    await expect(page.locator('button:has-text("Check My Site")')).toBeVisible();
   });
 
   test('Download Report: Button Presence', async ({ page }) => {
