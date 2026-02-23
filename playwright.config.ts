@@ -2,6 +2,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
+  // Give tests more time to run, especially with AI latency.
+  timeout: 90 * 1000, // 90 seconds
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
