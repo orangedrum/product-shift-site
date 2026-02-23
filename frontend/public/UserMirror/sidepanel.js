@@ -1,7 +1,7 @@
 // frontend/public/sidepanel.js
 
 // Use the specific Vercel URL from your logs to ensure connectivity
-const API_BASE_URL = 'https://product-shift-site-git-plugin-paluza-jeans-projects-3cddd625.vercel.app';
+const API_BASE_URL = 'https://www.theproductshift.com';
 
 let currentUserEmail = ''; // Store email for admin actions
 
