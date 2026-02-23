@@ -403,7 +403,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
 
   if (loading) return <div className="p-4">Loading admin dashboard... <Loader2 className="inline-block ml-2 animate-spin" /></div>;
   
-  if (error && (error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('missing'))) {
+  // Robust check for auth errors to ensure the PIN form appears if the key is rejected
+  const isAuthError = error && (
+    error.toLowerCase().includes('unauthorized') || 
+    error.toLowerCase().includes('missing') || 
+    error.toLowerCase().includes('invalid')
+  );
+
+  if (isAuthError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="max-w-md w-full">
