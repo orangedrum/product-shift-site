@@ -212,6 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!res.ok) {
           const errText = await res.text();
+          // Graceful fallback for AI Overload (Matches logic in AiUxAgent.tsx)
+          if (errText.includes('503') || errText.includes('high demand') || errText.includes('fallback')) {
+            throw new Error("Sorry, it's a bad AI day. The models are currently overloaded. This didn't count toward your credits. Please try again soon.");
+          }
           throw new Error(`Server Error: ${res.status} ${errText}`);
         }
 
