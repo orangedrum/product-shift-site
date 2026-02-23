@@ -92,7 +92,7 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: p
       await fetch('/api/user/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, feedback, testimonial: feedback })
+        body: JSON.stringify({ rating, feedback: `[Q: ${copy.header}] ${feedback}`, testimonial: feedback })
       });
       setSubmitted(true);
       fireConfetti();

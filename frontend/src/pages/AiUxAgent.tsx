@@ -1040,9 +1040,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </div>
           </div>
 
-          {/* Feedback Toast (Fixed Position) */}
-          <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} />
-
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* LEFT COLUMN: Persona Summaries (Span 5) */}
@@ -1274,6 +1271,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         )
       )}
+
+      {/* Feedback Toast (Fixed Position) - Moved outside result check to appear immediately on load */}
+      <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} />
       </div>
     </div>
     </div>
