@@ -830,6 +830,20 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
   }
 });
 
+// --- User: Check Referral Eligibility (Prevent Abuse) ---
+app.post('/api/user/check-referral-eligibility', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  try {
+    const { count } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('email', email);
+    // Eligible only if user does NOT exist
+    return res.json({ eligible: (count === 0) });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 // --- User: Claim Referral (Flywheel Champion Logic) ---
 app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
@@ -838,6 +852,23 @@ app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
   if (!referralCode) return res.status(400).json({ error: 'Referral code required' });
 
   try {
+    // 0. Abuse Check: Is this a new user?
+    // Fetch creation time AND claim status
+    const { data: currentUser } = await supabase.from('customers').select('created_at, claimed_referral').eq('email', user.email).single();
+    
+    if (currentUser) {
+      // Rule 1: One claim per lifetime
+      if (currentUser.claimed_referral) {
+        return res.status(403).json({ error: 'You have already claimed a referral reward.' });
+      }
+
+      // Rule 2: Account must be new (< 24 hours)
+      const created = new Date(currentUser.created_at);
+      const now = new Date();
+      const diffHours = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+      if (diffHours > 24) return res.status(403).json({ error: 'Referral rewards are for new accounts only.' });
+    }
+
     // 1. Find Referrer
     const { data: referrer } = await supabase.from('customers').select('id, email, referral_count').eq('referral_code', referralCode).single();
     
@@ -854,6 +885,9 @@ app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
       }
       
       await supabase.from('customers').update(updates).eq('id', referrer.id);
+
+      // Mark user as having claimed a referral so they can't do it again
+      await supabase.from('customers').update({ claimed_referral: true }).eq('email', user.email);
 
       // 4. Reward Current User (The Friend)
       await supabase.rpc('add_credits', { user_email: user.email, amount: 3 }); // Give 3 credits
@@ -923,8 +957,14 @@ app.post('/api/user/redeem-coupon', authenticateRequest, async (req, res) => {
   const { data: coupon } = await supabase.from('coupons').select('*').eq('code', code.toUpperCase()).single();
   if (!coupon) return res.status(404).json({ error: 'Invalid coupon code' });
 
-  // Check if already redeemed (Optional: Add a redemptions table)
-  // For now, just add credits
+  // Abuse Check: Record redemption. If it exists (Unique Constraint), this will fail.
+  const { error: redemptionError } = await supabase.from('coupon_redemptions').insert({ 
+    user_email: user.email, 
+    coupon_code: code.toUpperCase() 
+  });
+
+  if (redemptionError) return res.status(403).json({ error: 'You have already redeemed this coupon.' });
+
   await supabase.rpc('add_credits', { user_email: user.email, amount: coupon.credits });
   
   res.json({ success: true, message: `${coupon.credits} credits added!` });

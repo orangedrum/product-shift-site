@@ -145,4 +145,87 @@ test.describe('Critical Integration Flows', () => {
     await expect(page).toHaveURL(/segment=tech/);
   });
 
+  test('Abuse Protection: Referral & Coupon Replay Attack', async ({ browser }) => {
+    // 1. Setup: Create a FRESH user via Supabase Admin to ensure "New Account" status (< 24h)
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    // Skip if secrets aren't available (e.g. local run without env vars)
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.log('Skipping Abuse Test: Supabase secrets missing');
+      return;
+    }
+    
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const email = `abuse-test-${Date.now()}@example.com`;
+    
+    // Create the fresh user
+    const { data: user, error: createError } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: true
+    });
+    if (createError) throw createError;
+
+    // Generate a session for this user
+    const { data: linkData } = await supabase.auth.admin.generateLink({ type: 'magiclink', email });
+    const { data: sessionData } = await supabase.auth.verifyOtp({
+      email,
+      token: linkData.properties.email_otp,
+      type: 'magiclink'
+    });
+
+    // Create a browser context authenticated as this fresh user
+    const context = await browser.newContext({
+      storageState: {
+        cookies: [],
+        origins: [{
+          origin: process.env.BASE_URL || 'https://product-shift-site-git-staging-jeans-projects-3cddd625.vercel.app',
+          localStorage: [{ name: 'sb-productshift-auth-token', value: JSON.stringify(sessionData.session) }]
+        }]
+      }
+    });
+    const page = await context.newPage();
+
+    // --- TEST 1: Referral Abuse ---
+    // Setup: Create a referrer to claim from
+    const referrerCode = `REF${Date.now()}`;
+    await supabase.from('customers').insert({ email: `referrer-${Date.now()}@example.com`, referral_code: referrerCode, credits: 5 });
+
+    // A. First Claim (Should Succeed)
+    // We visit the claim URL. The frontend should auto-claim since we are logged in.
+    await page.goto(`/claim-test?ref=${referrerCode}`);
+    // Wait for the credit update (Initial 5 + 3 Referral = 8)
+    // We check for the text "08" in the credit counter
+    await expect(page.locator('text=08').first()).toBeVisible({ timeout: 20000 });
+
+    // B. Second Claim (Should Fail)
+    // We manually hit the API to verify the backend block
+    const resReferral = await page.request.post('/api/user/claim-referral', {
+      data: { referralCode: referrerCode },
+      headers: { 'Authorization': `Bearer ${sessionData.session.access_token}` }
+    });
+    expect(resReferral.status()).toBe(403); // Expect Forbidden
+
+    // --- TEST 2: Coupon Abuse ---
+    // Setup: Create a coupon
+    const couponCode = `TEST${Date.now()}`;
+    await supabase.from('coupons').insert({ code: couponCode, credits: 10 });
+
+    // A. First Redeem (Should Succeed)
+    await page.goto(`/ai-powered-ux?coupon=${couponCode}`);
+    // Should have 8 + 10 = 18 credits
+    await expect(page.locator('text=18').first()).toBeVisible({ timeout: 20000 });
+
+    // B. Second Redeem (Should Fail)
+    const resCoupon = await page.request.post('/api/user/redeem-coupon', {
+      data: { code: couponCode },
+      headers: { 'Authorization': `Bearer ${sessionData.session.access_token}` }
+    });
+    expect(resCoupon.status()).toBe(403); // Expect Forbidden
+
+    // Cleanup: Delete the test user
+    await supabase.auth.admin.deleteUser(user.user.id);
+  });
+
 });
