@@ -349,25 +349,6 @@ const MyAccount: React.FC = () => {
       {notifications.length > 0 && (
         <div className="mb-12">
           <NeoCard title="Notifications">
-            <div className="space-y-4">
-              {notifications.map((note) => (
-                <div key={note.id} className={`p-4 rounded-lg border-l-4 flex items-start gap-3 ${note.type === 'success' ? 'bg-green-50 border-green-500' : 'bg-blue-50 border-blue-500'}`}>
-                  <Bell size={20} className={note.type === 'success' ? 'text-green-600' : 'text-blue-600'} />
-                  <div>
-                    <p className="text-sm text-gray-800 font-medium">{note.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">{new Date(note.created_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </NeoCard>
-        </div>
-      )}
-
-      {/* Notifications Section */}
-      {notifications.length > 0 && (
-        <div className="mb-12">
-          <NeoCard title="Notifications">
             <div className="flex justify-end mb-4">
               <button 
                 onClick={handleDeleteAllNotifications}

@@ -1,6 +1,6 @@
 // Fixed imports to resolve runtime crash
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star, Bell } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -136,6 +136,7 @@ const formatText = (text: string) => {
 
 const AiPoweredUxHealthtech: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<any>(null);
   const [credits, setCredits] = useState<number | null>(null);
@@ -365,7 +366,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         .select('*', { count: 'exact', head: true })
         .eq('user_email', currentSession.user.email)
         .eq('is_read', false);
-      if (notifCount && notifCount > 0) setHasUnreadNotifications(true);
+      setHasUnreadNotifications(!!notifCount && notifCount > 0);
     };
 
     boot();
@@ -373,7 +374,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [searchParams, setSearchParams, navigate]);
+  }, [searchParams, setSearchParams, navigate, location]);
 
   // --- 2. REALTIME SUBSCRIPTION (Stable) ---
   useEffect(() => {
