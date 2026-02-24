@@ -66,6 +66,7 @@ const ReferralClaim: React.FC = () => {
     // Build params: Trigger animation & preserve segment context
     const params = new URLSearchParams();
     params.append('new_credit', 'true');
+    params.append('referral_claim', 'true');
     if (segment) params.append('segment', segment);
     if (refCode) params.append('ref', refCode); // Critical: Pass ref code through magic link
 

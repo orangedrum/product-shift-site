@@ -226,10 +226,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
       const urlNewCredit = searchParams.get('new_credit');
       const urlCoupon = searchParams.get('coupon');
       const urlTarget = searchParams.get('url');
+      const urlReferralClaim = searchParams.get('referral_claim');
 
       if (urlNewCredit === 'true') {
         shouldAnimateOnMount.current = true;
-        setJustPurchased(true);
+        if (urlReferralClaim !== 'true') {
+          setJustPurchased(true);
+        }
       }
 
       // 3. Lazy Initialization (CRITICAL: Ensure Customer Row Exists FIRST)
@@ -351,12 +354,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
       // 8. Robust First Buy Detection
       // Trust the URL param from PaymentConfirmation OR the DB status
       const urlFirstBuy = searchParams.get('first_buy');
-      if ((urlNewCredit === 'true' && customerData?.is_regular_user && !customerData?.is_power_user) || urlFirstBuy === 'true') {
-          setIsFirstBuy(true);
+      
+      if (urlNewCredit === 'true') {
+        // If coming from purchase, strictly trust the URL param to avoid race conditions with webhook
+        setIsFirstBuy(urlFirstBuy === 'true');
+      } else if (customerData?.is_regular_user && !customerData?.is_power_user) {
+        // Otherwise, rely on DB state
+        setIsFirstBuy(true);
       }
 
       // 8. Clean URL (Once everything is processed)
-      if (urlRef || urlSegment || urlNewCredit || urlCoupon) {
+      if (urlRef || urlSegment || urlNewCredit || urlCoupon || urlReferralClaim) {
         setSearchParams({}, { replace: true });
       }
 
