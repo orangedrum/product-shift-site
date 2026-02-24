@@ -402,37 +402,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
     };
   }, [session?.user?.email]);
 
-  // --- 3. NOTIFICATION SUBSCRIPTION (Realtime Sync) ---
-  useEffect(() => {
-    if (!session?.user?.email) return;
-
-    const channel = supabase
-      .channel('notification-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen for INSERT (new) and UPDATE (read status)
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_email=eq.${session.user.email}`,
-        },
-        async () => {
-          // Re-fetch count on any change
-          const { count } = await supabase
-            .from('notifications')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_email', session.user.email)
-            .eq('is_read', false);
-          setHasUnreadNotifications(!!count && count > 0);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [session?.user?.email]);
-
   // Helper to refresh customer data (Used after test runs)
   const refreshCustomerData = async () => {
     if (!session?.user?.email) return;
@@ -776,10 +745,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
                       {hasUnreadNotifications && (
                         <button 
-                          onClick={() => {
-                            setHasUnreadNotifications(false); // Optimistic clear
-                            navigate('/account');
-                          }}
+                          onClick={() => navigate('/account')}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 border border-black hover:bg-red-600 transition-colors animate-bounce shadow-sm"
                           title="New Notification"
                         >
