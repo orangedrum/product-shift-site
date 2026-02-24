@@ -312,6 +312,43 @@ export const runTestHandler = async (req: Request, res: Response) => {
       if (runLog) runId = runLog.id;
       const seoSchema = generateStructuredData(url, result.title, scores, rawExpertReport);
 
+      // --- REFERRAL REWARD LOGIC (Post-Analysis) ---
+      // If this user was referred and we haven't rewarded the referrer yet, do it now.
+      if (email) {
+        const { data: cust } = await supabase.from('customers').select('referred_by, referrer_rewarded').eq('email', email).single();
+        if (cust && cust.referred_by && !cust.referrer_rewarded) {
+           const referrerEmail = cust.referred_by;
+           console.log(`🎁 Rewarding referrer ${referrerEmail} for active user ${email}`);
+           
+           // 1. Add Credits to Referrer
+           await supabase.rpc('add_credits', { user_email: referrerEmail, amount: 3 });
+           
+           // 2. Notify Referrer
+           await supabase.from('notifications').insert({
+             user_email: referrerEmail,
+             message: `You earned 3 credits! A user you referred just ran their first test.`,
+             type: 'success'
+           });
+
+           // 3. Update Referrer Stats (Count & Champion Status)
+           const { data: referrer } = await supabase.from('customers').select('id, referral_count').eq('email', referrerEmail).single();
+           if (referrer) {
+             const newCount = (referrer.referral_count || 0) + 1;
+             const updates: any = { referral_count: newCount };
+             
+             const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrerEmail).eq('status', 'paid');
+             if ((paymentCount || 0) >= 3) {
+                updates.is_champion = true;
+                updates.date_became_champion = new Date().toISOString();
+             }
+             await supabase.from('customers').update(updates).eq('id', referrer.id);
+           }
+
+           // 4. Mark as rewarded so we don't pay out again
+           await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', email);
+        }
+      }
+
       return { message: 'Analysis Complete.', reportId: runId, title: result.title, url: url, screenshot: result.screenshot, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })), expertReport: rawExpertReport, scores, seoSchema };
     })();
 

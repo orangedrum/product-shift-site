@@ -873,29 +873,12 @@ app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
     const { data: referrer } = await supabase.from('customers').select('id, email, referral_count').eq('referral_code', referralCode).single();
     
     if (referrer && referrer.email !== user.email) {
-      // 2. Increment Referrer Count
-      const newCount = (referrer.referral_count || 0) + 1;
-      const updates: any = { referral_count: newCount };
-
-      // 3. Check Champion Status (3+ Buys AND Referral)
-      const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrer.email).eq('status', 'paid');
-      if ((paymentCount || 0) >= 3) {
-        updates.is_champion = true;
-        updates.date_became_champion = new Date().toISOString();
-      }
-      
-      await supabase.from('customers').update(updates).eq('id', referrer.id);
-
-      // 3b. Reward Referrer (The person who shared the link)
-      await supabase.rpc('add_credits', { user_email: referrer.email, amount: 3 });
-      await supabase.from('notifications').insert({
-        user_email: referrer.email,
-        message: `You earned 3 credits! A new user just signed up using your referral link.`,
-        type: 'success'
-      });
-
-      // Mark user as having claimed a referral so they can't do it again
-      await supabase.from('customers').update({ claimed_referral: true }).eq('email', user.email);
+      // Link the users, but DO NOT reward referrer yet (Wait for first test)
+      await supabase.from('customers').update({ 
+        claimed_referral: true,
+        referred_by: referrer.email,
+        referrer_rewarded: false
+      }).eq('email', user.email);
 
       // 4. Reward Current User (The Friend)
       await supabase.rpc('add_credits', { user_email: user.email, amount: 3 }); // Give 3 credits
