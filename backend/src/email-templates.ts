@@ -20,7 +20,7 @@ export const welcomeBody = (baseUrl: string) => `
 <h3>Getting Started:</h3>
 <ol>
   <li><strong>Run your first audit:</strong> Go to the dashboard and enter your URL.</li>
-  <li><strong>Download the Extension:</strong> Audit pages while you browse.</li>
+  <li><a href="${baseUrl}/extension" style="color: #111827; text-decoration: underline;"><strong>Download the Extension:</strong></a> Audit pages while you browse.</li>
   <li><strong>Share reports:</strong> Use the public link feature to share findings with your team.</li>
 </ol>
 <div style="text-align: center; margin-top: 20px;">
@@ -117,7 +117,7 @@ export const marketingEmails = {
       <h2>Hope you topped off. Here's a pro tip to improve test speed.</h2>
       <p>To perform tests directly on a client's page, all you need is the User Mirror Chrome Extension to check sites on the fly.</p>
       <div style="text-align: center; margin: 20px 0;">
-        <a href="https://chromewebstore.google.com/detail/user-mirror-by-product-sh/..." style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get the Plugin</a>
+        <a href="${baseUrl}/extension" style="background-color: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Get the Plugin</a>
       </div>
     `
   }
