@@ -61,6 +61,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
   const [testEmailLoading, setTestEmailLoading] = useState<string | null>(null);
   const [flywheelStats, setFlywheelStats] = useState<any>(null);
   const [recentFeedback, setRecentFeedback] = useState<any[]>([]);
+  const [feedbackStageFilter, setFeedbackStageFilter] = useState<string>('All');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -401,6 +402,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
     return match && match[1] !== 'Anonymous' ? match[1] : null;
   };
 
+  // Helper to parse feedback string
+  const parseFeedback = (content: string) => {
+    const match = content.match(/^\[Stage: (.*?)\] \[Q: (.*?)\] (.*)$/);
+    if (match) {
+      return { stage: match[1], question: match[2], text: match[3] };
+    }
+    return { stage: 'General', question: 'General', text: content };
+  };
+
   if (loading) return <div className="p-4">Loading admin dashboard... <Loader2 className="inline-block ml-2 animate-spin" /></div>;
   
   // Robust check for auth errors to ensure the PIN form appears if the key is rejected
@@ -554,20 +564,47 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
 
           {/* Recent Feedback */}
           <NeoCard title="Latest User Feedback">
+            <div className="mb-4 flex gap-2">
+              <select 
+                value={feedbackStageFilter} 
+                onChange={(e) => setFeedbackStageFilter(e.target.value)}
+                className="p-2 border border-gray-300 rounded text-sm bg-white"
+              >
+                <option value="All">All Stages</option>
+                <option value="First Buy">First Buy</option>
+                <option value="new">New User</option>
+                <option value="regular">Regular</option>
+                <option value="power">Power User</option>
+                <option value="champion">Champion</option>
+              </select>
+            </div>
             {recentFeedback.length > 0 ? (
               <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
-                {recentFeedback.map((fb: any) => (
-                  <div key={fb.id} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-1 text-yellow-500">
-                        {[...Array(5)].map((_, i) => <Star key={i} size={12} fill={i < fb.rating ? "currentColor" : "none"} className={i < fb.rating ? "" : "text-gray-300"} />)}
+                {recentFeedback
+                  .filter(fb => {
+                    if (feedbackStageFilter === 'All') return true;
+                    const { stage } = parseFeedback(fb.feedback);
+                    return stage.toLowerCase() === feedbackStageFilter.toLowerCase();
+                  })
+                  .map((fb: any) => {
+                    const { stage, question, text } = parseFeedback(fb.feedback);
+                    return (
+                      <div key={fb.id} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 text-yellow-500">
+                              {[...Array(5)].map((_, i) => <Star key={i} size={12} fill={i < fb.rating ? "currentColor" : "none"} className={i < fb.rating ? "" : "text-gray-300"} />)}
+                            </div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 bg-gray-100 rounded-full border border-gray-200 uppercase">{stage}</span>
+                          </div>
+                          <span className="text-xs text-gray-400">{new Date(fb.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-xs font-bold text-gray-500 mb-1">{question}</p>
+                        <p className="text-sm text-gray-800 italic mb-2">"{text}"</p>
+                        <p className="text-xs text-gray-500 font-mono">{fb.user_email}</p>
                       </div>
-                      <span className="text-xs text-gray-400">{new Date(fb.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-sm text-gray-800 italic mb-2">"{fb.feedback}"</p>
-                    <p className="text-xs text-gray-500 font-mono">{fb.user_email}</p>
-                  </div>
-                ))}
+                    );
+                  })}
               </div>
             ) : <p className="text-gray-500 italic">No feedback received yet.</p>}
           </NeoCard>
