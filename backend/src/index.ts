@@ -879,7 +879,7 @@ app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
         claimed_referral: true,
         referred_by: referrer.email,
         referrer_rewarded: false
-      }).eq('email', user.email);
+      }).eq('email', user.email.toLowerCase());
 
       // 4. Reward Current User (The Friend)
       await supabase.rpc('add_credits', { user_email: user.email, amount: 3 }); // Give 3 credits
