@@ -269,6 +269,14 @@ test.describe('Critical Integration Flows', () => {
     await pageB.goto(`/ai-powered-ux?ref=${refCodeA}`);
     // Verify Referee gets 8 credits (5 + 3)
     await expect(pageB.locator('text=08').first()).toBeVisible({ timeout: 30000 });
+    
+    // Run a test as Referee (Cost: 3 credits)
+    await pageB.fill('input[placeholder="your-website.com"]', 'example.com/test-mode');
+    await pageB.click('button:has-text("Run Analysis")');
+    await expect(pageB.locator('text=Analysis Complete')).toBeVisible({ timeout: 600000 });
+    
+    // Verify Referee has 5 credits (8 - 3 cost + 0 reward) -> Proves no double dip
+    await expect(pageB.locator('text=05').first()).toBeVisible();
     await contextB.close();
 
     // 4. Verify Referrer Rewards

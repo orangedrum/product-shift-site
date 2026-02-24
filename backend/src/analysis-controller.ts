@@ -177,6 +177,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
        const referrerEmail = cust.referred_by;
        
        // CRITICAL SAFETY: Ensure we don't reward the user for referring themselves
+       console.log(`🔍 Referral Check: Referee=${userIdentifier}, Referrer=${referrerEmail}`);
        // This prevents the "6 credits" bug where the referee gets the reward
        if (referrerEmail.toLowerCase() !== userIdentifier.toLowerCase()) {
          console.log(`🎁 REFERRAL EVENT: Referee (${userIdentifier}) completed first test. Rewarding Referrer (${referrerEmail}).`);
