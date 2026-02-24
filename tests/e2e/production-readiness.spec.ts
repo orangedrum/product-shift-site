@@ -65,6 +65,101 @@ test.describe('Production Readiness & Growth Loops', () => {
     if (uB?.user) await supabase.auth.admin.deleteUser(uB.user.id);
   });
 
+  test('Notification System: Bell Persistence & Deletion', async ({ browser }) => {
+    const supabase = setupSupabase();
+    if (!supabase) test.skip('Supabase secrets missing');
+
+    // 1. Setup User
+    const email = `notif-test-${Date.now()}@example.com`;
+    const { data: user } = await supabase.auth.admin.createUser({ email, email_confirm: true });
+    await supabase.from('customers').insert({ email, credits: 5 });
+
+    // 2. Insert Unread Notification
+    await supabase.from('notifications').insert({
+      user_email: email,
+      message: 'Test Notification 123',
+      type: 'success',
+      is_read: false
+    });
+
+    // 3. Login
+    const { data: link } = await supabase.auth.admin.generateLink({ type: 'magiclink', email });
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(link.properties.action_link);
+    await page.goto('/ai-powered-ux');
+
+    // 4. Verify Bell is Visible (Unread)
+    const bell = page.locator('button[title="New Notification"]');
+    await expect(bell).toBeVisible({ timeout: 10000 });
+
+    // 5. Click Bell -> Should go to Account
+    await bell.click();
+    await expect(page).toHaveURL(/.*account/);
+
+    // 6. Verify Notification List
+    await expect(page.locator('text=Test Notification 123')).toBeVisible();
+
+    // 7. Verify Bell is Gone on Return (Logic check)
+    await page.goto('/ai-powered-ux');
+    await expect(bell).toBeHidden(); 
+
+    // 8. Go back to Account and Delete
+    await page.goto('/account');
+    // Setup dialog handler before clicking
+    page.on('dialog', dialog => dialog.accept());
+    await page.click('button:has-text("Clear All")');
+    await expect(page.locator('text=Test Notification 123')).toBeHidden();
+
+    // 9. Verify DB Deletion
+    const { count } = await supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_email', email);
+    expect(count).toBe(0);
+
+    await context.close();
+    if (user?.user) await supabase.auth.admin.deleteUser(user.user.id);
+  });
+
+  test('Flywheel Logic: Correct Questions at Correct Stages', async ({ browser }) => {
+    const supabase = setupSupabase();
+    if (!supabase) test.skip('Supabase secrets missing');
+
+    const email = `flywheel-${Date.now()}@example.com`;
+    const { data: user } = await supabase.auth.admin.createUser({ email, email_confirm: true });
+    await supabase.from('customers').insert({ email, credits: 5 });
+
+    const { data: link } = await supabase.auth.admin.generateLink({ type: 'magiclink', email });
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(link.properties.action_link);
+
+    // Scenario 1: First Buy
+    // We need to simulate the DB state for "Regular User" (1st purchase)
+    await supabase.from('customers').update({ is_regular_user: true, is_power_user: false }).eq('email', email);
+    
+    // Visit with params
+    await page.goto('/ai-powered-ux?new_credit=true&first_buy=true');
+    // Check for Feedback Card
+    await expect(page.locator('text=What made you make your purchase today?')).toBeVisible();
+
+    // Scenario 2: Repeat Buy (Power User)
+    await supabase.from('customers').update({ is_power_user: true }).eq('email', email);
+    await page.goto('/ai-powered-ux?new_credit=true'); // No first_buy param
+    await expect(page.locator('text=What has you purchasing again today?')).toBeVisible();
+
+    // Scenario 3: Champion
+    await supabase.from('customers').update({ is_champion: true }).eq('email', email);
+    await page.goto('/ai-powered-ux?new_credit=true');
+    await expect(page.locator('text=Please tell us how we earned such a great customer')).toBeVisible();
+
+    // Scenario 4: Referral Claim (Should NOT show purchase feedback)
+    await page.goto('/ai-powered-ux?new_credit=true&referral_claim=true');
+    await expect(page.locator('text=What has you purchasing again today?')).toBeHidden();
+    await expect(page.locator('text=What made you make your purchase today?')).toBeHidden();
+
+    await context.close();
+    if (user?.user) await supabase.auth.admin.deleteUser(user.user.id);
+  });
+
   test('Admin Dashboard: Feedback Filtering', async ({ browser }) => {
     const supabase = setupSupabase();
     if (!supabase) test.skip('Supabase secrets missing');
