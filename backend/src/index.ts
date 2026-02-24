@@ -6,6 +6,7 @@ import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEm
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
 import { runTestHandler } from './analysis-controller';
 import adminRouter from './admin';
+import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
 // --- Environment Variables ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -349,6 +350,11 @@ const authenticateRequest = async (req: express.Request, res: express.Response, 
   }
   next();
 };
+
+// --- Notification Routes (Secure) ---
+app.post('/api/user/notifications/mark-read', authenticateRequest, markNotificationsRead);
+app.delete('/api/user/notifications/:id', authenticateRequest, deleteNotification);
+app.delete('/api/user/notifications', authenticateRequest, deleteAllNotifications);
 
 // --- Auth Routes ---
 app.get('/api/auth/status', authenticateRequest, (req, res) => {

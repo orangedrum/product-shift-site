@@ -141,16 +141,14 @@ const MyAccount: React.FC = () => {
   };
 
   const handleDeleteNotification = async (id: string) => {
-    await supabase.from('notifications').delete().eq('id', id);
+    await fetch(`/api/user/notifications/${id}`, { method: 'DELETE' });
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   const handleDeleteAllNotifications = async () => {
     if (!window.confirm('Are you sure you want to delete all notifications?')) return;
-    if (session?.user?.email) {
-      await supabase.from('notifications').delete().eq('user_email', session.user.email);
-      setNotifications([]);
-    }
+    await fetch('/api/user/notifications', { method: 'DELETE' });
+    setNotifications([]);
   };
 
   if (loading) return <div className="p-8 text-center">Loading account details...</div>;
