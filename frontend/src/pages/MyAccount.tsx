@@ -141,13 +141,21 @@ const MyAccount: React.FC = () => {
   };
 
   const handleDeleteNotification = async (id: string) => {
-    await fetch(`/api/user/notifications/${id}`, { method: 'DELETE' });
+    if (!session?.access_token) return;
+    await fetch(`/api/user/notifications/${id}`, { 
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   const handleDeleteAllNotifications = async () => {
     if (!window.confirm('Are you sure you want to delete all notifications?')) return;
-    await fetch('/api/user/notifications', { method: 'DELETE' });
+    if (!session?.access_token) return;
+    await fetch('/api/user/notifications', { 
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
     setNotifications([]);
   };
 
