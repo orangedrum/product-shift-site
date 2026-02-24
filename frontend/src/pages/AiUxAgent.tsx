@@ -745,7 +745,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
                       {hasUnreadNotifications && (
                         <button 
-                          onClick={() => navigate('/account')}
+                          onClick={async () => {
+                            setHasUnreadNotifications(false); // Optimistic UI update
+                            if (session?.user?.email) {
+                              await supabase.from('notifications').update({ is_read: true }).eq('user_email', session.user.email).eq('is_read', false);
+                            }
+                            navigate('/account');
+                          }}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 border border-black hover:bg-red-600 transition-colors animate-bounce shadow-sm"
                           title="New Notification"
                         >

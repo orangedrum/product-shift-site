@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ticket, Edit, Check, Loader2, Bell } from 'lucide-react';
+import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ticket, Edit, Check, Loader2, Bell, Trash2 } from 'lucide-react';
 
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
@@ -137,6 +137,19 @@ const MyAccount: React.FC = () => {
       console.error('Failed to fetch transactions', e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteNotification = async (id: string) => {
+    await supabase.from('notifications').delete().eq('id', id);
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  const handleDeleteAllNotifications = async () => {
+    if (!window.confirm('Are you sure you want to delete all notifications?')) return;
+    if (session?.user?.email) {
+      await supabase.from('notifications').delete().eq('user_email', session.user.email);
+      setNotifications([]);
     }
   };
 
@@ -344,6 +357,36 @@ const MyAccount: React.FC = () => {
                     <p className="text-sm text-gray-800 font-medium">{note.message}</p>
                     <p className="text-xs text-gray-500 mt-1">{new Date(note.created_at).toLocaleDateString()}</p>
                   </div>
+                </div>
+              ))}
+            </div>
+          </NeoCard>
+        </div>
+      )}
+
+      {/* Notifications Section */}
+      {notifications.length > 0 && (
+        <div className="mb-12">
+          <NeoCard title="Notifications">
+            <div className="flex justify-end mb-4">
+              <button 
+                onClick={handleDeleteAllNotifications}
+                className="text-xs font-bold text-red-600 hover:text-red-800 flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+              >
+                <Trash2 size={14} /> Clear All
+              </button>
+            </div>
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+              {notifications.map((note) => (
+                <div key={note.id} className={`p-3 rounded-lg border-l-4 flex justify-between items-start gap-3 ${note.type === 'success' ? 'bg-green-50 border-green-500' : 'bg-blue-50 border-blue-500'}`}>
+                  <div className="flex-1 flex items-center gap-3">
+                    <Bell size={20} className={note.type === 'success' ? 'text-green-600' : 'text-blue-600'} />
+                    <div>
+                      <p className="text-sm text-gray-800 font-medium">{note.message}</p>
+                      <p className="text-xs text-gray-500 mt-1">{new Date(note.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => handleDeleteNotification(note.id)} className="text-gray-400 hover:text-red-600 p-1"><X size={16} /></button>
                 </div>
               ))}
             </div>
