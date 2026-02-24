@@ -1023,6 +1023,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// --- Global Error Handler (Safety Net) ---
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Unhandled Server Error:', err);
+  res.status(500).json({ error: 'Internal Server Error', details: err.message || 'Unknown error' });
+});
+
 app.use((req, res) => {
   console.log(`[404] No route matched for: ${req.method} ${req.path}`);
   res.status(404).send(`Cannot ${req.method} ${req.path}`);

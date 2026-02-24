@@ -36,6 +36,13 @@ const ReferralClaim: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
+      
+      if (!checkRes.ok) {
+        // Fallback if server is down/erroring to allow flow to continue or fail gracefully
+        console.warn("Referral check skipped due to server error");
+        // We don't return here; we let the login attempt proceed so the user isn't blocked.
+      }
+
       const checkData = await checkRes.json();
       
       if (checkData.eligible === false) {
