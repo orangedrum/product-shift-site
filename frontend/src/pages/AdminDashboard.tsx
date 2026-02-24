@@ -571,9 +571,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                 className="p-2 border border-gray-300 rounded text-sm bg-white"
               >
                 <option value="All">All Stages</option>
-                <option value="First Buy">First Buy</option>
                 <option value="new">New User</option>
-                <option value="regular">Regular</option>
+                <option value="regular">Regular / First Buy</option>
                 <option value="power">Power User</option>
                 <option value="champion">Champion</option>
               </select>
@@ -584,6 +583,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                   .filter(fb => {
                     if (feedbackStageFilter === 'All') return true;
                     const { stage } = parseFeedback(fb.feedback);
+                    if (feedbackStageFilter === 'regular') {
+                      return stage.toLowerCase() === 'regular' || stage.toLowerCase() === 'first buy';
+                    }
                     return stage.toLowerCase() === feedbackStageFilter.toLowerCase();
                   })
                   .map((fb: any) => {
