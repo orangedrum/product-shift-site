@@ -75,11 +75,13 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ email, isFirstBuy: p
 
   const getCopy = () => {
       // 1. Purchase Events (Immediate Feedback)
-      if (isFirstBuy) return { button: "Quick Question", header: "What made you make your purchase today?" };
+      // Priority: If it's the first buy, ALWAYS ask the first buy question, regardless of other flags.
+      if (justPurchased && isFirstBuy) return { button: "Quick Question", header: "What made you make your purchase today?" };
       
       if (justPurchased) {
           if (flywheelStage === 'champion') return { button: "Where did you come from?", header: "Please tell us how we earned such a great customer:" };
-          if (flywheelStage === 'power') return { button: "How's it going?", header: "What has you purchasing again today?" };
+          // Default for repeat purchases (Regular or Power users who aren't Champions yet)
+          return { button: "How's it going?", header: "What has you purchasing again today?" };
       }
 
       // 2. General Usage (Return Visits)

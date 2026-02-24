@@ -95,7 +95,8 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           const currentCount = (paymentCount || 0) + 1; // +1 for this current payment
 
           const updates: any = {};
-          if (currentCount === 1) {
+          // Fix: Ensure Regular User status is set on 1st payment OR if it was missed
+          if (currentCount === 1 || (currentCount > 0 && !existingPayment)) {
             updates.is_regular_user = true;
             updates.date_became_regular = new Date().toISOString();
           } else if (currentCount >= 2) {
