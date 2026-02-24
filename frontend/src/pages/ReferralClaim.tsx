@@ -94,9 +94,9 @@ const ReferralClaim: React.FC = () => {
                   <Gift className="text-pink-600" size={48} />
                 </div>
               </div>
-              <h1 className="text-2xl font-black text-gray-900 mb-2">You've been gifted a free test!</h1>
+              <h1 className="text-2xl font-black text-gray-900 mb-2">You've been gifted 3 free credits!</h1>
               <p className="text-gray-600 mb-6">
-                Please provide your email to receive your free website test. We'll send you a magic link to sign in instantly.
+                Please provide your email to receive your 3 free credits. We'll send you a magic link to sign in instantly.
               </p>
 
               <form onSubmit={handleLogin} className="space-y-4 text-left">
@@ -119,7 +119,7 @@ const ReferralClaim: React.FC = () => {
                 )}
                 {error && <p className="text-red-500 text-sm font-bold">{error}</p>}
                 <NeoButton type="submit" className="w-full justify-center" disabled={loading}>
-                  {loading ? 'Sending...' : 'Claim Free Test'} <ArrowRight size={16} />
+                  {loading ? 'Sending...' : 'Claim Your 3 Free Credits'} <ArrowRight size={16} />
                 </NeoButton>
               </form>
             </>
