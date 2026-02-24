@@ -886,6 +886,14 @@ app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
       
       await supabase.from('customers').update(updates).eq('id', referrer.id);
 
+      // 3b. Reward Referrer (The person who shared the link)
+      await supabase.rpc('add_credits', { user_email: referrer.email, amount: 3 });
+      await supabase.from('notifications').insert({
+        user_email: referrer.email,
+        message: `You earned 3 credits! A new user just signed up using your referral link.`,
+        type: 'success'
+      });
+
       // Mark user as having claimed a referral so they can't do it again
       await supabase.from('customers').update({ claimed_referral: true }).eq('email', user.email);
 

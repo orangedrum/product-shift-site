@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star, Bell } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -164,6 +164,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   // State to track if this is a first purchase event (Robust detection)
   const [isFirstBuy, setIsFirstBuy] = useState(false);
   const [justPurchased, setJustPurchased] = useState(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
   // Mouse tracking for interactive background
   const containerRef = useRef<HTMLDivElement>(null);
@@ -357,6 +358,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
       if (urlRef || urlSegment || urlNewCredit || urlCoupon) {
         setSearchParams({}, { replace: true });
       }
+
+      // 9. Check Notifications
+      const { count: notifCount } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_email', currentSession.user.email)
+        .eq('is_read', false);
+      if (notifCount && notifCount > 0) setHasUnreadNotifications(true);
     };
 
     boot();
@@ -733,6 +742,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
                       >
                         <PlusCircle size={28} />
                       </button>
+
+                      {hasUnreadNotifications && (
+                        <button 
+                          onClick={() => navigate('/account')}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors animate-bounce"
+                          title="New Notification"
+                        >
+                          <Bell size={12} fill="currentColor" />
+                        </button>
+                      )}
                    </div>
                 </div>
                 

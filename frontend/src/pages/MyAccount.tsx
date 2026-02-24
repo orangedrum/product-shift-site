@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ticket, Edit, Check, Loader2 } from 'lucide-react';
+import { CreditCard, Package, Clock, ArrowRight, X, AlertTriangle, Handshake, Ticket, Edit, Check, Loader2, Bell } from 'lucide-react';
 
 const MyAccount: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ const MyAccount: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [customer, setCustomer] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRefillModal, setShowRefillModal] = useState(false);
   const [showUnsubscribeModal, setShowUnsubscribeModal] = useState(false);
@@ -110,6 +111,19 @@ const MyAccount: React.FC = () => {
     
     if (!error && custData) {
       setCustomer(custData);
+    }
+
+    // Fetch Notifications
+    const { data: notifs, error: notifError } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_email', email)
+      .order('created_at', { ascending: false });
+    
+    if (!notifError && notifs) {
+      setNotifications(notifs);
+      // Mark as read (optional, or do it on click)
+      await supabase.from('notifications').update({ is_read: true }).eq('user_email', email).eq('is_read', false);
     }
 
     // Fetch Transactions via API
@@ -317,6 +331,25 @@ const MyAccount: React.FC = () => {
           </div>
         </NeoCard>
       </div>
+
+      {/* Notifications Section */}
+      {notifications.length > 0 && (
+        <div className="mb-12">
+          <NeoCard title="Notifications">
+            <div className="space-y-4">
+              {notifications.map((note) => (
+                <div key={note.id} className={`p-4 rounded-lg border-l-4 flex items-start gap-3 ${note.type === 'success' ? 'bg-green-50 border-green-500' : 'bg-blue-50 border-blue-500'}`}>
+                  <Bell size={20} className={note.type === 'success' ? 'text-green-600' : 'text-blue-600'} />
+                  <div>
+                    <p className="text-sm text-gray-800 font-medium">{note.message}</p>
+                    <p className="text-xs text-gray-500 mt-1">{new Date(note.created_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </NeoCard>
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-8 mb-12">
         <NeoCard title="Current Plan">

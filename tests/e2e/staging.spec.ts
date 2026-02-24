@@ -228,4 +228,74 @@ test.describe('Critical Integration Flows', () => {
     await supabase.auth.admin.deleteUser(user.user.id);
   });
 
+  test('Referral Lifecycle: Rewards & Notifications', async ({ browser }) => {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseServiceKey) return;
+
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // 1. Create Referrer (User A)
+    const emailA = `referrer-${Date.now()}@example.com`;
+    const { data: userA } = await supabase.auth.admin.createUser({ email: emailA, email_confirm: true });
+    // Give User A initial state (5 credits, random code)
+    const refCodeA = `CODE_${Date.now()}`;
+    await supabase.from('customers').insert({ email: emailA, credits: 5, referral_code: refCodeA });
+
+    // 2. Create Referee (User B)
+    const emailB = `referee-${Date.now()}@example.com`;
+    const { data: userB } = await supabase.auth.admin.createUser({ email: emailB, email_confirm: true });
+    // User B starts with 5 credits (standard new user)
+    await supabase.from('customers').insert({ email: emailB, credits: 5 });
+
+    // 3. Referee Claims Code
+    // Generate session for User B
+    const { data: linkB } = await supabase.auth.admin.generateLink({ type: 'magiclink', email: emailB });
+    const { data: sessionB } = await supabase.auth.verifyOtp({ email: emailB, token: linkB.properties.email_otp, type: 'magiclink' });
+    
+    const contextB = await browser.newContext({
+      storageState: {
+        cookies: [],
+        origins: [{
+          origin: process.env.BASE_URL || 'https://product-shift-site-git-staging-jeans-projects-3cddd625.vercel.app',
+          localStorage: [{ name: 'sb-productshift-auth-token', value: JSON.stringify(sessionB.session) }]
+        }]
+      }
+    });
+    const pageB = await contextB.newPage();
+    
+    // Visit app with ref code to trigger claim
+    await pageB.goto(`/ai-powered-ux?ref=${refCodeA}`);
+    // Verify Referee gets 8 credits (5 + 3)
+    await expect(pageB.locator('text=08').first()).toBeVisible({ timeout: 30000 });
+    await contextB.close();
+
+    // 4. Verify Referrer Rewards
+    // Generate session for User A
+    const { data: linkA } = await supabase.auth.admin.generateLink({ type: 'magiclink', email: emailA });
+    const { data: sessionA } = await supabase.auth.verifyOtp({ email: emailA, token: linkA.properties.email_otp, type: 'magiclink' });
+
+    const contextA = await browser.newContext({
+      storageState: {
+        cookies: [],
+        origins: [{
+          origin: process.env.BASE_URL || 'https://product-shift-site-git-staging-jeans-projects-3cddd625.vercel.app',
+          localStorage: [{ name: 'sb-productshift-auth-token', value: JSON.stringify(sessionA.session) }]
+        }]
+      }
+    });
+    const pageA = await contextA.newPage();
+    await pageA.goto('/account');
+    
+    // Verify Referrer has 8 credits (5 + 3) and Notification
+    await expect(pageA.locator('text=8')).toBeVisible(); // Credits in "Current Plan" card
+    await expect(pageA.locator('text=You earned 3 credits!')).toBeVisible();
+    await contextA.close();
+
+    // Cleanup
+    await supabase.auth.admin.deleteUser(userA.user.id);
+    await supabase.auth.admin.deleteUser(userB.user.id);
+  });
+
 });
