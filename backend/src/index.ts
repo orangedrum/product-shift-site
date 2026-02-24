@@ -872,7 +872,8 @@ app.post('/api/user/claim-referral', authenticateRequest, async (req, res) => {
     // 1. Find Referrer
     const { data: referrer } = await supabase.from('customers').select('id, email, referral_count').eq('referral_code', referralCode).single();
     
-    if (referrer && referrer.email !== user.email) {
+    // Fix: Case-insensitive check to prevent self-referral abuse
+    if (referrer && referrer.email.toLowerCase() !== user.email.toLowerCase()) {
       // Link the users, but DO NOT reward referrer yet (Wait for first test)
       await supabase.from('customers').update({ 
         claimed_referral: true,
