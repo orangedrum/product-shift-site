@@ -128,12 +128,12 @@ const AdminBlog = () => {
         // Update existing
         const { data, error } = await supabase.from('posts').update(postData).eq('id', editingId).select();
         if (error) throw error;
-        if (!data || data.length === 0) throw new Error('Update ignored. You may need to sign in via the main Login page to verify write permissions.');
+        if (!data || data.length === 0) throw new Error('Update ignored. Please sign in via /blog-login to verify write permissions.');
       } else {
         // Create new
         const { data, error } = await supabase.from('posts').insert([postData]).select();
         if (error) throw error;
-        if (!data || data.length === 0) throw new Error('Insert ignored. You may need to sign in via the main Login page to verify write permissions.');
+        if (!data || data.length === 0) throw new Error('Insert ignored. Please sign in via /blog-login to verify write permissions.');
       }
       
       if (targetStatus === 'published') {
