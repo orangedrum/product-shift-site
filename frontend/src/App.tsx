@@ -35,6 +35,7 @@ import AgencyUserTestingPage from './pages/AgencyUserTestingPage';
 import AdminBlog from './components/AdminBlog';
 import BlogPost from './components/BlogPost';
 import Blog from './components/Blog';
+import BlogLogin from './pages/BlogLogin';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 
 
@@ -66,6 +67,7 @@ const App: React.FC = () => {
     '/admin-dashboard',
     '/admin-blog',
     '/login', // <--- CRITICAL: Hides header on login page
+    '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login');
 
@@ -152,6 +154,7 @@ const App: React.FC = () => {
           {/* This connects the /login URL to your new Neo-styled Login.tsx */}
           <Route path="/login" element={<UserLogin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/blog-login" element={<BlogLogin />} />
           <Route path="/waitlist" element={<WaitlistPage />} />
           
           <Route path="/styleguide" element={<StyleGuide />} />

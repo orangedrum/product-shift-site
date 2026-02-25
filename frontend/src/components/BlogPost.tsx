@@ -9,6 +9,41 @@ const BlogPost = () => {
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const simpleMarkdownToHtml = (text = '') => {
+    // Strip out the SEO Data block from the visible text
+    const contentWithoutSeo = text.replace(/## SEO Data \(JSON-LD\)[\s\S]*$/, '').trim();
+
+    return contentWithoutSeo
+      .split('\n')
+      .map(line => {
+        // Remove custom tags like !Cover Image and trim
+        line = line.replace(/!Cover Image/gi, '').trim();
+        if (line === '') return null; // Skip empty lines
+  
+        // Headers
+        if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`;
+        if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`;
+        if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`;
+        
+        // HR
+        if (line.trim() === '---') return '<hr />';
+        
+        // Blockquote
+        if (line.startsWith('> ')) return `<blockquote><p>${line.substring(2)}</p></blockquote>`;
+  
+        // Inline formatting for paragraphs
+        line = line
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline">$1</a>');
+        
+        // Default to paragraph
+        return `<p>${line}</p>`;
+      })
+      .filter(Boolean) // Remove nulls from empty lines
+      .join('');
+  };
+
   useEffect(() => {
     const fetchPost = async () => {
       if (!slug) return;
@@ -34,6 +69,23 @@ const BlogPost = () => {
     fetchPost();
   }, [slug]);
 
+  // Extract SEO data from content if it exists there but not in the column
+  const getSeoData = () => {
+    if (post?.seo_schema) return post.seo_schema;
+    
+    if (post?.content) {
+      const match = post.content.match(/```json\s*([\s\S]*?)\s*```/);
+      if (match && post.content.includes('SEO Data (JSON-LD)')) {
+        try {
+          return JSON.parse(match[1]);
+        } catch (e) {
+          console.error('Failed to parse embedded SEO data', e);
+        }
+      }
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -54,13 +106,15 @@ const BlogPost = () => {
     );
   }
 
+  const activeSeoSchema = getSeoData();
+
   return (
     <>
       <Helmet>
         <title>{post.title} | Product Shift</title>
         <meta name="description" content={post.excerpt} />
-        {post.seo_schema && (
-          <script type="application/ld+json">{JSON.stringify(post.seo_schema)}</script>
+        {activeSeoSchema && (
+          <script type="application/ld+json">{JSON.stringify(activeSeoSchema)}</script>
         )}
       </Helmet>
 
@@ -106,8 +160,8 @@ const BlogPost = () => {
               
               {/* Render HTML Content */}
               <div 
-                dangerouslySetInnerHTML={{ __html: post.content }} 
-                className="space-y-6 [&>p]:leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-gray-900 [&>h2]:mt-12 [&>h2]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>li]:mb-2"
+                dangerouslySetInnerHTML={{ __html: simpleMarkdownToHtml(post.content) }} 
+                className="space-y-6 [&>p]:leading-relaxed [&>h1]:text-3xl [&>h1]:font-bold [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-gray-900 [&>h2]:mt-12 [&>h2]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>li]:mb-2"
               />
             </div>
           </div>

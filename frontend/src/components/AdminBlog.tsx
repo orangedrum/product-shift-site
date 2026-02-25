@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoButton } from './NeoButton';
 import { NeoCard } from './NeoCard';
-import { Save, Loader, Trash2, Edit, Plus, LayoutDashboard, ExternalLink } from 'lucide-react';
+import { Save, Loader, Trash2, Edit, Plus, LayoutDashboard, ExternalLink, Lock } from 'lucide-react';
 import AdminHeader from './AdminHeader';
 
 const AdminBlog = () => {
@@ -11,6 +11,7 @@ const AdminBlog = () => {
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
+  const [isWriteAccess, setIsWriteAccess] = useState(false);
   const [view, setView] = useState<'list' | 'form'>('list');
   
   // Form State
@@ -23,15 +24,32 @@ const AdminBlog = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [externalLink, setExternalLink] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
-  const [status, setStatus] = useState('published');
   const [seoSchema, setSeoSchema] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/admin-login');
-      setSession(session);
-      if (session) fetchPosts();
+    const checkAuth = async () => {
+      const adminKey = localStorage.getItem('productShiftAdminKey');
+      const { data: { session: sbSession } } = await supabase.auth.getSession();
+
+      if (sbSession) {
+        setSession(sbSession);
+        setIsWriteAccess(true);
+        fetchPosts();
+      } else if (adminKey) {
+        // Allow access if key exists, but mark as read-only
+        setSession({ user: { email: 'view-only' } });
+        setIsWriteAccess(false);
+        fetchPosts();
+      } else {
+        navigate('/admin-login');
+      }
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) setIsWriteAccess(true);
     });
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const fetchPosts = async () => {
@@ -63,7 +81,6 @@ const AdminBlog = () => {
     setImageUrl(post.image_url || '');
     setExternalLink(post.external_link || '');
     setIsFeatured(post.is_featured);
-    setStatus(post.status || 'published');
     setSeoSchema(post.seo_schema || null);
     setView('form');
   };
@@ -85,14 +102,23 @@ const AdminBlog = () => {
     setImageUrl('');
     setExternalLink('');
     setIsFeatured(false);
-    setStatus('published');
     setSeoSchema(null);
     setView('list');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (forceStatus?: 'published') => {
     setLoading(true);
+
+    const originalPost = editingId ? posts.find(p => p.id === editingId) : null;
+    const targetStatus = forceStatus || originalPost?.status || 'draft';
+
+    let publishedDate = originalPost?.published_at;
+    // Set a new publish date only if we are moving from a non-published state to published
+    if (targetStatus === 'published' && originalPost?.status !== 'published') {
+      publishedDate = new Date().toISOString();
+    } else if (targetStatus === 'published' && !editingId) {
+      publishedDate = new Date().toISOString();
+    }
 
     const postData = {
       title,
@@ -103,23 +129,29 @@ const AdminBlog = () => {
       image_url: imageUrl,
       external_link: externalLink || null,
       is_featured: isFeatured,
-      published_at: new Date().toISOString(),
-      status,
+      published_at: publishedDate,
+      status: targetStatus,
       seo_schema: seoSchema
     };
 
     try {
       if (editingId) {
         // Update existing
-        const { error } = await supabase.from('posts').update(postData).eq('id', editingId);
+        const { data, error } = await supabase.from('posts').update(postData).eq('id', editingId).select();
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error('Update ignored. Please sign in via /blog-login to verify write permissions.');
       } else {
         // Create new
-        const { error } = await supabase.from('posts').insert([postData]);
+        const { data, error } = await supabase.from('posts').insert([postData]).select();
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error('Insert ignored. Please sign in via /blog-login to verify write permissions.');
       }
       
-      alert('Post saved successfully!');
+      if (targetStatus === 'published') {
+        alert('Post published successfully!');
+      } else {
+        alert('Draft saved successfully!');
+      }
       fetchPosts();
       resetForm();
     } catch (error: any) {
@@ -135,6 +167,24 @@ const AdminBlog = () => {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
       <div className="py-12">
+      
+      {/* Write Access Warning Banner */}
+      {!isWriteAccess && (
+        <div className="container mx-auto px-4 max-w-5xl mb-6">
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 flex justify-between items-center rounded-r-lg shadow-sm">
+            <div className="flex items-center">
+              <Lock className="h-5 w-5 text-blue-500 mr-3" />
+              <p className="text-sm text-blue-700">
+                <strong>View Only Mode:</strong> You are logged in with the Dashboard Key. To publish or edit posts, you must verify your email.
+              </p>
+            </div>
+            <button onClick={() => navigate('/blog-login')} className="text-sm font-bold text-blue-700 hover:text-blue-900 underline bg-transparent border-none cursor-pointer">
+              Sign In to Edit
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Blog Management</h1>
@@ -198,7 +248,7 @@ const AdminBlog = () => {
           </div>
         ) : (
           <NeoCard title={editingId ? "Edit Post" : "Create New Post"}>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Title</label>
@@ -221,6 +271,10 @@ const AdminBlog = () => {
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Cover Image URL</label>
                   <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg" placeholder="https://..." />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">External Link (Optional)</label>
+                  <input type="url" value={externalLink} onChange={(e) => setExternalLink(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg" placeholder="https://..." />
                 </div>
               </div>
 
@@ -246,12 +300,25 @@ const AdminBlog = () => {
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <button type="button" onClick={resetForm} className="text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
-                <NeoButton type="submit" disabled={loading}>
-                  {loading ? <Loader className="animate-spin mr-2" /> : <Save className="mr-2" />}
-                  {editingId ? 'Update Post' : 'Publish Post'}
-                </NeoButton>
+              <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-6">
+                <div>
+                  <button type="button" onClick={resetForm} className="text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
+                </div>
+                <div className="flex items-center gap-4">
+                  <NeoButton type="button" variant="secondary" onClick={() => handleSave()} disabled={loading}>
+                    {loading ? <Loader className="animate-spin" /> : <Save />} Update
+                  </NeoButton>
+                  
+                  {isWriteAccess ? (
+                    <NeoButton type="button" onClick={() => handleSave('published')} disabled={loading}>
+                      {loading ? <Loader className="animate-spin" /> : <ExternalLink />} Save & Publish
+                    </NeoButton>
+                  ) : (
+                    <NeoButton type="button" onClick={() => navigate('/blog-login')} className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Lock size={18} className="mr-2" /> Sign in to Publish
+                    </NeoButton>
+                  )}
+                </div>
               </div>
             </form>
           </NeoCard>

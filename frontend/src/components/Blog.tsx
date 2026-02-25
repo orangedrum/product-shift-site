@@ -81,8 +81,7 @@ const Blog = () => {
     fetchPosts();
   }, []);
 
-  // Merge DB posts with fallback if DB is empty, or just use DB if available
-  const displayArticles = dbPosts.length > 0 ? dbPosts.map(post => ({
+  const articlesFromDb = dbPosts.map(post => ({
     title: post.title,
     excerpt: post.excerpt,
     category: post.category || 'General',
@@ -90,8 +89,18 @@ const Blog = () => {
     icon: getIconForCategory(post.category),
     featured: post.is_featured,
     image: post.image_url,
-    link: post.external_link || `/blog/${post.slug}` // Priority to external link if set
-  })) : fallbackArticles;
+    link: post.external_link || `/blog/${post.slug}`,
+  }));
+
+  // Create a Set of links from the database posts to avoid duplicates
+  const dbLinks = new Set(articlesFromDb.map(p => p.link));
+
+  // Filter fallback articles to exclude any that are now in the database
+  const uniqueFallbackArticles = fallbackArticles.filter(p => !dbLinks.has(p.link));
+
+  // Combine and sort, ensuring newest articles appear first
+  const displayArticles = [...articlesFromDb, ...uniqueFallbackArticles]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const featuredArticle = displayArticles.find(article => article.featured);
   const regularArticles = displayArticles.filter(article => !article.featured);
