@@ -9,6 +9,38 @@ const BlogPost = () => {
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const simpleMarkdownToHtml = (text = '') => {
+    return text
+      .split('\n')
+      .map(line => {
+        // Remove custom tags like !Cover Image and trim
+        line = line.replace(/!Cover Image/gi, '').trim();
+        if (line === '') return null; // Skip empty lines
+  
+        // Headers
+        if (line.startsWith('### ')) return `<h3>${line.substring(4)}</h3>`;
+        if (line.startsWith('## ')) return `<h2>${line.substring(3)}</h2>`;
+        if (line.startsWith('# ')) return `<h1>${line.substring(2)}</h1>`;
+        
+        // HR
+        if (line.trim() === '---') return '<hr />';
+        
+        // Blockquote
+        if (line.startsWith('> ')) return `<blockquote><p>${line.substring(2)}</p></blockquote>`;
+  
+        // Inline formatting for paragraphs
+        line = line
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline">$1</a>');
+        
+        // Default to paragraph
+        return `<p>${line}</p>`;
+      })
+      .filter(Boolean) // Remove nulls from empty lines
+      .join('');
+  };
+
   useEffect(() => {
     const fetchPost = async () => {
       if (!slug) return;
@@ -106,8 +138,8 @@ const BlogPost = () => {
               
               {/* Render HTML Content */}
               <div 
-                dangerouslySetInnerHTML={{ __html: post.content }} 
-                className="space-y-6 [&>p]:leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-gray-900 [&>h2]:mt-12 [&>h2]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>li]:mb-2"
+                dangerouslySetInnerHTML={{ __html: simpleMarkdownToHtml(post.content) }} 
+                className="space-y-6 [&>p]:leading-relaxed [&>h1]:text-3xl [&>h1]:font-bold [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-gray-900 [&>h2]:mt-12 [&>h2]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>li]:mb-2"
               />
             </div>
           </div>
