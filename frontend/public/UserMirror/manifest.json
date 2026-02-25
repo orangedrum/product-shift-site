@@ -9,11 +9,7 @@
   "permissions": [
     "sidePanel",
     "activeTab",
-    "storage",
-    "scripting"
-  ],
-  "host_permissions": [
-    "<all_urls>"
+    "storage"
   ],
   "side_panel": {
     "default_path": "index.html"
