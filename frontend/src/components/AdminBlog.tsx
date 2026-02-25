@@ -27,11 +27,19 @@ const AdminBlog = () => {
   const [seoSchema, setSeoSchema] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/admin-login');
-      setSession(session);
-      if (session) fetchPosts();
-    });
+    const checkAuth = async () => {
+      const adminKey = localStorage.getItem('productShiftAdminKey');
+      const { data: { session: sbSession } } = await supabase.auth.getSession();
+
+      if (!adminKey && !sbSession) {
+        navigate('/admin-login');
+      } else {
+        // Allow access if key exists, mock session if needed to pass render check
+        setSession(sbSession || { user: { email: 'admin' } });
+        fetchPosts();
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
   const fetchPosts = async () => {
