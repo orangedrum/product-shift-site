@@ -126,12 +126,14 @@ const AdminBlog = () => {
     try {
       if (editingId) {
         // Update existing
-        const { error } = await supabase.from('posts').update(postData).eq('id', editingId);
+        const { data, error } = await supabase.from('posts').update(postData).eq('id', editingId).select();
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error('Update ignored. You may need to sign in via the main Login page to verify write permissions.');
       } else {
         // Create new
-        const { error } = await supabase.from('posts').insert([postData]);
+        const { data, error } = await supabase.from('posts').insert([postData]).select();
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error('Insert ignored. You may need to sign in via the main Login page to verify write permissions.');
       }
       
       if (targetStatus === 'published') {
