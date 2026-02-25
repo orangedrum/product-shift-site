@@ -213,7 +213,7 @@ const AdminBlog = () => {
           </div>
         ) : (
           <NeoCard title={editingId ? "Edit Post" : "Create New Post"}>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Title</label>
