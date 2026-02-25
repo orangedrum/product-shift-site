@@ -10,7 +10,10 @@ const BlogPost = () => {
   const [loading, setLoading] = useState(true);
 
   const simpleMarkdownToHtml = (text = '') => {
-    return text
+    // Strip out the SEO Data block from the visible text
+    const contentWithoutSeo = text.replace(/## SEO Data \(JSON-LD\)[\s\S]*$/, '').trim();
+
+    return contentWithoutSeo
       .split('\n')
       .map(line => {
         // Remove custom tags like !Cover Image and trim
@@ -66,6 +69,23 @@ const BlogPost = () => {
     fetchPost();
   }, [slug]);
 
+  // Extract SEO data from content if it exists there but not in the column
+  const getSeoData = () => {
+    if (post?.seo_schema) return post.seo_schema;
+    
+    if (post?.content) {
+      const match = post.content.match(/```json\s*([\s\S]*?)\s*```/);
+      if (match && post.content.includes('SEO Data (JSON-LD)')) {
+        try {
+          return JSON.parse(match[1]);
+        } catch (e) {
+          console.error('Failed to parse embedded SEO data', e);
+        }
+      }
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -86,13 +106,15 @@ const BlogPost = () => {
     );
   }
 
+  const activeSeoSchema = getSeoData();
+
   return (
     <>
       <Helmet>
         <title>{post.title} | Product Shift</title>
         <meta name="description" content={post.excerpt} />
-        {post.seo_schema && (
-          <script type="application/ld+json">{JSON.stringify(post.seo_schema)}</script>
+        {activeSeoSchema && (
+          <script type="application/ld+json">{JSON.stringify(activeSeoSchema)}</script>
         )}
       </Helmet>
 
