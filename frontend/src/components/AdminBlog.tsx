@@ -227,8 +227,19 @@ const AdminBlog = () => {
                   </select>
                 </div>
                 <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Status</label>
+                  <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Cover Image URL</label>
                   <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg" placeholder="https://..." />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">External Link (Optional)</label>
+                  <input type="url" value={externalLink} onChange={(e) => setExternalLink(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg" placeholder="https://..." />
                 </div>
               </div>
 
@@ -258,7 +269,7 @@ const AdminBlog = () => {
                 <button type="button" onClick={resetForm} className="text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
                 <NeoButton type="submit" disabled={loading}>
                   {loading ? <Loader className="animate-spin mr-2" /> : <Save className="mr-2" />}
-                  {editingId ? 'Update Post' : 'Publish Post'} 
+                  {status === 'published' ? (editingId ? 'Update & Publish' : 'Publish Post') : 'Save Draft'}
                 </NeoButton>
               </div>
             </form>
