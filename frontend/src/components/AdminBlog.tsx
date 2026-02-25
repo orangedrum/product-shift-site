@@ -134,7 +134,11 @@ const AdminBlog = () => {
         if (error) throw error;
       }
       
-      alert('Post saved successfully!');
+      if (targetStatus === 'published') {
+        alert('Post published successfully!');
+      } else {
+        alert('Draft saved successfully!');
+      }
       fetchPosts();
       resetForm();
     } catch (error: any) {
