@@ -258,7 +258,7 @@ const AdminBlog = () => {
                 <button type="button" onClick={resetForm} className="text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
                 <NeoButton type="submit" disabled={loading}>
                   {loading ? <Loader className="animate-spin mr-2" /> : <Save className="mr-2" />}
-                  {editingId ? 'Update Post' : 'Publish Post'}
+                  {editingId ? 'Update Post' : 'Publish Post'} 
                 </NeoButton>
               </div>
             </form>
