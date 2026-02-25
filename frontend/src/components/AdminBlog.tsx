@@ -23,7 +23,6 @@ const AdminBlog = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [externalLink, setExternalLink] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
-  const [status, setStatus] = useState('published');
   const [seoSchema, setSeoSchema] = useState<any>(null);
 
   useEffect(() => {
@@ -71,7 +70,6 @@ const AdminBlog = () => {
     setImageUrl(post.image_url || '');
     setExternalLink(post.external_link || '');
     setIsFeatured(post.is_featured);
-    setStatus(post.status || 'published');
     setSeoSchema(post.seo_schema || null);
     setView('form');
   };
@@ -93,14 +91,23 @@ const AdminBlog = () => {
     setImageUrl('');
     setExternalLink('');
     setIsFeatured(false);
-    setStatus('published');
     setSeoSchema(null);
     setView('list');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (forceStatus?: 'published') => {
     setLoading(true);
+
+    const originalPost = editingId ? posts.find(p => p.id === editingId) : null;
+    const targetStatus = forceStatus || originalPost?.status || 'draft';
+
+    let publishedDate = originalPost?.published_at;
+    // Set a new publish date only if we are moving from a non-published state to published
+    if (targetStatus === 'published' && originalPost?.status !== 'published') {
+      publishedDate = new Date().toISOString();
+    } else if (targetStatus === 'published' && !editingId) {
+      publishedDate = new Date().toISOString();
+    }
 
     const postData = {
       title,
@@ -111,8 +118,8 @@ const AdminBlog = () => {
       image_url: imageUrl,
       external_link: externalLink || null,
       is_featured: isFeatured,
-      published_at: new Date().toISOString(),
-      status,
+      published_at: publishedDate,
+      status: targetStatus,
       seo_schema: seoSchema
     };
 
@@ -227,13 +234,6 @@ const AdminBlog = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Status</label>
-                  <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-                <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Cover Image URL</label>
                   <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg" placeholder="https://..." />
                 </div>
@@ -265,12 +265,18 @@ const AdminBlog = () => {
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <button type="button" onClick={resetForm} className="text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
-                <NeoButton type="submit" disabled={loading}>
-                  {loading ? <Loader className="animate-spin mr-2" /> : <Save className="mr-2" />}
-                  {status === 'published' ? (editingId ? 'Update & Publish' : 'Publish Post') : 'Save Draft'}
-                </NeoButton>
+              <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-6">
+                <div>
+                  <button type="button" onClick={resetForm} className="text-gray-600 hover:text-gray-900 font-medium">Cancel</button>
+                </div>
+                <div className="flex items-center gap-4">
+                  <NeoButton type="button" variant="secondary" onClick={() => handleSave()} disabled={loading}>
+                    {loading ? <Loader className="animate-spin" /> : <Save />} Update
+                  </NeoButton>
+                  <NeoButton type="button" onClick={() => handleSave('published')} disabled={loading}>
+                    {loading ? <Loader className="animate-spin" /> : <ExternalLink />} Save & Publish
+                  </NeoButton>
+                </div>
               </div>
             </form>
           </NeoCard>
