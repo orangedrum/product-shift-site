@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { NeoButton } from './NeoButton';
 import { NeoCard } from './NeoCard';
-import { Save, Loader, Trash2, Edit, Plus, LayoutDashboard, ExternalLink } from 'lucide-react';
+import { Save, Loader, Trash2, Edit, Plus, LayoutDashboard, ExternalLink, Lock } from 'lucide-react';
 import AdminHeader from './AdminHeader';
 
 const AdminBlog = () => {
@@ -11,6 +11,7 @@ const AdminBlog = () => {
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
+  const [isWriteAccess, setIsWriteAccess] = useState(false);
   const [view, setView] = useState<'list' | 'form'>('list');
   
   // Form State
@@ -30,15 +31,25 @@ const AdminBlog = () => {
       const adminKey = localStorage.getItem('productShiftAdminKey');
       const { data: { session: sbSession } } = await supabase.auth.getSession();
 
-      if (!adminKey && !sbSession) {
-        navigate('/admin-login');
-      } else {
-        // Allow access if key exists, mock session if needed to pass render check
-        setSession(sbSession || { user: { email: 'admin' } });
+      if (sbSession) {
+        setSession(sbSession);
+        setIsWriteAccess(true);
         fetchPosts();
+      } else if (adminKey) {
+        // Allow access if key exists, but mark as read-only
+        setSession({ user: { email: 'view-only' } });
+        setIsWriteAccess(false);
+        fetchPosts();
+      } else {
+        navigate('/admin-login');
       }
     };
     checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) setIsWriteAccess(true);
+    });
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const fetchPosts = async () => {
@@ -156,6 +167,24 @@ const AdminBlog = () => {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
       <div className="py-12">
+      
+      {/* Write Access Warning Banner */}
+      {!isWriteAccess && (
+        <div className="container mx-auto px-4 max-w-5xl mb-6">
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 flex justify-between items-center rounded-r-lg shadow-sm">
+            <div className="flex items-center">
+              <Lock className="h-5 w-5 text-blue-500 mr-3" />
+              <p className="text-sm text-blue-700">
+                <strong>View Only Mode:</strong> You are logged in with the Dashboard Key. To publish or edit posts, you must verify your email.
+              </p>
+            </div>
+            <button onClick={() => navigate('/blog-login')} className="text-sm font-bold text-blue-700 hover:text-blue-900 underline bg-transparent border-none cursor-pointer">
+              Sign In to Edit
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Blog Management</h1>
@@ -279,9 +308,16 @@ const AdminBlog = () => {
                   <NeoButton type="button" variant="secondary" onClick={() => handleSave()} disabled={loading}>
                     {loading ? <Loader className="animate-spin" /> : <Save />} Update
                   </NeoButton>
-                  <NeoButton type="button" onClick={() => handleSave('published')} disabled={loading}>
-                    {loading ? <Loader className="animate-spin" /> : <ExternalLink />} Save & Publish
-                  </NeoButton>
+                  
+                  {isWriteAccess ? (
+                    <NeoButton type="button" onClick={() => handleSave('published')} disabled={loading}>
+                      {loading ? <Loader className="animate-spin" /> : <ExternalLink />} Save & Publish
+                    </NeoButton>
+                  ) : (
+                    <NeoButton type="button" onClick={() => navigate('/blog-login')} className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Lock size={18} className="mr-2" /> Sign in to Publish
+                    </NeoButton>
+                  )}
                 </div>
               </div>
             </form>
