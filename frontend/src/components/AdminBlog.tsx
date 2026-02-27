@@ -263,7 +263,7 @@ const AdminBlog = () => {
                   <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg">
                     <option>Business</option>
                     <option>AI & UX</option>
-                    <option>HealthTech</option>
+                    <option>Health Tech</option>
                     <option>GenAI</option>
                     <option>Website Optimization</option>
                   </select>

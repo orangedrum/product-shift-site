@@ -33,8 +33,8 @@ router.get('/stats', requireAdminKey, async (req, res) => {
 
     if (excludeTest) {
       // Apply strict filters to counts
-      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%');
-      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%').not('user_identifier', 'ilike', '%example%').not('user_identifier', 'ilike', '%localhost%').not('user_identifier', 'ilike', '%+smb%');
+      usersQuery = usersQuery.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%').not('email', 'ilike', '%productshift%').not('email', 'ilike', '%jeankaluza%');
+      testsQuery = testsQuery.not('user_identifier', 'ilike', '%test%').not('user_identifier', 'ilike', '%demo%').not('user_identifier', 'ilike', '%example%').not('user_identifier', 'ilike', '%localhost%').not('user_identifier', 'ilike', '%+smb%').not('user_identifier', 'ilike', '%productshift%').not('user_identifier', 'ilike', '%jeankaluza%');
     }
 
     const { count: totalTests } = await testsQuery;
@@ -111,7 +111,7 @@ router.get('/stats', requireAdminKey, async (req, res) => {
       chartData,
       recentPayments: filter(recentPaymentsData || []),
       recentErrors: recentErrors || [],
-      recentRuns: recentRuns || [],
+      recentRuns: filter(recentRuns || []),
       recentSubscribers: filter(recentSubscribers || [])
     });
   } catch (e: any) {
