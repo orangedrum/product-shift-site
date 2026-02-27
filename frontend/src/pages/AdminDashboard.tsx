@@ -124,6 +124,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
         const { data: posts } = await supabase
           .from('posts')
           .select('title, views, slug')
+          .eq('status', 'published')
           .order('views', { ascending: false })
           .limit(5);
         if (posts) setBlogStats(posts);
@@ -1002,15 +1003,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                       .filter((r: any) => {
                         if (!hideTestUsers) return true;
                         if (r.url && r.url.includes('localhost')) return false;
-                        if (isTestUser(r.user_email || r.email)) return false;
+                        if (isTestUser(r.user_identifier || r.user_email || r.email)) return false;
                         if (r.plan_type === 'demo') return false; // Filter demos when hiding test data
-                        if (!r.user_email && !r.email) return false; // Filter Anonymous
+                        if (r.user_identifier && !r.user_identifier.includes('@')) return false; // Filter Anonymous (IPs)
                         return true;
                       })
                       .map((run: any) => (
                       <tr key={run.id}>
                         <td className="py-2 max-w-[150px] truncate" title={run.url}>{run.url}</td>
-                        <td className="py-2 text-gray-500 max-w-[120px] truncate" title={run.user_email || run.email}>{run.user_email || run.email || 'Anonymous'}</td>
+                        <td className="py-2 text-gray-500 max-w-[120px] truncate" title={run.user_identifier || run.user_email || run.email}>{run.user_identifier || run.user_email || run.email || 'Anonymous'}</td>
                         <td className="py-2">
                           <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${
                             run.plan_type === 'starter' ? 'bg-purple-100 text-purple-800' :
