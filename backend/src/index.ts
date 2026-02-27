@@ -152,7 +152,7 @@ app.get('/api/admin/flywheel-stats', async (req, res) => {
   const getBaseQuery = () => {
     let q = supabase.from('customers').select('*', { count: 'exact', head: true });
     if (excludeTest) {
-      q = q.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%');
+      q = q.not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%').not('email', 'ilike', '%productshift%').not('email', 'ilike', '%jeankaluza%');
     }
     return q;
   };
