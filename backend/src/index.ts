@@ -157,6 +157,14 @@ app.get('/api/admin/flywheel-stats', async (req, res) => {
     return q;
   };
 
+  // DEBUG: Log the users passing the filter to identify the "15" ghosts
+  if (excludeTest) {
+    const { data: ghosts } = await supabase.from('customers').select('email')
+      .not('email', 'ilike', '%test%').not('email', 'ilike', '%demo%').not('email', 'ilike', '%example%').not('email', 'ilike', '%localhost%').not('email', 'ilike', '%+smb%').not('email', 'ilike', '%productshift%').not('email', 'ilike', '%jeankaluza%')
+      .limit(50);
+    console.log('👻 [Flywheel Debug] Users passing filter:', ghosts?.map(u => u.email));
+  }
+
   try {
     // 1. Flywheel Counts
     const { count: totalUsers } = await getBaseQuery();

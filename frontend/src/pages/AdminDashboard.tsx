@@ -1004,6 +1004,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                         if (r.url && r.url.includes('localhost')) return false;
                         if (isTestUser(r.user_email || r.email)) return false;
                         if (r.plan_type === 'demo') return false; // Filter demos when hiding test data
+                        if (!r.user_email && !r.email) return false; // Filter Anonymous
                         return true;
                       })
                       .map((run: any) => (
