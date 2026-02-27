@@ -7,8 +7,6 @@ Disallow: /login
 Disallow: /admin-login
 Disallow: /account
 Disallow: /styleguide
-Disallow: /payment-success
-Disallow: /claim-test
 Disallow: /waitlist
 
 Sitemap: https://www.theproductshift.com/sitemap.xml
