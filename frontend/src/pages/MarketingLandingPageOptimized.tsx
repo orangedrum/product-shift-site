@@ -18,7 +18,7 @@ const CONFIG = {
   industryName: "UX Professionals & Product Teams",
   pageTitle: "AI-Powered UX Research Agent | Product Shift",
   metaDescription: "Instant AI usability testing for UX professionals and product managers. Get unbiased feedback on your SaaS interface in seconds.",
-  urlSlug: "landingpg-aiuxagent",
+  urlSlug: "marketing-optimized",
   
   // Hero Section
   heroTitle: "AI-Powered UX Research",

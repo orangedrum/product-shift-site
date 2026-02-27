@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, ArrowRight, Brain, Zap, TrendingUp, Search, PenTool, Activity } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 const Blog = () => {
   const [dbPosts, setDbPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   const getIconForCategory = (category: string) => {
     const map: Record<string, any> = {
@@ -81,6 +82,18 @@ const Blog = () => {
 
     fetchPosts();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/blog') {
+      let link = document.querySelector("link[rel~='canonical']");
+      if (!link) {
+        link = document.createElement('link');
+        link.setAttribute('rel', 'canonical');
+        document.head.appendChild(link);
+      }
+      link.setAttribute('href', 'https://www.theproductshift.com/blog');
+    }
+  }, [location.pathname]);
 
   const articlesFromDb = dbPosts.map(post => ({
     title: post.title,

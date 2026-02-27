@@ -113,6 +113,7 @@ const BlogPost = () => {
       <Helmet>
         <title>{post.title} | Product Shift</title>
         <meta name="description" content={post.excerpt} />
+        <link rel="canonical" href={`https://www.theproductshift.com/blog/${slug}`} />
         {activeSeoSchema && (
           <script type="application/ld+json">{JSON.stringify(activeSeoSchema)}</script>
         )}

@@ -18,6 +18,14 @@ const ReferralClaim: React.FC = () => {
   const segment = searchParams.get('segment');
 
   useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = "robots";
+    meta.content = "noindex";
+    document.head.appendChild(meta);
+    return () => { document.head.removeChild(meta); };
+  }, []);
+
+  useEffect(() => {
     if (!refCode) {
       navigate('/'); // Redirect home if no code provided
     }

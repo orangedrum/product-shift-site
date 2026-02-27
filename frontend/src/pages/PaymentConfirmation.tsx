@@ -13,6 +13,14 @@ const PaymentConfirmation = () => {
   const [isFirstPayment, setIsFirstPayment] = useState(false);
 
   useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = "robots";
+    meta.content = "noindex";
+    document.head.appendChild(meta);
+    return () => { document.head.removeChild(meta); };
+  }, []);
+
+  useEffect(() => {
     if (!sessionId) {
       navigate('/');
       return;

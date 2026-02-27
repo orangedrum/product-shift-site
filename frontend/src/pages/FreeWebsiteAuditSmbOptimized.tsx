@@ -90,6 +90,15 @@ const FreeWebsiteAuditSmbOptimized: React.FC = () => {
       meta.content = CONFIG.metaDescription;
       document.head.appendChild(meta);
     }
+
+    // Add Canonical Link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
   }, []);
 
   // Background Animation Effect

@@ -58,6 +58,7 @@ const Hero: React.FC<HeroProps> = ({
   return (
     <>
       <Helmet>
+        <link rel="canonical" href="https://www.theproductshift.com/" />
         <script type="application/ld+json">
           {JSON.stringify(schemaData)}
         </script>
