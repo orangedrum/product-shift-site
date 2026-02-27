@@ -581,6 +581,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
               <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
                 {recentFeedback
                   .filter(fb => {
+                    if (hideTestUsers && isTestUser(fb.user_email)) return false;
                     if (feedbackStageFilter === 'All') return true;
                     const { stage } = parseFeedback(fb.feedback);
                     if (feedbackStageFilter === 'regular') {
@@ -997,7 +998,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ secretKey: initialKey }
                   </thead>
                   <tbody className="divide-y">
                     {stats.recentRuns
-                      .filter((r: any) => !hideTestUsers || !r.url.includes('localhost')) // Basic URL filter
+                      .filter((r: any) => !hideTestUsers || (!r.url.includes('localhost') && !isTestUser(r.user_email || r.email)))
                       .map((run: any) => (
                       <tr key={run.id}>
                         <td className="py-2 max-w-[150px] truncate" title={run.url}>{run.url}</td>
