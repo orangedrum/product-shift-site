@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, ArrowRight, Brain, Zap, TrendingUp, Search, PenTool } from 'lucide-react';
+import { Calendar, ArrowRight, Brain, Zap, TrendingUp, Search, PenTool, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
@@ -12,7 +12,8 @@ const Blog = () => {
       'Website Optimization': Search,
       'AI & UX': Brain,
       'GenAI': Zap,
-      'Business': TrendingUp
+      'Business': TrendingUp,
+      'Health Tech': Activity
     };
     return map[category] || PenTool;
   };
