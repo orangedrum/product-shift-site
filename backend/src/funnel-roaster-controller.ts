@@ -6,16 +6,17 @@ import { generateAnalysis } from './ai-service';
 export const runFunnelRoastHandler = async (req: Request, res: Response) => {
   const { 
     url, 
-    email, 
     hook, 
     offer, 
     adCreative, 
     competitors, 
-    metrics 
+    metrics,
+    personaIds,
+    campaignType
   } = req.body;
 
-  if (!url || !email) {
-    return res.status(400).json({ error: 'URL and Email are required' });
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
   }
 
   try {
@@ -35,6 +36,8 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       3. **The Creative Context:** "${adCreative || 'Not provided'}"
       4. **Competitors:** "${competitors || 'None listed'}"
       5. **User Metrics:** ${JSON.stringify(metrics || {})}
+      6. **Campaign Goal:** "${campaignType || 'Leads'}"
+      7. **Target Personas:** "${(personaIds || []).join(', ')}"
 
       **THE LANDING PAGE (The Reality):**
       - URL: ${url}
@@ -60,11 +63,13 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
     const analysis = await generateAnalysis(systemPrompt, scrapeResult.screenshot);
 
     // 4. Save to Database
+    // Note: user_identifier will be handled by auth middleware in the future, 
+    // for now we use 'anonymous_roaster' if not provided to keep it working.
     const { data: run, error } = await supabase.from('analysis_runs').insert({
       url,
-      user_identifier: email,
+      user_identifier: req.body.email || 'anonymous_roaster', 
       plan_type: 'funnel_roast_v1',
-      funnel_context: { hook, offer, adCreative, competitors },
+      funnel_context: { hook, offer, adCreative, competitors, campaignType, personaIds },
       campaign_metrics: metrics,
       report_data: analysis,
       status: 'completed'

@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
+import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart } from 'lucide-react';
+
+const PERSONAS = [
+  { id: 'alex-busy-pro', name: 'Alex', role: 'Busy Professional', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
+  { id: 'marcus-c-suite', name: 'Marcus', role: 'Executive', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
+  { id: 'sarah-social-shopper', name: 'Sarah', role: 'Social Shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
+  { id: 'charlie-family-worker', name: 'Charlie', role: 'Blue Collar', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
+  { id: 'beth-homemaker', name: 'Beth', role: 'Homemaker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
+  { id: 'sam-college-student', name: 'Sam', role: 'Student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
+  { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', role: 'Wealthy Elite', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
+  { id: 'linda-business-owner', name: 'Linda', role: 'Business Owner', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
+];
 
 const FunnelRoaster = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1=Inputs, 2=Analyzing, 3=Results
   const [result, setResult] = useState<any>(null);
@@ -11,11 +23,12 @@ const FunnelRoaster = () => {
   // Form State
   const [formData, setFormData] = useState({
     url: '',
-    email: '',
     hook: '',
     offer: '',
     adCreative: '', // Link to Ad
     competitors: '',
+    campaignType: 'leads', // 'leads' or 'sales'
+    selectedPersonas: [] as string[],
     metrics: {
       adSpend: '',
       revenue: '',
@@ -23,6 +36,24 @@ const FunnelRoaster = () => {
       ctr: ''
     }
   });
+
+  // Background Animation Effect (Lavalamp)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateOrbs = () => {
+      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+      for (let i = 1; i <= 15; i++) {
+        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
+        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
+      }
+    };
+
+    updateOrbs();
+    const interval = setInterval(updateOrbs, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -32,6 +63,15 @@ const FunnelRoaster = () => {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  const togglePersona = (id: string) => {
+    setFormData(prev => {
+      const current = prev.selectedPersonas;
+      if (current.includes(id)) return { ...prev, selectedPersonas: current.filter(p => p !== id) };
+      if (current.length >= 3) return prev; // Limit to 3
+      return { ...prev, selectedPersonas: [...current, id] };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,26 +101,41 @@ const FunnelRoaster = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-white relative overflow-hidden" ref={containerRef}>
+      {/* Global Background Blobs */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        {[...Array(15)].map((_, i) => (
+          <div 
+            key={i}
+            className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
+            style={{
+              left: `var(--orb-${i+1}-x, 50%)`,
+              top: `var(--orb-${i+1}-y, 50%)`,
+              width: `${300 + (i * 20)}px`,
+              height: `${300 + (i * 20)}px`,
+              backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-black text-gray-900 mb-4">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
-              AI Funnel Roaster
-            </span>
+          <h1 className="text-5xl font-black text-black mb-4 tracking-tight">
+            AI Funnel Roaster
           </h1>
-          <p className="text-xl text-gray-600">
-            Don't just fix the page. Fix the <span className="font-bold text-black">congruency</span>.
+          <p className="text-xl text-gray-700 font-medium">
+            Don't just fix the page. Fix the <span className="font-black bg-yellow-300 px-1">congruency</span>.
           </p>
         </div>
 
         {step === 1 && (
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Section 1: The Destination */}
-            <NeoCard title="1. The Destination (Landing Page)">
-              <div className="flex flex-col md:flex-row items-center gap-4">
-                <div className="flex-grow w-full">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Landing Page URL *</label>
+            <NeoCard title="1. The Destination">
+              <div className="flex flex-col gap-4">
+                <div className="w-full">
+                  <label className="block text-sm font-black text-black mb-1">Landing Page URL *</label>
                   <div className="relative">
                     <LinkIcon className="absolute left-3 top-3 text-gray-400" size={18} />
                     <input
