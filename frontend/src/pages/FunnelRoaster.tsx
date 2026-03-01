@@ -132,6 +132,9 @@ const FunnelRoaster = () => {
     setLoading(true);
     setStep(2);
 
+    // Ensure the URL has a protocol (matching AiUxAgent logic)
+    const fullUrl = formData.url.startsWith('http://') || formData.url.startsWith('https://') ? formData.url : `https://${formData.url}`;
+
     let finalGoal = 'Quickly understand what this page is about.';
     if (siteTaskType === 'purchase') finalGoal = 'Attempt to make a purchase or sign up, thinking aloud about the decision process.';
 
@@ -140,7 +143,7 @@ const FunnelRoaster = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url: formData.url,
+          url: fullUrl,
           personaIds: formData.selectedPersonas,
           goal: finalGoal,
           email: session?.user?.email
@@ -311,28 +314,36 @@ const FunnelRoaster = () => {
         {/* ==================== SITE ROASTER FORM ==================== */}
         {activeMode === 'site' && step === 1 && (
           <form onSubmit={handleSiteSubmit} className="space-y-8">
-            <NeoCard title="1. The Target">
-              <div className="w-full">
-                <label className="block text-sm font-black text-black mb-1">Website URL *</label>
-                <div className="relative">
-                  <LinkIcon className="absolute left-3 top-3 text-gray-400" size={18} />
-                  <input
-                    type="url"
-                    name="url"
-                    required
-                    placeholder="https://your-site.com"
-                    className="w-full pl-10 p-3 border-2 border-black rounded-lg focus:ring-0 font-medium"
-                    value={formData.url}
-                    onChange={handleChange}
-                  />
+            {/* Card 1: The What */}
+            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+              <h2 className="text-2xl font-black text-black mb-1">The What</h2>
+              <p className="text-gray-600 font-medium mb-6">Which website or URL do you want to check?</p>
+              
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                  <span className="text-black font-bold text-lg">https://</span>
                 </div>
+                <input
+                  type="text"
+                  name="url"
+                  required
+                  placeholder="example.com"
+                  className="block w-full pl-24 pr-6 py-6 text-xl font-normal text-gray-900 bg-white border-2 border-black rounded-lg shadow-[2.5px_3px_0px_0px_#000] focus:shadow-[5.5px_7px_0px_0px_#000] focus:outline-none transition-all duration-200 placeholder-gray-500"
+                  value={formData.url.replace(/^https?:\/\//, '')}
+                  onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value.replace(/^https?:\/\//, '') }))}
+                />
               </div>
-            </NeoCard>
+            </div>
 
             {/* Reusing the Persona Grid from Funnel Roaster (Shared Component Logic) */}
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-              <h2 className="text-2xl font-black text-black mb-1">2. The Who</h2>
+              <h2 className="text-2xl font-black text-black mb-1">The Who</h2>
               <p className="text-gray-600 font-medium mb-6">Choose 3-5 synthesized users.</p>
+              <div className="bg-gray-100 p-3 rounded-lg border border-gray-300 text-xs text-gray-600 mb-6">
+                <strong className="font-bold text-gray-800">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+                We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
+                <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {PERSONAS.map((persona) => (
                   <div key={persona.id} onClick={() => togglePersona(persona.id)} className={`flex items-center p-3 rounded-xl cursor-pointer transition-all border-2 border-black ${formData.selectedPersonas.includes(persona.id) ? 'bg-[#ff8c00] shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]' : 'bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#000]'} ${!formData.selectedPersonas.includes(persona.id) && formData.selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -344,7 +355,10 @@ const FunnelRoaster = () => {
               </div>
             </div>
 
-            <NeoCard title="3. The Goal">
+            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+              <h2 className="text-2xl font-black text-black mb-1">The Why</h2>
+              <p className="text-gray-600 font-medium mb-2">Think about why you are doing this.</p>
+              <p className="text-sm text-gray-500 mb-6 italic">Before users can do anything, they need to understand what your website is. We recommend only after passing this the first impression test to then move to the conversion test.</p>
               <div className="space-y-3">
                 <div className="flex items-center p-3 border-2 border-transparent hover:bg-gray-50 rounded-lg transition-colors">
                   <input id="task-understand" name="task" type="radio" checked={siteTaskType === 'understand'} onChange={() => setSiteTaskType('understand')} className="h-5 w-5 text-black border-2 border-black focus:ring-0 checked:bg-black cursor-pointer" />
@@ -355,7 +369,7 @@ const FunnelRoaster = () => {
                   <label htmlFor="task-purchase" className="ml-3 block text-base text-black font-bold cursor-pointer">Conversion Audit (Attempt to buy/signup)</label>
                 </div>
               </div>
-            </NeoCard>
+            </div>
 
             <NeoButton type="submit" className="w-full py-4 text-lg" disabled={loading || formData.selectedPersonas.length < 3}>
               {loading ? 'Analyzing Site...' : 'Run Site Roast'} <Zap className="ml-2" />
