@@ -206,7 +206,18 @@ app.get('/api/public-report/:id', async (req, res) => {
   }
 
   if (id === 'test-mode-dummy-id') {
-    return res.send('Test Mode Report'); 
+    const title = 'Test Mode Report';
+    const seoSchema = generateStructuredData('https://test-mode.com', title, { usability: 90 }, 'Test Report');
+    return res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>${title}</title>
+        <script type="application/ld+json">${JSON.stringify(seoSchema)}</script>
+      </head>
+      <body><h1>${title}</h1></body>
+      </html>`);
   }
   
   if (!supabaseUrl || !supabaseServiceKey) return res.status(500).send('Database not configured');
