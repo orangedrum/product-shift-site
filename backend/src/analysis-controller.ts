@@ -117,160 +117,100 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
 
 // --- Main Handler ---
 export const runTestHandler = async (req: Request, res: Response) => {
-  const { url, personaIds, goal, email } = req.body;
-
-  if (!url || !personaIds || !goal) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
-  const forwarded = req.headers['x-forwarded-for'];
-  const realIp = req.headers['x-real-ip'];
-  const cfConnectingIp = req.headers['cf-connecting-ip'];
-  
-  let clientIp: string | undefined;
-
-  if (typeof forwarded === 'string') {
-    clientIp = forwarded.split(',')[0].trim();
-  } else if (Array.isArray(forwarded) && forwarded.length > 0) {
-    clientIp = forwarded[0].trim();
-  }
-
-  let userIdentifier = clientIp || (typeof realIp === 'string' ? realIp : undefined) || (typeof cfConnectingIp === 'string' ? cfConnectingIp : undefined) || req.ip || 'unknown';
-  let planType = 'free';
-  let revenue = 0;
-  let useFreeTier = true;
-  let shouldDeductCredit = false;
-  let runId: string | null = null;
   let creditDeducted = false;
-
-  if (email && typeof email === 'string') {
-    const safeEmail = email.trim().toLowerCase();
-    userIdentifier = safeEmail;
-    useFreeTier = false;
-
-    let { data: customer } = await supabase.from('customers').select('*').eq('email', safeEmail).maybeSingle();
-    
-    if (!customer) {
-        const { data: newCust, error: createErr } = await supabase
-            .from('customers')
-            .insert({ email: safeEmail, credits: 5, plan_status: 'free' })
-            .select()
-            .single();
-        if (!createErr) customer = newCust;
-    }
-
-    if (customer && customer.plan_status === 'active') {
-      planType = 'subscription';
-    } else {
-      planType = 'credit_pack';
-      shouldDeductCredit = true;
-    }
-  }
-
-  // --- REFERRAL REWARD LOGIC (Moved to Start) ---
-  // We process this immediately to ensure the referrer is rewarded even if the AI times out later or if using Test Mode.
-  if (email) {
-    // Use userIdentifier (safeEmail) to ensure case-insensitive matching
-    const { data: cust } = await supabase.from('customers').select('referred_by, referrer_rewarded').eq('email', userIdentifier).single();
-    
-    if (cust && cust.referred_by && !cust.referrer_rewarded) {
-       const referrerEmail = cust.referred_by;
-       
-       // CRITICAL SAFETY: Ensure we don't reward the user for referring themselves
-       console.log(`🔍 Referral Check: Referee=${userIdentifier}, Referrer=${referrerEmail}`);
-       // This prevents the "6 credits" bug where the referee gets the reward
-       if (referrerEmail.toLowerCase() !== userIdentifier.toLowerCase()) {
-         console.log(`🎁 REFERRAL EVENT: Referee (${userIdentifier}) completed first test. Rewarding Referrer (${referrerEmail}).`);
-         
-         try {
-           // 1. Add Credits to Referrer (Direct Update to ensure target accuracy)
-           // We fetch the current credits first to ensure atomic-like behavior via the service key
-           const { data: refData, error: fetchError } = await supabase.from('customers').select('credits').eq('email', referrerEmail).single();
-           
-           if (refData && !fetchError) {
-             const newCredits = (refData.credits || 0) + 3;
-             const { error: updateError } = await supabase.from('customers').update({ credits: newCredits }).eq('email', referrerEmail);
-             if (updateError) throw updateError;
-             console.log(`✅ SUCCESS: Updated ${referrerEmail} credits from ${refData.credits} to ${newCredits}`);
-           } else {
-             console.error(`❌ FAILED: Could not fetch referrer ${referrerEmail} to add credits.`);
-           }
-           
-           // 2. Notify Referrer
-           await supabase.from('notifications').insert({
-             user_email: referrerEmail,
-             message: `You earned 3 credits! A user you referred just ran their first test.`,
-             type: 'success'
-           });
-
-           // 3. Update Referrer Stats (Count & Champion Status)
-           const { data: referrer } = await supabase.from('customers').select('id, referral_count').eq('email', referrerEmail).single();
-           if (referrer) {
-             const newCount = (referrer.referral_count || 0) + 1;
-             const updates: any = { referral_count: newCount };
-             
-             const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrerEmail).eq('status', 'paid');
-             if ((paymentCount || 0) >= 3) {
-                updates.is_champion = true;
-                updates.date_became_champion = new Date().toISOString();
-             }
-             await supabase.from('customers').update(updates).eq('id', referrer.id);
-           }
-
-           // 4. Mark as rewarded so we don't pay out again
-           await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
-         } catch (err) {
-           console.error('Error rewarding referrer:', err);
-         }
-       } else {
-         // If self-referral detected, just mark as rewarded to stop trying
-         await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
-       }
-    }
-  }
-
-  // --- TEST MODE BYPASS ---
-  if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
-    if (shouldDeductCredit) {
-        const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
-        if (deductError) return res.status(402).json({ error: 'Insufficient Credits', details: 'Please top up to run this test.' });
-    }
-
-    const scores = { usability: 88, desirability: 92, clarity: 95 };
-    const expertReport = '### TEST RESULT: PASS\n**Overall Score:** 92/100\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.';
-    const userSessions = [{
-        persona: 'Alex',
-        avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra',
-        analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||I instantly get what this is. The value prop is super clear.|||USER_DETAILS|||### 1. My Experience\nI landed on the page and immediately understood the offering. The headline "AI-Powered UX Audits" is punchy. I feel confident this tool could save me time.\n\n### 2. Points of Friction\nI\'m not sure about the pricing structure. It says "Pro" but doesn\'t list a price upfront. That\'s a bit annoying.\n\n### 3. What I Think This Is\nIt\'s an automated user testing tool that uses AI agents instead of real people to give quick feedback.',
-        description: 'a busy professional with two kids under 5',
-        personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' }
-    }];
-
-    const seoSchema = generateStructuredData(url, 'Test Mode: The Product Shift', scores, expertReport);
-    return res.json({
-        message: 'Analysis Complete.',
-        reportId: 'test-mode-dummy-id',
-        title: 'Test Mode: The Product Shift',
-        url: url,
-        screenshot: '', 
-        userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.description })),
-        expertReport,
-        scores,
-        seoSchema
-    });
-  }
-
-  if (useFreeTier) {
-    const today = new Date().toISOString().split('T')[0];
-    const { data: usage } = await supabase.from('daily_usage').select('count').eq('user_identifier', userIdentifier).eq('usage_date', today).single();
-    if (usage && usage.count >= 3) {
-      console.log(`[Limit Reached] User: ${userIdentifier}, Count: ${usage.count}`);
-      return res.status(402).json({ error: 'Insufficient Credits', details: 'You have reached your daily free limit. Please upgrade or buy a credit pack.' });
-    }
-  }
+  let userIdentifier: string | undefined;
 
   try {
+    const { url, personaIds, goal, email } = req.body;
+
+    if (!url || !personaIds || !goal) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
+    const forwarded = req.headers['x-forwarded-for'];
+    const realIp = req.headers['x-real-ip'];
+    const cfConnectingIp = req.headers['cf-connecting-ip'];
+    
+    let clientIp: string | undefined;
+
+    if (typeof forwarded === 'string') {
+      clientIp = forwarded.split(',')[0].trim();
+    } else if (Array.isArray(forwarded) && forwarded.length > 0) {
+      clientIp = forwarded[0].trim();
+    }
+
+    userIdentifier = clientIp || (typeof realIp === 'string' ? realIp : undefined) || (typeof cfConnectingIp === 'string' ? cfConnectingIp : undefined) || req.ip || 'unknown';
+    let planType = 'free';
+    let revenue = 0;
+    let useFreeTier = true;
+    let shouldDeductCredit = false;
+    let runId: string | null = null;
+
+    if (email && typeof email === 'string') {
+      const safeEmail = email.trim().toLowerCase();
+      userIdentifier = safeEmail;
+      useFreeTier = false;
+
+      let { data: customer } = await supabase.from('customers').select('*').eq('email', safeEmail).maybeSingle();
+      
+      if (!customer) {
+          const { data: newCust, error: createErr } = await supabase
+              .from('customers')
+              .insert({ email: safeEmail, credits: 5, plan_status: 'free' })
+              .select()
+              .single();
+          if (!createErr) customer = newCust;
+      }
+
+      if (customer && customer.plan_status === 'active') {
+        planType = 'subscription';
+      } else {
+        planType = 'credit_pack';
+        shouldDeductCredit = true;
+      }
+    }
+
+    // --- TEST MODE BYPASS ---
+    if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
+      if (shouldDeductCredit) {
+          const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
+          if (deductError) return res.status(402).json({ error: 'Insufficient Credits', details: 'Please top up to run this test.' });
+      }
+
+      const scores = { usability: 88, desirability: 92, clarity: 95 };
+      const expertReport = '### TEST RESULT: PASS\n**Overall Score:** 92/100\nThe site demonstrates strong clarity and desirability.\n\n### Visual & Heuristic Analysis\n- **Visual Hierarchy:** [Positive] The primary headline and CTA are distinct.\n\n### Actionable Recommendations\n- **ISSUE:** Pricing transparency is lacking.\n- **FIX:** Add a "starting at" price.';
+      const userSessions = [{
+          persona: 'Alex',
+          avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra',
+          analysis: '|||USER_MOOD|||Positive|||USER_BUBBLE|||I instantly get what this is. The value prop is super clear.|||USER_DETAILS|||### 1. My Experience\nI landed on the page and immediately understood the offering. The headline "AI-Powered UX Audits" is punchy. I feel confident this tool could save me time.\n\n### 2. Points of Friction\nI\'m not sure about the pricing structure. It says "Pro" but doesn\'t list a price upfront. That\'s a bit annoying.\n\n### 3. What I Think This Is\nIt\'s an automated user testing tool that uses AI agents instead of real people to give quick feedback.',
+          description: 'a busy professional with two kids under 5',
+          personaObj: { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' }
+      }];
+
+      const seoSchema = generateStructuredData(url, 'Test Mode: The Product Shift', scores, expertReport);
+      return res.json({
+          message: 'Analysis Complete.',
+          reportId: 'test-mode-dummy-id',
+          title: 'Test Mode: The Product Shift',
+          url: url,
+          screenshot: '', 
+          userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.description })),
+          expertReport,
+          scores,
+          seoSchema
+      });
+    }
+
+    if (useFreeTier) {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: usage } = await supabase.from('daily_usage').select('count').eq('user_identifier', userIdentifier).eq('usage_date', today).single();
+      if (usage && usage.count >= 3) {
+        console.log(`[Limit Reached] User: ${userIdentifier}, Count: ${usage.count}`);
+        return res.status(402).json({ error: 'Insufficient Credits', details: 'You have reached your daily free limit. Please upgrade or buy a credit pack.' });
+      }
+    }
+
     const analysisPromise = (async () => {
       // --- REFERRAL REWARD LOGIC (Moved to Start) ---
       // We process this immediately to ensure the referrer is rewarded even if the AI times out later.
@@ -297,23 +237,21 @@ export const runTestHandler = async (req: Request, res: Response) => {
                  message: `You earned 3 credits! A user you referred just ran their first test.`,
                  type: 'success'
                });
-
-               // 3. Update Referrer Stats (Count & Champion Status)
-               const { data: referrer } = await supabase.from('customers').select('id, referral_count').eq('email', referrerEmail).single();
-               if (referrer) {
-                 const newCount = (referrer.referral_count || 0) + 1;
-                 const updates: any = { referral_count: newCount };
-                 
-                 const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrerEmail).eq('status', 'paid');
-                 if ((paymentCount || 0) >= 3) {
-                    updates.is_champion = true;
-                    updates.date_became_champion = new Date().toISOString();
-                 }
-                 await supabase.from('customers').update(updates).eq('id', referrer.id);
-               }
-
-               // 4. Mark as rewarded so we don't pay out again
-               await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
+                // 3. Update Referrer Stats (Count & Champion Status)
+                const { data: referrer } = await supabase.from('customers').select('id, referral_count').eq('email', referrerEmail).single();
+                if (referrer) {
+                  const newCount = (referrer.referral_count || 0) + 1;
+                  const updates: any = { referral_count: newCount };
+                  
+                  const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrerEmail).eq('status', 'paid');
+                  if ((paymentCount || 0) >= 3) {
+                     updates.is_champion = true;
+                     updates.date_became_champion = new Date().toISOString();
+                  }
+                  await supabase.from('customers').update(updates).eq('id', referrer.id);
+                }
+                // 4. Mark as rewarded so we don't pay out again
+                await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
              } catch (err) {
                console.error('Error rewarding referrer:', err);
              }
@@ -411,7 +349,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
     res.json(finalResponse);
 
   } catch (error: any) {
-    if (creditDeducted) await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
+    if (creditDeducted && userIdentifier) await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
     res.status(500).json({ error: 'Analysis Failed', details: error.message, usageCounted: false });
   }
 };
