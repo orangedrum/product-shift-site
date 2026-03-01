@@ -4,7 +4,8 @@ import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveCo
 import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter } from 'lucide-react';
+import { SecurityAlert } from '../components/SecurityAlert';
+import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download } from 'lucide-react';
 
 const PERSONAS = [
   { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
@@ -17,6 +18,54 @@ const PERSONAS = [
   { id: 'linda-business-owner', name: 'Linda', description: 'Business Owner (10 employees)', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
 ];
 
+// Helper to format simple markdown to HTML (Copied from AiUxAgent for consistency)
+const formatText = (text: string) => {
+  if (!text) return <p className="text-gray-500 italic">No analysis text generated.</p>;
+  let cleanText = text.replace(/\{[\s\S]*?"usability":[\s\S]*?\}/g, '');
+  if (!cleanText.trim()) cleanText = text;
+
+  const lines = cleanText.split('\n').filter(line => !line.match(/^\|.*\|$/)).filter(line => line.trim().length > 0);
+
+  if (lines.length === 0) return <p className="text-black whitespace-pre-wrap">{text}</p>;
+
+  return lines.map((line, index) => {
+    if (line.includes('TEST RESULT: PASS')) {
+      return <div key={index} className="mb-6"><h2 className="text-2xl font-black text-black flex items-center gap-2">Test Result: <span className="text-green-600 flex items-center gap-2">PASS <span className="text-3xl">👍</span></span></h2></div>;
+    }
+    if (line.includes('TEST RESULT: FAIL')) {
+      return <div key={index} className="mb-6"><h2 className="text-2xl font-black text-black flex items-center gap-2">Test Result: <span className="text-red-600 flex items-center gap-2">FAIL <span className="text-3xl">👎</span></span></h2></div>;
+    }
+    if (line.includes('**Overall Score:**')) {
+      const scoreMatch = line.match(/(\d+)\/100/);
+      const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+      const colorClass = score >= 60 ? 'text-green-600' : 'text-red-600';
+      return <div key={index} className="mb-8 -mt-4"><h3 className={`text-2xl font-black ${colorClass} flex items-center gap-2`}>{line.replace(/\*\*/g, '')}</h3></div>;
+    }
+    if (line.startsWith('### ')) return <h3 key={index} className="text-lg font-bold mt-4 mb-2 text-black">{line.replace('### ', '')}</h3>;
+    if (line.startsWith('## ')) return <h2 key={index} className="text-xl font-bold mt-6 mb-3 text-black">{line.replace('## ', '')}</h2>;
+    
+    if (line.toUpperCase().includes('**ISSUE:**')) {
+      return <div key={index} className="mt-4 p-4 bg-gray-200 border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg"><p className="text-black"><strong className="font-bold text-black">ISSUE:</strong> {line.replace(/- \*\*ISSUE:\*\*/i, '').replace(/\*\*ISSUE:\*\*/i, '')}</p></div>;
+    }
+    if (line.toUpperCase().includes('**FIX:**')) {
+      return <div key={index} className="mb-4 p-4 bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] rounded-lg"><p className="text-black"><strong className="font-bold text-black">FIX:</strong> {line.replace('- **FIX:**', '').replace('**FIX:**', '')}</p></div>;
+    }
+
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    const content = parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) return <strong key={i} className="font-semibold text-black">{part.slice(2, -2)}</strong>;
+      const subParts = part.split(/(\[(?:Positive|Neutral|Negative)\])/g);
+      return subParts.map((subPart, j) => {
+        if (subPart === '[Positive]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Positive</span>;
+        if (subPart === '[Neutral]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-yellow-800 bg-yellow-100 rounded-full border border-yellow-200">Neutral</span>;
+        if (subPart === '[Negative]') return <span key={`${i}-${j}`} className="inline-block px-2 py-0.5 mx-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Negative</span>;
+        return subPart;
+      });
+    });
+    return <p key={index} className="mb-2 text-black leading-relaxed">{content}</p>;
+  });
+};
+
 const FunnelRoaster = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,6 +74,9 @@ const FunnelRoaster = () => {
   const [step, setStep] = useState(1); // 1=Inputs, 2=Analyzing, 3=Results
   const [result, setResult] = useState<any>(null);
   const [siteResult, setSiteResult] = useState<any>(null); // Specific for Site Roaster results
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
   const [session, setSession] = useState<any>(null);
 
   // Form State
@@ -164,6 +216,14 @@ const FunnelRoaster = () => {
     }
   };
 
+  const handlePrintClick = () => setShowDownloadDialog(true);
+
+  const confirmPrint = (mode: 'full' | 'summary') => {
+    setPrintMode(mode);
+    setShowDownloadDialog(false);
+    setTimeout(() => window.print(), 100);
+  };
+
   return (
     <div 
       ref={containerRef}
@@ -184,6 +244,19 @@ const FunnelRoaster = () => {
         @property --pos-x-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
         @property --pos-y-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
         /* Add other properties if needed for full browser support, though standard CSS var transition works in most modern browsers */
+        
+        @media print {
+          @page { margin: 1.5cm; size: auto; }
+          body * { visibility: hidden; }
+          #report-section, #report-section * { visibility: visible; }
+          #report-section { position: absolute; left: 0; top: 0; width: 100%; }
+          .no-print { display: none !important; }
+          .print-only { display: block !important; }
+          .screen-only { display: none !important; }
+          .grid { display: block !important; }
+          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; }
+          .border-2 { border-width: 2px !important; border-color: #000 !important; }
+        }
       `}</style>
 
       <div className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -425,37 +498,148 @@ const FunnelRoaster = () => {
 
         {/* ==================== SITE ROASTER RESULTS ==================== */}
         {step === 3 && activeMode === 'site' && siteResult && (
-          <div className="space-y-8">
-            <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-              <h2 className="text-3xl font-black text-black mb-6 border-b-2 border-black pb-4">UX Audit Report</h2>
-              
-              {/* Scores */}
-              {siteResult.scores && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="p-4 bg-gray-50 rounded-lg border-2 border-black text-center">
-                    <div className="text-xs font-black uppercase text-gray-500 mb-1">Usability</div>
-                    <div className="text-4xl font-black text-black">{siteResult.scores.usability}</div>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg border-2 border-black text-center">
-                    <div className="text-xs font-black uppercase text-gray-500 mb-1">Desirability</div>
-                    <div className="text-4xl font-black text-black">{siteResult.scores.desirability}</div>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg border-2 border-black text-center">
-                    <div className="text-xs font-black uppercase text-gray-500 mb-1">Clarity</div>
-                    <div className="text-4xl font-black text-black">{siteResult.scores.clarity}</div>
-                  </div>
+          <div id="report-section" className="w-full animate-fade-in">
+            {siteResult.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
+            
+            {/* Report Header */}
+            <div className="mb-8">
+              <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] text-left">
+                <h1 className="text-4xl font-black text-black mb-2">{siteResult.title || 'UX Audit Report'}</h1>
+                <div className="text-black flex flex-col gap-1">
+                  <span className="font-mono text-gray-700 font-bold text-lg">{siteResult.url || formData.url}</span>
+                  <span className="text-sm font-medium">{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
-              )}
-
-              <div className="prose prose-lg max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-gray-700 text-sm">
-                  {siteResult.expertReport}
-                </pre>
               </div>
             </div>
-            
-            <div className="text-center">
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* LEFT COLUMN: User Sessions */}
+              <div className="lg:col-span-5 space-y-6">
+                <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
+                  <div className="p-4 border-b-2 border-black bg-gray-50 no-print">
+                    <h2 className="text-lg font-bold text-black">User Sessions</h2>
+                    <p className="text-xs text-black font-medium">Click a user to view their detailed feedback</p>
+                  </div>
+                  
+                  {/* Tab Bar */}
+                  <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b-2 border-black no-scrollbar screen-only">
+                    {siteResult.userSessions?.map((res: any, idx: number) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveTab(idx)}
+                        className={`flex flex-col items-center p-3 rounded-lg min-w-[110px] transition-all border-2 ${activeTab === idx ? 'bg-[#ff8c00] border-black shadow-[2px_2px_0px_0px_#000]' : 'bg-white hover:bg-gray-100 border-transparent'}`}
+                      >
+                        <img src={res.avatar} alt={res.persona} className="w-16 h-16 rounded-full border-2 border-black bg-white" />
+                        <span className="text-xs mt-1 font-bold truncate w-full text-center text-black">{res.persona}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Active Tab Content */}
+                  <div className="p-6 bg-white min-h-[400px] screen-only">
+                    {siteResult.userSessions?.[activeTab] && (() => {
+                      const res = siteResult.userSessions[activeTab];
+                      const parts = res.analysis?.split('|||USER_DETAILS|||') || ['', ''];
+                      const details = parts[1] || 'No detailed feedback provided.';
+                      const bubbleParts = parts[0].split('|||USER_BUBBLE|||') || ['', ''];
+                      const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
+
+                      return (
+                        <div className="animate-fade-in">
+                          <div className="flex items-center gap-3 mb-4">
+                            <h3 className="text-lg font-bold text-black">{res.persona}</h3>
+                            <span className="text-xs text-black font-bold bg-white px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">{res.description}</span>
+                          </div>
+                          <div className="bg-white p-4 rounded-xl rounded-tl-none shadow-[4px_4px_0px_0px_#000] border-2 border-black text-black relative mb-6">
+                            <div className="absolute -left-2 top-4 w-4 h-4 bg-white border-l-2 border-b-2 border-black transform rotate-45"></div>
+                            <p className="text-lg italic text-black leading-relaxed">"{userBubble}"</p>
+                          </div>
+                          <div className="space-y-4 text-sm text-black bg-white p-5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+                            {formatText(details)}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: Expert Report */}
+              <div className="lg:col-span-7 h-full">
+                <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
+                  <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4 no-print">
+                    <div>
+                      <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
+                      <p className="text-sm text-gray-600 mt-1">Compiled report of all persona experiences.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      {siteResult.reportId && (
+                        <a href={`/api/public-report/${siteResult.reportId}`} target="_blank" rel="noopener noreferrer" className="no-print">
+                          <NeoButton variant="secondary" icon={<Share2 size={16} />}></NeoButton>
+                        </a>
+                      )}
+                      <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}></NeoButton>
+                    </div>
+                  </div>
+
+                  <div className="prose max-w-none">
+                    {formatText(siteResult.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').find(line => line.includes('TEST RESULT:')) || '')}
+                  </div>
+
+                  {siteResult.scores && (
+                    <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+                      <h3 className="text-lg font-bold text-black mb-4">Performance Metrics</h3>
+                      <div className="h-64 w-full mb-6">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={[
+                            { name: 'Usability', score: siteResult.scores.usability },
+                            { name: 'Desirability', score: siteResult.scores.desirability },
+                            { name: 'Clarity', score: siteResult.scores.clarity },
+                          ]}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip />
+                            <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                              <Cell key="usability" fill="#ff8c00" />
+                              <Cell key="desirability" fill="#ff1493" />
+                              <Cell key="clarity" fill="#00bfff" />
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="prose max-w-none">
+                    {formatText(siteResult.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').filter(line => !line.includes('TEST RESULT:')).join('\n'))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-12 no-print">
               <NeoButton onClick={() => setStep(1)} variant="secondary">Run Another Roast</NeoButton>
+            </div>
+          </div>
+        )}
+
+        {/* Download Dialog */}
+        {showDownloadDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Download Report</h3>
+              <div className="space-y-3 mt-4">
+                <button onClick={() => confirmPrint('full')} className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-left">
+                  <div className="bg-indigo-100 p-2 rounded-lg"><Users className="text-indigo-600" size={24} /></div>
+                  <div><span className="block font-semibold text-gray-900">Full Report</span><span className="text-xs text-gray-500">Includes all User Session transcripts</span></div>
+                </button>
+                <button onClick={() => confirmPrint('summary')} className="w-full flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-left">
+                  <div className="bg-green-100 p-2 rounded-lg"><FileText className="text-green-700" size={24} /></div>
+                  <div><span className="block font-semibold text-gray-900">Summary Only</span><span className="text-xs text-gray-500">Expert Analysis & Scores only</span></div>
+                </button>
+              </div>
+              <button onClick={() => setShowDownloadDialog(false)} className="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium text-sm">Cancel</button>
             </div>
           </div>
         )}
