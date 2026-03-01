@@ -37,6 +37,7 @@ import BlogPost from './components/BlogPost';
 import Blog from './components/Blog';
 import BlogLogin from './pages/BlogLogin';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import FunnelRoaster from './pages/FunnelRoaster';
 
 
 const App: React.FC = () => {
@@ -165,6 +166,7 @@ const App: React.FC = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/funnel-roaster" element={<FunnelRoaster />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
