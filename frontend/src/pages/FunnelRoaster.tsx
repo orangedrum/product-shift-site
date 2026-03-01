@@ -1,27 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter } from 'lucide-react';
 
 const PERSONAS = [
-    { id: 'alex-busy-pro', name: 'Alex', role: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
-  { id: 'sam-college-student', name: 'Sam', role: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
-  { id: 'charlie-family-worker', name: 'Charlie', role: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
-  { id: 'beth-homemaker', name: 'Beth', role: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
-  { id: 'sarah-social-shopper', name: 'Sarah', role: 'Social influencer & avid shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
-  { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', role: 'Wealthy, highly educated', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
-  { id: 'marcus-c-suite', name: 'Marcus', role: 'Fortune 500 C-Level Exec', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
-  { id: 'linda-business-owner', name: 'Linda', role: 'Business Owner (10 employees)', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
+  { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
+  { id: 'sam-college-student', name: 'Sam', description: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
+  { id: 'charlie-family-worker', name: 'Charlie', description: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
+  { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
+  { id: 'sarah-social-shopper', name: 'Sarah', description: 'Social influencer & avid shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
+  { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', description: 'Wealthy, highly educated', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
+  { id: 'marcus-c-suite', name: 'Marcus', description: 'Fortune 500 C-Level Exec', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
+  { id: 'linda-business-owner', name: 'Linda', description: 'Business Owner (10 employees)', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
 ];
 
 const FunnelRoaster = () => {
+  const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeMode, setActiveMode] = useState<'site' | 'funnel' | 'app'>('funnel');
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1=Inputs, 2=Analyzing, 3=Results
   const [result, setResult] = useState<any>(null);
   const [siteResult, setSiteResult] = useState<any>(null); // Specific for Site Roaster results
+  const [session, setSession] = useState<any>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -42,6 +46,17 @@ const FunnelRoaster = () => {
 
   // Site Roaster Specific State
   const [siteTaskType, setSiteTaskType] = useState('understand');
+
+  // Auth Check
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Background Animation Effect (Lavalamp)
   useEffect(() => {
@@ -91,7 +106,11 @@ const FunnelRoaster = () => {
       const res = await fetch('/api/run-funnel-roast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          personaIds: formData.selectedPersonas,
+          email: session?.user?.email
+        })
       });
       
       const data = await res.json();
@@ -124,7 +143,7 @@ const FunnelRoaster = () => {
           url: formData.url,
           personaIds: formData.selectedPersonas,
           goal: finalGoal,
-          // email: session?.user?.email // Assuming auth middleware handles this or we add it if needed
+          email: session?.user?.email
         })
       });
       
