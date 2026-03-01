@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart } from 'lucide-react';
+import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info } from 'lucide-react';
 
 const PERSONAS = [
-  { id: 'alex-busy-pro', name: 'Alex', role: 'Busy Professional', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
-  { id: 'marcus-c-suite', name: 'Marcus', role: 'Executive', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
-  { id: 'sarah-social-shopper', name: 'Sarah', role: 'Social Shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
-  { id: 'charlie-family-worker', name: 'Charlie', role: 'Blue Collar', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
-  { id: 'beth-homemaker', name: 'Beth', role: 'Homemaker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
-  { id: 'sam-college-student', name: 'Sam', role: 'Student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
-  { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', role: 'Wealthy Elite', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
-  { id: 'linda-business-owner', name: 'Linda', role: 'Business Owner', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
+  { id: 'alex-busy-pro', name: 'Alex', role: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
+  { id: 'sam-college-student', name: 'Sam', role: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
+  { id: 'charlie-family-worker', name: 'Charlie', role: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
+  { id: 'beth-homemaker', name: 'Beth', role: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
+  { id: 'sarah-social-shopper', name: 'Sarah', role: 'Social influencer & avid shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
+  { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', role: 'Wealthy, highly educated', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
+  { id: 'marcus-c-suite', name: 'Marcus', role: 'Fortune 500 C-Level Exec', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
+  { id: 'linda-business-owner', name: 'Linda', role: 'Business Owner (10 employees)', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
 ];
 
 const FunnelRoaster = () => {
@@ -69,7 +69,7 @@ const FunnelRoaster = () => {
     setFormData(prev => {
       const current = prev.selectedPersonas;
       if (current.includes(id)) return { ...prev, selectedPersonas: current.filter(p => p !== id) };
-      if (current.length >= 3) return prev; // Limit to 3
+      if (current.length >= 5) return prev; // Limit to 5
       return { ...prev, selectedPersonas: [...current, id] };
     });
   };
