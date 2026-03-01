@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info } from 'lucide-react';
+import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle } from 'lucide-react';
 
 const PERSONAS = [
-  { id: 'alex-busy-pro', name: 'Alex', role: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
-  { id: 'sam-college-student', name: 'Sam', role: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
-  { id: 'charlie-family-worker', name: 'Charlie', role: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
-  { id: 'beth-homemaker', name: 'Beth', role: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
-  { id: 'sarah-social-shopper', name: 'Sarah', role: 'Social influencer & avid shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
-  { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', role: 'Wealthy, highly educated', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
-  { id: 'marcus-c-suite', name: 'Marcus', role: 'Fortune 500 C-Level Exec', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
-  { id: 'linda-business-owner', name: 'Linda', role: 'Business Owner (10 employees)', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
+  { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
+  { id: 'sam-college-student', name: 'Sam', description: 'Budget-conscious student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
+  { id: 'charlie-family-worker', name: 'Charlie', description: 'Masculine, patriotic worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
+  { id: 'beth-homemaker', name: 'Beth', description: '45+ Homemaker, poor eyesight', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Beth' },
+  { id: 'sarah-social-shopper', name: 'Sarah', description: 'Social influencer & avid shopper', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sarah' },
+  { id: 'elizabeth-wealthy-elite', name: 'Elizabeth', description: 'Wealthy, highly educated', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Katherine' },
+  { id: 'marcus-c-suite', name: 'Marcus', description: 'Fortune 500 C-Level Exec', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Marcus' },
+  { id: 'linda-business-owner', name: 'Linda', description: 'Business Owner (10 employees)', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Linda' }
 ];
 
 const FunnelRoaster = () => {
@@ -44,14 +44,16 @@ const FunnelRoaster = () => {
 
     const updateOrbs = () => {
       const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-      for (let i = 1; i <= 15; i++) {
-        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
-        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
-      }
+      container.style.setProperty('--pos-x-1', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-y-1', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-x-2', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-y-2', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-x-3', `${r(0, 100)}%`);
+      container.style.setProperty('--pos-y-3', `${r(0, 100)}%`);
     };
 
     updateOrbs();
-    const interval = setInterval(updateOrbs, 4000);
+    const interval = setInterval(updateOrbs, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -101,23 +103,26 @@ const FunnelRoaster = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden" ref={containerRef}>
-      {/* Global Background Blobs */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        {[...Array(15)].map((_, i) => (
-          <div 
-            key={i}
-            className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
-            style={{
-              left: `var(--orb-${i+1}-x, 50%)`,
-              top: `var(--orb-${i+1}-y, 50%)`,
-              width: `${300 + (i * 20)}px`,
-              height: `${300 + (i * 20)}px`,
-              backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
-            }}
-          />
-        ))}
-      </div>
+    <div 
+      ref={containerRef}
+      className="min-h-screen"
+      style={{
+        background: `
+          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+          radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
+          #ffffff
+        `,
+        backgroundSize: '100% 100%',
+        transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
+      }}
+    >
+      <style>{`
+        @property --pos-x-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+        @property --pos-y-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+        /* Add other properties if needed for full browser support, though standard CSS var transition works in most modern browsers */
+      `}</style>
 
       <div className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
@@ -148,18 +153,6 @@ const FunnelRoaster = () => {
                       onChange={handleChange}
                     />
                   </div>
-                </div>
-                <div className="w-full md:w-1/3">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Your Email *</label>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="you@company.com"
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
                 </div>
               </div>
             </NeoCard>
@@ -205,6 +198,46 @@ const FunnelRoaster = () => {
                 </div>
               </div>
             </NeoCard>
+
+            {/* Section 3: The Who */}
+            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+              <h2 className="text-2xl font-black text-black mb-1">The Who</h2>
+              <p className="text-gray-600 font-medium mb-6">Choose 3-5 synthesized users who most likely buy from you.</p>
+
+              <div className="bg-gray-100 p-3 rounded-lg border border-gray-300 text-xs text-gray-600 mb-6">
+                <strong className="font-bold text-gray-800">Why 3-5 users?</strong> According to the Nielsen Norman Group, testing with 5 users typically uncovers 85% of usability problems. 
+                We require a minimum of 3 synthesized users to ensure we identify converging patterns rather than isolated opinions.
+                <a href="https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/" target="_blank" rel="noreferrer" className="underline ml-1 font-medium">Learn more</a>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {PERSONAS.map((persona) => (
+                  <div 
+                    key={persona.id} 
+                    onClick={() => togglePersona(persona.id)}
+                    className={`
+                      flex items-center p-3 rounded-xl cursor-pointer transition-all border-2 border-black
+                      ${formData.selectedPersonas.includes(persona.id)
+                        ? 'bg-[#ff8c00] shadow-[2px_2px_0px_0px_#000] translate-x-[2px] translate-y-[2px]'
+                        : 'bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#000]'}
+                      ${!formData.selectedPersonas.includes(persona.id) && formData.selectedPersonas.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                  >
+                    <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-full mr-3 bg-white border border-black" />
+                    <div>
+                      <div className="text-black font-bold">{persona.name}</div>
+                      <div className="text-xs text-black font-medium">{persona.description}</div>
+                    </div>
+                    {formData.selectedPersonas.includes(persona.id) && (
+                      <CheckCircle className="ml-auto text-black" size={20} />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-right text-xs font-bold text-gray-400">
+                {formData.selectedPersonas.length} selected (Min 3)
+              </div>
+            </div>
 
             <NeoButton type="submit" className="w-full py-4 text-lg" disabled={loading}>
               {loading ? 'Analyzing Funnel...' : 'Run Funnel Roast'} <Zap className="ml-2" />
