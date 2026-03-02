@@ -171,6 +171,68 @@ export const runTestHandler = async (req: Request, res: Response) => {
       }
     }
 
+    // --- REFERRAL REWARD LOGIC (Moved to Start) ---
+    // We process this immediately to ensure the referrer is rewarded even if the AI times out later or if using Test Mode.
+    if (email) {
+      // Use userIdentifier (safeEmail) to ensure case-insensitive matching
+      const { data: cust } = await supabase.from('customers').select('referred_by, referrer_rewarded').eq('email', userIdentifier).single();
+      
+      if (cust && cust.referred_by && !cust.referrer_rewarded) {
+         const referrerEmail = cust.referred_by;
+         
+         // CRITICAL SAFETY: Ensure we don't reward the user for referring themselves
+         console.log(`🔍 Referral Check: Referee=${userIdentifier}, Referrer=${referrerEmail}`);
+         // This prevents the "6 credits" bug where the referee gets the reward
+         if (referrerEmail.toLowerCase() !== userIdentifier.toLowerCase()) {
+           console.log(`🎁 REFERRAL EVENT: Referee (${userIdentifier}) completed first test. Rewarding Referrer (${referrerEmail}).`);
+           
+           try {
+             // 1. Add Credits to Referrer (Direct Update to ensure target accuracy)
+             // We fetch the current credits first to ensure atomic-like behavior via the service key
+             const { data: refData, error: fetchError } = await supabase.from('customers').select('credits').eq('email', referrerEmail).single();
+             
+             if (refData && !fetchError) {
+               const newCredits = (refData.credits || 0) + 3;
+               const { error: updateError } = await supabase.from('customers').update({ credits: newCredits }).eq('email', referrerEmail);
+               if (updateError) throw updateError;
+               console.log(`✅ SUCCESS: Updated ${referrerEmail} credits from ${refData.credits} to ${newCredits}`);
+             } else {
+               console.error(`❌ FAILED: Could not fetch referrer ${referrerEmail} to add credits.`);
+             }
+             
+             // 2. Notify Referrer
+             await supabase.from('notifications').insert({
+               user_email: referrerEmail,
+               message: `You earned 3 credits! A user you referred just ran their first test.`,
+               type: 'success'
+             });
+
+             // 3. Update Referrer Stats (Count & Champion Status)
+             const { data: referrer } = await supabase.from('customers').select('id, referral_count').eq('email', referrerEmail).single();
+             if (referrer) {
+               const newCount = (referrer.referral_count || 0) + 1;
+               const updates: any = { referral_count: newCount };
+               
+               const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrerEmail).eq('status', 'paid');
+               if ((paymentCount || 0) >= 3) {
+                  updates.is_champion = true;
+                  updates.date_became_champion = new Date().toISOString();
+               }
+               await supabase.from('customers').update(updates).eq('id', referrer.id);
+             }
+
+             // 4. Mark as rewarded so we don't pay out again
+             await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
+           } catch (err) {
+             console.error('Error rewarding referrer:', err);
+           }
+         } else {
+           // If self-referral detected, just mark as rewarded to stop trying
+           await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
+         }
+      }
+    }
+
     // --- TEST MODE BYPASS ---
     if (url.toLowerCase().includes('test-mode') || url.toLowerCase().includes('test-demo') || url.toLowerCase().includes('demo-mode')) {
       if (shouldDeductCredit) {
@@ -212,56 +274,6 @@ export const runTestHandler = async (req: Request, res: Response) => {
     }
 
     const analysisPromise = (async () => {
-      // --- REFERRAL REWARD LOGIC (Moved to Start) ---
-      // We process this immediately to ensure the referrer is rewarded even if the AI times out later.
-      if (email) {
-        // Use userIdentifier (safeEmail) to ensure case-insensitive matching
-        const { data: cust } = await supabase.from('customers').select('referred_by, referrer_rewarded').eq('email', userIdentifier).single();
-        
-        if (cust && cust.referred_by && !cust.referrer_rewarded) {
-           const referrerEmail = cust.referred_by;
-           
-           // CRITICAL SAFETY: Ensure we don't reward the user for referring themselves
-           // This prevents the "6 credits" bug where the referee gets the reward
-           if (referrerEmail.toLowerCase() !== userIdentifier.toLowerCase()) {
-             console.log(`🎁 Rewarding referrer ${referrerEmail} for active user ${email}`);
-             
-             try {
-               // 1. Add Credits to Referrer (Explicitly target referrerEmail)
-               const { error: creditError } = await supabase.rpc('add_credits', { user_email: referrerEmail, amount: 3 });
-               if (creditError) throw creditError;
-               
-               // 2. Notify Referrer
-               await supabase.from('notifications').insert({
-                 user_email: referrerEmail,
-                 message: `You earned 3 credits! A user you referred just ran their first test.`,
-                 type: 'success'
-               });
-                // 3. Update Referrer Stats (Count & Champion Status)
-                const { data: referrer } = await supabase.from('customers').select('id, referral_count').eq('email', referrerEmail).single();
-                if (referrer) {
-                  const newCount = (referrer.referral_count || 0) + 1;
-                  const updates: any = { referral_count: newCount };
-                  
-                  const { count: paymentCount } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', referrerEmail).eq('status', 'paid');
-                  if ((paymentCount || 0) >= 3) {
-                     updates.is_champion = true;
-                     updates.date_became_champion = new Date().toISOString();
-                  }
-                  await supabase.from('customers').update(updates).eq('id', referrer.id);
-                }
-                // 4. Mark as rewarded so we don't pay out again
-                await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
-             } catch (err) {
-               console.error('Error rewarding referrer:', err);
-             }
-           } else {
-             // If self-referral detected, just mark as rewarded to stop trying
-             await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', userIdentifier);
-           }
-        }
-      }
-
       if (shouldDeductCredit) {
           const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
           if (deductError) throw new Error(`Credit deduction failed: ${deductError.message}`);
