@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
-import { runTestHandler } from './analysis-controller';
+import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { runFunnelRoastHandler } from './funnel-roaster-controller';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
@@ -195,22 +195,6 @@ const parseMarkdownToTailwind = (text: string) => {
   return `<div class="prose-neo"><p class="mb-4 text-gray-800 leading-relaxed font-medium">${html}</p></div>`;
 };
 
-// --- Helper: Generate Structured Data ---
-const generateStructuredData = (url: string, name: string, scores: any, expertReport: string) => {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "url": url,
-    "name": name,
-    "review": {
-      "@type": "Review",
-      "reviewRating": { "@type": "Rating", "ratingValue": scores.usability, "bestRating": "100", "worstRating": "0" },
-      "author": { "@type": "Organization", "name": "Product Shift AI" },
-      "reviewBody": expertReport
-    }
-  };
-};
-
 // --- Public Report Endpoint ---
 app.get('/api/public-report/:id', async (req, res) => {
   const { id } = req.params;
@@ -223,7 +207,7 @@ app.get('/api/public-report/:id', async (req, res) => {
   }
 
   if (id === 'test-mode-dummy-id') {
-    return res.send('Test Mode Report'); 
+    return res.send('Test Mode Report');
   }
   
   if (!supabaseUrl || !supabaseServiceKey) return res.status(500).send('Database not configured');
