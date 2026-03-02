@@ -331,8 +331,10 @@ router.get('/fix-legacy-schema', requireAdminKey, async (req, res) => {
     let count = 0;
     if (posts) {
       for (const post of posts) {
-        if (post.content && post.content.includes('"itemReviewed": { "@type": "WebSite"')) {
-          const newContent = post.content.replace(/"itemReviewed": { "@type": "WebSite"/g, '"itemReviewed": { "@type": "Organization"');
+        // Use Regex to match "itemReviewed": { "@type": "WebSite" ignoring whitespace/newlines
+        const regex = /"itemReviewed":\s*\{\s*"@type":\s*"WebSite"/g;
+        if (post.content && regex.test(post.content)) {
+          const newContent = post.content.replace(regex, '"itemReviewed": { "@type": "Organization"');
           await supabase.from('posts').update({ content: newContent }).eq('id', post.id);
           count++;
         }
