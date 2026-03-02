@@ -324,4 +324,24 @@ router.post('/draft-blog-post', async (req, res) => {
   }
 });
 
+// --- Admin: Fix Legacy Schema (GSC Fix) ---
+router.get('/fix-legacy-schema', requireAdminKey, async (req, res) => {
+  try {
+    const { data: posts } = await supabase.from('posts').select('id, content');
+    let count = 0;
+    if (posts) {
+      for (const post of posts) {
+        if (post.content && post.content.includes('"itemReviewed": { "@type": "WebSite"')) {
+          const newContent = post.content.replace(/"itemReviewed": { "@type": "WebSite"/g, '"itemReviewed": { "@type": "Organization"');
+          await supabase.from('posts').update({ content: newContent }).eq('id', post.id);
+          count++;
+        }
+      }
+    }
+    res.json({ success: true, fixedCount: count, message: `Updated ${count} posts with correct schema.` });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;
