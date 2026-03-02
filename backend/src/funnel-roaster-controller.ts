@@ -50,6 +50,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       2. **The "Fold" Test:** Is the Offer visible without scrolling?
       3. **Revenue Guesstimate:** If metrics are provided, estimate potential revenue uplift if friction is fixed. Use industry benchmarks (e.g., E-com CVR ~2.5%).
       4. **Competitor Gap:** How does this stack up against the listed competitors?
+      5. **Persona Journey:** For each target persona, simulate their reaction to the Ad -> Page transition. Did the ad set the right expectation? Did the page deliver?
 
       **OUTPUT FORMAT:**
       Return a JSON object with:
@@ -57,6 +58,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       - "revenueProjection": string (e.g., "+$4,200/mo")
       - "summary": string (The roast)
       - "fixes": array of strings
+      - "personaThoughts": array of objects with keys: "persona" (name), "sentiment" (Positive/Neutral/Negative), "thoughts" (first-person reaction to the journey), "decision" (Converted/Bounced)
     `;
 
     // 3. Call the AI Engine

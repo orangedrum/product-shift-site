@@ -580,6 +580,26 @@ const FunnelRoaster = () => {
                  </div>
                </div>
 
+               {/* Persona Journey Section */}
+               {funnelData.personaThoughts && funnelData.personaThoughts.length > 0 && (
+                 <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+                   <h2 className="text-2xl font-bold text-black mb-6">Persona Journey (Ad → Landing Page)</h2>
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                     {funnelData.personaThoughts.map((p: any, i: number) => (
+                       <div key={i} className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200 relative">
+                         <div className="flex justify-between items-start mb-4">
+                           <h3 className="font-bold text-lg text-black">{p.persona}</h3>
+                           <span className={`px-2 py-1 rounded text-xs font-black uppercase border ${p.decision === 'Converted' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'}`}>
+                             {p.decision}
+                           </span>
+                         </div>
+                         <p className="text-sm text-gray-700 italic leading-relaxed">"{p.thoughts}"</p>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               )}
+
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                  {/* LEFT: Fixes (Action Plan) */}
                  <div className="lg:col-span-5 space-y-6">
