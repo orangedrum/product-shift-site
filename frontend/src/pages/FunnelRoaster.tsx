@@ -325,6 +325,22 @@ const FunnelRoaster = () => {
               <Smartphone size={18} /> App Roaster
             </button>
           </div>
+
+          {activeMode === 'site' && (
+            <h1 className="text-5xl font-black text-black mb-4 tracking-tight">AI Site Roaster</h1>
+          )}
+          {activeMode === 'funnel' && (
+            <h1 className="text-5xl font-black text-black mb-4 tracking-tight">AI Funnel Roaster</h1>
+          )}
+          {activeMode === 'app' && (
+            <h1 className="text-5xl font-black text-black mb-4 tracking-tight">AI App Roaster</h1>
+          )}
+          
+          <p className="text-xl text-gray-700 font-medium max-w-2xl mx-auto">
+            {activeMode === 'site' && "Identify friction points and UX issues on any landing page instantly."}
+            {activeMode === 'funnel' && "Because cheap acquisition of worthless customers is the most expensive strategy there is"}
+            {activeMode === 'app' && "Simulate user flows inside your web app (Coming Soon)."}
+          </p>
         </div>
 
         {/* ==================== FUNNEL ROASTER FORM ==================== */}
