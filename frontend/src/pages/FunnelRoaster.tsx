@@ -523,19 +523,105 @@ const FunnelRoaster = () => {
         )}
 
         {/* ==================== FUNNEL RESULTS ==================== */}
-        {step === 3 && activeMode === 'funnel' && result && !error && (
-          <div className="space-y-8">
-            <NeoCard className="border-l-8 border-l-purple-600">
-              <h2 className="text-2xl font-black mb-4">The Verdict</h2>
-              <div className="prose prose-lg">
-                <pre className="whitespace-pre-wrap font-sans text-gray-700">{JSON.stringify(result, null, 2)}</pre>
-              </div>
-            </NeoCard>
-            <div className="text-center">
-              <NeoButton onClick={() => setStep(1)} variant="secondary">Run Another Roast</NeoButton>
-            </div>
-          </div>
-        )}
+        {step === 3 && activeMode === 'funnel' && result && !error && (() => {
+           const funnelData = typeof result === 'string' ? (() => {
+             try {
+               const clean = result.replace(/```json/g, '').replace(/```/g, '');
+               return JSON.parse(clean);
+             } catch(e) { return null; }
+           })() : result;
+
+           if (!funnelData || !funnelData.congruencyScore) {
+             return (
+               <div className="space-y-8">
+                 <NeoCard className="border-l-8 border-l-purple-600">
+                   <h2 className="text-2xl font-black mb-4">The Verdict</h2>
+                   <div className="prose prose-lg">
+                     <pre className="whitespace-pre-wrap font-sans text-gray-700">{typeof result === 'string' ? result : JSON.stringify(result, null, 2)}</pre>
+                   </div>
+                 </NeoCard>
+                 <div className="text-center">
+                   <NeoButton onClick={() => setStep(1)} variant="secondary">Run Another Roast</NeoButton>
+                 </div>
+               </div>
+             );
+           }
+
+           return (
+             <div className="space-y-8 animate-fade-in">
+               {/* Header Score Card */}
+               <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                   <div className="text-center md:text-left">
+                     <h2 className="text-3xl font-black text-black mb-2">Congruency Score</h2>
+                     <div className="flex items-baseline gap-2 justify-center md:justify-start">
+                       <span className={`text-6xl font-black ${funnelData.congruencyScore >= 80 ? 'text-green-600' : funnelData.congruencyScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                         {funnelData.congruencyScore}
+                       </span>
+                       <span className="text-2xl text-gray-400 font-bold">/100</span>
+                     </div>
+                   </div>
+                   
+                   <div className="flex-1 w-full max-w-md">
+                      <div className="bg-gray-100 rounded-full h-6 border-2 border-black overflow-hidden relative">
+                        <div 
+                          className={`h-full transition-all duration-1000 ${funnelData.congruencyScore >= 80 ? 'bg-green-500' : funnelData.congruencyScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                          style={{ width: `${funnelData.congruencyScore}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-center mt-2 font-bold text-gray-600">{funnelData.congruencyScore >= 80 ? 'Excellent Match' : funnelData.congruencyScore >= 60 ? 'Needs Improvement' : 'Critical Mismatch'}</p>
+                   </div>
+
+                   <div className="bg-green-50 border-2 border-green-500 p-4 rounded-xl text-center min-w-[200px]">
+                     <div className="flex justify-center mb-1"><TrendingUp className="text-green-600" /></div>
+                     <p className="text-xs font-bold text-green-800 uppercase tracking-wider">Projected Uplift</p>
+                     <p className="text-xl font-black text-green-700">{funnelData.revenueProjection}</p>
+                   </div>
+                 </div>
+               </div>
+
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                 {/* LEFT: Fixes (Action Plan) */}
+                 <div className="lg:col-span-5 space-y-6">
+                   <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
+                     <div className="p-4 border-b-2 border-black bg-gray-50">
+                       <h2 className="text-lg font-bold text-black flex items-center gap-2">
+                         <CheckCircle size={20} /> Action Plan
+                       </h2>
+                     </div>
+                     <div className="p-6 space-y-4">
+                       {funnelData.fixes.map((fix: string, i: number) => (
+                         <div key={i} className="flex gap-3 items-start">
+                           <div className="mt-1 min-w-[24px] h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold">
+                             {i + 1}
+                           </div>
+                           <p className="text-sm font-medium text-gray-800 leading-relaxed">{fix}</p>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* RIGHT: Analysis */}
+                 <div className="lg:col-span-7">
+                   <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] h-full">
+                     <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
+                       <h2 className="text-2xl font-bold text-black m-0">Media Buyer Analysis</h2>
+                       <NeoButton variant="secondary" onClick={handlePrintClick} icon={<Download size={16} />} />
+                     </div>
+                     <div className="prose max-w-none text-gray-800 font-medium leading-relaxed whitespace-pre-wrap">
+                       {funnelData.summary}
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
+               <div className="text-center mt-12">
+                 <NeoButton onClick={() => setStep(1)} variant="secondary">Run Another Roast</NeoButton>
+               </div>
+             </div>
+           );
+        })()}
 
         {/* ==================== SITE ROASTER RESULTS ==================== */}
         {step === 3 && activeMode === 'site' && siteResult && !error && (
