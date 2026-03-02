@@ -293,33 +293,33 @@ const FunnelRoaster = () => {
       <div className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           {/* 3-Prong Toggle */}
-          <div className="local-toggle inline-flex bg-black p-2 rounded-full border-2 border-gray-800 shadow-[0px_8px_0px_0px_rgba(0,0,0,0.5)] mb-8 transform transition-all hover:-translate-y-1">
+          <div className="local-toggle inline-flex bg-[#121212] p-1 rounded-full shadow-[0px_2px_4px_0px_rgba(18,18,18,0.25),0px_4px_8px_0px_rgba(18,18,18,0.35)] mb-8">
             <button
               onClick={() => { setActiveMode('site'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-colors duration-300 ${
                 activeMode === 'site' 
-                  ? 'bg-gray-800 text-white border-gray-600 shadow-[0px_4px_0px_0px_rgba(255,255,255,0.2)] -translate-y-1' 
-                  : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-900'
+                  ? 'text-white bg-[#1a1a1a] border border-gray-600 shadow-[inset_2px_2px_2px_0px_rgba(64,64,64,0.25),inset_-2px_-2px_2px_0px_rgba(16,16,16,0.5)]' 
+                  : 'text-gray-500 border border-transparent shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.5)] hover:text-white'
               }`}
             >
               <Layout size={18} /> Site Roaster
             </button>
             <button
               onClick={() => { setActiveMode('funnel'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-colors duration-300 ${
                 activeMode === 'funnel' 
-                  ? 'bg-gray-800 text-white border-gray-600 shadow-[0px_4px_0px_0px_rgba(255,255,255,0.2)] -translate-y-1' 
-                  : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-900'
+                  ? 'text-white bg-[#1a1a1a] border border-gray-600 shadow-[inset_2px_2px_2px_0px_rgba(64,64,64,0.25),inset_-2px_-2px_2px_0px_rgba(16,16,16,0.5)]' 
+                  : 'text-gray-500 border border-transparent shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.5)] hover:text-white'
               }`}
             >
               <Filter size={18} /> Funnel Roaster
             </button>
             <button
               onClick={() => { setActiveMode('app'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-colors duration-300 ${
                 activeMode === 'app' 
-                  ? 'bg-gray-800 text-white border-gray-600 shadow-[0px_4px_0px_0px_rgba(255,255,255,0.2)] -translate-y-1' 
-                  : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-900'
+                  ? 'text-white bg-[#1a1a1a] border border-gray-600 shadow-[inset_2px_2px_2px_0px_rgba(64,64,64,0.25),inset_-2px_-2px_2px_0px_rgba(16,16,16,0.5)]' 
+                  : 'text-gray-500 border border-transparent shadow-[inset_0px_1px_2px_0px_rgba(0,0,0,0.5)] hover:text-white'
               }`}
             >
               <Smartphone size={18} /> App Roaster
@@ -336,7 +336,7 @@ const FunnelRoaster = () => {
             <h1 className="text-5xl font-black text-black mb-4 tracking-tight">AI App Roaster</h1>
           )}
           
-          <p className="text-xl text-gray-700 font-medium max-w-2xl mx-auto">
+          <p className="text-xl text-black font-medium max-w-2xl mx-auto">
             {activeMode === 'site' && "Identify friction points and UX issues on any landing page instantly."}
             {activeMode === 'funnel' && "Because cheap acquisition of worthless customers is the most expensive strategy there is"}
             {activeMode === 'app' && "Simulate user flows inside your web app (Coming Soon)."}
