@@ -69,7 +69,8 @@ const App: React.FC = () => {
     '/admin-blog',
     '/login', // <--- CRITICAL: Hides header on login page
     '/blog-login',
-    '/styleguide'
+    '/styleguide',
+    '/funnel-roaster'
   ].includes(normalizedPath) || location.pathname.startsWith('/login');
 
   // Debugging: Log current path to ensure router is working

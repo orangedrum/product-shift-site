@@ -293,13 +293,13 @@ const FunnelRoaster = () => {
       <div className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           {/* 3-Prong Toggle */}
-          <div className="inline-flex bg-black p-2 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.25)] mb-8">
+          <div className="local-toggle inline-flex bg-black p-2 rounded-full border-2 border-gray-800 shadow-[0px_8px_0px_0px_rgba(0,0,0,0.5)] mb-8 transform transition-all hover:-translate-y-1">
             <button
               onClick={() => { setActiveMode('site'); setStep(1); setResult(null); setSiteResult(null); }}
               className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
                 activeMode === 'site' 
-                  ? 'bg-gray-900 text-white border-gray-700 shadow-[3px_3px_0px_0px_#555] -translate-y-0.5' 
-                  : 'text-gray-400 hover:text-white border-transparent'
+                  ? 'bg-gray-800 text-white border-gray-600 shadow-[0px_4px_0px_0px_rgba(255,255,255,0.2)] -translate-y-1' 
+                  : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-900'
               }`}
             >
               <Layout size={18} /> Site Roaster
@@ -308,8 +308,8 @@ const FunnelRoaster = () => {
               onClick={() => { setActiveMode('funnel'); setStep(1); setResult(null); setSiteResult(null); }}
               className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
                 activeMode === 'funnel' 
-                  ? 'bg-gray-900 text-white border-gray-700 shadow-[3px_3px_0px_0px_#555] -translate-y-0.5' 
-                  : 'text-gray-400 hover:text-white border-transparent'
+                  ? 'bg-gray-800 text-white border-gray-600 shadow-[0px_4px_0px_0px_rgba(255,255,255,0.2)] -translate-y-1' 
+                  : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-900'
               }`}
             >
               <Filter size={18} /> Funnel Roaster
@@ -318,8 +318,8 @@ const FunnelRoaster = () => {
               onClick={() => { setActiveMode('app'); setStep(1); setResult(null); setSiteResult(null); }}
               className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
                 activeMode === 'app' 
-                  ? 'bg-gray-900 text-white border-gray-700 shadow-[3px_3px_0px_0px_#555] -translate-y-0.5' 
-                  : 'text-gray-400 hover:text-white border-transparent'
+                  ? 'bg-gray-800 text-white border-gray-600 shadow-[0px_4px_0px_0px_rgba(255,255,255,0.2)] -translate-y-1' 
+                  : 'text-gray-400 hover:text-white border-transparent hover:bg-gray-900'
               }`}
             >
               <Smartphone size={18} /> App Roaster
