@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { SecurityAlert } from '../components/SecurityAlert';
-import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download } from 'lucide-react';
+import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download, Loader2 } from 'lucide-react';
 
 const PERSONAS = [
   { id: 'alex-busy-pro', name: 'Alex', description: 'Busy professional, 2 kids < 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
@@ -78,6 +78,10 @@ const FunnelRoaster = () => {
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
   const [session, setSession] = useState<any>(null);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistSuccess, setWaitlistSuccess] = useState(false);
+  const [waitlistError, setWaitlistError] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -224,6 +228,25 @@ const FunnelRoaster = () => {
     setTimeout(() => window.print(), 100);
   };
 
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWaitlistLoading(true);
+    setWaitlistError(null);
+    try {
+      const res = await fetch('/api/join-waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: waitlistEmail })
+      });
+      if (!res.ok) throw new Error('Failed to join');
+      setWaitlistSuccess(true);
+    } catch (err) {
+      setWaitlistError('Something went wrong. Please try again.');
+    } finally {
+      setWaitlistLoading(false);
+    }
+  };
+
   return (
     <div 
       ref={containerRef}
@@ -257,17 +280,25 @@ const FunnelRoaster = () => {
           .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; }
           .border-2 { border-width: 2px !important; border-color: #000 !important; }
         }
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.4s ease-out forwards;
+        }
       `}</style>
 
       <div className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           {/* 3-Prong Toggle */}
-          <div className="inline-flex bg-gray-100 p-1.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] mb-8">
+          <div className="inline-flex bg-gray-100 p-1.5 rounded-full mb-8">
             <button
               onClick={() => { setActiveMode('site'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-black transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all ${
                 activeMode === 'site' 
-                  ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_#000]' 
+                  ? 'bg-black text-white' 
                   : 'text-gray-500 hover:text-black'
               }`}
             >
@@ -275,9 +306,9 @@ const FunnelRoaster = () => {
             </button>
             <button
               onClick={() => { setActiveMode('funnel'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-black transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all ${
                 activeMode === 'funnel' 
-                  ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_#000]' 
+                  ? 'bg-black text-white' 
                   : 'text-gray-500 hover:text-black'
               }`}
             >
@@ -285,9 +316,9 @@ const FunnelRoaster = () => {
             </button>
             <button
               onClick={() => { setActiveMode('app'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-black transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all ${
                 activeMode === 'app' 
-                  ? 'bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_#000]' 
+                  ? 'bg-black text-white' 
                   : 'text-gray-500 hover:text-black'
               }`}
             >
@@ -314,7 +345,7 @@ const FunnelRoaster = () => {
 
         {/* ==================== FUNNEL ROASTER FORM ==================== */}
         {activeMode === 'funnel' && step === 1 && (
-          <form onSubmit={handleFunnelSubmit} className="space-y-8">
+          <form onSubmit={handleFunnelSubmit} className="space-y-8 animate-fade-in-up">
             {/* Section 1: The Destination */}
             <NeoCard title="1. The Destination">
               <div className="flex flex-col gap-4">
@@ -386,7 +417,7 @@ const FunnelRoaster = () => {
 
         {/* ==================== SITE ROASTER FORM ==================== */}
         {activeMode === 'site' && step === 1 && (
-          <form onSubmit={handleSiteSubmit} className="space-y-8">
+          <form onSubmit={handleSiteSubmit} className="space-y-8 animate-fade-in-up">
             {/* Card 1: The What */}
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <h2 className="text-2xl font-black text-black mb-1">The What</h2>
@@ -452,17 +483,41 @@ const FunnelRoaster = () => {
 
         {/* ==================== APP ROASTER (COMING SOON) ==================== */}
         {activeMode === 'app' && (
-          <div className="text-center py-20 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+          <div className="text-center py-20 bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] animate-fade-in-up">
             <div className="inline-block p-4 bg-gray-100 rounded-full mb-6">
               <Smartphone size={48} className="text-gray-400" />
             </div>
-            <h2 className="text-3xl font-black text-black mb-4">Coming Soon</h2>
-            <p className="text-gray-600 max-w-md mx-auto mb-8">
-              We are building a specialized agent capable of logging into your app, navigating complex flows, and stress-testing your SaaS product.
-            </p>
-            <NeoButton variant="secondary" onClick={() => setActiveMode('funnel')}>
-              Try Funnel Roaster Instead
-            </NeoButton>
+            <h2 className="text-3xl font-black text-black mb-2">Bring Your Own Key</h2>
+            <p className="text-gray-600 font-medium mb-6">Manage LLM cost internally.</p>
+            
+            <ul className="text-left max-w-md mx-auto space-y-3 mb-8 text-gray-600">
+              <li className="flex items-center gap-3"><CheckCircle size={20} className="text-green-500 shrink-0"/> <span className="font-medium">Unlimited tests with your keys</span></li>
+              <li className="flex items-center gap-3"><CheckCircle size={20} className="text-green-500 shrink-0"/> <span className="font-medium">Use your own API keys (OpenAI, Anthropic)</span></li>
+              <li className="flex items-center gap-3"><CheckCircle size={20} className="text-green-500 shrink-0"/> <span className="font-medium">CI / API integration</span></li>
+            </ul>
+
+            {waitlistSuccess ? (
+               <div className="p-4 bg-green-50 text-green-700 rounded-lg max-w-md mx-auto border-2 border-green-200">
+                 <strong>You're on the list!</strong> We'll notify you when the App Roaster is ready.
+               </div>
+            ) : (
+              <form onSubmit={handleWaitlistSubmit} className="max-w-md mx-auto">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input 
+                    type="email" 
+                    required 
+                    placeholder="Enter your email" 
+                    className="flex-1 p-3 border-2 border-black rounded-lg focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] transition-all"
+                    value={waitlistEmail}
+                    onChange={e => setWaitlistEmail(e.target.value)}
+                  />
+                  <NeoButton type="submit" disabled={waitlistLoading}>
+                    {waitlistLoading ? <Loader2 className="animate-spin" /> : 'Join Waitlist'}
+                  </NeoButton>
+                </div>
+                {waitlistError && <p className="text-red-500 text-sm mt-2 font-bold">{waitlistError}</p>}
+              </form>
+            )}
           </div>
         )}
 
