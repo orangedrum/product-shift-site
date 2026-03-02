@@ -7,6 +7,7 @@ import { NeoButton } from '../components/NeoButton';
 import { SecurityAlert } from '../components/SecurityAlert';
 import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download, Loader2 } from 'lucide-react';
 import { PersonaSelector } from '../components/PersonaSelector';
+import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
 // Helper to format simple markdown to HTML (Copied from AiUxAgent for consistency)
 const formatText = (text: string) => {
@@ -63,6 +64,7 @@ const FunnelRoaster = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1=Inputs, 2=Analyzing, 3=Results
   const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<any>(null);
   const [siteResult, setSiteResult] = useState<any>(null); // Specific for Site Roaster results
   const [activeTab, setActiveTab] = useState<number>(0);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
@@ -147,6 +149,7 @@ const FunnelRoaster = () => {
     e.preventDefault();
     setLoading(true);
     setStep(2);
+    setError(null);
 
     try {
       const res = await fetch('/api/run-funnel-roast', {
@@ -164,10 +167,13 @@ const FunnelRoaster = () => {
       
       setResult(data.report);
       setStep(3);
-    } catch (err) {
-      console.error(err);
-      alert('Failed to run roast. Please try again.');
-      setStep(1);
+    } catch (err: any) {
+      console.error('Funnel Roast Error:', err);
+      setError({
+        error: err.error || 'Analysis Failed',
+        details: err.details || err.message || 'An unexpected error occurred.',
+        usageCounted: err.usageCounted
+      });
     } finally {
       setLoading(false);
     }
@@ -177,6 +183,7 @@ const FunnelRoaster = () => {
     e.preventDefault();
     setLoading(true);
     setStep(2);
+    setError(null);
 
     // Ensure the URL has a protocol (matching AiUxAgent logic)
     const fullUrl = formData.url.startsWith('http://') || formData.url.startsWith('https://') ? formData.url : `https://${formData.url}`;
@@ -201,10 +208,13 @@ const FunnelRoaster = () => {
       
       setSiteResult(data);
       setStep(3);
-    } catch (err) {
-      console.error(err);
-      alert('Failed to run site roast. Please try again.');
-      setStep(1);
+    } catch (err: any) {
+      console.error('Site Roast Error:', err);
+      setError({
+        error: err.error || 'Analysis Failed',
+        details: err.details || err.message || 'An unexpected error occurred.',
+        usageCounted: err.usageCounted
+      });
     } finally {
       setLoading(false);
     }
@@ -334,7 +344,7 @@ const FunnelRoaster = () => {
         </div>
 
         {/* ==================== FUNNEL ROASTER FORM ==================== */}
-        {activeMode === 'funnel' && step === 1 && (
+        {activeMode === 'funnel' && step === 1 && !error && (
           <form onSubmit={handleFunnelSubmit} className="space-y-8 animate-fade-in-up">
             {/* Section 1: The Destination */}
             <NeoCard title="1. The Destination">
@@ -409,7 +419,7 @@ const FunnelRoaster = () => {
         )}
 
         {/* ==================== SITE ROASTER FORM ==================== */}
-        {activeMode === 'site' && step === 1 && (
+        {activeMode === 'site' && step === 1 && !error && (
           <form onSubmit={handleSiteSubmit} className="space-y-8 animate-fade-in-up">
             {/* Card 1: The What */}
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
@@ -498,13 +508,13 @@ const FunnelRoaster = () => {
         )}
 
         {/* ==================== LOADING STATE ==================== */}
-        {step === 2 && (
+        {step === 2 && !error && (
           <div className="text-center py-20">
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mx-auto mb-8"></div>
             <h2 className="text-2xl font-black text-black mb-2">
               {activeMode === 'funnel' ? 'Analyzing Congruency...' : 'Simulating Users...'}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-black font-medium">
               {activeMode === 'funnel' 
                 ? 'Our AI Media Buyer is checking your Ad against your Landing Page.' 
                 : 'Our AI Personas are browsing your site and taking notes.'}
@@ -513,7 +523,7 @@ const FunnelRoaster = () => {
         )}
 
         {/* ==================== FUNNEL RESULTS ==================== */}
-        {step === 3 && activeMode === 'funnel' && result && (
+        {step === 3 && activeMode === 'funnel' && result && !error && (
           <div className="space-y-8">
             <NeoCard className="border-l-8 border-l-purple-600">
               <h2 className="text-2xl font-black mb-4">The Verdict</h2>
@@ -528,7 +538,7 @@ const FunnelRoaster = () => {
         )}
 
         {/* ==================== SITE ROASTER RESULTS ==================== */}
-        {step === 3 && activeMode === 'site' && siteResult && (
+        {step === 3 && activeMode === 'site' && siteResult && !error && (
           <div id="report-section" className="w-full animate-fade-in">
             {siteResult.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
             
@@ -652,6 +662,20 @@ const FunnelRoaster = () => {
             <div className="text-center mt-12 no-print">
               <NeoButton onClick={() => setStep(1)} variant="secondary">Run Another Roast</NeoButton>
             </div>
+          </div>
+        )}
+
+        {/* ==================== ERROR STATE ==================== */}
+        {error && (
+          <div className="animate-fade-in">
+            {error.error === 'Site Security Error' ? (
+              <SecurityAlert isBlocking={true} onReset={() => { setError(null); setStep(1); }} />
+            ) : (
+              <AnalysisErrorCard 
+                error={error} 
+                onReset={() => { setError(null); setStep(1); }} 
+              />
+            )}
           </div>
         )}
 

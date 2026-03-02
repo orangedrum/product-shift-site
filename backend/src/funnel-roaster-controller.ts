@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { supabase } from './services';
 import { scrapeUrl } from './browser-service';
-import { generateAnalysis } from './ai-service';
+import { generateContentWithFallback } from './ai-service';
 
 export const runFunnelRoastHandler = async (req: Request, res: Response) => {
   const { 
@@ -60,7 +60,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
     `;
 
     // 3. Call the AI Engine
-    const analysis = await generateAnalysis(systemPrompt, scrapeResult.screenshot);
+    const analysis = await generateContentWithFallback(systemPrompt, scrapeResult.screenshot);
 
     // 4. Save to Database
     // Note: user_identifier will be handled by auth middleware in the future, 
