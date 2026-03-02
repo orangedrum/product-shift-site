@@ -293,54 +293,38 @@ const FunnelRoaster = () => {
       <div className="relative z-10 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           {/* 3-Prong Toggle */}
-          <div className="inline-flex bg-gray-100 p-1.5 rounded-full mb-8">
+          <div className="inline-flex bg-black p-2 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.25)] mb-8">
             <button
               onClick={() => { setActiveMode('site'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
                 activeMode === 'site' 
-                  ? 'bg-black text-white' 
-                  : 'text-gray-500 hover:text-black'
+                  ? 'bg-gray-900 text-white border-gray-700 shadow-[3px_3px_0px_0px_#555] -translate-y-0.5' 
+                  : 'text-gray-400 hover:text-white border-transparent'
               }`}
             >
               <Layout size={18} /> Site Roaster
             </button>
             <button
               onClick={() => { setActiveMode('funnel'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
                 activeMode === 'funnel' 
-                  ? 'bg-black text-white' 
-                  : 'text-gray-500 hover:text-black'
+                  ? 'bg-gray-900 text-white border-gray-700 shadow-[3px_3px_0px_0px_#555] -translate-y-0.5' 
+                  : 'text-gray-400 hover:text-white border-transparent'
               }`}
             >
               <Filter size={18} /> Funnel Roaster
             </button>
             <button
               onClick={() => { setActiveMode('app'); setStep(1); setResult(null); setSiteResult(null); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all border-2 ${
                 activeMode === 'app' 
-                  ? 'bg-black text-white' 
-                  : 'text-gray-500 hover:text-black'
+                  ? 'bg-gray-900 text-white border-gray-700 shadow-[3px_3px_0px_0px_#555] -translate-y-0.5' 
+                  : 'text-gray-400 hover:text-white border-transparent'
               }`}
             >
               <Smartphone size={18} /> App Roaster
             </button>
           </div>
-
-          {activeMode === 'site' && (
-            <h1 className="text-5xl font-black text-black mb-4 tracking-tight">AI Site Roaster</h1>
-          )}
-          {activeMode === 'funnel' && (
-            <h1 className="text-5xl font-black text-black mb-4 tracking-tight">AI Funnel Roaster</h1>
-          )}
-          {activeMode === 'app' && (
-            <h1 className="text-5xl font-black text-black mb-4 tracking-tight">AI App Roaster</h1>
-          )}
-          
-          <p className="text-xl text-gray-700 font-medium max-w-2xl mx-auto">
-            {activeMode === 'site' && "Identify friction points and UX issues on any landing page instantly."}
-            {activeMode === 'funnel' && <>Don't just fix the page. Fix the <span className="font-black bg-yellow-300 px-1">congruency</span> between your ad and your offer.</>}
-            {activeMode === 'app' && "Simulate user flows inside your web app (Coming Soon)."}
-          </p>
         </div>
 
         {/* ==================== FUNNEL ROASTER FORM ==================== */}
