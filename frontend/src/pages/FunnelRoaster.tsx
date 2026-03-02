@@ -163,7 +163,7 @@ const FunnelRoaster = () => {
       });
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Analysis failed');
+      if (!res.ok) throw data;
       
       setResult(data.report);
       setStep(3);
@@ -204,7 +204,7 @@ const FunnelRoaster = () => {
       });
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Analysis failed');
+      if (!res.ok) throw data;
       
       setSiteResult(data);
       setStep(3);

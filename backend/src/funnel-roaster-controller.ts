@@ -71,8 +71,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       plan_type: 'funnel_roast_v1',
       funnel_context: { hook, offer, adCreative, competitors, campaignType, personaIds },
       campaign_metrics: metrics,
-      report_data: analysis,
-      status: 'completed'
+      report_data: analysis
     }).select().single();
 
     if (error) throw error;
@@ -81,6 +80,6 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
 
   } catch (error: any) {
     console.error('Funnel Roast Error:', error);
-    res.status(500).json({ error: error.message || 'Analysis failed' });
+    res.status(500).json({ error: 'Analysis Failed', details: error.message, usageCounted: false });
   }
 };
