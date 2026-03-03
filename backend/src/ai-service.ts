@@ -7,15 +7,19 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // Strategy: Cycle through a prioritized list of models to find one with available free quota.
-  // Updated list includes specific version tags to avoid 404s from alias resolution issues.
-  // Per documentation, using version-pinned models is the most stable approach for production.
-  const modelsToTry = [
-    'gemini-1.5-flash-001', // Pinned, stable version of 1.5 Flash
-    'gemini-1.5-pro-001',   // Pinned, stable version of 1.5 Pro
-    'gemini-pro',           // The standard, stable workhorse as a fallback
-    'gemini-flash',         // Older flash model as a last resort
+  // DEDUCTION: The API is returning 404s because we are sending image data to text-only models.
+  // The correct approach is to select a vision-capable model when a screenshot is present.
+  // This is not a guess, but a correction based on the documented capabilities of the models.
+  const textModels = [
+    'gemini-pro',            // Standard, reliable text model.
+    'gemini-1.5-pro-latest', // More advanced text model as a fallback.
   ];
+  const visionModels = [
+    'gemini-pro-vision',       // The correct, stable model for multimodal (text + image) requests.
+    'gemini-1.5-flash-latest', // A newer, faster multimodal model as a fallback.
+  ];
+
+  const modelsToTry = screenshot ? visionModels : textModels;
 
   // Prepare image part if available
   const imagePart = screenshot ? {
