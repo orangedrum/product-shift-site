@@ -1,23 +1,67 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, ModelParams } from '@google/generative-ai';
 import { delay } from './services';
+
+let cachedModels: ModelParams[] | null = null;
+let cacheTimestamp: number | null = null;
+const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+
+/**
+ * Fetches and caches the list of available models from the Gemini API.
+ * This makes the application resilient to external model name changes.
+ */
+const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParams[]> => {
+  const now = Date.now();
+  if (cachedModels && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
+    return cachedModels;
+  }
+
+  console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
+  try {
+    const result = await genAI.listModels();
+    // Filter for models that actually support content generation
+    const availableModels = result.models.filter(m => m.supportedGenerationMethods.includes('generateContent'));
+    
+    cachedModels = availableModels;
+    cacheTimestamp = now;
+    
+    console.log('[AI Service] Fetched and cached models:', availableModels.map(m => m.name));
+    return availableModels;
+  } catch (error) {
+    console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
+    // Return a default list if the API call fails, to maintain some functionality
+    return [
+        { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-pro', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-1.5-flash-latest', supportedGenerationMethods: ['generateContent'] },
+    ] as ModelParams[];
+  }
+};
 
 export const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is missing in environment variables");
   
   const genAI = new GoogleGenerativeAI(apiKey);
+  let errorLog: string[] = [];
 
-  // DEDUCTION: The API returns 404s when an image is sent to a text-only model.
-  // The code must select the correct model based on the payload. This is not a guess;
-  // it is a correction based on the documented capabilities of the Gemini API.
-  // - For text-and-image (multimodal) input, use 'gemini-pro-vision'.
-  // - For text-only input, use 'gemini-pro'.
-  const modelName = screenshot ? 'gemini-pro-vision' : 'gemini-pro';
-  
-  // Use the correct model first, but add a fallback in case of availability issues.
-  const visionFallbacks = ['gemini-1.5-flash-latest'];
-  const textFallbacks = ['gemini-1.5-pro-latest'];
-  const modelsToTry = screenshot ? [modelName, ...visionFallbacks] : [modelName, ...textFallbacks];
+  const allModels = await getAvailableModels(genAI);
+
+  // Intelligently select models based on the task (vision or text)
+  const modelsToTry = allModels
+    .map(m => m.name.replace('models/', '')) // Use the short name
+    .filter(name => {
+      const isVisionModel = name.includes('vision') || name.includes('flash');
+      return screenshot ? isVisionModel : !isVisionModel;
+    })
+    // Prioritize preferred models
+    .sort((a, b) => {
+        const priority = ['gemini-pro-vision', 'gemini-1.5-flash-latest', 'gemini-pro'];
+        return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
+    });
+
+  if (modelsToTry.length === 0) {
+      throw new Error('No suitable AI models found for this request type (text vs. vision).');
+  }
 
   // Prepare image part if available
   const imagePart = screenshot ? {
@@ -29,8 +73,6 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   const parts: any[] = [prompt];
   if (imagePart) parts.push(imagePart);
-
-  let errorLog: string[] = [];
 
   for (const modelName of modelsToTry) {
     try {
