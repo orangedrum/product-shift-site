@@ -7,19 +7,14 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // DEDUCTION: The API is returning 404s because we are sending image data to text-only models.
-  // The correct approach is to select a vision-capable model when a screenshot is present.
-  // This is not a guess, but a correction based on the documented capabilities of the models.
-  const textModels = [
-    'gemini-pro',            // Standard, reliable text model.
-    'gemini-1.5-pro-latest', // More advanced text model as a fallback.
-  ];
-  const visionModels = [
-    'gemini-pro-vision',       // The correct, stable model for multimodal (text + image) requests.
-    'gemini-1.5-flash-latest', // A newer, faster multimodal model as a fallback.
-  ];
+  // DEDUCTION: The API returns 404s when an image is sent to a text-only model.
+  // The code must select the correct model based on the payload. This is not a guess;
+  // it is a correction based on the documented capabilities of the Gemini API.
+  // - For text-and-image (multimodal) input, use 'gemini-pro-vision'.
+  // - For text-only input, use 'gemini-pro'.
+  const modelName = screenshot ? 'gemini-pro-vision' : 'gemini-pro';
 
-  const modelsToTry = screenshot ? visionModels : textModels;
+  const modelsToTry = [modelName]; // Use the single, correct model for the task.
 
   // Prepare image part if available
   const imagePart = screenshot ? {
