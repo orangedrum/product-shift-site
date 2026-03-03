@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { SecurityAlert } from '../components/SecurityAlert';
-import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download, Loader2, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download, Loader2, Plus, Trash2, ArrowRight, RefreshCw } from 'lucide-react';
 import { PersonaSelector } from '../components/PersonaSelector';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
@@ -78,6 +78,8 @@ const FunnelRoaster = () => {
   // Form State
   const [formData, setFormData] = useState({
     url: '',
+    hook: '',
+    offer: '',
     adCreatives: [''], // Array of links
     competitors: '',
     campaignType: 'leads', // 'leads' or 'sales'
@@ -150,6 +152,14 @@ const FunnelRoaster = () => {
 
   const removeCreative = (index: number) => {
     setFormData(prev => ({ ...prev, adCreatives: prev.adCreatives.filter((_, i) => i !== index) }));
+  };
+
+  const handleReRoast = (newHook: string, newOffer: string) => {
+    setFormData(prev => ({ ...prev, hook: newHook, offer: newOffer }));
+    // Small timeout to allow state to update before submitting
+    setTimeout(() => {
+        document.getElementById('funnel-form-submit')?.click();
+    }, 100);
   };
 
   const handleFunnelSubmit = async (e: React.FormEvent) => {
@@ -352,7 +362,7 @@ const FunnelRoaster = () => {
 
         {/* ==================== FUNNEL ROASTER FORM ==================== */}
         {activeMode === 'funnel' && step === 1 && !error && (
-          <form onSubmit={handleFunnelSubmit} className="space-y-8 animate-fade-in-up">
+          <form onSubmit={handleFunnelSubmit} className="space-y-8 animate-fade-in-up" id="funnel-form">
             {/* Section 1: The Destination */}
             <NeoCard title="1. The Destination">
               <div className="flex flex-col gap-4">
@@ -406,7 +416,7 @@ const FunnelRoaster = () => {
             {/* Section 3: The Who (Added Persona Selector) */}
             <PersonaSelector selectedPersonas={formData.selectedPersonas} onPersonaChange={handlePersonaChange} />
 
-            <NeoButton type="submit" className="w-full py-4 text-lg" disabled={loading || formData.selectedPersonas.length < 3}>
+            <NeoButton id="funnel-form-submit" type="submit" className="w-full py-4 text-lg" disabled={loading || formData.selectedPersonas.length < 3}>
               {loading ? 'Analyzing Funnel...' : 'Run Funnel Roast'} <Zap className="ml-2" />
             </NeoButton>
           </form>
@@ -574,6 +584,48 @@ const FunnelRoaster = () => {
                  </div>
                </div>
 
+               {/* Refine Analysis Section */}
+               <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+                 <h3 className="text-xl font-bold text-black mb-4 flex items-center gap-2">
+                   <Target size={24} /> Analysis Context
+                 </h3>
+                 <p className="text-gray-600 text-sm mb-4">
+                   This is what our AI perceived as your Hook and Offer. If this is incorrect, edit it below and re-run the analysis for a more accurate score.
+                 </p>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Perceived Hook</label>
+                     <input 
+                       type="text" 
+                       defaultValue={funnelData.inferredHook || formData.hook} 
+                       className="w-full p-2 border-2 border-gray-200 rounded font-medium text-black focus:border-black focus:outline-none"
+                       id="refine-hook"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Perceived Offer</label>
+                     <div className="flex gap-2">
+                       <input 
+                         type="text" 
+                         defaultValue={funnelData.inferredOffer || formData.offer} 
+                         className="w-full p-2 border-2 border-gray-200 rounded font-medium text-black focus:border-black focus:outline-none"
+                         id="refine-offer"
+                       />
+                       <button 
+                         onClick={() => {
+                           const h = (document.getElementById('refine-hook') as HTMLInputElement).value;
+                           const o = (document.getElementById('refine-offer') as HTMLInputElement).value;
+                           handleReRoast(h, o);
+                         }}
+                         className="bg-black text-white px-4 py-2 rounded font-bold text-sm hover:bg-gray-800 transition-colors whitespace-nowrap flex items-center gap-2"
+                       >
+                         <RefreshCw size={14} /> Re-Roast
+                       </button>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
                {/* Persona Journey Section */}
                {funnelData.personaJourneys && funnelData.personaJourneys.length > 0 && (
                  <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
@@ -588,9 +640,9 @@ const FunnelRoaster = () => {
                        <button
                          key={idx}
                          onClick={() => setActiveTab(idx)}
-                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border-2 ${activeTab === idx ? (journey.outcome === 'Converted' ? 'bg-green-100 text-green-900 border-green-600 shadow-[2px_2px_0px_0px_#166534]' : 'bg-red-100 text-red-900 border-red-600 shadow-[2px_2px_0px_0px_#991b1b]') : 'bg-white text-gray-600 border-transparent hover:bg-gray-100'}`}
+                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border-2 ${activeTab === idx ? 'bg-black text-white border-black shadow-[2px_2px_0px_0px_#666]' : 'bg-white text-gray-600 border-transparent hover:bg-gray-100'}`}
                        >
-                         <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${journey.persona}`} alt={journey.persona} className="w-6 h-6 rounded-full bg-white border border-gray-300" />
+                         <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${journey.persona}`} alt={journey.persona} className={`w-6 h-6 rounded-full border-2 ${journey.outcome === 'Converted' ? 'bg-green-200 border-green-500' : 'bg-red-200 border-red-500'}`} />
                          {journey.persona}
                        </button>
                      ))}
