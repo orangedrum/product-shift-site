@@ -69,6 +69,7 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({ selectedPerson
               {isSelected ? (
                 <div className="flex items-center gap-1 ml-2">
                   <button 
+                    type="button"
                     onClick={(e) => handleRemove(e, persona.id)}
                     className="p-1 bg-white rounded-full border border-black hover:bg-red-100 transition-colors"
                     title="Remove one"
@@ -77,6 +78,7 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({ selectedPerson
                   </button>
                   <span className="font-bold text-black w-4 text-center">{count}</span>
                   <button 
+                    type="button"
                     onClick={(e) => handleAdd(e, persona.id)}
                     disabled={totalCount >= 5}
                     className={`p-1 bg-white rounded-full border border-black transition-colors ${totalCount >= 5 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-100'}`}

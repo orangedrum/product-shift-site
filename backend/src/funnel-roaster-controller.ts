@@ -6,8 +6,6 @@ import { generateContentWithFallback } from './ai-service';
 export const runFunnelRoastHandler = async (req: Request, res: Response) => {
   const { 
     url, 
-    hook, 
-    offer, 
     adCreatives, 
     competitors, 
     metrics,
@@ -28,16 +26,14 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       You are a Senior Direct Response Media Buyer and CRO Expert (trained on Meta's Andromeda algorithm & Ben Heath's high-conversion methodologies).
       
       **THE MISSION:**
-      Audit the "Ad-to-Page" congruency for this funnel. You are looking for "Scent Mismatch" where the ad promises one thing and the page delivers another.
+      Audit the "Ad-to-Page" congruency for this funnel. Since the specific Ad Hook and Offer were not provided, **INFER** the likely Ad Hook and Offer based on the Landing Page's Title and First Benefit. Then, analyze if the page delivers on that inferred promise.
 
-      **THE INPUTS (The "Chain of Persuasion"):**
-      1. **The Hook (Ad Promise):** "${hook || 'Not provided'}"
-      2. **The Offer (The Ask):** "${offer || 'Not provided'}"
-      3. **The Creatives:** "${Array.isArray(adCreatives) ? adCreatives.join(', ') : adCreatives || 'Not provided'}"
-      4. **Competitors:** "${competitors || 'None listed'}"
-      5. **User Metrics:** ${JSON.stringify(metrics || {})}
-      6. **Campaign Goal:** "${campaignType || 'Leads'}"
-      7. **Target Personas:** "${(personaIds || []).join(', ')}"
+      **THE INPUTS:**
+      1. **The Creatives:** "${Array.isArray(adCreatives) ? adCreatives.join(', ') : adCreatives || 'Not provided'}"
+      2. **Competitors:** "${competitors || 'None listed'}"
+      3. **User Metrics:** ${JSON.stringify(metrics || {})}
+      4. **Campaign Goal:** "${campaignType || 'Leads'}"
+      5. **Target Personas:** "${(personaIds || []).join(', ')}"
 
       **THE LANDING PAGE (The Reality):**
       - URL: ${url}
@@ -46,11 +42,11 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       - Visible Text: ${scrapeResult.bodyText.substring(0, 1000)}...
 
       **YOUR ANALYSIS TASKS:**
-      1. **Congruency Check:** Does the H1 immediately pay off the Hook? (Score 0-100). Be strict.
-      2. **The "Fold" Test:** Is the Offer visible without scrolling?
+      1. **Congruency Check:** Does the H1 immediately pay off the inferred Hook? (Score 0-100). Be strict.
+      2. **The "Fold" Test:** Is the inferred Offer visible without scrolling?
       3. **Revenue Guesstimate:** If metrics are provided, estimate potential revenue uplift if friction is fixed. Use industry benchmarks (e.g., E-com CVR ~2.5%).
       4. **Competitor Gap:** How does this stack up against the listed competitors?
-      5. **Persona Journey:** For each target persona, simulate a step-by-step journey. **IMPORTANT:** If you see the same persona ID multiple times (e.g., 3x Sarah), treat them as distinct individuals (e.g., "Sarah 1", "Sarah 2") with slight variations in their background, motivation, or distraction level to provide a broader perspective from that demographic.
+      5. **Persona Journey:** For each target persona, simulate a step-by-step journey. **IMPORTANT:** If you see the same persona ID multiple times (e.g., 3x Sarah), you must generate **UNIQUE NAMES** for each variation (e.g. "Sarah", "Jessica", "Emily") while keeping the underlying *archetype* consistent. Do not use numbers like "Sarah 1".
       6. **Andromeda & Ben Heath Check:** Analyze how Meta's Andromeda algorithm would rate the post-click experience (dwell time, engagement) and apply Ben Heath's principles.
 
       **OUTPUT FORMAT:**
@@ -61,7 +57,8 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       - "fixes": array of strings
       - "personaJourneys": array of objects:
         {
-          "persona": "Name",
+          "persona": "Unique Name",
+          "archetype": "Original Persona Name",
           "steps": [
             { "stage": "Ad View", "thought": "...", "sentiment": "Positive/Neutral/Negative" },
             { "stage": "Landing", "thought": "...", "sentiment": "..." },
@@ -83,7 +80,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       url,
       user_identifier: req.body.email || 'anonymous_roaster', 
       plan_type: 'funnel_roast_v1',
-      funnel_context: { hook, offer, adCreatives, competitors, campaignType, personaIds },
+      funnel_context: { adCreatives, competitors, campaignType, personaIds },
       campaign_metrics: metrics,
       report_data: analysis
     }).select().single();

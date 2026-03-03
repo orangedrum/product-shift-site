@@ -78,8 +78,6 @@ const FunnelRoaster = () => {
   // Form State
   const [formData, setFormData] = useState({
     url: '',
-    hook: '',
-    offer: '',
     adCreatives: [''], // Array of links
     competitors: '',
     campaignType: 'leads', // 'leads' or 'sales'
@@ -379,30 +377,6 @@ const FunnelRoaster = () => {
             {/* Section 2: The Ad Context */}
             <NeoCard title="2. The Ad Context (The Promise)">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">The Hook</label>
-                  <input
-                    type="text"
-                    name="hook"
-                    placeholder="e.g. Stop guessing your ad spend..."
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg"
-                    value={formData.hook}
-                    onChange={handleChange}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">What caught their attention?</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">The Offer</label>
-                  <input
-                    type="text"
-                    name="offer"
-                    placeholder="e.g. Free 5-minute audit..."
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg"
-                    value={formData.offer}
-                    onChange={handleChange}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">What are they expecting to get?</p>
-                </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Ad Creatives (Links)</label>
                   {formData.adCreatives.map((creative, index) => (
@@ -614,15 +588,16 @@ const FunnelRoaster = () => {
                        <button
                          key={idx}
                          onClick={() => setActiveTab(idx)}
-                         className={`px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border-2 ${activeTab === idx ? 'bg-black text-white border-black shadow-[2px_2px_0px_0px_#666]' : 'bg-white text-gray-600 border-transparent hover:bg-gray-100'}`}
+                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border-2 ${activeTab === idx ? (journey.outcome === 'Converted' ? 'bg-green-100 text-green-900 border-green-600 shadow-[2px_2px_0px_0px_#166534]' : 'bg-red-100 text-red-900 border-red-600 shadow-[2px_2px_0px_0px_#991b1b]') : 'bg-white text-gray-600 border-transparent hover:bg-gray-100'}`}
                        >
+                         <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${journey.persona}`} alt={journey.persona} className="w-6 h-6 rounded-full bg-white border border-gray-300" />
                          {journey.persona}
                        </button>
                      ))}
                    </div>
 
                    {/* Timeline Content */}
-                   <div className="p-8 bg-gray-50 overflow-x-auto">
+                   <div className={`p-8 overflow-x-auto transition-colors duration-300 ${funnelData.personaJourneys[activeTab]?.outcome === 'Converted' ? 'bg-green-50' : 'bg-red-50'}`}>
                      <div className="flex gap-6 min-w-max">
                        {funnelData.personaJourneys[activeTab]?.steps.map((step: any, i: number) => (
                          <div key={i} className="relative w-64 bg-white p-5 rounded-xl border-2 border-gray-200 shadow-sm flex-shrink-0">
