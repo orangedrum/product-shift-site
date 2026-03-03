@@ -28,9 +28,9 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
     return [
-        { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-1.5-flash', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] },
         { name: 'models/gemini-pro', supportedGenerationMethods: ['generateContent'] },
-        { name: 'models/gemini-1.5-flash-latest', supportedGenerationMethods: ['generateContent'] },
     ] as ModelParams[];
   }
 };
@@ -53,7 +53,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
     })
     .sort((a, b) => {
         // Prioritize the models we prefer if they are available
-        const priority = ['gemini-pro-vision', 'gemini-1.5-flash-latest', 'gemini-pro'];
+        const priority = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
