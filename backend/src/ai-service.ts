@@ -18,7 +18,6 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
   console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
   try {
     const result = await genAI.listModels();
-    // Filter for models that actually support content generation
     const availableModels = result.models.filter(m => m.supportedGenerationMethods.includes('generateContent'));
     
     cachedModels = availableModels;
@@ -28,7 +27,6 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
     return availableModels;
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
-    // Return a default list if the API call fails, to maintain some functionality
     return [
         { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] },
         { name: 'models/gemini-pro', supportedGenerationMethods: ['generateContent'] },
@@ -46,15 +44,15 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   const allModels = await getAvailableModels(genAI);
 
-  // Intelligently select models based on the task (vision or text)
-  const modelsToTry = allModels
-    .map(m => m.name.replace('models/', '')) // Use the short name
+  const modelsToTry = allModels // Use the live list of models from the API
+    .map(m => m.name.replace('models/', ''))
     .filter(name => {
+      // Intelligently filter for vision-capable models if a screenshot is present
       const isVisionModel = name.includes('vision') || name.includes('flash');
       return screenshot ? isVisionModel : !isVisionModel;
     })
-    // Prioritize preferred models
     .sort((a, b) => {
+        // Prioritize the models we prefer if they are available
         const priority = ['gemini-pro-vision', 'gemini-1.5-flash-latest', 'gemini-pro'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
