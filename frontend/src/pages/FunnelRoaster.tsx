@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { SecurityAlert } from '../components/SecurityAlert';
-import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download, Loader2 } from 'lucide-react';
+import { Zap, Target, Link as LinkIcon, DollarSign, TrendingUp, AlertCircle, Users, MousePointer, ShoppingCart, Info, CheckCircle, Smartphone, Layout, Filter, FileText, Share2, Download, Loader2, Plus, Trash2, ArrowRight } from 'lucide-react';
 import { PersonaSelector } from '../components/PersonaSelector';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 
@@ -80,7 +80,7 @@ const FunnelRoaster = () => {
     url: '',
     hook: '',
     offer: '',
-    adCreative: '', // Link to Ad
+    adCreatives: [''], // Array of links
     competitors: '',
     campaignType: 'leads', // 'leads' or 'sales'
     selectedPersonas: [] as string[],
@@ -143,6 +143,20 @@ const FunnelRoaster = () => {
       if (current.length >= 5) return prev; // Limit to 5
       return { ...prev, selectedPersonas: [...current, id] };
     });
+  };
+
+  const handleCreativeChange = (index: number, value: string) => {
+    const newCreatives = [...formData.adCreatives];
+    newCreatives[index] = value;
+    setFormData(prev => ({ ...prev, adCreatives: newCreatives }));
+  };
+
+  const addCreative = () => {
+    if (formData.adCreatives.length < 5) setFormData(prev => ({ ...prev, adCreatives: [...prev.adCreatives, ''] }));
+  };
+
+  const removeCreative = (index: number) => {
+    setFormData(prev => ({ ...prev, adCreatives: prev.adCreatives.filter((_, i) => i !== index) }));
   };
 
   const handleFunnelSubmit = async (e: React.FormEvent) => {
@@ -395,16 +409,27 @@ const FunnelRoaster = () => {
                   <p className="text-xs text-gray-500 mt-1">What are they expecting to get?</p>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Ad Creative (Link)</label>
-                  <input
-                    type="url"
-                    name="adCreative"
-                    placeholder="https://facebook.com/ads/library/..."
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg"
-                    value={formData.adCreative}
-                    onChange={handleChange}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Link to the live ad or a hosted screenshot (Meta/Google/LinkedIn).</p>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Ad Creatives (Links)</label>
+                  {formData.adCreatives.map((creative, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <input
+                        type="url"
+                        placeholder="https://facebook.com/ads/library/..."
+                        className="flex-1 p-3 border-2 border-gray-300 rounded-lg"
+                        value={creative}
+                        onChange={(e) => handleCreativeChange(index, e.target.value)}
+                      />
+                      {formData.adCreatives.length > 1 && (
+                        <button type="button" onClick={() => removeCreative(index)} className="p-3 text-red-500 hover:bg-red-50 rounded-lg border-2 border-transparent hover:border-red-100"><Trash2 size={20} /></button>
+                      )}
+                    </div>
+                  ))}
+                  {formData.adCreatives.length < 5 && (
+                    <button type="button" onClick={addCreative} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 mt-2">
+                      <Plus size={16} /> Add Another Creative
+                    </button>
+                  )}
+                  <p className="text-xs text-gray-500 mt-2">Link to live ads or hosted screenshots (Meta/Google/LinkedIn). Up to 5.</p>
                 </div>
               </div>
             </NeoCard>
@@ -581,21 +606,44 @@ const FunnelRoaster = () => {
                </div>
 
                {/* Persona Journey Section */}
-               {funnelData.personaThoughts && funnelData.personaThoughts.length > 0 && (
-                 <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
-                   <h2 className="text-2xl font-bold text-black mb-6">Persona Journey (Ad → Landing Page)</h2>
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                     {funnelData.personaThoughts.map((p: any, i: number) => (
-                       <div key={i} className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200 relative">
-                         <div className="flex justify-between items-start mb-4">
-                           <h3 className="font-bold text-lg text-black">{p.persona}</h3>
-                           <span className={`px-2 py-1 rounded text-xs font-black uppercase border ${p.decision === 'Converted' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'}`}>
-                             {p.decision}
-                           </span>
-                         </div>
-                         <p className="text-sm text-gray-700 italic leading-relaxed">"{p.thoughts}"</p>
-                       </div>
+               {funnelData.personaJourneys && funnelData.personaJourneys.length > 0 && (
+                 <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] overflow-hidden">
+                   <div className="p-6 border-b-2 border-black bg-gray-50">
+                     <h2 className="text-2xl font-bold text-black">Persona Journey Timeline</h2>
+                     <p className="text-sm text-gray-600 mt-1">Experience the funnel through their eyes.</p>
+                   </div>
+                   
+                   {/* Persona Tabs */}
+                   <div className="flex overflow-x-auto p-2 gap-2 bg-white border-b-2 border-black no-scrollbar">
+                     {funnelData.personaJourneys.map((journey: any, idx: number) => (
+                       <button
+                         key={idx}
+                         onClick={() => setActiveTab(idx)}
+                         className={`px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all border-2 ${activeTab === idx ? 'bg-black text-white border-black shadow-[2px_2px_0px_0px_#666]' : 'bg-white text-gray-600 border-transparent hover:bg-gray-100'}`}
+                       >
+                         {journey.persona}
+                       </button>
                      ))}
+                   </div>
+
+                   {/* Timeline Content */}
+                   <div className="p-8 bg-gray-50 overflow-x-auto">
+                     <div className="flex gap-6 min-w-max">
+                       {funnelData.personaJourneys[activeTab]?.steps.map((step: any, i: number) => (
+                         <div key={i} className="relative w-64 bg-white p-5 rounded-xl border-2 border-gray-200 shadow-sm flex-shrink-0">
+                           <div className="absolute -top-3 -left-3 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm">{i + 1}</div>
+                           <h4 className="font-bold text-black mb-2 mt-2">{step.stage}</h4>
+                           <p className="text-sm text-gray-600 italic mb-3">"{step.thought}"</p>
+                           <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${step.sentiment.includes('Positive') ? 'bg-green-100 text-green-800' : step.sentiment.includes('Negative') ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>{step.sentiment}</span>
+                           {i < funnelData.personaJourneys[activeTab].steps.length - 1 && (
+                             <div className="absolute top-1/2 -right-9 text-gray-300"><ArrowRight size={24} /></div>
+                           )}
+                         </div>
+                       ))}
+                       <div className={`w-48 flex items-center justify-center p-6 rounded-xl border-2 font-black text-center uppercase tracking-widest ${funnelData.personaJourneys[activeTab]?.outcome === 'Converted' ? 'bg-green-100 border-green-500 text-green-800' : 'bg-red-100 border-red-500 text-red-800'}`}>
+                         {funnelData.personaJourneys[activeTab]?.outcome}
+                       </div>
+                     </div>
                    </div>
                  </div>
                )}

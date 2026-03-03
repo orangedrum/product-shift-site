@@ -8,7 +8,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
     url, 
     hook, 
     offer, 
-    adCreative, 
+    adCreatives, 
     competitors, 
     metrics,
     personaIds,
@@ -25,7 +25,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
 
     // 2. Construct the "Dual-Brain" Prompt
     const systemPrompt = `
-      You are a Senior Direct Response Media Buyer and CRO Expert (trained on Andromeda & Ben Heath methodologies).
+      You are a Senior Direct Response Media Buyer and CRO Expert (trained on Meta's Andromeda algorithm & Ben Heath's high-conversion methodologies).
       
       **THE MISSION:**
       Audit the "Ad-to-Page" congruency for this funnel. You are looking for "Scent Mismatch" where the ad promises one thing and the page delivers another.
@@ -33,7 +33,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       **THE INPUTS (The "Chain of Persuasion"):**
       1. **The Hook (Ad Promise):** "${hook || 'Not provided'}"
       2. **The Offer (The Ask):** "${offer || 'Not provided'}"
-      3. **The Creative Context:** "${adCreative || 'Not provided'}"
+      3. **The Creatives:** "${Array.isArray(adCreatives) ? adCreatives.join(', ') : adCreatives || 'Not provided'}"
       4. **Competitors:** "${competitors || 'None listed'}"
       5. **User Metrics:** ${JSON.stringify(metrics || {})}
       6. **Campaign Goal:** "${campaignType || 'Leads'}"
@@ -46,19 +46,31 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       - Visible Text: ${scrapeResult.bodyText.substring(0, 1000)}...
 
       **YOUR ANALYSIS TASKS:**
-      1. **Congruency Check:** Does the H1 immediately pay off the Hook? (Score 0-100)
+      1. **Congruency Check:** Does the H1 immediately pay off the Hook? (Score 0-100). Be strict.
       2. **The "Fold" Test:** Is the Offer visible without scrolling?
       3. **Revenue Guesstimate:** If metrics are provided, estimate potential revenue uplift if friction is fixed. Use industry benchmarks (e.g., E-com CVR ~2.5%).
       4. **Competitor Gap:** How does this stack up against the listed competitors?
-      5. **Persona Journey:** For each target persona, simulate their reaction to the Ad -> Page transition. Did the ad set the right expectation? Did the page deliver?
+      5. **Persona Journey:** For each target persona, simulate a step-by-step journey from seeing the ad to the final decision.
+      6. **Andromeda & Ben Heath Check:** Analyze how Meta's Andromeda algorithm would rate the post-click experience (dwell time, engagement) and apply Ben Heath's principles.
 
       **OUTPUT FORMAT:**
       Return a JSON object with:
-      - "congruencyScore": number
+      - "congruencyScore": number (Integer 0-100)
       - "revenueProjection": string (e.g., "+$4,200/mo")
       - "summary": string (The roast)
       - "fixes": array of strings
-      - "personaThoughts": array of objects with keys: "persona" (name), "sentiment" (Positive/Neutral/Negative), "thoughts" (first-person reaction to the journey), "decision" (Converted/Bounced)
+      - "personaJourneys": array of objects:
+        {
+          "persona": "Name",
+          "steps": [
+            { "stage": "Ad View", "thought": "...", "sentiment": "Positive/Neutral/Negative" },
+            { "stage": "Landing", "thought": "...", "sentiment": "..." },
+            { "stage": "Scroll/Read", "thought": "...", "sentiment": "..." },
+            { "stage": "Decision", "thought": "...", "sentiment": "..." }
+          ],
+          "outcome": "Converted" | "Bounced",
+          "outcomeReason": "..."
+        }
     `;
 
     // 3. Call the AI Engine
@@ -71,7 +83,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       url,
       user_identifier: req.body.email || 'anonymous_roaster', 
       plan_type: 'funnel_roast_v1',
-      funnel_context: { hook, offer, adCreative, competitors, campaignType, personaIds },
+      funnel_context: { hook, offer, adCreatives, competitors, campaignType, personaIds },
       campaign_metrics: metrics,
       report_data: analysis
     }).select().single();
