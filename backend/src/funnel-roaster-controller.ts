@@ -50,7 +50,7 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
       2. **The "Fold" Test:** Is the Offer visible without scrolling?
       3. **Revenue Guesstimate:** If metrics are provided, estimate potential revenue uplift if friction is fixed. Use industry benchmarks (e.g., E-com CVR ~2.5%).
       4. **Competitor Gap:** How does this stack up against the listed competitors?
-      5. **Persona Journey:** For each target persona, simulate a step-by-step journey from seeing the ad to the final decision.
+      5. **Persona Journey:** For each target persona, simulate a step-by-step journey. **IMPORTANT:** If you see the same persona ID multiple times (e.g., 3x Sarah), treat them as distinct individuals (e.g., "Sarah 1", "Sarah 2") with slight variations in their background, motivation, or distraction level to provide a broader perspective from that demographic.
       6. **Andromeda & Ben Heath Check:** Analyze how Meta's Andromeda algorithm would rate the post-click experience (dwell time, engagement) and apply Ben Heath's principles.
 
       **OUTPUT FORMAT:**

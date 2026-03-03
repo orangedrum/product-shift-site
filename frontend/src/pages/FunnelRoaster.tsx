@@ -136,13 +136,8 @@ const FunnelRoaster = () => {
     }
   };
 
-  const togglePersona = (id: string) => {
-    setFormData(prev => {
-      const current = prev.selectedPersonas;
-      if (current.includes(id)) return { ...prev, selectedPersonas: current.filter(p => p !== id) };
-      if (current.length >= 5) return prev; // Limit to 5
-      return { ...prev, selectedPersonas: [...current, id] };
-    });
+  const handlePersonaChange = (newPersonas: string[]) => {
+    setFormData(prev => ({ ...prev, selectedPersonas: newPersonas }));
   };
 
   const handleCreativeChange = (index: number, value: string) => {
@@ -435,7 +430,7 @@ const FunnelRoaster = () => {
             </NeoCard>
 
             {/* Section 3: The Who (Added Persona Selector) */}
-            <PersonaSelector selectedPersonas={formData.selectedPersonas} onToggle={togglePersona} />
+            <PersonaSelector selectedPersonas={formData.selectedPersonas} onPersonaChange={handlePersonaChange} />
 
             <NeoButton type="submit" className="w-full py-4 text-lg" disabled={loading || formData.selectedPersonas.length < 3}>
               {loading ? 'Analyzing Funnel...' : 'Run Funnel Roast'} <Zap className="ml-2" />
@@ -468,7 +463,7 @@ const FunnelRoaster = () => {
             </div>
 
             {/* Reusing the Persona Grid from Funnel Roaster (Shared Component Logic) */}
-            <PersonaSelector selectedPersonas={formData.selectedPersonas} onToggle={togglePersona} />
+            <PersonaSelector selectedPersonas={formData.selectedPersonas} onPersonaChange={handlePersonaChange} />
 
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <h2 className="text-2xl font-black text-black mb-1">The Why</h2>
