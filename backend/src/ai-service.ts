@@ -9,15 +9,11 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
   // Updated list includes specific version tags to avoid 404s from alias resolution issues.
+  // Simplified list to prioritize most stable models and avoid 404s on volatile aliases.
   const modelsToTry = [
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-flash',
-    'gemini-1.5-flash-001',
-    'gemini-1.5-pro-latest',
-    'gemini-1.5-pro',
-    'gemini-1.5-pro-001',
-    'gemini-flash', // Older but sometimes available
-    'gemini-pro' // Standard, stable model
+    'gemini-1.5-flash',     // Current fast and capable model.
+    'gemini-pro',           // The standard, stable workhorse.
+    'gemini-flash',         // Older flash model as a fallback.
   ];
 
   // Prepare image part if available
