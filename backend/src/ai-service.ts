@@ -13,8 +13,11 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   // - For text-and-image (multimodal) input, use 'gemini-pro-vision'.
   // - For text-only input, use 'gemini-pro'.
   const modelName = screenshot ? 'gemini-pro-vision' : 'gemini-pro';
-
-  const modelsToTry = [modelName]; // Use the single, correct model for the task.
+  
+  // Use the correct model first, but add a fallback in case of availability issues.
+  const visionFallbacks = ['gemini-1.5-flash-latest'];
+  const textFallbacks = ['gemini-1.5-pro-latest'];
+  const modelsToTry = screenshot ? [modelName, ...visionFallbacks] : [modelName, ...textFallbacks];
 
   // Prepare image part if available
   const imagePart = screenshot ? {
