@@ -44,16 +44,18 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   const allModels = await getAvailableModels(genAI);
 
-  const modelsToTry = allModels // Use the live list of models from the API
+  const modelsToTry = allModels
     .map(m => m.name.replace('models/', ''))
     .filter(name => {
-      // Intelligently filter for vision-capable models if a screenshot is present
-      const isVisionModel = name.includes('vision') || name.includes('flash');
-      return screenshot ? isVisionModel : !isVisionModel;
+      // DEDUCTION: 1.5 models are multimodal (text+image). 'vision' models are explicit.
+      // If we have a screenshot, we MUST use a model that supports it.
+      const isVisionCapable = name.includes('vision') || name.includes('1.5') || name.includes('flash');
+      
+      return screenshot ? isVisionCapable : true;
     })
     .sort((a, b) => {
         // Prioritize the models we prefer if they are available
-        const priority = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro-vision'];
+        const priority = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
