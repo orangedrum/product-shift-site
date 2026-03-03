@@ -8,11 +8,16 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const genAI = new GoogleGenerativeAI(apiKey);
 
   // Strategy: Cycle through a prioritized list of models to find one with available free quota.
+  // Updated list includes specific version tags to avoid 404s from alias resolution issues.
   const modelsToTry = [
-    'gemini-flash-latest',     // Proven to work from Vercel logs
-    'gemini-pro',              // Standard, stable model
-    'gemini-1.5-flash',        // New model, keep as fallback
-    'gemini-1.5-pro',          // Slower, high-intelligence fallback
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-001',
+    'gemini-1.5-pro-latest',
+    'gemini-1.5-pro',
+    'gemini-1.5-pro-001',
+    'gemini-flash', // Older but sometimes available
+    'gemini-pro' // Standard, stable model
   ];
 
   // Prepare image part if available
@@ -30,13 +35,17 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   for (const modelName of modelsToTry) {
     try {
+      console.log(`[AI Service] Attempting generation with model: ${modelName}`);
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
       const response = result.response;
       console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
-      await delay(2000);
+      // If 503 (Service Unavailable) or 429 (Too Many Requests), wait briefly before next model
+      if (error.message.includes('503') || error.message.includes('429')) {
+        await delay(2000);
+      }
       console.log(`Model '${modelName}' failed: ${error.message}`);
       if (error.message.includes('404') && error.message.includes('not found')) {
         errorLog.push(`${modelName}: 404 (Check API Key/Enabled Services)`);
