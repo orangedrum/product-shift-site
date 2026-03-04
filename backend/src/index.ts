@@ -698,15 +698,7 @@ app.post('/api/verify-payment', async (req, res) => {
 });
 
 app.post('/api/run-test', runTestHandler);
-
-app.post('/api/run-funnel-roast', async (req, res, next) => {
-  try {
-    const { runFunnelRoastHandler } = await import('./funnel-roaster-controller');
-    return runFunnelRoastHandler(req, res);
-  } catch (err) {
-    next(err);
-  }
-});
+app.post('/api/run-funnel-roast', runFunnelRoastHandler);
 
 app.post('/api/analyze', authenticateRequest, async (req, res) => {
   const user = (req as any).user;

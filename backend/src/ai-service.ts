@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI, ModelParams } from '@google/generative-ai';
 import { delay } from './services';
 
+let cachedModels: ModelParams[] | null = null;
 let cacheTimestamp: number | null = null;
 const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
@@ -16,7 +17,8 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
 
   console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
   try {
-    const result = await genAI.listModels();
+    // Cast to any to bypass TS check if type definitions are stale in cache
+    const result = await (genAI as any).listModels();
     const availableModels = result.models.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
     
     cachedModels = availableModels;
@@ -50,7 +52,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       return screenshot ? isVisionModel : !isVisionModel;
     })
     .sort((a, b) => {
-        const priority = ['gemini-pro-vision', 'gemini-1.5-flash-latest', 'gemini-pro'];
+        const priority = ['gemini-1.5-pro', 'gemini-flash-latest', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
