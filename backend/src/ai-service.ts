@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI, ModelParams } from '@google/generative-ai';
 import { delay } from './services';
 
-let cachedModels: ModelParams[] | null = null;
 let cacheTimestamp: number | null = null;
 const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
@@ -18,7 +17,7 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
   console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
   try {
     const result = await genAI.listModels();
-    const availableModels = result.models.filter(m => m.supportedGenerationMethods.includes('generateContent'));
+    const availableModels = result.models.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
     
     cachedModels = availableModels;
     cacheTimestamp = now;
@@ -28,10 +27,9 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
     return [
-        { name: 'models/gemini-1.5-flash', supportedGenerationMethods: ['generateContent'] },
-        { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] },
-        { name: 'models/gemini-pro', supportedGenerationMethods: ['generateContent'] },
-    ] as ModelParams[];
+        { name: 'models/gemini-1.5-flash', supportedGenerationMethods: ['generateContent'] } as any,
+        { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] } as any,
+    ];
   }
 };
 
@@ -44,15 +42,14 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   const allModels = await getAvailableModels(genAI);
 
-  const modelsToTry = allModels // Use the live list of models from the API
-    .map(m => m.name.replace('models/', ''))
+  const modelsToTry = allModels
+    .map((m: any) => m.name?.replace('models/', '') || '')
     .filter(name => {
       // Intelligently filter for vision-capable models if a screenshot is present
       const isVisionModel = name.includes('vision') || name.includes('flash');
       return screenshot ? isVisionModel : !isVisionModel;
     })
     .sort((a, b) => {
-        // Prioritize the models we prefer if they are available
         const priority = ['gemini-pro-vision', 'gemini-1.5-flash-latest', 'gemini-pro'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
@@ -72,8 +69,10 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const parts: any[] = [prompt];
   if (imagePart) parts.push(imagePart);
 
+  let attempt = 0;
   for (const modelName of modelsToTry) {
     try {
+      attempt++;
       console.log(`[AI Service] Attempting generation with model: ${modelName}`);
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
@@ -81,9 +80,10 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
-      // If 503 (Service Unavailable) or 429 (Too Many Requests), wait briefly before next model
       if (error.message.includes('503') || error.message.includes('429')) {
-        await delay(2000);
+        const waitTime = 1000 * Math.pow(2, attempt); // 2s, 4s...
+        console.log(`[AI Service] Model busy. Waiting ${waitTime}ms before next attempt.`);
+        await delay(waitTime);
       }
       console.log(`Model '${modelName}' failed: ${error.message}`);
       if (error.message.includes('404') && error.message.includes('not found')) {

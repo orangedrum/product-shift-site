@@ -5,6 +5,7 @@ import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generati
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
+import { runFunnelRoastHandler } from './funnel-roaster-controller';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
@@ -698,6 +699,7 @@ app.post('/api/verify-payment', async (req, res) => {
 });
 
 app.post('/api/run-test', runTestHandler);
+app.post('/api/run-funnel-roast', runFunnelRoastHandler);
 
 app.post('/api/analyze', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
@@ -945,6 +947,7 @@ app.post('/api/user/generate-referral', authenticateRequest, async (req, res) =>
     }
     
     if (error) throw error;
+    if (!data) throw new Error('Failed to generate or retrieve referral code');
     res.json({ referralCode: data.referral_code });
   } catch (e: any) {
     console.error('Generate Referral Error:', e);
