@@ -699,6 +699,12 @@ app.post('/api/verify-payment', async (req, res) => {
 
 app.post('/api/run-test', runTestHandler);
 
+app.post('/api/run-funnel-roast', async (req, res, next) => {
+  // Use require to break circular dependency and lazy load the controller
+  const { runFunnelRoastHandler } = await import('./funnel-roaster-controller');
+  return runFunnelRoastHandler(req, res);
+});
+
 app.post('/api/analyze', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
   if (!user) return res.status(401).json({ error: 'Not authenticated.' });
@@ -945,6 +951,7 @@ app.post('/api/user/generate-referral', authenticateRequest, async (req, res) =>
     }
     
     if (error) throw error;
+    if (!data) throw new Error('Failed to generate or retrieve referral code');
     res.json({ referralCode: data.referral_code });
   } catch (e: any) {
     console.error('Generate Referral Error:', e);

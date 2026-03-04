@@ -1,19 +1,64 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, ModelParams } from '@google/generative-ai';
 import { delay } from './services';
+
+let cachedModels: ModelParams[] | null = null;
+let cacheTimestamp: number | null = null;
+const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+
+/**
+ * Fetches and caches the list of available models from the Gemini API.
+ * This makes the application resilient to external model name changes.
+ */
+const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParams[]> => {
+  const now = Date.now();
+  if (cachedModels && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
+    return cachedModels;
+  }
+
+  console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
+  try {
+    // Cast to any to bypass TS check if type definitions are stale in cache
+    const result = await (genAI as any).listModels();
+    const availableModels = result.models.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
+    
+    cachedModels = availableModels;
+    cacheTimestamp = now;
+    
+    console.log('[AI Service] Fetched and cached models:', availableModels.map(m => m.name));
+    return availableModels;
+  } catch (error) {
+    console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
+    return [
+        { name: 'models/gemini-flash-latest', supportedGenerationMethods: ['generateContent'] } as any,
+        { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] } as any,
+    ];
+  }
+};
 
 export const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is missing in environment variables");
   
   const genAI = new GoogleGenerativeAI(apiKey);
+  let errorLog: string[] = [];
 
-  // Strategy: Cycle through a prioritized list of models to find one with available free quota.
-  const modelsToTry = [
-    'gemini-flash-latest',     // Proven to work from Vercel logs
-    'gemini-pro',              // Standard, stable model
-    'gemini-1.5-flash',        // New model, keep as fallback
-    'gemini-1.5-pro',          // Slower, high-intelligence fallback
-  ];
+  const allModels = await getAvailableModels(genAI);
+
+  const modelsToTry = allModels
+    .map((m: any) => m.name?.replace('models/', '') || '')
+    .filter(name => {
+      // Intelligently filter for vision-capable models if a screenshot is present
+      const isVisionModel = name.includes('vision') || name.includes('flash');
+      return screenshot ? isVisionModel : !isVisionModel;
+    })
+    .sort((a, b) => {
+        const priority = ['gemini-1.5-pro', 'gemini-flash-latest', 'gemini-pro-vision'];
+        return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
+    });
+
+  if (modelsToTry.length === 0) {
+      throw new Error('No suitable AI models found for this request type (text vs. vision).');
+  }
 
   // Prepare image part if available
   const imagePart = screenshot ? {
@@ -26,17 +71,22 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const parts: any[] = [prompt];
   if (imagePart) parts.push(imagePart);
 
-  let errorLog: string[] = [];
-
+  let attempt = 0;
   for (const modelName of modelsToTry) {
     try {
+      attempt++;
+      console.log(`[AI Service] Attempting generation with model: ${modelName}`);
       const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(parts);
       const response = result.response;
       console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
-      await delay(2000);
+      if (error.message.includes('503') || error.message.includes('429')) {
+        const waitTime = 1000 * Math.pow(2, attempt); // 2s, 4s...
+        console.log(`[AI Service] Model busy. Waiting ${waitTime}ms before next attempt.`);
+        await delay(waitTime);
+      }
       console.log(`Model '${modelName}' failed: ${error.message}`);
       if (error.message.includes('404') && error.message.includes('not found')) {
         errorLog.push(`${modelName}: 404 (Check API Key/Enabled Services)`);
