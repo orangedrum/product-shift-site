@@ -27,7 +27,7 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
     return [
-        { name: 'models/gemini-1.5-flash', supportedGenerationMethods: ['generateContent'] } as any,
+        { name: 'models/gemini-flash-latest', supportedGenerationMethods: ['generateContent'] } as any,
         { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] } as any,
     ];
   }

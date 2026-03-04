@@ -5,7 +5,6 @@ import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generati
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
-import { runFunnelRoastHandler } from './funnel-roaster-controller';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
@@ -699,7 +698,15 @@ app.post('/api/verify-payment', async (req, res) => {
 });
 
 app.post('/api/run-test', runTestHandler);
-app.post('/api/run-funnel-roast', runFunnelRoastHandler);
+
+app.post('/api/run-funnel-roast', async (req, res, next) => {
+  try {
+    const { runFunnelRoastHandler } = await import('./funnel-roaster-controller');
+    return runFunnelRoastHandler(req, res);
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.post('/api/analyze', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
