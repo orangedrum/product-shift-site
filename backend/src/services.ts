@@ -20,6 +20,12 @@ export const emailFrom = (process.env.EMAIL_FROM || 'Product Shift <onboarding@t
   .replace(/&lt;/g, '<')
   .replace(/&gt;/g, '>');
 
+// --- Canonical URL Helper ---
+// Use a dedicated env var for public-facing URLs to avoid using Vercel deployment URLs.
+export const getPublicUrl = () => {
+  return process.env.PUBLIC_CANONICAL_URL || 'https://www.theproductshift.com';
+}
+
 // --- Helper: Delay ---
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 

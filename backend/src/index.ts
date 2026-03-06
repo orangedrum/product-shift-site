@@ -3,7 +3,7 @@ import cors from 'cors';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
-import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
+import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
@@ -129,7 +129,7 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
       
       // Marketing: Send Welcome Email
       // Webhooks don't have an origin header, so we default to production or use an env var if needed.
-      const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com';
+      const baseUrl = getPublicUrl();
       await sendEmail(customerEmail, welcomeSubject, welcomeBody(baseUrl));
     }
   }
@@ -406,7 +406,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (linkError || !linkData.properties?.action_link) throw linkError || new Error('Failed to generate link');
 
     // 3. Send Branded Email via Resend
-    const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+    const baseUrl = getPublicUrl();
     const emailHtml = getMagicLinkTemplate(linkData.properties.action_link, baseUrl);
     await sendEmail(email, 'Sign in to User Mirror', emailHtml, baseUrl);
 
@@ -425,7 +425,7 @@ app.post('/api/user/update-email', authenticateRequest, async (req, res) => {
   if (!newEmail) return res.status(400).json({ error: 'New email required' });
 
   try {
-    const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+    const baseUrl = getPublicUrl();
     
     // Generate a secure, signed token for the new email verification
     // Payload: userId|newEmail|expiry
@@ -530,7 +530,7 @@ app.post('/api/admin/test-email', async (req, res) => {
      return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing in Vercel Env Vars.' });
   }
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   
   let subject = 'Test Email from Backend';
   let content = '<p>If you see this, Resend is working!</p>';
@@ -551,7 +551,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
   if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
   const cancelUrl = `${baseUrl}/account`;
 
@@ -722,7 +722,7 @@ app.post('/api/join-waitlist', async (req, res) => {
   const { error } = await supabase.from('waitlist_emails').insert({ email });
   if (error) return res.status(500).json({ error: 'Could not save email.', details: error.message });
   
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   // Marketing: Send Waitlist Email
   await sendEmail(email, waitlistSubject, waitlistBody(baseUrl), baseUrl);
   
@@ -773,7 +773,7 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
 
       // Marketing: Send Immediate Welcome Email (Email 1)
       if (!isTestEmail(user.email)) {
-        const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+        const baseUrl = getPublicUrl();
         const emailContent = marketingEmails.welcome.body(baseUrl);
         sendEmail(user.email, marketingEmails.welcome.subject, emailContent, baseUrl).catch(console.error);
       }
@@ -796,7 +796,7 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
 
   try {
     // Fetch active free users who haven't finished the sequence
