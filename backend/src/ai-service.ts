@@ -17,12 +17,7 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
 
   console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
   try {
-    // Resiliency Fix: Check if listModels exists before calling.
-    // This prevents crashes if the build environment has a stale/older version of the library.
-    if (typeof (genAI as any).listModels !== 'function') {
-      throw new Error('genAI.listModels is not a function. Likely a stale dependency issue in the build environment.');
-    }
-    const result = await (genAI as any).listModels();
+    const result = await genAI.listModels();
 
     const availableModels = result.models.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
     

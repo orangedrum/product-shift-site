@@ -144,6 +144,7 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
 
 // --- Main Handler ---
 export const runTestHandler = async (req: Request, res: Response) => {
+  console.log(`[runTestHandler] START - Request received for URL: ${req.body.url}`);
   let creditDeducted = false;
   let userIdentifier: string | undefined;
 
@@ -300,6 +301,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
       }
     }
 
+    console.log(`[runTestHandler] DEBUG - Entering analysisPromise for user: ${userIdentifier}`);
     const analysisPromise = (async () => {
       if (shouldDeductCredit) {
           const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
@@ -384,11 +386,19 @@ export const runTestHandler = async (req: Request, res: Response) => {
     })();
 
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 58000));
+    
+    console.log(`[runTestHandler] DEBUG - Awaiting Promise.race`);
     const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
+
+    console.log(`[runTestHandler] SUCCESS - Analysis complete. Sending response.`);
     res.json(finalResponse);
 
   } catch (error: any) {
-    if (creditDeducted && userIdentifier) await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
+    console.error(`[runTestHandler] FATAL ERROR - ${error.message}`, error);
+    if (creditDeducted && userIdentifier) {
+      console.log(`[runTestHandler] REFUND - Refunding 3 credits to ${userIdentifier}`);
+      await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
+    }
     res.status(500).json({ error: 'Analysis Failed', details: error.message, usageCounted: false });
   }
 };
