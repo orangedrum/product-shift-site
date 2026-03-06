@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend service for AI-powered UX healthtech agent",
   "main": "dist/index.js",
+  "cache-bust": "echo bust",
   "scripts": {
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",

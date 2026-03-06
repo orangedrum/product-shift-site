@@ -28,10 +28,17 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
     return availableModels;
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
-    return [
+    const fallbackModels = [
         { name: 'models/gemini-flash-latest', supportedGenerationMethods: ['generateContent'] } as any,
         { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] } as any,
     ];
+
+    // RESILIENCY FIX: Cache the fallback list to prevent repeated failed calls and timeouts.
+    // This makes the app stable even if the build environment has stale dependencies.
+    cachedModels = fallbackModels;
+    cacheTimestamp = now;
+
+    return fallbackModels;
   }
 };
 
