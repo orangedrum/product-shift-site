@@ -134,12 +134,13 @@ const AdamLaneSmithProposal: React.FC = () => {
           </div>
 
           {/* Right Column: Video */}
-          <div className="lg:sticky lg:top-8">
-            <div className="bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black transform hover:scale-[1.01] transition-transform duration-500">
+          <div className="lg:sticky lg:top-8 flex justify-center">
+            <div className="w-full md:w-3/4 lg:w-1/2 bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black">
               <video 
                 src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/adamsmithenespanolsample.mp4?v=2" 
                 controls
                 playsInline
+                preload="metadata"
                 className="w-full h-auto block"
               >
                 Your browser does not support the video tag.
