@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { Check, ArrowRight, Calendar, Clock, DollarSign } from 'lucide-react';
+import About from '../components/About';
 
 const AdamLaneSmithProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -89,10 +90,10 @@ const AdamLaneSmithProposal: React.FC = () => {
         </div>
 
         {/* Video Section */}
-        <div className="bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black mb-12 transform hover:scale-[1.01] transition-transform duration-500">
+        <div className="bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black mb-12 transform hover:scale-[1.01] transition-transform duration-500 flex justify-center">
           <VideoPlayer 
-            src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/adamlanesmithespanolsample.mov" 
-            className="w-full aspect-video"
+            src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/adamsmithenespanolsample.mp4" 
+            className="w-full h-auto"
           />
         </div>
 
@@ -156,12 +157,16 @@ const AdamLaneSmithProposal: React.FC = () => {
             </div>
           </div>
 
-          <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer" className="inline-flex items-center text-indigo-600 font-bold hover:underline text-lg">
-            <Calendar className="mr-2" /> Or talk for 10 minutes about the rollout
+          <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg mt-4">
+            <Calendar className="mr-2" /> Or Sched Virtual Meeting w Jean
           </a>
           
-          <p className="mt-12 text-gray-500 italic">"Thanks for taking the time and for all you do,<br/>Jean"</p>
+          <p className="mt-12 text-gray-500 italic">"Thanks for taking the time and for all you do!"<br/> - Jean, UX Growth consultant & enormous fan</p>
         </div>
+      </div>
+
+      <div className="relative z-10 bg-white border-t border-gray-100">
+        <About />
       </div>
     </main>
   );
