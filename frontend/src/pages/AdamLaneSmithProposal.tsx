@@ -128,7 +128,7 @@ const AdamLaneSmithProposal: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-2"><DollarSign size={16}/> Investment</h4>
-                  <p className="text-3xl font-black">$2,500 <span className="text-lg font-medium text-gray-500">flat for the pilot</span></p>
+                  <p className="text-3xl font-black">$2,500 <span className="text-lg font-medium text-gray-500">flat for expansion into 2 global markets</span></p>
                 </div>
               </div>
             </div>
