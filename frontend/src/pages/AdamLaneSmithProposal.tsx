@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { VideoPlayer } from '../components/VideoPlayer';
-import { Check, ArrowRight, Calendar, Clock, DollarSign } from 'lucide-react';
+import { Check, ArrowRight, Calendar, Clock, DollarSign, ChevronDown } from 'lucide-react';
 import About from '../components/About';
 
 const AdamLaneSmithProposal: React.FC = () => {
@@ -75,7 +75,7 @@ const AdamLaneSmithProposal: React.FC = () => {
         ))}
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 md:py-24">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 md:py-24">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-block px-4 py-1 mb-6 text-sm font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 rounded-full border border-indigo-100">
@@ -89,17 +89,10 @@ const AdamLaneSmithProposal: React.FC = () => {
           </p>
         </div>
 
-        {/* Video Section */}
-        <div className="bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black mb-12 transform hover:scale-[1.01] transition-transform duration-500 flex justify-center">
-          <VideoPlayer 
-            src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/adamsmithenespanolsample.mp4" 
-            className="w-full h-auto"
-          />
-        </div>
-
-        {/* Proposal Details */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+          {/* Left Column: Deliverables & Timeline */}
+          <div className="space-y-8">
+            <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <h3 className="text-2xl font-black mb-6 flex items-center gap-2">
               <Check className="text-green-600" strokeWidth={4} /> Deliverables
             </h3>
@@ -117,16 +110,29 @@ const AdamLaneSmithProposal: React.FC = () => {
                 UX audit of the checkout flow for international users
               </li>
             </ul>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-2"><Clock size={16}/> Timeline</h4>
+                  <p className="text-3xl font-black">10 Days</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-2"><DollarSign size={16}/> Investment</h4>
+                  <p className="text-3xl font-black">$2,500 <span className="text-lg font-medium text-gray-500">flat for the pilot</span></p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-center">
-            <div className="mb-6">
-              <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-2"><Clock size={16}/> Timeline</h4>
-              <p className="text-3xl font-black">10 Days</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center gap-2"><DollarSign size={16}/> Investment</h4>
-              <p className="text-3xl font-black">$2,500 <span className="text-lg font-medium text-gray-500">flat for the pilot</span></p>
+          {/* Right Column: Video */}
+          <div className="lg:sticky lg:top-8">
+            <div className="bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black transform hover:scale-[1.01] transition-transform duration-500 flex justify-center">
+              <VideoPlayer 
+                src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/adamsmithenespanolsample.mp4" 
+                className="w-full h-auto"
+              />
             </div>
           </div>
         </div>
@@ -162,10 +168,16 @@ const AdamLaneSmithProposal: React.FC = () => {
           </a>
           
           <p className="mt-12 text-gray-500 italic">"Thanks for taking the time and for all you do!"<br/> - Jean, UX Growth consultant & enormous fan</p>
+          <button 
+            onClick={() => document.getElementById('about-jean')?.scrollIntoView({ behavior: 'smooth' })}
+            className="text-indigo-600 hover:text-indigo-800 font-bold text-sm mt-3 inline-flex items-center gap-1 hover:underline transition-colors"
+          >
+            Learn more about Jean <ChevronDown size={14} />
+          </button>
         </div>
       </div>
 
-      <div className="relative z-10 bg-white border-t border-gray-100">
+      <div id="about-jean" className="relative z-10 bg-white border-t border-gray-100">
         <About />
       </div>
     </main>
