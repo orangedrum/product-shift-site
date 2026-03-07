@@ -605,6 +605,15 @@ app.post('/api/create-checkout-session', async (req, res) => {
         quantity: 1,
       });
       sessionConfig.metadata.credits = '30';
+    } else if (planId === 'pilot-localization') {
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Localization Pilot', description: 'Spanish & German Dubbing + UX Audit' },
+          unit_amount: 250000, // $2,500.00
+        },
+        quantity: 1,
+      });
     } else {
       return res.status(400).json({ error: 'Invalid plan ID' });
     }
