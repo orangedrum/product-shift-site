@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { VideoPlayer } from '../components/VideoPlayer';
 import { Check, ArrowRight, Calendar, Clock, DollarSign, ChevronDown } from 'lucide-react';
 import About from '../components/About';
 
@@ -136,12 +135,15 @@ const AdamLaneSmithProposal: React.FC = () => {
 
           {/* Right Column: Video */}
           <div className="lg:sticky lg:top-8">
-            <div className="bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black transform hover:scale-[1.01] transition-transform duration-500 flex justify-center">
-              <VideoPlayer 
-                // Added version param to force cache refresh of the new video file
+            <div className="bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-black transform hover:scale-[1.01] transition-transform duration-500">
+              <video 
                 src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/adamsmithenespanolsample.mp4?v=2" 
-                className="w-full h-auto"
-              />
+                controls
+                playsInline
+                className="w-full h-auto block"
+              >
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         </div>
