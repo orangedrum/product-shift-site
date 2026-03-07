@@ -103,11 +103,19 @@ const AdamLaneSmithProposal: React.FC = () => {
               </li>
               <li className="flex items-start gap-3">
                 <span className="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center text-xs flex-shrink-0 mt-1">2</span>
-                Translated workbooks
+                Translated attachment guides
               </li>
               <li className="flex items-start gap-3">
                 <span className="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center text-xs flex-shrink-0 mt-1">3</span>
+                Translated assessments & exercises
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center text-xs flex-shrink-0 mt-1">4</span>
                 UX audit of the checkout flow for international users
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center text-xs flex-shrink-0 mt-1">5</span>
+                5 Fully dubbed shorts for socials
               </li>
             </ul>
             </div>
