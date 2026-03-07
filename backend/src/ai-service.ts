@@ -29,6 +29,7 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: 
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
     const fallbackModels = [
+        { name: 'models/gemini-1.5-flash', supportedGenerationMethods: ['generateContent'] } as any,
         { name: 'models/gemini-flash-latest', supportedGenerationMethods: ['generateContent'] } as any,
         { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] } as any,
     ];
@@ -54,12 +55,19 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const modelsToTry = allModels
     .map((m: any) => m.name?.replace('models/', '') || '')
     .filter(name => {
-      // Intelligently filter for vision-capable models if a screenshot is present
-      const isVisionModel = name.includes('vision') || name.includes('flash');
-      return screenshot ? isVisionModel : !isVisionModel;
+      // Updated Filter: Gemini 1.5 and 2.0 are multimodal (text + images).
+      // We must ensure they are included for vision tasks.
+      const isVisionSupported = name.includes('vision') || name.includes('flash') || name.includes('1.5') || name.includes('2.0');
+      
+      if (screenshot) {
+        return isVisionSupported;
+      } else {
+        // For text-only, avoid legacy 'vision' specific models, but allow flash/1.5/2.0
+        return !name.includes('vision');
+      }
     })
     .sort((a, b) => {
-        const priority = ['gemini-1.5-pro', 'gemini-flash-latest', 'gemini-pro-vision'];
+        const priority = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-latest', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 

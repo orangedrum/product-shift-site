@@ -169,6 +169,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
     }
 
     const url = normalizeUrl(rawUrl);
+    console.log(`[runTestHandler] Normalized URL: ${url}`);
 
     // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
     const forwarded = req.headers['x-forwarded-for'];
