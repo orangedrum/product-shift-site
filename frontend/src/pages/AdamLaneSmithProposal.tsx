@@ -86,6 +86,7 @@ const AdamLaneSmithProposal: React.FC = () => {
           <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             I want to take your top-performing course and handle the end-to-end localization into Spanish and German.
           </p>
+          <p className="mt-12 text-gray-500 italic">I want to bring your important message to the cultures & people I've lived and loved in their native languages.</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
