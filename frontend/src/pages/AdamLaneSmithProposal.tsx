@@ -84,7 +84,7 @@ const AdamLaneSmithProposal: React.FC = () => {
             Global Expansion Pilot
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            I want to take your top-performing course and handle the end-to-end localization into Spanish and German.
+            I will put your top-performing course and handle the end-to-end localization into Spanish and German.
           </p>
           <p className="mt-12 text-gray-500 italic">I want to bring your important message to the cultures & people I've lived and loved in their native languages.</p>
         </div>
@@ -180,7 +180,7 @@ const AdamLaneSmithProposal: React.FC = () => {
             <Calendar className="mr-2" /> Or Sched Virtual Meeting w Jean
           </a>
           
-          <p className="mt-12 text-gray-500 italic">"Thanks for taking the time and for all you do!"<br/> - Jean, UX Growth consultant & enormous fan</p>
+          <p className="mt-12 text-gray-500 italic">"Open to negociate. Thanks for taking the time and for all you do!"<br/> - Jean, UX Growth consultant & enormous fan</p>
           <button 
             onClick={() => document.getElementById('about-jean')?.scrollIntoView({ behavior: 'smooth' })}
             className="text-indigo-600 hover:text-indigo-800 font-bold text-sm mt-3 inline-flex items-center gap-1 hover:underline transition-colors"
