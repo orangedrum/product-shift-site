@@ -9,10 +9,10 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * Fetches and caches the list of available models from the Gemini API.
  * This makes the application resilient to external model name changes.
  */
-const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParams[]> => {
+const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
   const now = Date.now();
   if (cachedModels && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
-    return cachedModels;
+    return { models: cachedModels, source: 'cache' };
   }
 
   console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
@@ -25,7 +25,7 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
     cacheTimestamp = now;
     
     console.log('[AI Service] Fetched and cached models:', availableModels.map(m => m.name));
-    return availableModels;
+    return { models: availableModels, source: 'live' };
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
     const fallbackModels = [
@@ -38,7 +38,7 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<ModelParam
     cachedModels = fallbackModels;
     cacheTimestamp = now;
 
-    return fallbackModels;
+    return { models: fallbackModels, source: 'fallback' };
   }
 };
 
@@ -48,9 +48,9 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   
   const genAI = new GoogleGenerativeAI(apiKey);
   let errorLog: string[] = [];
-
-  const allModels = await getAvailableModels(genAI);
-
+  
+  const { models: allModels } = await getAvailableModels(genAI);
+  
   const modelsToTry = allModels
     .map((m: any) => m.name?.replace('models/', '') || '')
     .filter(name => {
@@ -131,4 +131,41 @@ export const generateEnhancedContent = async (expertReport: string, userSessions
   `;
   const blogContent = await generateContentWithFallback(blogContentPrompt);
   return { blogContent, excerpt: excerpt.replace(/"/g, '') };
+};
+
+export const getAiServiceStatus = async () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return {
+      status: 'error',
+      message: 'GEMINI_API_KEY is missing.',
+      source: 'not_configured',
+      models: [],
+      cacheTimestamp: null,
+    };
+  }
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const { models, source } = await getAvailableModels(genAI);
+
+  let message = '';
+  switch(source) {
+      case 'live':
+          message = 'Successfully connected to Google AI and fetched live model list.';
+          break;
+      case 'cache':
+          message = 'Using cached model list.';
+          break;
+      case 'fallback':
+          message = 'Failed to connect to Google AI, using hardcoded fallback list.';
+          break;
+  }
+
+  return {
+    status: source === 'fallback' ? 'degraded' : 'ok',
+    message,
+    source,
+    models: models.map(m => m.name),
+    cacheTimestamp: cacheTimestamp ? new Date(cacheTimestamp).toISOString() : null,
+  };
 };

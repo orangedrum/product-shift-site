@@ -5,6 +5,7 @@ import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generati
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
+import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
@@ -993,6 +994,16 @@ app.post('/api/user/feedback', authenticateRequest, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
+});
+
+// --- AI Service Health Check ---
+app.get('/api/ai-health', async (req, res) => {
+  try {
+    const status = await getAiServiceStatus();
+    res.status(status.status === 'ok' || status.status === 'degraded' ? 200 : 503).json(status);
+  } catch (e: any) {
+    res.status(500).json({ status: 'error', message: e.message });
+  }
 });
 
 // --- Health Check ---

@@ -32,6 +32,19 @@ const personas: Record<string, Persona> = {
 
 // --- Helper Functions ---
 
+const normalizeUrl = (input: string) => {
+  let url = input.trim();
+  // Fix double protocol (e.g. https://https://) caused by double-pasting into a pre-filled field
+  while (/^https?:\/\/https?:\/\//i.test(url)) {
+    url = url.replace(/^https?:\/\//i, '');
+  }
+  // Default to https:// if no protocol is present
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+  return url;
+};
+
 const scrapeUrl = async (url: string) => {
   const browserlessToken = process.env.BROWSERLESS_TOKEN;
   if (!browserlessToken) throw new Error('BROWSERLESS_TOKEN is missing in environment variables.');
@@ -149,11 +162,13 @@ export const runTestHandler = async (req: Request, res: Response) => {
   let userIdentifier: string | undefined;
 
   try {
-    const { url, personaIds, goal, email } = req.body;
+    const { url: rawUrl, personaIds, goal, email } = req.body;
 
-    if (!url || !personaIds || !goal) {
+    if (!rawUrl || !personaIds || !goal) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
+
+    const url = normalizeUrl(rawUrl);
 
     // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
     const forwarded = req.headers['x-forwarded-for'];
