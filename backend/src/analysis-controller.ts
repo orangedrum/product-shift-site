@@ -105,7 +105,7 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
     |||USER_MOOD|||
     (One word: Positive, Neutral, or Negative)
     |||USER_BUBBLE|||
-    (A single, genuine, emotional sentence connecting your specific problem/pain point to the solution you see on the page.)
+    (A single, emotional "I" statement from the user's perspective. This should be their immediate gut reaction. **DO NOT** just state a problem. Example: "I feel frustrated because I can't find the price." NOT "The price is missing.")
     |||USER_DETAILS|||
     ### 1. My Experience
     (2-3 sentences on your immediate reaction.)
