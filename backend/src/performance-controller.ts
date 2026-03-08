@@ -61,6 +61,9 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        // CTO Fix: The `lighthouse` function was not being injected into the execution context.
+        // Add `lighthouse: true` to the payload to explicitly enable the Lighthouse utility in the /function endpoint.
+        lighthouse: true,
         context: { url },
         code: `
           export default async function({ page, context, lighthouse }) {
