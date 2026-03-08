@@ -187,8 +187,8 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
       reportId: runLog?.id,
       data: {
         overallScore: averageScore,
-        pagesAudited: validResults.length,
-        results: validResults
+        pages: validResults,
+        deviceSettings: 'Android (Moto G4) on Slow 3G'
       }
     });
 

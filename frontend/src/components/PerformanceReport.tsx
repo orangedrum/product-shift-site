@@ -65,7 +65,7 @@ const ScoreCircle: React.FC<{ score: number }> = ({ score }) => {
 };
 
 const PerformanceReport: React.FC<{ data: PerformanceReportData }> = ({ data }) => {
-  const { overallScore, pages, deviceSettings } = data;
+  const { overallScore, pages = [], deviceSettings } = data;
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'bg-green-500';
