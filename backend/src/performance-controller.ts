@@ -47,99 +47,33 @@ const fetchSitemapUrls = async (baseUrl: string, limit: number = 4): Promise<str
   }
 };
 
-// Run Lighthouse via Browserless
-const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null> => {
-  const browserlessToken = process.env.BROWSERLESS_TOKEN;
-  if (!browserlessToken) throw new Error('BROWSERLESS_TOKEN is missing.');
-
+// Run Lighthouse via Google PageSpeed Insights (Free, Stable, No Browserless required)
+const runPageSpeedAudit = async (url: string): Promise<LighthouseResult | null> => {
   try {
-    console.log(`[Deep Audit] Running Lighthouse for: ${url}`);
-    // CTO FIX: The /scrape endpoint returned a 400 validation error. The /lighthouse endpoint returned a 404.
-    // The only stable endpoint on our plan is /function. Reverting to use the /function endpoint, which is the Golden Record pattern from analysis-controller.ts.
-    // CTO FIX 2: The `lighthouse` key is not allowed in the POST body. The correct way to enable the lighthouse utility is via a query parameter.
-    const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken.trim()}&lighthouse=true`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        // CTO Final Fix: The diagnostic logs prove 'lighthouse' is not injected and cannot be required.
-        // The correct, documented method is to request the module be installed in the context.
-        context: { 
-          url,
-        },
-        code: `
-          export default async function({ page, context, lighthouse }) {
-            try {
-              const url = context.url;
-              let lh = lighthouse;
-              let debugLog = { injectedType: typeof lighthouse };
-
-              // DIAGNOSTIC & FALLBACK: If injection failed, try standard require
-              if (!lh || typeof lh !== 'function') {
-                try {
-                  // The 'lighthouse' module is made available via the browserless/chrome image
-                  // when requested. We must require it. This is the correct pattern.
-                  lh = require('lighthouse');
-                  debugLog.requireStatus = 'success';
-                } catch (e) {
-                  debugLog.requireStatus = 'failed';
-                  debugLog.requireError = e.message;
-                }
-              }
-
-              if (!lh || typeof lh !== 'function') {
-                return { 
-                  data: { error: 'Lighthouse not found', debug: debugLog }, 
-                  type: 'application/json' 
-                };
-              }
-
-              const { lhr } = await lh(url, {
-                output: 'json'
-              }, {
-                extends: 'lighthouse:default',
-                settings: {
-                  emulatedFormFactor: 'mobile',
-                  throttling: {
-                    rttMs: 150,
-                    throughputKbps: 1638.4,
-                    cpuSlowdownMultiplier: 4,
-                  },
-                  onlyCategories: ['performance'],
-                  skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
-                }
-              });
-
-              return { data: { lhr }, type: 'application/json' };
-            } catch (err) {
-              return { data: { error: 'Runtime Error', details: err.message, stack: err.stack }, type: 'application/json' };
-            }
-          }
-        `
-      })
-    });
+    console.log(`[Deep Audit] Running PageSpeed Insights for: ${url}`);
+    
+    // CTO PIVOT: Browserless Free Tier does not support Lighthouse injection.
+    // We switch to Google's official PageSpeed Insights API which is free and standard.
+    // Strategy 'mobile' simulates the "4-year-old Android" environment we want.
+    const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=mobile&category=PERFORMANCE`;
+    
+    const response = await fetch(apiUrl);
 
     if (!response.ok) {
-      console.error(`[Deep Audit] Browserless /function call failed for ${url}: ${response.status} - ${await response.text()}`);
+      console.error(`[Deep Audit] PSI failed for ${url}: ${response.status} - ${await response.text()}`);
       return null;
     }
 
     const data = await response.json();
-    
-    // DIAGNOSTIC LOGGING: Check for internal errors returned by our diagnostic wrapper
-    if (data.data?.error) {
-      console.error(`[Deep Audit] Browserless Internal Error for ${url}:`, JSON.stringify(data.data));
+    const lhr = data.lighthouseResult;
+
+    if (!lhr) {
+      console.error(`[Deep Audit] PSI returned no lighthouseResult for ${url}`);
       return null;
     }
 
-    // The /function endpoint returns the lighthouse report in `data.lhr`
-    const lighthouseReport = data.data?.lhr;
-    if (!lighthouseReport) {
-        console.error(`[Deep Audit] Lighthouse data (lhr) missing from /function response for ${url}`);
-        return null;
-    }
-
-    const audits = lighthouseReport.audits;
-    const categories = lighthouseReport.categories;
+    const audits = lhr.audits;
+    const categories = lhr.categories;
 
     return {
       url,
@@ -196,7 +130,7 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
     // 3. Execution Phase (Sequential Lighthouse to avoid 429 errors on free tier)
     const results: (LighthouseResult | null)[] = [];
     for (const pageUrl of pagesToAudit) {
-      const result = await runLighthouseAudit(pageUrl);
+      const result = await runPageSpeedAudit(pageUrl);
       results.push(result);
       // Add a small delay to be a good citizen and prevent rapid-fire requests
       await new Promise(r => setTimeout(r, 500));
