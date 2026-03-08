@@ -12,6 +12,7 @@ import { SecurityAlert } from '../components/SecurityAlert';
 import { SessionExpiredCard } from '../components/SessionExpiredCard';
 import { InsufficientCreditsCard } from '../components/InsufficientCreditsCard';
 import { contentConfig, UserSegment } from '../config/aiUxAgentConfig';
+import PerformanceReport, { PerformanceReportData } from '../components/PerformanceReport';
 
 // Define types for the API response and error
 type UserSession = {
@@ -145,6 +146,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [url, setUrl] = useState('');
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['alex-busy-pro', 'sam-college-student', 'charlie-family-worker']);
   const [taskType, setTaskType] = useState('understand');
+  const [deepAudit, setDeepAudit] = useState(false);
+  const [performanceResult, setPerformanceResult] = useState<PerformanceReportData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<AnalysisError | null>(null);
@@ -494,6 +497,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
     setIsLoading(true);
     setResult(null);
+    setPerformanceResult(null);
     setError(null);
 
     // Determine final goal string
@@ -503,8 +507,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
     // Ensure the URL has a protocol
     const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
 
+    const endpoint = deepAudit ? '/api/run-deep-audit' : '/api/run-test';
+
     try {
-      const response = await fetch('/api/run-test', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -529,20 +535,23 @@ const AiPoweredUxHealthtech: React.FC = () => {
         throw data;
       }
 
-      // VALIDATION: Prevent "Blank Screen" crashes by ensuring data integrity
-      if (!data.userSessions || !Array.isArray(data.userSessions) || data.userSessions.length === 0) {
-         throw { error: 'Analysis Failed', details: 'The AI agent could not generate user sessions for this URL. It might be inaccessible.' };
+      if (deepAudit) {
+        setPerformanceResult(data.data);
+      } else {
+        // VALIDATION: Prevent "Blank Screen" crashes by ensuring data integrity
+        if (!data.userSessions || !Array.isArray(data.userSessions) || data.userSessions.length === 0) {
+           throw { error: 'Analysis Failed', details: 'The AI agent could not generate user sessions for this URL. It might be inaccessible.' };
+        }
+        if (!data.expertReport) {
+           throw { error: 'Report Generation Failed', details: 'The AI agent failed to generate the expert report.' };
+        }
+        console.log('✅ Analysis Data Validated:', data); // Debugging
+        setResult(data);
       }
-      if (!data.expertReport) {
-         throw { error: 'Report Generation Failed', details: 'The AI agent failed to generate the expert report.' };
-      }
-
-      console.log('✅ Analysis Data Validated:', data); // Debugging
-      setResult(data);
       
       // Optimistic update for gamification: Decrement credit counter visually
       if (credits !== null && credits > 0) {
-        setCredits(credits - 1);
+        setCredits(credits - (deepAudit ? 9 : 1));
       }
 
       // SYNC: Poll backend to ensure credits and referral rewards are accurate
@@ -576,6 +585,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const resetState = () => {
     setResult(null);
     setError(null);
+    setPerformanceResult(null);
     setIsLoading(false);
     setUrl('');
   };
@@ -826,7 +836,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         )}
 
       <div className="w-full">
-      {!result && !error && (
+      {!result && !performanceResult && !error && (
         <div className="no-print">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black mb-4 text-black drop-shadow-sm">{text.title}</h1>
@@ -899,6 +909,18 @@ const AiPoweredUxHealthtech: React.FC = () => {
               )}
             </div>
 
+            {/* Deep Audit Toggle */}
+            <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-black text-black flex items-center gap-2"><BarChart size={20} /> Deep Performance Audit</h3>
+                <p className="text-sm text-gray-600">Simulate a 4-year-old Android on 3G across 5 pages.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-sm font-bold ${deepAudit ? 'text-black' : 'text-gray-400'}`}>{deepAudit ? '9 Credits' : '3 Credits'}</span>
+                <button type="button" onClick={() => setDeepAudit(!deepAudit)} className={`w-14 h-8 rounded-full p-1 transition-colors border-2 border-black ${deepAudit ? 'bg-green-500' : 'bg-gray-200'}`}><div className={`w-5 h-5 bg-white rounded-full border-2 border-black shadow-sm transition-transform ${deepAudit ? 'translate-x-6' : 'translate-x-0'}`} /></button>
+              </div>
+            </div>
+
             {/* Card 3: The Why */}
             <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
               <h2 className="text-2xl font-black text-black mb-1">{text.card3Title}</h2>
@@ -944,7 +966,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         </div>
       )}
 
-      {result && (
+      {(result || performanceResult) && (
         <div className="no-print text-center mb-12 animate-fade-in max-w-3xl mx-auto">
            <h1 className="text-4xl font-black mb-2 text-black">Analysis Complete</h1>
            <p className="text-black font-medium text-lg">Review the user sessions and the aggregated research report below.</p>
@@ -1061,6 +1083,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </NeoCard>
           </div>
         </div>
+      )}
+
+      {performanceResult && (
+        <div className="animate-fade-in w-full mb-12"><PerformanceReport data={performanceResult} /></div>
       )}
 
       {result && (

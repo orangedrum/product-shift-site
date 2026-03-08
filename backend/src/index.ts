@@ -748,8 +748,15 @@ app.post('/api/user/check-account', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
   
+  // Diagnostic: Check if Supabase is actually configured
+  if (!supabaseUrl || !supabaseServiceKey || supabaseUrl.includes('placeholder')) {
+    console.error('ACCOUNT CHECK ERROR: Supabase Env Vars Missing');
+    return res.status(500).json({ error: 'Server Configuration Error: Supabase URL/Key missing.' });
+  }
+
   try {
-    const { count } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('email', email);
+    const { count, error } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('email', email);
+    if (error) throw error;
     return res.json({ exists: (count || 0) > 0 });
   } catch (e: any) {
     console.error('Check account existence error:', e);
