@@ -56,14 +56,11 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
     console.log(`[Deep Audit] Running Lighthouse for: ${url}`);
     // CTO FIX: The /scrape endpoint returned a 400 validation error. The /lighthouse endpoint returned a 404.
     // The only stable endpoint on our plan is /function. Reverting to use the /function endpoint, which is the Golden Record pattern from analysis-controller.ts.
-    // We will run lighthouse programmatically inside the browserless function.
-    const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken.trim()}`, {
+    // CTO FIX 2: The `lighthouse` key is not allowed in the POST body. The correct way to enable the lighthouse utility is via a query parameter.
+    const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken.trim()}&lighthouse=true`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        // CTO Fix: The `lighthouse` function was not being injected into the execution context.
-        // Add `lighthouse: true` to the payload to explicitly enable the Lighthouse utility in the /function endpoint.
-        lighthouse: true,
         context: { url },
         code: `
           export default async function({ page, context, lighthouse }) {
