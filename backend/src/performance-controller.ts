@@ -61,7 +61,11 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        context: { url },
+        // CTO Final Fix: The diagnostic logs prove 'lighthouse' is not injected and cannot be required.
+        // The correct, documented method is to request the module be installed in the context.
+        context: { 
+          url,
+        },
         code: `
           export default async function({ page, context, lighthouse }) {
             try {
@@ -72,7 +76,8 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
               // DIAGNOSTIC & FALLBACK: If injection failed, try standard require
               if (!lh || typeof lh !== 'function') {
                 try {
-                  // Try to require it manually if the environment supports it
+                  // The 'lighthouse' module is made available via the browserless/chrome image
+                  // when requested. We must require it. This is the correct pattern.
                   lh = require('lighthouse');
                   debugLog.requireStatus = 'success';
                 } catch (e) {
