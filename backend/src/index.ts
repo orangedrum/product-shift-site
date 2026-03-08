@@ -553,7 +553,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
   if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
 
-  const baseUrl = getPublicUrl();
+  // FIX: Use the request origin if available to preserve cookies/session on redirect.
+  // Fallback to configured public URL if origin is missing (e.g. server-side call).
+  const origin = req.headers.origin;
+  const baseUrl = origin && !origin.includes('localhost') ? origin : getPublicUrl();
   const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
   const cancelUrl = `${baseUrl}/account`;
 

@@ -40,7 +40,7 @@ const PaymentConfirmation = () => {
 
     const startChecks = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      // FIX: Do not return early if session is missing. We can still verify the payment via API.
 
       // 2. Trigger API Verification (Fire & Forget)
       // This runs in parallel with DB polling.
@@ -76,8 +76,11 @@ const PaymentConfirmation = () => {
           clearInterval(pollInterval);
           
           // Check if this is the first payment (Explicit check to avoid stale state closure)
-          const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', session.user.email).eq('status', 'paid');
-          const isFirst = count === 1;
+          let isFirst = false;
+          if (session?.user?.email) {
+            const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', session.user.email).eq('status', 'paid');
+            isFirst = count === 1;
+          }
 
           setStatus('success');
           // Short delay to show the success state before redirecting
