@@ -63,9 +63,9 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
       body: JSON.stringify({
         context: { url },
         code: `
-          module.exports = async ({ page, context, lighthouse }) => {
+          export default async function({ page, context, lighthouse }) {
             const url = context.url;
-            
+
             const { lhr } = await lighthouse(url, {
               output: 'json'
             }, {
@@ -83,7 +83,7 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
             });
 
             return { data: { lhr }, type: 'application/json' };
-          };
+          }
         `
       })
     });
@@ -151,15 +151,19 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
 
     // 2. Discovery Phase (Sitemap)
     // We fetch the sitemap to find internal pages
-    const internalPages = await fetchSitemapUrls(url, 4); // Get 4 internal pages
+    const internalPages = await fetchSitemapUrls(url, 5); // Get top 5 internal pages per user request
     const pagesToAudit = [url, ...internalPages];
 
     console.log(`[Deep Audit] Identified ${pagesToAudit.length} pages to audit.`);
 
-    // 3. Execution Phase (Parallel Lighthouse)
-    // We run these in parallel to stay within serverless timeout limits (usually 10-60s)
-    const auditPromises = pagesToAudit.map(pageUrl => runLighthouseAudit(pageUrl));
-    const results = await Promise.all(auditPromises);
+    // 3. Execution Phase (Sequential Lighthouse to avoid 429 errors on free tier)
+    const results: (LighthouseResult | null)[] = [];
+    for (const pageUrl of pagesToAudit) {
+      const result = await runLighthouseAudit(pageUrl);
+      results.push(result);
+      // Add a small delay to be a good citizen and prevent rapid-fire requests
+      await new Promise(r => setTimeout(r, 500));
+    }
     
     // Filter out failed runs
     const validResults = results.filter((r): r is LighthouseResult => r !== null);
