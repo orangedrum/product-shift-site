@@ -7,6 +7,7 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUr
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
+import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
 // --- Environment Variables ---
@@ -723,6 +724,9 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
   req.body.goal = 'Identify immediate UX friction points and conversion blockers.';
   return runTestHandler(req, res);
 });
+
+// --- Deep Performance Audit Route ---
+app.post('/api/run-deep-audit', authenticateRequest, runDeepAuditHandler);
 
 // --- Other Routes (Waitlist, Refund, etc.) ---
 app.post('/api/join-waitlist', async (req, res) => {
