@@ -52,15 +52,30 @@ const runPageSpeedAudit = async (url: string): Promise<LighthouseResult | null> 
   try {
     console.log(`[Deep Audit] Running PageSpeed Insights for: ${url}`);
     
+    // CTO FIX: We must provide an API key to get the free 25,000/day quota.
+    // Without it, we share a tiny quota with all other anonymous Vercel users and get 429 errors.
+    const apiKey = process.env.GOOGLE_PSI_API_KEY || process.env.GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      console.error('🚨 [Deep Audit] CRITICAL: No API Key found. Requests will likely fail with 429 Quota Exceeded.');
+    }
+
     // CTO PIVOT: Browserless Free Tier does not support Lighthouse injection.
     // We switch to Google's official PageSpeed Insights API which is free and standard.
     // Strategy 'mobile' simulates the "4-year-old Android" environment we want.
-    const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=mobile&category=PERFORMANCE`;
+    const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=mobile&category=PERFORMANCE&key=${apiKey}`;
     
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
-      console.error(`[Deep Audit] PSI failed for ${url}: ${response.status} - ${await response.text()}`);
+      const errorText = await response.text();
+      console.error(`[Deep Audit] PSI failed for ${url}: ${response.status} - ${errorText}`);
+      
+      // DIAGNOSTIC: Explicitly tell the user if the API is disabled
+      if (errorText.includes('API has not been used in project') || errorText.includes('is not enabled') || errorText.includes('Access Not Configured')) {
+        console.error('🚨 ACTION REQUIRED: The PageSpeed Insights API is NOT enabled. Enable it here: https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com');
+      }
+      
       return null;
     }
 
