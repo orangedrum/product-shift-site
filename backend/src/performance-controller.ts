@@ -54,47 +54,55 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
 
   try {
     console.log(`[Deep Audit] Running Lighthouse for: ${url}`);
-    // CTO FIX: The /lighthouse endpoint returned a 404. Switching to the more robust /scrape endpoint,
-    // which is known to be stable on our Browserless plan. This requires nesting the config.
-    const response = await fetch(`https://production-sfo.browserless.io/scrape?token=${browserlessToken.trim()}`, {
+    // CTO FIX: The /scrape endpoint returned a 400 validation error. The /lighthouse endpoint returned a 404.
+    // The only stable endpoint on our plan is /function. Reverting to use the /function endpoint, which is the Golden Record pattern from analysis-controller.ts.
+    // We will run lighthouse programmatically inside the browserless function.
+    const response = await fetch(`https://production-sfo.browserless.io/function?token=${browserlessToken.trim()}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        url,
-        // The /scrape endpoint expects lighthouse config to be nested.
-        lighthouse: {
-          reportConfig: {
-            // Simulate 4-year-old Android on 3G
-            settings: {
-              emulatedFormFactor: 'mobile',
-              throttling: {
-                rttMs: 150,
-                throughputKbps: 1638.4, // ~1.6 Mbps (Slow 3G/Fast 2G)
-                cpuSlowdownMultiplier: 4, // 4x slowdown for older CPU
-              },
-              onlyCategories: ['performance'],
-              skipAudits: ['screenshot-thumbnails', 'final-screenshot'], // Save bandwidth
-            }
-          }
-        }
+        context: { url },
+        code: `
+          module.exports = async ({ page, context, lighthouse }) => {
+            const url = context.url;
+            
+            const { lhr } = await lighthouse(url, {
+              output: 'json'
+            }, {
+              extends: 'lighthouse:default',
+              settings: {
+                emulatedFormFactor: 'mobile',
+                throttling: {
+                  rttMs: 150,
+                  throughputKbps: 1638.4,
+                  cpuSlowdownMultiplier: 4,
+                },
+                onlyCategories: ['performance'],
+                skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
+              }
+            });
+
+            return { data: { lhr }, type: 'application/json' };
+          };
+        `
       })
     });
 
     if (!response.ok) {
-      console.error(`[Deep Audit] Lighthouse failed for ${url}: ${response.status} - ${await response.text()}`);
+      console.error(`[Deep Audit] Browserless /function call failed for ${url}: ${response.status} - ${await response.text()}`);
       return null;
     }
 
     const data = await response.json();
-    // The /scrape endpoint nests the lighthouse report under `data.lighthouse`
-    const lighthouseReport = data.data?.lighthouse;
+    // The /function endpoint returns the lighthouse report in `data.lhr`
+    const lighthouseReport = data.data?.lhr;
     if (!lighthouseReport) {
-        console.error(`[Deep Audit] Lighthouse data missing from /scrape response for ${url}`);
+        console.error(`[Deep Audit] Lighthouse data (lhr) missing from /function response for ${url}`);
         return null;
     }
 
-    const audits = lighthouseReport.lhr.audits;
-    const categories = lighthouseReport.lhr.categories;
+    const audits = lighthouseReport.audits;
+    const categories = lighthouseReport.categories;
 
     return {
       url,
