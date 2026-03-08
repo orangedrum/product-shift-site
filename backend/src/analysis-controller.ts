@@ -19,7 +19,7 @@ type Persona = {
 };
 
 // --- Personas Configuration ---
-const personas: Record<string, Persona> = {
+export const personas: Record<string, Persona> = {
   'alex-busy-pro': { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
   'sam-college-student': { id: 'sam-college-student', name: 'Sam', description: 'a budget-conscious college student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
   'charlie-family-worker': { id: 'charlie-family-worker', name: 'Charlie', description: 'a masculine, patriotic blue-collar worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
@@ -32,7 +32,7 @@ const personas: Record<string, Persona> = {
 
 // --- Helper Functions ---
 
-const normalizeUrl = (input: string) => {
+export const normalizeUrl = (input: string) => {
   let url = input.trim();
   // Fix double protocol (e.g. https://https://) caused by double-pasting into a pre-filled field
   while (/^https?:\/\/https?:\/\//i.test(url)) {
@@ -45,7 +45,7 @@ const normalizeUrl = (input: string) => {
   return url;
 };
 
-const scrapeUrl = async (url: string) => {
+export const scrapeUrl = async (url: string) => {
   const browserlessToken = process.env.BROWSERLESS_TOKEN;
   if (!browserlessToken) throw new Error('BROWSERLESS_TOKEN is missing in environment variables.');
 
@@ -100,7 +100,7 @@ export const generateStructuredData = (url: string, title: string, scores: any, 
   };
 };
 
-const generateUserSession = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
+export const generateUserSession = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
   const prompt = `
     You are facilitating a usability test session.
     **Context:**
@@ -136,7 +136,7 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
   return generateContentWithFallback(prompt, data.screenshot);
 };
 
-const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
+export const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
   let footerContent = `
     ---
     **The Product Shift** | AI-Powered UX Audits

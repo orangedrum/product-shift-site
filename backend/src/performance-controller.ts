@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { supabase } from './services';
+import { supabase, delay } from './services';
+import { scrapeUrl, generateUserSession, generateAggregatedReport, personas, generateStructuredData } from './analysis-controller';
 
 // --- Types ---
 type LighthouseResult = {
@@ -107,7 +108,7 @@ const runPageSpeedAudit = async (url: string): Promise<LighthouseResult | null> 
 // --- Main Controller ---
 
 export const runDeepAuditHandler = async (req: Request, res: Response) => {
-  const { url: rawUrl, email } = req.body;
+  const { url: rawUrl, email, personaIds = ['alex-busy-pro', 'sam-college-student', 'charlie-family-worker'], goal = 'Quickly understand what this page is about.' } = req.body;
   const COST_IN_CREDITS = 9;
 
   if (!rawUrl || !email) {
@@ -160,6 +161,36 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Audit Failed', details: 'Could not connect to the target site.' });
     }
 
+    // 4. Run Standard AI Analysis (UX Audit)
+    console.log(`[Deep Audit] Starting UX Analysis for ${url}`);
+    const scrapeResult = await scrapeUrl(url);
+    
+    const userSessions: any[] = [];
+    for (const pId of personaIds) {
+      const activePersona = personas[pId] || personas['alex-busy-pro'];
+      if (activePersona) {
+        if (userSessions.length > 0) await delay(1000);
+        const sessionOutput = await generateUserSession(scrapeResult, activePersona, goal, url);
+        const moodMatch = sessionOutput.match(/\|\|\|USER_MOOD\|\|\|\s*(.*)/);
+        const mood = moodMatch ? moodMatch[1].trim() : 'Neutral';
+        let avatarUrl = activePersona.avatar;
+        if (mood.toLowerCase().includes('negative')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=sad`;
+        if (mood.toLowerCase().includes('positive')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=smile`;
+
+        userSessions.push({ persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona });
+      }
+    }
+
+    await delay(1000);
+    let rawExpertReport = await generateAggregatedReport(scrapeResult, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, false);
+    let scores = { usability: 0, desirability: 0, clarity: 0 };
+    if (rawExpertReport.includes('|||SCORES_JSON|||')) {
+      const parts = rawExpertReport.split('|||SCORES_JSON|||');
+      try { scores = JSON.parse(parts[1].match(/\{[\s\S]*?\}/)?.[0] || parts[1].trim()); } catch (e) {}
+      rawExpertReport = parts[0];
+    }
+    const seoSchema = generateStructuredData(url, scrapeResult.title, scores, rawExpertReport);
+
     // 4. Aggregation & Storage
     const averageScore = Math.round(validResults.reduce((acc, curr) => acc + curr.performanceScore, 0) / validResults.length);
     
@@ -175,7 +206,16 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
         overallScore: averageScore,
         pages: validResults,
         deviceSettings: 'Android (Moto G4) on Slow 3G',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        // Include Standard Analysis Data
+        standardAnalysis: {
+          title: scrapeResult.title,
+          screenshot: scrapeResult.screenshot,
+          userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })),
+          expertReport: rawExpertReport,
+          scores,
+          seoSchema
+        }
       }
     }).select('id').single();
 
@@ -186,9 +226,20 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
       success: true,
       reportId: runLog?.id,
       data: {
-        overallScore: averageScore,
-        pages: validResults,
-        deviceSettings: 'Android (Moto G4) on Slow 3G'
+        performance: {
+          overallScore: averageScore,
+          pages: validResults,
+          deviceSettings: 'Android (Moto G4) on Slow 3G'
+        },
+        analysis: {
+          title: scrapeResult.title,
+          url: url,
+          screenshot: scrapeResult.screenshot,
+          userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })),
+          expertReport: rawExpertReport,
+          scores,
+          seoSchema
+        }
       }
     });
 

@@ -153,6 +153,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
   const [error, setError] = useState<AnalysisError | null>(null);
   const [showPersonaError, setShowPersonaError] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [activeResultTab, setActiveResultTab] = useState<'performance' | 'ux'>('performance');
   const [activeTab, setActiveTab] = useState<number>(0); // Index of the active tab
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [printMode, setPrintMode] = useState<'full' | 'summary'>('full');
@@ -536,7 +537,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
       }
 
       if (deepAudit) {
-        setPerformanceResult(data.data);
+        // Deep Audit returns both performance data AND standard analysis
+        setPerformanceResult(data.data.performance);
+        setResult(data.data.analysis);
+        setActiveResultTab('performance'); // Default to performance tab
       } else {
         // VALIDATION: Prevent "Blank Screen" crashes by ensuring data integrity
         if (!data.userSessions || !Array.isArray(data.userSessions) || data.userSessions.length === 0) {
@@ -547,6 +551,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
         }
         console.log('✅ Analysis Data Validated:', data); // Debugging
         setResult(data);
+        setActiveResultTab('ux'); // Default to UX tab
       }
       
       // Optimistic update for gamification: Decrement credit counter visually
@@ -586,6 +591,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
     setResult(null);
     setError(null);
     setPerformanceResult(null);
+    setActiveResultTab('performance');
     setIsLoading(false);
     setUrl('');
   };
@@ -1085,11 +1091,31 @@ const AiPoweredUxHealthtech: React.FC = () => {
         </div>
       )}
 
-      {performanceResult && (
-        <div className="animate-fade-in w-full mb-12"><PerformanceReport data={performanceResult} /></div>
+      {/* Result Tabs (Only show if we have both) */}
+      {result && performanceResult && (
+        <div className="flex justify-center mb-8 no-print">
+          <div className="bg-gray-100 p-1 rounded-xl border border-gray-200 inline-flex">
+            <button
+              onClick={() => setActiveResultTab('performance')}
+              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeResultTab === 'performance' ? 'bg-white text-black shadow-sm ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              Performance Audit
+            </button>
+            <button
+              onClick={() => setActiveResultTab('ux')}
+              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeResultTab === 'ux' ? 'bg-white text-black shadow-sm ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              UX Analysis
+            </button>
+          </div>
+        </div>
       )}
 
-      {result && (
+      {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
+        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden print-only' : ''}`}><PerformanceReport data={performanceResult} /></div>
+      )}
+
+      {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
         <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}

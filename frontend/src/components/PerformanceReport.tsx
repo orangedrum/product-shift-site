@@ -111,19 +111,19 @@ const PerformanceReport: React.FC<{ data: PerformanceReportData }> = ({ data }) 
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">FCP</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">First Impression (FCP)</p>
                 <p className="text-xl font-black text-gray-800">{(page.fcp / 1000).toFixed(1)}s</p>
               </div>
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">LCP</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">Main Content Loaded (LCP)</p>
                 <p className="text-xl font-black text-gray-800">{(page.lcp / 1000).toFixed(1)}s</p>
               </div>
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">TTI</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">Time to Interactive (TTI)</p>
                 <p className="text-xl font-black text-gray-800">{(page.tti / 1000).toFixed(1)}s</p>
               </div>
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">Speed Index</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">Perceived Load Speed (Speed Index)</p>
                 <p className="text-xl font-black text-gray-800">{(page.speedIndex / 1000).toFixed(1)}s</p>
               </div>
             </div>
