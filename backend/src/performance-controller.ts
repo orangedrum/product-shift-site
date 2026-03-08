@@ -64,25 +64,50 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
         context: { url },
         code: `
           export default async function({ page, context, lighthouse }) {
-            const url = context.url;
+            try {
+              const url = context.url;
+              let lh = lighthouse;
+              let debugLog = { injectedType: typeof lighthouse };
 
-            const { lhr } = await lighthouse(url, {
-              output: 'json'
-            }, {
-              extends: 'lighthouse:default',
-              settings: {
-                emulatedFormFactor: 'mobile',
-                throttling: {
-                  rttMs: 150,
-                  throughputKbps: 1638.4,
-                  cpuSlowdownMultiplier: 4,
-                },
-                onlyCategories: ['performance'],
-                skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
+              // DIAGNOSTIC & FALLBACK: If injection failed, try standard require
+              if (!lh || typeof lh !== 'function') {
+                try {
+                  // Try to require it manually if the environment supports it
+                  lh = require('lighthouse');
+                  debugLog.requireStatus = 'success';
+                } catch (e) {
+                  debugLog.requireStatus = 'failed';
+                  debugLog.requireError = e.message;
+                }
               }
-            });
 
-            return { data: { lhr }, type: 'application/json' };
+              if (!lh || typeof lh !== 'function') {
+                return { 
+                  data: { error: 'Lighthouse not found', debug: debugLog }, 
+                  type: 'application/json' 
+                };
+              }
+
+              const { lhr } = await lh(url, {
+                output: 'json'
+              }, {
+                extends: 'lighthouse:default',
+                settings: {
+                  emulatedFormFactor: 'mobile',
+                  throttling: {
+                    rttMs: 150,
+                    throughputKbps: 1638.4,
+                    cpuSlowdownMultiplier: 4,
+                  },
+                  onlyCategories: ['performance'],
+                  skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
+                }
+              });
+
+              return { data: { lhr }, type: 'application/json' };
+            } catch (err) {
+              return { data: { error: 'Runtime Error', details: err.message, stack: err.stack }, type: 'application/json' };
+            }
           }
         `
       })
@@ -94,6 +119,13 @@ const runLighthouseAudit = async (url: string): Promise<LighthouseResult | null>
     }
 
     const data = await response.json();
+    
+    // DIAGNOSTIC LOGGING: Check for internal errors returned by our diagnostic wrapper
+    if (data.data?.error) {
+      console.error(`[Deep Audit] Browserless Internal Error for ${url}:`, JSON.stringify(data.data));
+      return null;
+    }
+
     // The /function endpoint returns the lighthouse report in `data.lhr`
     const lighthouseReport = data.data?.lhr;
     if (!lighthouseReport) {
