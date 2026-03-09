@@ -27,26 +27,26 @@ const getAvailableModels = async (apiKey: string): Promise<{ models: ModelParams
     const data = await response.json();
     
     // Filter for models that support content generation and map to the SDK's expected format
+    // CTO FIX: The previous mapping was incorrect, causing `null` models. The API returns objects with a `name` property. We should return these directly.
     const availableModels = (data.models || [])
-      .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
-      .map((m: any) => ({ model: m.name })); // SDK expects { model: 'models/name' }
+      .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
 
     if (availableModels.length === 0) throw new Error('No models found with generateContent support');
 
     cachedModels = availableModels;
     cacheTimestamp = now;
     
-    console.log('[AI Service] Scavenger Success. Found models:', availableModels.map((m: any) => m.model));
+    console.log('[AI Service] Scavenger Success. Found models:', availableModels.map((m: any) => m.name));
     return { models: availableModels, source: 'live' };
   } catch (error) {
     console.error('[AI Service] Scavenger failed. Falling back to hardcoded list.', error);
     
     // Robust Fallback: A mix of legacy and new model names to maximize hit rate
     const fallbackModels = [
-        { model: 'models/gemini-1.5-flash' },
-        { model: 'models/gemini-pro' },
-        { model: 'models/gemini-pro-vision' },
-        { model: 'models/gemini-1.0-pro' }
+        { name: 'models/gemini-1.5-flash-latest' },
+        { name: 'models/gemini-pro' },
+        { name: 'models/gemini-pro-vision' },
+        { name: 'models/gemini-1.0-pro' }
     ] as any;
 
     cachedModels = fallbackModels;
@@ -66,7 +66,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const { models: allModels } = await getAvailableModels(apiKey);
   
   const modelsToTry = allModels
-    .map((m: any) => (m.model || m.name)?.replace('models/', '') || '')
+    .map((m: any) => m.name?.replace('models/', '') || '')
     .filter(name => {
       // Updated Filter: Gemini 1.5 and 2.0 are multimodal (text + images).
       // We must ensure they are included for vision tasks.
@@ -82,7 +82,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
     .sort((a, b) => {
         // Smart Priority: Prefer Flash (Speed/Cost) -> Pro (Quality) -> Vision (Legacy)
         // This sort ensures we try the most efficient models first if they exist in the list
-        const priority = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro', 'gemini-pro-vision'];
+        const priority = ['gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-pro', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
@@ -189,7 +189,7 @@ export const getAiServiceStatus = async () => {
       status: source === 'fallback' ? 'degraded' : 'ok',
       message,
       source,
-      models: models.map(m => m.name),
+      models: models.map((m: any) => m.name),
       cacheTimestamp: cacheTimestamp ? new Date(cacheTimestamp).toISOString() : null,
     };
 
