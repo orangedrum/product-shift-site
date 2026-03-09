@@ -15,8 +15,10 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: 
   // This will isolate the problem to either our code or the Google Cloud project configuration.
   console.log('[AI Service] Using minimal stable model list for diagnostics.');
   const stableModels = [
-      { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] } as any,
-      { name: 'models/gemini-pro', supportedGenerationMethods: ['generateContent'] } as any,
+      // CTO DIAGNOSTIC: The logs show 404s for all modern models. We will try the oldest stable models.
+      // If these also fail, the issue is 100% with the Google Cloud Project configuration.
+      { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] } as any, // Still the primary for images
+      { name: 'models/gemini-1.0-pro', supportedGenerationMethods: ['generateContent'] } as any, // A stable text-only fallback
   ];
 
   cachedModels = stableModels;
@@ -49,7 +51,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
     })
     .sort((a, b) => {
         // CTO DIAGNOSTIC: Forcing the priority to match our minimal test list.
-        const priority = ['gemini-pro-vision', 'gemini-pro'];
+        const priority = ['gemini-pro-vision', 'gemini-1.0-pro'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
@@ -141,7 +143,9 @@ export const getAiServiceStatus = async () => {
   // We will perform a direct, simple API call to definitively test the API key and project configuration.
   // This bypasses our complex scavenger logic to get a clear signal.
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // CTO DIAGNOSTIC: The error "'gemini-pro' is not found for API version v1beta" suggests the model name is wrong for the API endpoint.
+    // We are now using an older, more stable model name ('gemini-1.0-pro') for the health check.
+    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     await model.countTokens("test"); // A lightweight, inexpensive call to check connectivity.
 
     // If the above call succeeds, we know the API key and project are configured correctly.
