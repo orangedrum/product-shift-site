@@ -1093,17 +1093,25 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {/* Result Tabs (Only show if we have both) */}
       {result && performanceResult && (
-        <div className="flex justify-center mb-8 no-print">
-          <div className="bg-gray-100 p-1 rounded-xl border border-gray-200 inline-flex">
+        <div className="w-full mb-10 no-print">
+          <div className="grid grid-cols-2 gap-4 p-2 bg-black rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
             <button
               onClick={() => setActiveResultTab('performance')}
-              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeResultTab === 'performance' ? 'bg-white text-black shadow-sm ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-900'}`}
+              className={`py-3 rounded-lg text-lg font-black uppercase tracking-wider transition-all ${
+                activeResultTab === 'performance' 
+                  ? 'bg-[#ff8c00] text-black shadow-[2px_2px_0px_0px_#fff] translate-x-[-1px] translate-y-[-1px]' 
+                  : 'bg-gray-900 text-gray-500 hover:text-white'
+              }`}
             >
               Performance Audit
             </button>
             <button
               onClick={() => setActiveResultTab('ux')}
-              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeResultTab === 'ux' ? 'bg-white text-black shadow-sm ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-900'}`}
+              className={`py-3 rounded-lg text-lg font-black uppercase tracking-wider transition-all ${
+                activeResultTab === 'ux' 
+                  ? 'bg-[#ff1493] text-white shadow-[2px_2px_0px_0px_#fff] translate-x-[-1px] translate-y-[-1px]' 
+                  : 'bg-gray-900 text-gray-500 hover:text-white'
+              }`}
             >
               UX Analysis
             </button>

@@ -57,7 +57,7 @@ export const scrapeUrl = async (url: string) => {
         const url = context.url;
         // Optimize: Use domcontentloaded + short sleep instead of networkidle2 to prevent timeouts on heavy sites
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
-        await new Promise(r => setTimeout(r, 2000)); // Allow 2s for basic hydration/fonts
+        await new Promise(r => setTimeout(r, 5000)); // CTO UPDATE: Increased to 5s to ensure full hydration/rendering for accuracy
         const title = await page.title();
         const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
         const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText })));
