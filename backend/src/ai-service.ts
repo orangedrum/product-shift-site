@@ -10,18 +10,16 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * This makes the application resilient to external model name changes.
  */
 const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
-  // CTO NOTE: The dynamic `listModels()` call is broken due to a library update.
-  // To restore stability, we will use a curated list of known, stable models.
-  // This makes our "scavenger" robust by ensuring its knowledge base is correct.
-  console.log('[AI Service] Using curated list of stable models.');
+  // CTO DIAGNOSTIC: The dynamic listModels() function was removed by the library vendor, causing a crash.
+  // We are temporarily using a minimal, stable list to confirm if ANY model connection is possible.
+  // This will isolate the problem to either our code or the Google Cloud project configuration.
+  console.log('[AI Service] Using minimal stable model list for diagnostics.');
   const stableModels = [
       { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] } as any,
       { name: 'models/gemini-pro', supportedGenerationMethods: ['generateContent'] } as any,
   ];
 
-  if (!cachedModels) {
-    cachedModels = stableModels;
-  }
+  cachedModels = stableModels;
 
   return { models: cachedModels, source: 'fallback' };
 };
@@ -50,8 +48,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       }
     })
     .sort((a, b) => {
-        // CTO FIX: The priority list was trying outdated model names first, causing 404s and delays.
-        // Prioritizing the stable, long-term supported models.
+        // CTO DIAGNOSTIC: Forcing the priority to match our minimal test list.
         const priority = ['gemini-pro-vision', 'gemini-pro'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
