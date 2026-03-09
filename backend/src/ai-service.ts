@@ -9,21 +9,51 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * Fetches and caches the list of available models from the Gemini API.
  * This makes the application resilient to external model name changes.
  */
-const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
-  // CTO DIAGNOSTIC: The dynamic listModels() function was removed by the library vendor, causing a crash.
-  // We are temporarily using a minimal, stable list to confirm if ANY model connection is possible.
-  // This will isolate the problem to either our code or the Google Cloud project configuration.
-  console.log('[AI Service] Using minimal stable model list for diagnostics.');
-  const stableModels = [
-      // CTO DIAGNOSTIC: The logs show 404s for all modern models. We will try the oldest stable models.
-      // If these also fail, the issue is 100% with the Google Cloud Project configuration.
-      { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] } as any, // Still the primary for images
-      { name: 'models/gemini-1.0-pro', supportedGenerationMethods: ['generateContent'] } as any, // A stable text-only fallback
-  ];
+const getAvailableModels = async (apiKey: string): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
+  const now = Date.now();
+  if (cachedModels && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
+    return { models: cachedModels, source: 'cache' };
+  }
 
-  cachedModels = stableModels;
+  console.log('[AI Service] Smart Scavenger: Querying Google REST API for available models...');
+  try {
+    // Direct REST call to bypass SDK versioning issues and get the ground truth for this API Key
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    
+    if (!response.ok) {
+      throw new Error(`Google API Error: ${response.status} ${response.statusText}`);
+    }
 
-  return { models: cachedModels, source: 'fallback' };
+    const data = await response.json();
+    
+    // Filter for models that support content generation and map to the SDK's expected format
+    const availableModels = (data.models || [])
+      .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
+      .map((m: any) => ({ model: m.name })); // SDK expects { model: 'models/name' }
+
+    if (availableModels.length === 0) throw new Error('No models found with generateContent support');
+
+    cachedModels = availableModels;
+    cacheTimestamp = now;
+    
+    console.log('[AI Service] Scavenger Success. Found models:', availableModels.map((m: any) => m.model));
+    return { models: availableModels, source: 'live' };
+  } catch (error) {
+    console.error('[AI Service] Scavenger failed. Falling back to hardcoded list.', error);
+    
+    // Robust Fallback: A mix of legacy and new model names to maximize hit rate
+    const fallbackModels = [
+        { model: 'models/gemini-1.5-flash' },
+        { model: 'models/gemini-pro' },
+        { model: 'models/gemini-pro-vision' },
+        { model: 'models/gemini-1.0-pro' }
+    ] as any;
+
+    cachedModels = fallbackModels;
+    cacheTimestamp = now;
+
+    return { models: fallbackModels, source: 'fallback' };
+  }
 };
 
 export const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
@@ -33,10 +63,10 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const genAI = new GoogleGenerativeAI(apiKey);
   let errorLog: string[] = [];
   
-  const { models: allModels } = await getAvailableModels(genAI);
+  const { models: allModels } = await getAvailableModels(apiKey);
   
   const modelsToTry = allModels
-    .map((m: any) => m.name?.replace('models/', '') || '')
+    .map((m: any) => (m.model || m.name)?.replace('models/', '') || '')
     .filter(name => {
       // Updated Filter: Gemini 1.5 and 2.0 are multimodal (text + images).
       // We must ensure they are included for vision tasks.
@@ -50,8 +80,9 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       }
     })
     .sort((a, b) => {
-        // CTO DIAGNOSTIC: Forcing the priority to match our minimal test list.
-        const priority = ['gemini-pro-vision', 'gemini-1.0-pro'];
+        // Smart Priority: Prefer Flash (Speed/Cost) -> Pro (Quality) -> Vision (Legacy)
+        // This sort ensures we try the most efficient models first if they exist in the list
+        const priority = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
@@ -139,18 +170,9 @@ export const getAiServiceStatus = async () => {
 
   const genAI = new GoogleGenerativeAI(apiKey);
   
-  // --- CTO DIAGNOSTIC ---
-  // We will perform a direct, simple API call to definitively test the API key and project configuration.
-  // This bypasses our complex scavenger logic to get a clear signal.
   try {
-    // CTO DIAGNOSTIC: The error "'gemini-pro' is not found for API version v1beta" suggests the model name is wrong for the API endpoint.
-    // We are now using an older, more stable model name ('gemini-1.0-pro') for the health check.
-    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
-    await model.countTokens("test"); // A lightweight, inexpensive call to check connectivity.
-
-    // If the above call succeeds, we know the API key and project are configured correctly.
-    // Now we can proceed with our normal dynamic model fetching.
-    const { models, source } = await getAvailableModels(genAI);
+    // Use the smart scavenger to check health. If it returns models, we are good.
+    const { models, source } = await getAvailableModels(apiKey);
     let message = '';
     switch(source) {
         case 'live':
@@ -160,7 +182,7 @@ export const getAiServiceStatus = async () => {
             message = 'Using cached model list.';
             break;
         case 'fallback':
-            message = 'Failed to fetch model list, using hardcoded fallback.';
+            message = 'Failed to connect to Google AI model list, using hardcoded fallback.';
             break;
     }
     return {
