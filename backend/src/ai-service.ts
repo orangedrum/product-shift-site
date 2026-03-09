@@ -9,33 +9,46 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * Fetches and caches the list of available models from the Gemini API.
  * This makes the application resilient to external model name changes.
  */
-const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
+const getAvailableModels = async (apiKey: string): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
   const now = Date.now();
   if (cachedModels && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
     return { models: cachedModels, source: 'cache' };
   }
 
-  console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
+  console.log('[AI Service] Smart Scavenger: Querying Google REST API for available models...');
   try {
-    const result = await genAI.listModels();
-
-    const availableModels = result.models.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
+    // Direct REST call to bypass SDK versioning issues and get the ground truth for this API Key
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
     
+    if (!response.ok) {
+      throw new Error(`Google API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Filter for models that support content generation and map to the SDK's expected format
+    // CTO FIX: The previous mapping was incorrect, causing `null` models. The API returns objects with a `name` property. We should return these directly.
+    const availableModels = (data.models || [])
+      .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
+
+    if (availableModels.length === 0) throw new Error('No models found with generateContent support');
+
     cachedModels = availableModels;
     cacheTimestamp = now;
     
-    console.log('[AI Service] Fetched and cached models:', availableModels.map(m => m.name));
+    console.log('[AI Service] Scavenger Success. Found models:', availableModels.map((m: any) => m.name));
     return { models: availableModels, source: 'live' };
   } catch (error) {
-    console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
+    console.error('[AI Service] Scavenger failed. Falling back to hardcoded list.', error);
+    
+    // Robust Fallback: A mix of legacy and new model names to maximize hit rate
     const fallbackModels = [
-        { name: 'models/gemini-1.5-flash', supportedGenerationMethods: ['generateContent'] } as any,
-        { name: 'models/gemini-flash-latest', supportedGenerationMethods: ['generateContent'] } as any,
-        { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] } as any,
-    ];
+        { name: 'models/gemini-1.5-flash-latest' },
+        { name: 'models/gemini-pro' },
+        { name: 'models/gemini-pro-vision' },
+        { name: 'models/gemini-1.0-pro' }
+    ] as any;
 
-    // RESILIENCY FIX: Cache the fallback list to prevent repeated failed calls and timeouts.
-    // This makes the app stable even if the build environment has stale dependencies.
     cachedModels = fallbackModels;
     cacheTimestamp = now;
 
@@ -50,7 +63,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const genAI = new GoogleGenerativeAI(apiKey);
   let errorLog: string[] = [];
   
-  const { models: allModels } = await getAvailableModels(genAI);
+  const { models: allModels } = await getAvailableModels(apiKey);
   
   const modelsToTry = allModels
     .map((m: any) => m.name?.replace('models/', '') || '')
@@ -67,7 +80,9 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       }
     })
     .sort((a, b) => {
-        const priority = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-latest', 'gemini-pro-vision'];
+        // Smart Priority: Prefer Flash (Speed/Cost) -> Pro (Quality) -> Vision (Legacy)
+        // This sort ensures we try the most efficient models first if they exist in the list
+        const priority = ['gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-pro', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
@@ -154,26 +169,38 @@ export const getAiServiceStatus = async () => {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const { models, source } = await getAvailableModels(genAI);
+  
+  try {
+    // Use the smart scavenger to check health. If it returns models, we are good.
+    const { models, source } = await getAvailableModels(apiKey);
+    let message = '';
+    switch(source) {
+        case 'live':
+            message = 'Successfully connected to Google AI and fetched live model list.';
+            break;
+        case 'cache':
+            message = 'Using cached model list.';
+            break;
+        case 'fallback':
+            message = 'Failed to connect to Google AI model list, using hardcoded fallback.';
+            break;
+    }
+    return {
+      status: source === 'fallback' ? 'degraded' : 'ok',
+      message,
+      source,
+      models: models.map((m: any) => m.name),
+      cacheTimestamp: cacheTimestamp ? new Date(cacheTimestamp).toISOString() : null,
+    };
 
-  let message = '';
-  switch(source) {
-      case 'live':
-          message = 'Successfully connected to Google AI and fetched live model list.';
-          break;
-      case 'cache':
-          message = 'Using cached model list.';
-          break;
-      case 'fallback':
-          message = 'Failed to connect to Google AI, using hardcoded fallback list.';
-          break;
+  } catch (error: any) {
+    let errorMessage = `A generic error occurred: ${error.message}`;
+    if (error.message.includes('API key not valid')) {
+      errorMessage = 'CRITICAL: The GEMINI_API_KEY is invalid or has been revoked.';
+    } else if (error.message.includes('permission to access') || error.message.includes('Access Not Configured')) {
+      errorMessage = 'ACTION REQUIRED: The "Generative Language API" is not enabled for your Google Cloud project, or your project is suspended due to a billing issue. Please check your Google Cloud Console.';
+    }
+    
+    return { status: 'error', message: errorMessage, source: 'diagnostic_failure', models: [], cacheTimestamp: null };
   }
-
-  return {
-    status: source === 'fallback' ? 'degraded' : 'ok',
-    message,
-    source,
-    models: models.map(m => m.name),
-    cacheTimestamp: cacheTimestamp ? new Date(cacheTimestamp).toISOString() : null,
-  };
 };

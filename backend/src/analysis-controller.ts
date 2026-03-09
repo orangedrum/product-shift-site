@@ -375,21 +375,22 @@ export const runTestHandler = async (req: Request, res: Response) => {
 
       const result = await scrapeUrl(url);
 
-      const userSessions: any[] = [];
-      for (const pId of personaIds) {
+      // CTO FIX: Run user session generation in parallel to avoid timeouts.
+      const sessionPromises = personaIds.map(async (pId: string) => {
         const activePersona = personas[pId] || personas['alex-busy-pro'];
         if (activePersona) {
-          if (userSessions.length > 0) await delay(1000);
           const sessionOutput = await generateUserSession(result, activePersona, goal, url);
           const moodMatch = sessionOutput.match(/\|\|\|USER_MOOD\|\|\|\s*(.*)/);
           const mood = moodMatch ? moodMatch[1].trim() : 'Neutral';
           let avatarUrl = activePersona.avatar;
           if (mood.toLowerCase().includes('negative')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=sad`;
           if (mood.toLowerCase().includes('positive')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=smile`;
-
-          userSessions.push({ persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona });
+          return { persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona };
         }
-      }
+        return null;
+      });
+
+      const userSessions = (await Promise.all(sessionPromises)).filter(s => s !== null);
 
       await delay(1000);
       let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, false);
