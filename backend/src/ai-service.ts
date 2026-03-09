@@ -136,26 +136,45 @@ export const getAiServiceStatus = async () => {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const { models, source } = await getAvailableModels(genAI);
+  
+  // --- CTO DIAGNOSTIC ---
+  // We will perform a direct, simple API call to definitively test the API key and project configuration.
+  // This bypasses our complex scavenger logic to get a clear signal.
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    await model.countTokens("test"); // A lightweight, inexpensive call to check connectivity.
 
-  let message = '';
-  switch(source) {
-      case 'live':
-          message = 'Successfully connected to Google AI and fetched live model list.';
-          break;
-      case 'cache':
-          message = 'Using cached model list.';
-          break;
-      case 'fallback':
-          message = 'Failed to connect to Google AI, using hardcoded fallback list.';
-          break;
+    // If the above call succeeds, we know the API key and project are configured correctly.
+    // Now we can proceed with our normal dynamic model fetching.
+    const { models, source } = await getAvailableModels(genAI);
+    let message = '';
+    switch(source) {
+        case 'live':
+            message = 'Successfully connected to Google AI and fetched live model list.';
+            break;
+        case 'cache':
+            message = 'Using cached model list.';
+            break;
+        case 'fallback':
+            message = 'Failed to fetch model list, using hardcoded fallback.';
+            break;
+    }
+    return {
+      status: source === 'fallback' ? 'degraded' : 'ok',
+      message,
+      source,
+      models: models.map(m => m.name),
+      cacheTimestamp: cacheTimestamp ? new Date(cacheTimestamp).toISOString() : null,
+    };
+
+  } catch (error: any) {
+    let errorMessage = `A generic error occurred: ${error.message}`;
+    if (error.message.includes('API key not valid')) {
+      errorMessage = 'CRITICAL: The GEMINI_API_KEY is invalid or has been revoked.';
+    } else if (error.message.includes('permission to access') || error.message.includes('Access Not Configured')) {
+      errorMessage = 'ACTION REQUIRED: The "Generative Language API" is not enabled for your Google Cloud project, or your project is suspended due to a billing issue. Please check your Google Cloud Console.';
+    }
+    
+    return { status: 'error', message: errorMessage, source: 'diagnostic_failure', models: [], cacheTimestamp: null };
   }
-
-  return {
-    status: source === 'fallback' ? 'degraded' : 'ok',
-    message,
-    source,
-    models: models.map(m => m.name),
-    cacheTimestamp: cacheTimestamp ? new Date(cacheTimestamp).toISOString() : null,
-  };
 };
