@@ -10,43 +10,20 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * This makes the application resilient to external model name changes.
  */
 const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
-  const now = Date.now();
-  if (cachedModels && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
-    return { models: cachedModels, source: 'cache' };
+  // CTO NOTE: The dynamic `listModels()` call is broken due to a library update.
+  // To restore stability, we will use a curated list of known, stable models.
+  // This makes our "scavenger" robust by ensuring its knowledge base is correct.
+  console.log('[AI Service] Using curated list of stable models.');
+  const stableModels = [
+      { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] } as any,
+      { name: 'models/gemini-pro', supportedGenerationMethods: ['generateContent'] } as any,
+  ];
+
+  if (!cachedModels) {
+    cachedModels = stableModels;
   }
 
-  console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
-  try {
-    // CTO NOTE: The `listModels` method was removed from the genAI instance in a recent library update.
-    // The correct approach is to use `getGenerativeModel` to get a model instance, then call `listModels()` from it.
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Use a base model to access the list
-    const result = await model.listModels();
-
-    // The new SDK version returns the array directly, not nested under a `models` property.
-    const availableModels = result.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
-    
-    cachedModels = availableModels;
-    cacheTimestamp = now;
-    
-    console.log('[AI Service] Fetched and cached models:', availableModels.map(m => m.name));
-    return { models: availableModels, source: 'live' };
-  } catch (error) {
-    console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
-    // CTO FIX: The fallback list contained outdated model names causing 404s. Updating to known valid names.
-    // The Vercel logs confirm 'gemini-1.5-flash-latest' and 'gemini-pro-vision' are valid names.
-    const fallbackModels = [
-        { name: 'models/gemini-1.5-flash-latest', supportedGenerationMethods: ['generateContent'] } as any,
-        { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] } as any,
-        { name: 'models/gemini-1.5-pro', supportedGenerationMethods: ['generateContent'] } as any,
-    ];
-
-    // RESILIENCY FIX: Cache the fallback list to prevent repeated failed calls and timeouts.
-    // This makes the app stable even if the build environment has stale dependencies.
-    cachedModels = fallbackModels;
-    cacheTimestamp = now;
-
-    return { models: fallbackModels, source: 'fallback' };
-  }
+  return { models: cachedModels, source: 'fallback' };
 };
 
 export const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
@@ -74,9 +51,8 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
     })
     .sort((a, b) => {
         // CTO FIX: The priority list was trying outdated model names first, causing 404s and delays.
-        // Prioritizing the latest flash model and the stable vision model will improve success rate.
-        // The logs confirm 'gemini-1.5-flash' is invalid, but 'gemini-1.5-flash-latest' is valid.
-        const priority = ['gemini-1.5-flash-latest', 'gemini-pro-vision'];
+        // Prioritizing the stable, long-term supported models.
+        const priority = ['gemini-pro-vision', 'gemini-pro'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
