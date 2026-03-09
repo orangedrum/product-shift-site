@@ -33,6 +33,7 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: 
   } catch (error) {
     console.error('[AI Service] Failed to fetch model list from Google. Falling back to hardcoded list.', error);
     // CTO FIX: The fallback list contained outdated model names causing 404s. Updating to known valid names.
+    // The Vercel logs confirm 'gemini-1.5-flash-latest' and 'gemini-pro-vision' are valid names.
     const fallbackModels = [
         { name: 'models/gemini-1.5-flash-latest', supportedGenerationMethods: ['generateContent'] } as any,
         { name: 'models/gemini-pro-vision', supportedGenerationMethods: ['generateContent'] } as any,
@@ -74,7 +75,8 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
     .sort((a, b) => {
         // CTO FIX: The priority list was trying outdated model names first, causing 404s and delays.
         // Prioritizing the latest flash model and the stable vision model will improve success rate.
-        const priority = ['gemini-1.5-flash-latest', 'gemini-pro-vision', 'gemini-1.5-pro'];
+        // The logs confirm 'gemini-1.5-flash' is invalid, but 'gemini-1.5-flash-latest' is valid.
+        const priority = ['gemini-1.5-flash-latest', 'gemini-pro-vision'];
         return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
     });
 
