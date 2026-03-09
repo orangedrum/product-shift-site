@@ -692,9 +692,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
-          /* CTO FIX: Target the wrapper that contains BOTH reports */
+          /* CTO FIX: Target the wrapper that contains BOTH reports and fix black page issue */
           #analysis-results, #analysis-results * { visibility: visible; }
-          #analysis-results { position: absolute; left: 0; top: 0; width: 100%; }
+          #analysis-results { position: absolute; left: 0; top: 0; width: 100%; background: white; }
           
           /* Cover Page Styling - Compact for Print */
           .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
@@ -1144,11 +1144,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
       <div id="analysis-results">
 
       {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
-        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden print-only' : ''}`}><PerformanceReport data={performanceResult} /></div>
+        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden' : ''}`}><PerformanceReport data={performanceResult} /></div>
       )}
 
       {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
-        <div className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && performanceResult ? 'hidden print-only' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before' : ''}`}>
+        <div className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' ? 'hidden' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
@@ -1293,6 +1293,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   <div>
                     <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
                     <p className="text-sm text-gray-600 mt-1">This is a compiled report of all the persona's experiences.</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {result.reportId && (
+                      <a 
+                        href={`/api/public-report/${result.reportId}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="no-print"
+                      >
+                        <NeoButton variant="secondary" icon={<Share2 size={16} />}>
+                        </NeoButton>
+                      </a>
+                    )}
+                    <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>
+                    </NeoButton>
                   </div>
                 </div>
 

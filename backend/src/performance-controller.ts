@@ -49,7 +49,7 @@ const fetchSitemapUrls = async (baseUrl: string, limit: number = 4): Promise<str
 };
 
 // Run Lighthouse via Google PageSpeed Insights (Free, Stable, No Browserless required)
-const runPageSpeedAudit = async (url: string): Promise<LighthouseResult | null> => {
+const runPageSpeedAudit = async (url: string, attempt = 1): Promise<LighthouseResult | null> => {
   try {
     console.log(`[Deep Audit] Running PageSpeed Insights for: ${url}`);
     
@@ -69,6 +69,13 @@ const runPageSpeedAudit = async (url: string): Promise<LighthouseResult | null> 
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
+      // Retry logic for 500 errors (common with PSI)
+      if (response.status >= 500 && attempt <= 3) {
+        console.warn(`[Deep Audit] PSI 500 Error for ${url}. Retrying (Attempt ${attempt + 1}/3)...`);
+        await delay(2000); // Wait 2s before retry
+        return runPageSpeedAudit(url, attempt + 1);
+      }
+
       const errorText = await response.text();
       console.error(`[Deep Audit] PSI failed for ${url}: ${response.status} - ${errorText}`);
       
