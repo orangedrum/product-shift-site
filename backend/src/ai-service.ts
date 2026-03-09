@@ -17,9 +17,12 @@ const getAvailableModels = async (genAI: GoogleGenerativeAI): Promise<{ models: 
 
   console.log('[AI Service] Cache stale or empty. Fetching available models from Google...');
   try {
-    const result = await genAI.listModels();
+    // CTO NOTE: The `listModels` method was removed from the genAI instance in a recent library update.
+    // The correct approach is to use the `getGenerativeModel` and then list models from there.
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Use a base model to access the list
+    const result = await model.listModels();
 
-    const availableModels = result.models.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
+    const availableModels = result.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
     
     cachedModels = availableModels;
     cacheTimestamp = now;
