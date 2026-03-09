@@ -1120,11 +1120,11 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
-        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden print-only' : ''}`}><PerformanceReport data={performanceResult} /></div>
+        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden print-only' : ''} page-break-before`}><PerformanceReport data={performanceResult} /></div>
       )}
 
       {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
-        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''}`}>
+        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && performanceResult ? 'hidden print-only' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
