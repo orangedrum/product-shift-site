@@ -719,25 +719,16 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Full Report Print Styling */
           .screen-only { display: none !important; }
           .print-only { display: block !important; }
-          
-          .hidden { display: block !important; } /* CTO FIX: Override hidden for print */
-
-          /* Layout Fixes */
+          .print-block { display: block !important; } /* Use a dedicated class for print visibility */
           .grid { display: block !important; }
           .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; grid-column: span 12 !important; }
           img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
           .user-sessions-column { margin-bottom: 2rem; }
           
           /* Page Breaks */
-          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
-          .page-break-before { page-break-before: always; display: block; }
-
           /* Force Neo Styling in Print */
           .border-2 { border-width: 2px !important; border-color: #000 !important; }
         }
-        /* CTO DIAGNOSTIC: Temporary border to see what's rendering in print */
-        .print-diagnostic-border { border: 2px solid red !important; }
-        .print-diagnostic-border * { border: 1px dashed blue !important; }
 
         @keyframes bounce-subtle {
           0%, 100% { transform: translateY(0); }
@@ -1127,14 +1118,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
       )}
 
       {/* Wrapper for Print Visibility */}
-      <div id="analysis-results" className="print-diagnostic-border"> {/* CTO DIAGNOSTIC: Added border */}
+      <div id="analysis-results">
 
       {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
-        <div id="performance-report-full" className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' && !printMode ? 'hidden' : ''} print-diagnostic-border`}><PerformanceReport data={performanceResult} /></div>
+        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden' : ''} ${printMode ? 'print-block' : ''}`}><PerformanceReport data={performanceResult} /></div>
       )}
 
       {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
-        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && !printMode ? 'hidden' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''} print-diagnostic-border`}> {/* CTO DIAGNOSTIC: Added border */}
+        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && performanceResult ? 'hidden' : ''} ${printMode ? 'print-block' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
@@ -1279,21 +1270,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   <div>
                     <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
                     <p className="text-sm text-gray-600 mt-1">This is a compiled report of all the persona's experiences.</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {result.reportId && (
-                      <a 
-                        href={`/api/public-report/${result.reportId}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="no-print"
-                      >
-                        <NeoButton variant="secondary" icon={<Share2 size={16} />}>
-                        </NeoButton>
-                      </a>
-                    )}
-                    <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>
-                    </NeoButton>
                   </div>
                 </div>
 
