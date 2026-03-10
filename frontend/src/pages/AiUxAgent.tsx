@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star, Bell } from 'lucide-react';
-import PrintableComponent from '../components/PrintableComponent';
+import PrintableComponent from './PrintableComponent';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -678,6 +678,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
         transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
       }}
     >
+    {authLoading ? (
+      <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div></div>
+    ) : (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
       <div className={`relative mx-auto transition-all duration-500 ${result ? 'max-w-7xl' : 'max-w-3xl'}`}>
         
         {/* --- BEFORE RESULTS: Vertical Widgets --- */}
@@ -1282,9 +1286,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} justPurchased={justPurchased} hasResult={!!result} />
       </div>
     </div>
-    </div>
     )}
-    </div>);
+    </div>
+  );
 };
 
 export default AiPoweredUxHealthtech;
