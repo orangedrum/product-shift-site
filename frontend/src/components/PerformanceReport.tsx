@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, ExternalLink } from 'lucide-react';
+import { BarChart, ExternalLink, AlertTriangle, CheckCircle } from 'lucide-react';
 
 // Type definitions based on backend controller
 type LighthouseResult = {

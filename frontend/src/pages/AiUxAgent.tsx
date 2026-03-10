@@ -692,9 +692,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
-          /* CTO FIX: Target the wrapper that contains BOTH reports and fix black page issue */
-          #analysis-results, #analysis-results * { visibility: visible; }
-          #analysis-results { position: absolute; left: 0; top: 0; width: 100%; background: white; }
+          #report-section, #report-section * { visibility: visible; }
+          #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           
           /* Cover Page Styling - Compact for Print */
           .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
@@ -1127,12 +1126,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
         </div>
       )}
 
+      {/* Wrapper for Print Visibility */}
+      <div id="analysis-results" className="print-diagnostic-border"> {/* CTO DIAGNOSTIC: Added border */}
+
       {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
-        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden print-only' : ''} page-break-before`}><PerformanceReport data={performanceResult} /></div>
+        <div id="performance-report-full" className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' && !printMode ? 'hidden' : ''} print-diagnostic-border`}><PerformanceReport data={performanceResult} /></div>
       )}
 
       {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
-        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && performanceResult ? 'hidden print-only' : ''}`}>
+        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && !printMode ? 'hidden' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''} print-diagnostic-border`}> {/* CTO DIAGNOSTIC: Added border */}
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           

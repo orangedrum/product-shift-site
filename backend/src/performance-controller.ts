@@ -49,17 +49,13 @@ const fetchSitemapUrls = async (baseUrl: string, limit: number = 4): Promise<str
 };
 
 // Run Lighthouse via Google PageSpeed Insights (Free, Stable, No Browserless required)
-const runPageSpeedAudit = async (url: string): Promise<LighthouseResult | null> => {
+const runPageSpeedAudit = async (url: string, attempt = 1): Promise<LighthouseResult | null> => {
   try {
     console.log(`[Deep Audit] Running PageSpeed Insights for: ${url}`);
     
-    // CTO FIX: We must provide an API key to get the free 25,000/day quota.
-    // Without it, we share a tiny quota with all other anonymous Vercel users and get 429 errors.
     const apiKey = process.env.GOOGLE_PSI_API_KEY || process.env.GEMINI_API_KEY;
     
-    if (!apiKey) {
-      console.error('🚨 [Deep Audit] CRITICAL: No API Key found. Requests will likely fail with 429 Quota Exceeded.');
-    }
+    if (!apiKey) console.error('🚨 [Deep Audit] CRITICAL: No API Key found. Requests will likely fail with 429 Quota Exceeded.');
 
     // CTO PIVOT: Browserless Free Tier does not support Lighthouse injection.
     // We switch to Google's official PageSpeed Insights API which is free and standard.
@@ -197,6 +193,11 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
       try { scores = JSON.parse(parts[1].match(/\{[\s\S]*?\}/)?.[0] || parts[1].trim()); } catch (e) {}
       rawExpertReport = parts[0];
     }
+
+    // CTO FIX: Calculate Overall Score and enforce PASS/FAIL consistency
+    const overallUxScore = Math.round((scores.usability + scores.desirability + scores.clarity) / 3);
+    const calculatedResult = overallUxScore >= 60 ? 'PASS' : 'FAIL';
+    rawExpertReport = rawExpertReport.replace(/### TEST RESULT:.*(\n|$)/i, `### TEST RESULT: ${calculatedResult}\n**Overall Score:** ${overallUxScore}/100\n`);
     const seoSchema = generateStructuredData(url, scrapeResult.title, scores, rawExpertReport);
 
     // 4. Aggregation & Storage
