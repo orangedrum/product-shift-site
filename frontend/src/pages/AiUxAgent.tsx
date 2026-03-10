@@ -998,6 +998,25 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         </div>)}
 
+      {/* ACTION BAR - CTO FIX */}
+      {(result || performanceResult) && (
+        <div className="flex justify-end items-center mb-8 no-print gap-2 max-w-3xl mx-auto">
+            {result?.reportId && (
+              <a 
+                href={`/api/public-report/${result.reportId}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="no-print"
+              >
+                <NeoButton variant="secondary" icon={<Share2 size={16} />}>Share</NeoButton>
+              </a>
+            )}
+            <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>
+              Download Report
+            </NeoButton>
+        </div>
+      )}
+
       {/* Download Dialog */}
       {showDownloadDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
