@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star, Bell } from 'lucide-react';
-import PrintableComponent from '../components/PrintableComponent';
+import PrintableComponent from './PrintableComponent';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -693,12 +693,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
-          /* FIX: Target the wrapper that contains BOTH reports */
-
-          #analysis-results,
-          #analysis-results * {
-          #report-section, #report-section * { visibility: visible; }
-          #report-section { position: absolute; left: 0; top: 0; width: 100%; }
+          /* Make the printable component and its children visible */
+          .printable, .printable * { visibility: visible; }
+          .printable { position: absolute; left: 0; top: 0; width: 100%; }
           
           /* Cover Page Styling - Compact for Print */
           .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
