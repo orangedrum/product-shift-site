@@ -1286,9 +1286,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} justPurchased={justPurchased} hasResult={!!result} />
       </div>
     </div>
-    )}
     </div>
-  );
+    )}
+    </div>);
 };
 
 export default AiPoweredUxHealthtech;

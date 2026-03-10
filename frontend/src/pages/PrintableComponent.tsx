@@ -21,8 +21,10 @@ const PrintableComponent: React.FC<PrintableComponentProps> = ({ children }) => 
           }
           
           /* Make only the printable area and its children visible */
-          .printable, .printable * { 
+          .printable, .printable * {
             visibility: visible; 
+            opacity: 1 !important; /* CTO FIX: Ensure full opacity */
+            filter: none !important; /* CTO FIX: Remove any blur/translucency */
           }
           
           /* Position the printable area to take up the whole page */
