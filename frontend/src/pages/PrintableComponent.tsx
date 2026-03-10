@@ -8,17 +8,56 @@ const PrintableComponent: React.FC<PrintableComponentProps> = ({ children }) => 
   return (
     <div className="printable">
       {children}
-      <style jsx>{`
+      <style jsx global>{`
         @media print {
-          .printable * {
-            visibility: visible;
+          @page { 
+            margin: 1.5cm; 
+            size: auto; 
           }
-          .no-print {
-            display: none !important;
+          
+          /* Hide everything by default */
+          body * { 
+            visibility: hidden; 
           }
-          body {
-            font-size: 12pt;
-            line-height: 1.5;
+          
+          /* Make only the printable area and its children visible */
+          .printable, .printable * { 
+            visibility: visible; 
+          }
+          
+          /* Position the printable area to take up the whole page */
+          .printable { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            background: white;
+          }
+
+          /* General Print Styles */
+          .no-print { display: none !important; }
+          body { font-size: 10pt; line-height: 1.4; color: #000; background: white !important; }
+          h1 { font-size: 28pt; }
+          h2 { font-size: 18pt; margin-top: 1cm; margin-bottom: 0.5cm; page-break-after: avoid; border-bottom: 2px solid #000; padding-bottom: 8px; }
+          h3 { font-size: 12pt; margin-top: 0.5cm; page-break-after: avoid; }
+          .page-break-before { page-break-before: always !important; }
+
+          /* CTO FIX: Shrink performance report to fit on one page */
+          #performance-report-wrapper {
+            transform: scale(0.95);
+            transform-origin: top;
+            page-break-after: always;
+          }
+
+          /* CTO FIX: Condense spacing between persona sessions */
+          .user-session-print-item {
+            margin-bottom: 0.5cm !important;
+            padding-bottom: 0.5cm !important;
+            border-bottom: 1px solid #eee !important;
+            page-break-inside: avoid;
+          }
+          .user-session-print-item:last-child {
+            border-bottom: none !important;
           }
         }
       `}</style>

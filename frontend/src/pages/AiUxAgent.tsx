@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star, Bell } from 'lucide-react';
-import PrintableComponent from './PrintableComponent';
+import PrintableComponent from '../components/PrintableComponent';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -678,71 +678,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
         transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
       }}
     >
-    {authLoading ? (
-      <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div></div>
-    ) : (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
-      <style>{`
-        @property --pos-x-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
-        @property --pos-y-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
-        @property --pos-x-2 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
-        @property --pos-y-2 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
-        @property --pos-x-3 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
-        @property --pos-y-3 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
-        
-        @media print {
-          @page { margin: 1.5cm; size: auto; }
-          body * { visibility: hidden; }
-          /* Make the printable component and its children visible */
-          .printable, .printable * { visibility: visible; }
-          .printable { position: absolute; left: 0; top: 0; width: 100%; }
-          
-          /* Cover Page Styling - Compact for Print */
-          .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
-          
-          .no-print { display: none !important; }
-          
-          /* Ensure background colors and images print */
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          
-          /* Typography for Print */
-          body { font-size: 12pt; line-height: 1.5; color: #000; background: white !important; }
-          h1 { font-size: 32pt; margin-bottom: 0.5cm; }
-          h2 { font-size: 20pt; margin-top: 1cm; margin-bottom: 0.5cm; page-break-after: avoid; border-bottom: 2px solid #000; padding-bottom: 10px; }
-          h3 { font-size: 14pt; margin-top: 0.5cm; page-break-after: avoid; }
-          p { margin-bottom: 0.5cm; }
-          
-          /* Print Modes */
-          .print-summary-only .user-sessions-column { display: none !important; }
-          .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
-          
-          /* Full Report Print Styling */
-          .screen-only { display: none !important; }
-          .print-only { display: block !important; }
-          
-          /* Layout Fixes */
-          .grid { display: block !important; }
-          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; grid-column: span 12 !important; }
-          img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
-          .user-sessions-column { margin-bottom: 2rem; }
-          
-          /* Page Breaks */
-          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
-          .page-break-before { page-break-before: always; display: block; }
-
-          /* Force Neo Styling in Print */
-          .border-2 { border-width: 2px !important; border-color: #000 !important; }
-        }
-
-        @keyframes bounce-subtle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        .animate-bounce-subtle {
-          animation: bounce-subtle 3s infinite ease-in-out;
-        }
-      `}</style>
-
       <div className={`relative mx-auto transition-all duration-500 ${result ? 'max-w-7xl' : 'max-w-3xl'}`}>
         
         {/* --- BEFORE RESULTS: Vertical Widgets --- */}
@@ -1145,10 +1080,12 @@ const AiPoweredUxHealthtech: React.FC = () => {
       <PrintableComponent>
 
       {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
-        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden' : ''}`}><PerformanceReport data={performanceResult} /></div>
+        <div id="performance-report-wrapper" className={`animate-fade-in w-full ${activeResultTab !== 'performance' && !printMode ? 'hidden' : ''}`}>
+          <PerformanceReport data={performanceResult} />
+        </div>
       )}
       {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
-        <div className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' ? 'hidden' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''}`}>
+        <div className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && performanceResult && !printMode ? 'hidden' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
@@ -1246,7 +1183,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
 
                     return (
-                      <div key={idx} className="mb-8 pb-8 border-b border-gray-200 last:border-0 break-inside-avoid">
+                      <div key={idx} className="user-session-print-item">
                         <div className="flex items-center gap-3 mb-4">
                           <img 
                             src={res.avatar} 
@@ -1301,46 +1238,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   {formatText(result.expertReport.replace('|||SSL_WARNING_ALERT|||\n', '').split('\n').find(line => line.includes('TEST RESULT:')) || '')}
                 </div>
                 
-                {/* Charts Section */}
-                {result.scores ? (
-                  <div className="mb-8 p-6 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
-                    <h3 className="text-lg font-bold text-black mb-4">Performance Metrics</h3>
-                    <div className="h-64 w-full mb-6">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={[
-                      { name: 'Usability', score: result.scores.usability },
-                      { name: 'Desirability', score: result.scores.desirability },
-                      { name: 'Clarity', score: result.scores.clarity },
-                    ]}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis domain={[0, 100]} />
-                      <Tooltip />
-                      <Bar dataKey="score" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                        <Cell key="usability" fill="#ff8c00" /> {/* Usability: Orange */}
-                        <Cell key="desirability" fill="#ff1493" /> {/* Desirability: Pink */}
-                        <Cell key="clarity" fill="#00bfff" /> {/* Clarity: Cyan */}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                    {/* Overall Score Summary */}
-                    <div className="flex flex-col items-center justify-center pt-6 border-t-2 border-gray-100">
-                       <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Overall Score</div>
-                       <div className="flex items-center gap-4">
-                         <span className={`text-5xl font-black ${Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3) >= 60 ? 'text-green-600' : 'text-red-600'}`}>
-                           {Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3)}<span className="text-2xl text-gray-400">/100</span>
-                         </span>
-                         <div className={`px-4 py-1.5 rounded-full text-sm font-black border-2 uppercase tracking-wide ${Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3) >= 60 ? 'bg-green-100 text-green-800 border-green-600' : 'bg-red-100 text-red-800 border-red-600'}`}>
-                           Test Result: {Math.round((result.scores.usability + result.scores.desirability + result.scores.clarity) / 3) >= 60 ? 'PASS' : 'FAIL'}
-                         </div>
-                       </div>
-                    </div>
-
-                  </div>
-                ) : null}
-
                 {/* Visual Reference */}
                 {result.screenshot && (
                   <div className="mb-8 p-4 bg-white rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
