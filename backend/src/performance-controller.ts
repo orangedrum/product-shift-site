@@ -196,6 +196,12 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
       try { scores = JSON.parse(parts[1].match(/\{[\s\S]*?\}/)?.[0] || parts[1].trim()); } catch (e) {}
       rawExpertReport = parts[0];
     }
+
+    // CTO FIX: Calculate Overall Score and enforce PASS/FAIL consistency
+    const overallUxScore = Math.round((scores.usability + scores.desirability + scores.clarity) / 3);
+    const calculatedResult = overallUxScore >= 60 ? 'PASS' : 'FAIL';
+    rawExpertReport = rawExpertReport.replace(/### TEST RESULT:.*(\n|$)/i, `### TEST RESULT: ${calculatedResult}\n**Overall Score:** ${overallUxScore}/100\n`);
+
     const seoSchema = generateStructuredData(url, scrapeResult.title, scores, rawExpertReport);
 
     // 4. Aggregation & Storage

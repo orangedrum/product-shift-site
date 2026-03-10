@@ -692,9 +692,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
-          /* CTO FIX: Target the wrapper that contains BOTH reports and fix black page issue */
-          #analysis-results, #analysis-results * { visibility: visible; }
-          #analysis-results { position: absolute; left: 0; top: 0; width: 100%; background: white; }
+          #report-section, #report-section * { visibility: visible; }
+          #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           
           /* Cover Page Styling - Compact for Print */
           .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
@@ -1018,7 +1017,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
                 <div>
                   <span className="block font-semibold text-gray-900">Full Report</span>
-                  <span className="text-xs text-gray-500">Includes all User Session transcripts & Expert Analysis</span>
+                  <span className="text-xs text-gray-500">Includes Performance Audit, User Sessions & Expert Analysis</span>
                 </div>
               </button>
 
@@ -1031,7 +1030,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
                 <div>
                   <span className="block font-semibold text-gray-900">Summary Only</span>
-                  <span className="text-xs text-gray-500">Expert Analysis & Scores only (Compact)</span>
+                  <span className="text-xs text-gray-500">Performance Audit, Expert Analysis & Scores (Compact)</span>
                 </div>
               </button>
             </div>
@@ -1293,21 +1292,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
                   <div>
                     <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
                     <p className="text-sm text-gray-600 mt-1">This is a compiled report of all the persona's experiences.</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {result.reportId && (
-                      <a 
-                        href={`/api/public-report/${result.reportId}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="no-print"
-                      >
-                        <NeoButton variant="secondary" icon={<Share2 size={16} />}>
-                        </NeoButton>
-                      </a>
-                    )}
-                    <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>
-                    </NeoButton>
                   </div>
                 </div>
 
