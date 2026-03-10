@@ -113,7 +113,8 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       return response.text();
     } catch (error: any) {
       if (error.message.includes('503') || error.message.includes('429')) {
-        const waitTime = 1000 * Math.pow(2, attempt); // 2s, 4s...
+        // CTO FIX: Cap exponential backoff at 8 seconds to prevent Vercel timeouts.
+        const waitTime = Math.min(1000 * Math.pow(2, attempt), 8000); // 2s, 4s, 8s, 8s...
         console.log(`[AI Service] Model busy. Waiting ${waitTime}ms before next attempt.`);
         await delay(waitTime);
       }

@@ -32,10 +32,12 @@ const fetchSitemapUrls = async (baseUrl: string, limit: number = 4): Promise<str
     const regex = /<loc>(.*?)<\/loc>/g;
     let match;
     while ((match = regex.exec(xml)) !== null) {
-      const foundUrl = match[1].trim();
+      const rawUrl = match[1].trim();
+      // CTO FIX: Some sitemaps wrap URLs in CDATA, which must be stripped.
+      const cleanUrl = rawUrl.replace('<![CDATA[', '').replace(']]>', '');
       // Filter out common non-page assets if they appear in sitemap
-      if (!foundUrl.match(/\.(jpg|jpeg|png|gif|pdf|xml|css|js)$/i) && foundUrl !== baseUrl) {
-        urls.push(foundUrl);
+      if (!cleanUrl.match(/\.(jpg|jpeg|png|gif|pdf|xml|css|js)$/i) && cleanUrl !== baseUrl) {
+        urls.push(cleanUrl);
       }
       if (urls.length >= limit * 2) break; // Fetch a few more to filter later
     }
