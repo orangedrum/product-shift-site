@@ -49,7 +49,7 @@ const fetchSitemapUrls = async (baseUrl: string, limit: number = 4): Promise<str
 };
 
 // Run Lighthouse via Google PageSpeed Insights (Free, Stable, No Browserless required)
-const runPageSpeedAudit = async (url: string, attempt = 1): Promise<LighthouseResult | null> => {
+const runPageSpeedAudit = async (url: string): Promise<LighthouseResult | null> => {
   try {
     console.log(`[Deep Audit] Running PageSpeed Insights for: ${url}`);
     
@@ -69,7 +69,7 @@ const runPageSpeedAudit = async (url: string, attempt = 1): Promise<LighthouseRe
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
-      // Retry logic for 500 errors (common with PSI)
+      // CTO FIX: Add retry logic for 5xx errors from PageSpeed Insights API (can be transient)
       if (response.status >= 500 && attempt <= 3) {
         console.warn(`[Deep Audit] PSI 500 Error for ${url}. Retrying (Attempt ${attempt + 1}/3)...`);
         await delay(2000); // Wait 2s before retry
@@ -172,21 +172,22 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
     console.log(`[Deep Audit] Starting UX Analysis for ${url}`);
     const scrapeResult = await scrapeUrl(url);
     
-    const userSessions: any[] = [];
-    for (const pId of personaIds) {
+    // CTO FIX: Run user session generation in parallel to avoid timeouts.
+    const sessionPromises = personaIds.map(async (pId: string) => {
       const activePersona = personas[pId] || personas['alex-busy-pro'];
       if (activePersona) {
-        if (userSessions.length > 0) await delay(1000);
         const sessionOutput = await generateUserSession(scrapeResult, activePersona, goal, url);
         const moodMatch = sessionOutput.match(/\|\|\|USER_MOOD\|\|\|\s*(.*)/);
         const mood = moodMatch ? moodMatch[1].trim() : 'Neutral';
         let avatarUrl = activePersona.avatar;
         if (mood.toLowerCase().includes('negative')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=sad`;
         if (mood.toLowerCase().includes('positive')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=smile`;
-
-        userSessions.push({ persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona });
+        return { persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona };
       }
-    }
+      return null;
+    });
+
+    const userSessions = (await Promise.all(sessionPromises)).filter(s => s !== null);
 
     await delay(1000);
     let rawExpertReport = await generateAggregatedReport(scrapeResult, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, false);
@@ -196,12 +197,6 @@ export const runDeepAuditHandler = async (req: Request, res: Response) => {
       try { scores = JSON.parse(parts[1].match(/\{[\s\S]*?\}/)?.[0] || parts[1].trim()); } catch (e) {}
       rawExpertReport = parts[0];
     }
-
-    // CTO FIX: Calculate Overall Score and enforce PASS/FAIL consistency
-    const overallUxScore = Math.round((scores.usability + scores.desirability + scores.clarity) / 3);
-    const calculatedResult = overallUxScore >= 60 ? 'PASS' : 'FAIL';
-    rawExpertReport = rawExpertReport.replace(/### TEST RESULT:.*(\n|$)/i, `### TEST RESULT: ${calculatedResult}\n**Overall Score:** ${overallUxScore}/100\n`);
-
     const seoSchema = generateStructuredData(url, scrapeResult.title, scores, rawExpertReport);
 
     // 4. Aggregation & Storage

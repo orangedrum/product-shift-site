@@ -692,8 +692,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
-          #report-section, #report-section * { visibility: visible; }
-          #report-section { position: absolute; left: 0; top: 0; width: 100%; }
+          /* CTO FIX: Target the wrapper that contains BOTH reports and fix black page issue */
+          #analysis-results, #analysis-results * { visibility: visible; }
+          #analysis-results { position: absolute; left: 0; top: 0; width: 100%; background: white; }
           
           /* Cover Page Styling - Compact for Print */
           .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
@@ -713,11 +714,15 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Print Modes */
           .print-summary-only .user-sessions-column { display: none !important; }
           .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
+          .print-summary-only #performance-report-full { display: none !important; } /* Hide full perf report in summary */
+          .print-summary-only #performance-report-summary { display: block !important; } /* Show summary perf report */
           
           /* Full Report Print Styling */
           .screen-only { display: none !important; }
           .print-only { display: block !important; }
           
+          .hidden { display: block !important; } /* CTO FIX: Override hidden for print */
+
           /* Layout Fixes */
           .grid { display: block !important; }
           .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; grid-column: span 12 !important; }
@@ -731,6 +736,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Force Neo Styling in Print */
           .border-2 { border-width: 2px !important; border-color: #000 !important; }
         }
+        /* CTO DIAGNOSTIC: Temporary border to see what's rendering in print */
+        .print-diagnostic-border { border: 2px solid red !important; }
+        .print-diagnostic-border * { border: 1px dashed blue !important; }
 
         @keyframes bounce-subtle {
           0%, 100% { transform: translateY(0); }
@@ -1030,7 +1038,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
                 <div>
                   <span className="block font-semibold text-gray-900">Summary Only</span>
-                  <span className="text-xs text-gray-500">Performance Audit, Expert Analysis & Scores (Compact)</span>
+                  <span className="text-xs text-gray-500">Performance Audit & Expert Analysis (Compact)</span>
                 </div>
               </button>
             </div>
@@ -1093,27 +1101,8 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {/* Result Tabs (Only show if we have both) */}
       {result && performanceResult && (
-        <>
-          {/* CTO FIX: Action Bar moved above tabs for better hierarchy */}
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6 no-print gap-4">
-             <h2 className="text-2xl font-black text-black hidden md:block">Analysis Results</h2>
-             <div className="flex gap-2 w-full md:w-auto justify-end">
-                {result?.reportId && (
-                  <a 
-                    href={`/api/public-report/${result.reportId}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="no-print"
-                  >
-                    <NeoButton variant="secondary" icon={<Share2 size={16} />}>Share</NeoButton>
-                  </a>
-                )}
-                <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>Download Report</NeoButton>
-             </div>
-          </div>
-
-          <div className="w-full mb-10 no-print">
-            <div className="grid grid-cols-2 gap-4 p-2 bg-black rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+        <div className="w-full mb-10 no-print">
+          <div className="grid grid-cols-2 gap-4 p-2 bg-black rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
             <button
               onClick={() => setActiveResultTab('performance')}
               className={`py-3 rounded-lg text-lg font-black uppercase tracking-wider transition-all ${
@@ -1136,18 +1125,14 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </button>
           </div>
         </div>
-        </>
       )}
 
-      {/* Wrapper for Print Visibility */}
-      <div id="analysis-results">
-
       {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
-        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden' : ''}`}><PerformanceReport data={performanceResult} /></div>
+        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden print-only' : ''} page-break-before`}><PerformanceReport data={performanceResult} /></div>
       )}
 
       {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
-        <div className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' ? 'hidden' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''}`}>
+        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && performanceResult ? 'hidden print-only' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
@@ -1293,6 +1278,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     <h2 className="text-2xl font-bold text-black m-0">UX Research Report</h2>
                     <p className="text-sm text-gray-600 mt-1">This is a compiled report of all the persona's experiences.</p>
                   </div>
+                  <div className="flex gap-2">
+                    {result.reportId && (
+                      <a 
+                        href={`/api/public-report/${result.reportId}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="no-print"
+                      >
+                        <NeoButton variant="secondary" icon={<Share2 size={16} />}>
+                        </NeoButton>
+                      </a>
+                    )}
+                    <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>
+                    </NeoButton>
+                  </div>
                 </div>
 
                 {/* Render Test Result First for Prominence */}
@@ -1360,7 +1360,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         </div>
       )}
-      </div>
+      </div> {/* End #analysis-results wrapper */}
 
       {error && (
         error.error === 'Site Security Error' ? (
