@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star, Bell } from 'lucide-react';
+import PrintableComponent from '../components/PrintableComponent';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -692,6 +693,10 @@ const AiPoweredUxHealthtech: React.FC = () => {
         @media print {
           @page { margin: 1.5cm; size: auto; }
           body * { visibility: hidden; }
+          /* FIX: Target the wrapper that contains BOTH reports */
+
+          #analysis-results,
+          #analysis-results * {
           #report-section, #report-section * { visibility: visible; }
           #report-section { position: absolute; left: 0; top: 0; width: 100%; }
           
@@ -713,19 +718,21 @@ const AiPoweredUxHealthtech: React.FC = () => {
           /* Print Modes */
           .print-summary-only .user-sessions-column { display: none !important; }
           .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
-          .print-summary-only #performance-report-full { display: none !important; } /* Hide full perf report in summary */
-          .print-summary-only #performance-report-summary { display: block !important; } /* Show summary perf report */
           
           /* Full Report Print Styling */
           .screen-only { display: none !important; }
           .print-only { display: block !important; }
-          .print-block { display: block !important; } /* Use a dedicated class for print visibility */
+          
+          /* Layout Fixes */
           .grid { display: block !important; }
           .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; grid-column: span 12 !important; }
           img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
           .user-sessions-column { margin-bottom: 2rem; }
           
           /* Page Breaks */
+          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
+          .page-break-before { page-break-before: always; display: block; }
+
           /* Force Neo Styling in Print */
           .border-2 { border-width: 2px !important; border-color: #000 !important; }
         }
@@ -998,25 +1005,6 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         </div>)}
 
-      {/* ACTION BAR - CTO FIX */}
-      {(result || performanceResult) && (
-        <div className="flex justify-end items-center mb-8 no-print gap-2 max-w-3xl mx-auto">
-            {result?.reportId && (
-              <a 
-                href={`/api/public-report/${result.reportId}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="no-print"
-              >
-                <NeoButton variant="secondary" icon={<Share2 size={16} />}>Share</NeoButton>
-              </a>
-            )}
-            <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>
-              Download Report
-            </NeoButton>
-        </div>
-      )}
-
       {/* Download Dialog */}
       {showDownloadDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 no-print" style={{ zIndex: 9999 }}>
@@ -1047,7 +1035,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
                 <div>
                   <span className="block font-semibold text-gray-900">Summary Only</span>
-                  <span className="text-xs text-gray-500">Performance Audit & Expert Analysis (Compact)</span>
+                  <span className="text-xs text-gray-500">Performance Audit, Expert Analysis & Scores (Compact)</span>
                 </div>
               </button>
             </div>
@@ -1110,8 +1098,27 @@ const AiPoweredUxHealthtech: React.FC = () => {
 
       {/* Result Tabs (Only show if we have both) */}
       {result && performanceResult && (
-        <div className="w-full mb-10 no-print">
-          <div className="grid grid-cols-2 gap-4 p-2 bg-black rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+        <>
+          {/* CTO FIX: Action Bar moved above tabs for better hierarchy */}
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 no-print gap-4">
+             <h2 className="text-2xl font-black text-black hidden md:block">Analysis Results</h2>
+             <div className="flex gap-2 w-full md:w-auto justify-end">
+                {result?.reportId && (
+                  <a 
+                    href={`/api/public-report/${result.reportId}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="no-print"
+                  >
+                    <NeoButton variant="secondary" icon={<Share2 size={16} />}>Share</NeoButton>
+                  </a>
+                )}
+                <NeoButton variant="secondary" onClick={handlePrintClick} className="no-print" icon={<Download size={16} />}>Download Report</NeoButton>
+             </div>
+          </div>
+
+          <div className="w-full mb-10 no-print">
+            <div className="grid grid-cols-2 gap-4 p-2 bg-black rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
             <button
               onClick={() => setActiveResultTab('performance')}
               className={`py-3 rounded-lg text-lg font-black uppercase tracking-wider transition-all ${
@@ -1134,17 +1141,17 @@ const AiPoweredUxHealthtech: React.FC = () => {
             </button>
           </div>
         </div>
+        </>
       )}
 
       {/* Wrapper for Print Visibility */}
-      <div id="analysis-results">
+      <PrintableComponent>
 
       {performanceResult && (activeResultTab === 'performance' || printMode === 'full') && (
-        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden' : ''} ${printMode ? 'print-block' : ''}`}><PerformanceReport data={performanceResult} /></div>
+        <div className={`animate-fade-in w-full mb-12 ${activeResultTab !== 'performance' ? 'hidden' : ''}`}><PerformanceReport data={performanceResult} /></div>
       )}
-
       {result && (activeResultTab === 'ux' || !performanceResult || printMode === 'full') && (
-        <div id="report-section" className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' && performanceResult ? 'hidden' : ''} ${printMode ? 'print-block' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''}`}>
+        <div className={`animate-fade-in w-full ${printMode === 'summary' ? 'print-summary-only' : ''} ${activeResultTab !== 'ux' ? 'hidden' : ''} ${performanceResult && printMode === 'full' ? 'page-break-before mt-8' : ''}`}>
           {/* Conditionally render the SSL warning at the top of the report */}
           {result.expertReport.startsWith('|||SSL_WARNING_ALERT|||') && <SecurityAlert isBlocking={false} />}
           
@@ -1357,7 +1364,7 @@ const AiPoweredUxHealthtech: React.FC = () => {
           </div>
         </div>
       )}
-      </div> {/* End #analysis-results wrapper */}
+      </PrintableComponent>
 
       {error && (
         error.error === 'Site Security Error' ? (
