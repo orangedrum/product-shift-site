@@ -38,9 +38,12 @@ const PrintableComponent: React.FC<PrintableComponentProps> = ({ children }) => 
 
           /* General Print Styles */
           .no-print { display: none !important; }
+          .screen-only { display: none !important; }
+          .print-only { display: block !important; }
           body { font-size: 10pt; line-height: 1.4; color: #000; background: white !important; }
           h1 { font-size: 28pt; }
           h2 { font-size: 18pt; margin-top: 1cm; margin-bottom: 0.5cm; page-break-after: avoid; border-bottom: 2px solid #000; padding-bottom: 8px; }
+          h2.no-border { border-bottom: none !important; }
           h3 { font-size: 12pt; margin-top: 0.5cm; page-break-after: avoid; }
           .page-break-before { page-break-before: always !important; }
 
