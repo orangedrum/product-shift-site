@@ -4,10 +4,9 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
-// CTO Fix: The build environment cannot resolve local worker files, and no local node_modules exists.
-// Reverting to the most stable method: loading the worker from a trusted, version-pinned CDN.
-// This bypasses all local file and build-time resolution issues.
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.mjs`;
+// CTO Fix: The Vercel build pipeline now copies the worker to the public directory via a `postinstall` script.
+// This provides a stable, absolute path to the worker, resolving all previous import and CSP issues.
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`;
 interface PdfViewerProps {
   file: string;
 }
