@@ -524,126 +524,6 @@ const SmbLandingPage: React.FC = () => {
     ]
   };
 
-  /* 
-     REMOVED: Manual DOM manipulation useEffect for SEO. 
-     Replaced with <Helmet> below for better stability and SSR compatibility.
-  */
-
-  /*
-  useEffect(() => {
-    document.title = "Simple Website Checkup for Small Businesses | Product Shift";
-    
-    // Programmatically update meta description for SEO
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.");
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = "description";
-      meta.content = "Get a simple website checkup for your small business. Stop losing customers with instant AI analysis based on industry usability standards.";
-      document.head.appendChild(meta);
-    }
-
-    // Add Canonical Link (Critical for SEO to prevent duplicate content issues)
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', 'https://www.theproductshift.com/simple-website-checkup'); // Strictly enforces HTTPS and the correct subdomain
-
-    // Add Open Graph Tags for Social SEO (Facebook, LinkedIn, Twitter)
-    const setMeta = (attr: string, key: string, content: string) => {
-      let m = document.querySelector(`meta[${attr}="${key}"]`);
-      if (!m) {
-        m = document.createElement('meta');
-        m.setAttribute(attr, key);
-        document.head.appendChild(m);
-      }
-      m.setAttribute('content', content);
-    };
-    
-    // Open Graph (Facebook/LinkedIn)
-    setMeta('property', 'og:title', 'Simple Website Checkup for Small Businesses');
-    setMeta('property', 'og:description', 'Stop losing customers. Get an instant AI website analysis based on industry usability standards.');
-    setMeta('property', 'og:url', 'https://www.theproductshift.com/simple-website-checkup');
-    setMeta('property', 'og:type', 'website');
-    setMeta('property', 'og:image', 'https://www.theproductshift.com/social-share.png'); // Ensure this file exists in public/
-
-    // Twitter Card
-    setMeta('name', 'twitter:card', 'summary_large_image');
-    setMeta('name', 'twitter:title', 'Simple Website Checkup for Small Businesses');
-    setMeta('name', 'twitter:description', 'Stop losing customers. Get an instant AI website analysis.');
-    setMeta('name', 'twitter:image', 'https://www.theproductshift.com/social-share.png');
-
-    // Add JSON-LD Structured Data for SoftwareApplication
-    const scriptId = 'json-ld-software-app';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify({
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "SoftwareApplication",
-            "name": "Product Shift Instant Insights",
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "Web Browser",
-            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
-            "description": "AI-powered website usability checkup for small businesses.",
-            "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations",
-            "offeredBy": {
-              "@type": "Organization",
-              "name": "Product Shift",
-              "url": "https://www.theproductshift.com"
-            }
-          },
-          {
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "Is the free demo really free?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "How is this different from Google Analytics?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Google Analytics tells you WHAT is happening (e.g., high bounce rate). Our AI Agent tells you WHY (e.g., 'The pricing is confusing')."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Do I need to install anything?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "No. Just enter your URL and we do the rest."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Can I test my competitor's site?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Absolutely. It's a great way to see what they are doing right (or wrong)."
-                }
-              }
-            ]
-          }
-        ]
-      });
-      document.head.appendChild(script);
-    }
-  }, []);
-  */
-
   // Background Animation Effect
   useEffect(() => {
     const container = containerRef.current;
@@ -669,6 +549,7 @@ const SmbLandingPage: React.FC = () => {
         <Helmet>
           <title>{pageTitle}</title>
           <meta name="description" content={metaDescription} />
+          <meta name="robots" content="index, follow" />
           <link rel="canonical" href={canonicalUrl} />
           
           {/* Open Graph */}

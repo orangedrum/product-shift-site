@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Check, Shield, TrendingUp, Zap, Calendar, Briefcase, FileText, Layout } from 'lucide-react';
 import About from '../components/About';
+import { SEOMetadata } from '../components/SEOMetadata';
 import PdfViewer from '../components/PdfViewer';
 
 const FactoringFirmProposal: React.FC = () => {
@@ -26,7 +27,12 @@ const FactoringFirmProposal: React.FC = () => {
 
   return (
     <main className="relative bg-white min-h-screen overflow-hidden font-sans text-gray-900" ref={containerRef}>
-      {/* Global Background Blobs */}
+      <SEOMetadata
+        title="Proposal for Factoring Firms"
+        description="Digital Risk Assessment Partner Proposal"
+        canonicalUrl="https://www.theproductshift.com/factoring-firm-proposal"
+        noindex={true}
+      />
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
         {[...Array(15)].map((_, i) => (
           <div 
