@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Check, Shield, TrendingUp, Zap, Calendar } from 'lucide-react';
 import About from '../components/About';
-import PdfViewer from './PdfViewer';
+import PdfViewer from '../components/PdfViewer';
 
 const FactoringFirmProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
