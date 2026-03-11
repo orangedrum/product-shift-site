@@ -4,9 +4,10 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
-// CTO Fix: The Vercel build pipeline now copies the worker to the public directory via a `postinstall` script.
-// This provides a stable, absolute path to the worker, resolving all previous import and CSP issues.
-pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`;
+// CTO Fix: Reverting to a stable CDN for the PDF worker to resolve all build-time issues and respect the
+// "no local node_modules" constraint. This is the most robust method. The version is dynamically
+// pinned to match the `pdfjs-dist` dependency of our `react-pdf` installation.
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 interface PdfViewerProps {
   file: string;
 }
@@ -30,6 +31,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ file }) => {
         <Document
           file={file}
           onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={console.error} // Diagnostic Test: Log any PDF loading errors to the console.
           loading={<div className="flex justify-center items-center h-96 text-black font-bold"><Loader2 className="animate-spin mr-2" /> Loading PDF...</div>}
           error={<div className="flex justify-center items-center h-96 text-red-600 font-bold">Unable to load PDF.</div>}
         >
