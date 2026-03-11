@@ -4,8 +4,10 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
-// Set up worker to avoid issues with create-react-app and others
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// CTO Fix: Use Vite's URL constructor to reliably bundle the worker from node_modules
+// This prevents CDN failures and the "fake worker" warning.
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+
 
 interface PdfViewerProps {
   file: string;
