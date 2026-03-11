@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Check, Shield, TrendingUp, Zap, Calendar, Briefcase, FileText, Layout } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
+import { DemoSection } from '../components/DemoSection';
 import PdfViewer from '../components/PdfViewer';
 
 const FactoringFirmProposal: React.FC = () => {
@@ -111,6 +112,9 @@ const FactoringFirmProposal: React.FC = () => {
             <PdfViewer file="/Beontag - 2026-03-11.pdf" />
           </div>
         </div>
+
+        {/* Demo Section */}
+        <DemoSection />
 
         {/* Ready to Try Today (Pricing) */}
         <div className="mb-16">
