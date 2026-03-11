@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle, FileText, Users, ShieldAlert, ExternalLink, Plus, X, PlusCircle, Gift, Copy, Share2, Download, LogOut, MessageSquare, Star, Bell } from 'lucide-react';
-import PrintableComponent from './PrintableComponent';
+import PrintableComponent from '../components/PrintableComponent';
 import { supabase } from '../lib/supabase';
 import { AnalysisErrorCard, AnalysisError } from '../components/AnalysisErrorCard';
 import { NeoButton } from '../components/NeoButton';
@@ -682,6 +682,67 @@ const AiPoweredUxHealthtech: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div></div>
     ) : (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+      <style>{`
+        @property --pos-x-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+        @property --pos-y-1 { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+        @property --pos-x-2 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+        @property --pos-y-2 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+        @property --pos-x-3 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+        @property --pos-y-3 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+        
+        @media print {
+          @page { margin: 1.5cm; size: auto; }
+          body * { visibility: hidden; }
+          /* Make the printable component and its children visible */
+          .printable, .printable * { visibility: visible; }
+          .printable { position: absolute; left: 0; top: 0; width: 100%; }
+          
+          /* Cover Page Styling - Compact for Print */
+          .report-cover { margin-bottom: 1cm; page-break-after: avoid; }
+          
+          .no-print { display: none !important; }
+          
+          /* Ensure background colors and images print */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          
+          /* Typography for Print */
+          body { font-size: 12pt; line-height: 1.5; color: #000; background: white !important; }
+          h1 { font-size: 32pt; margin-bottom: 0.5cm; }
+          h2 { font-size: 20pt; margin-top: 1cm; margin-bottom: 0.5cm; page-break-after: avoid; border-bottom: 2px solid #000; padding-bottom: 10px; }
+          h3 { font-size: 14pt; margin-top: 0.5cm; page-break-after: avoid; }
+          p { margin-bottom: 0.5cm; }
+          
+          /* Print Modes */
+          .print-summary-only .user-sessions-column { display: none !important; }
+          .print-summary-only .expert-report-column { width: 100% !important; grid-column: span 12 !important; }
+          
+          /* Full Report Print Styling */
+          .screen-only { display: none !important; }
+          .print-only { display: block !important; }
+          
+          /* Layout Fixes */
+          .grid { display: block !important; }
+          .lg\\:col-span-5, .lg\\:col-span-7 { width: 100% !important; margin-bottom: 1cm; grid-column: span 12 !important; }
+          img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
+          .user-sessions-column { margin-bottom: 2rem; }
+          
+          /* Page Breaks */
+          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
+          .page-break-before { page-break-before: always; display: block; }
+
+          /* Force Neo Styling in Print */
+          .border-2 { border-width: 2px !important; border-color: #000 !important; }
+        }
+
+        @keyframes bounce-subtle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-subtle {
+          animation: bounce-subtle 3s infinite ease-in-out;
+        }
+      `}</style>
+
       <div className={`relative mx-auto transition-all duration-500 ${result ? 'max-w-7xl' : 'max-w-3xl'}`}>
         
         {/* --- BEFORE RESULTS: Vertical Widgets --- */}
@@ -1173,9 +1234,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
                 </div>
 
                 {/* PRINT VIEW: All Sessions List */}
-                <div className="hidden print-only mb-8">
+                <div className="print-only mb-8">
                   <div className="bg-white p-4 mb-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000] break-inside-avoid">
-                    <h2 className="text-2xl font-black text-black m-0" style={{ borderBottom: 'none', paddingBottom: 0 }}>Detailed User Sessions</h2>
+                    <h2 className="text-2xl font-black text-black m-0 no-border">Detailed User Sessions</h2>
                   </div>
 
                   {result.userSessions.map((res, idx) => {
@@ -1286,9 +1347,9 @@ const AiPoweredUxHealthtech: React.FC = () => {
       <FeedbackCard email={session?.user?.email} isFirstBuy={isFirstBuy} justPurchased={justPurchased} hasResult={!!result} />
       </div>
     </div>
-    </div>
     )}
-    </div>);
+    </div>
+  );
 };
 
 export default AiPoweredUxHealthtech;
