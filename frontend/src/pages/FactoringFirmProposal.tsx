@@ -117,8 +117,8 @@ const FactoringFirmProposal: React.FC = () => {
         <DemoSection />
 
         {/* Ready to Try Today (Pricing) */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
+        <div id="pricing" className="mb-16">
+          <div className="text-center mb-12 pt-5">
             <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">Ready to reduce risk today?</h2>
             <p className="text-xl text-gray-600 font-medium">We deliver comprehensive audit results in <span className="text-black font-black underline decoration-indigo-500 decoration-4">10 business days</span>.</p>
           </div>
