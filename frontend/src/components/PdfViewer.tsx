@@ -4,11 +4,10 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
-// CTO Fix: Explicitly import and set the worker URL using Vite's `?url` suffix.
-// This is the most reliable method to ensure the worker file is correctly bundled and referenced.
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
-
+// CTO Fix: The build environment cannot resolve local worker files, and no local node_modules exists.
+// Reverting to the most stable method: loading the worker from a trusted, version-pinned CDN.
+// This bypasses all local file and build-time resolution issues.
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.mjs`;
 interface PdfViewerProps {
   file: string;
 }
