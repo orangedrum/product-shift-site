@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf/dist/esm/entry.vite';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-
-// CTO Fix: Use Vite's URL constructor to reliably bundle the worker from node_modules
-// This prevents CDN failures and the "fake worker" warning.
-pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 
 interface PdfViewerProps {
@@ -32,7 +28,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ file }) => {
         <Document
           file={file}
           onLoadSuccess={onDocumentLoadSuccess}
-          loading={<div className="flex justify-center items-center h-96 text-black font-bold"><Loader2 className="animate-spin mr-2" /> Loading Report...</div>}
+          loading={<div className="flex justify-center items-center h-96 text-black font-bold"><Loader2 className="animate-spin mr-2" /> Loading PDF...</div>}
           error={<div className="flex justify-center items-center h-96 text-red-600 font-bold">Unable to load PDF.</div>}
         >
           <Page pageNumber={pageNumber} renderTextLayer={false} renderAnnotationLayer={false} className="shadow-lg" width={500} />
