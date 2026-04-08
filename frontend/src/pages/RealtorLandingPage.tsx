@@ -509,6 +509,7 @@ const RealtorLandingPage: React.FC = () => {
       <main className="relative bg-white overflow-hidden" ref={containerRef}>
         <Helmet>
           <title>{CONFIG.pageTitle} | Product Shift</title>
+          <meta name="robots" content="index, follow" />
           <meta name="description" content={CONFIG.metaDescription} />
           <link rel="canonical" href={canonicalUrl} />
           

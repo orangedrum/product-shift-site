@@ -192,7 +192,7 @@ export const DemoSection = () => {
   return (
     <section id="demo" className="bg-gray-900 text-white py-24">
       <div className="container mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4">Try It Now: Free Agency Audit</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4">Try It Now: Free Demo Audit</h2>
         <p className="text-lg text-gray-300 mb-8">See exactly what your clients see. Run a live test on any URL right now.</p>
         
         {error && error.usageCounted === false ? (

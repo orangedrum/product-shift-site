@@ -38,6 +38,7 @@ import Blog from './components/Blog';
 import BlogLogin from './pages/BlogLogin';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdamLaneSmithProposal from './pages/AdamLaneSmithProposal';
+import FactoringFirmProposal from './pages/FactoringFirmProposal';
 
 
 const App: React.FC = () => {
@@ -69,6 +70,7 @@ const App: React.FC = () => {
     '/admin-blog',
     '/login', // <--- CRITICAL: Hides header on login page
     '/proposal/adam-lane-smith',
+    '/factoring-firm-proposal',
     '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login');
@@ -168,6 +170,7 @@ const App: React.FC = () => {
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/proposal/adam-lane-smith" element={<AdamLaneSmithProposal />} />
+          <Route path="/factoring-firm-proposal" element={<FactoringFirmProposal />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, Zap } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
@@ -518,30 +519,6 @@ const MarketingLandingPage: React.FC = () => {
     checkAndClaim();
   }, [searchParams]);
 
-  useEffect(() => {
-    document.title = `${CONFIG.pageTitle}`;
-    
-    // Programmatically update meta description for SEO
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', CONFIG.metaDescription);
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = "description";
-      meta.content = CONFIG.metaDescription;
-      document.head.appendChild(meta);
-    }
-
-    // Add Canonical Link
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
-  }, []);
-
   // Background Animation Effect
   useEffect(() => {
     const container = containerRef.current;
@@ -562,6 +539,19 @@ const MarketingLandingPage: React.FC = () => {
 
   return (
       <main className="relative bg-white overflow-hidden" ref={containerRef}>
+        <Helmet>
+          <title>{CONFIG.pageTitle}</title>
+          <meta name="description" content={CONFIG.metaDescription} />
+          <meta name="robots" content="index, follow" />
+          <link rel="canonical" href={`https://www.theproductshift.com/${CONFIG.urlSlug}`} />
+          
+          {/* Open Graph */}
+          <meta property="og:title" content={CONFIG.pageTitle} />
+          <meta property="og:description" content={CONFIG.metaDescription} />
+          <meta property="og:url" content={`https://www.theproductshift.com/${CONFIG.urlSlug}`} />
+          <meta property="og:type" content="website" />
+        </Helmet>
+
         {/* Global Background Blobs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
             {[...Array(15)].map((_, i) => (
