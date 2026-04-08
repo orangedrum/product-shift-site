@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { supabase, sendEmail, delay } from './services';
-import { scrapeUrl } from './browser-service';
 import { generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
+import { AGGREGATED_REPORT_PROMPT, cleanseTranscript } from './prompts';
 
 // --- Types ---
 type ScrapedData = {
@@ -12,7 +12,7 @@ type ScrapedData = {
   screenshot?: string;
 };
 
-type Persona = {
+export type Persona = {
   id: string;
   name: string;
   description: string;
@@ -32,6 +32,19 @@ const personas: Record<string, Persona> = {
 };
 
 // --- Helper Functions ---
+
+const normalizeUrl = (input: string) => {
+  let url = input.trim();
+  // Fix double protocol (e.g. https://https://) caused by double-pasting into a pre-filled field
+  while (/^https?:\/\/https?:\/\//i.test(url)) {
+    url = url.replace(/^https?:\/\//i, '');
+  }
+  // Default to https:// if no protocol is present
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+  return url;
+};
 
 const scrapeUrl = async (url: string) => {
   const browserlessToken = process.env.BROWSERLESS_TOKEN;
@@ -58,6 +71,20 @@ const scrapeUrl = async (url: string) => {
 
   if (!response.ok) throw new Error(`Browserless Error: ${response.status} - ${await response.text()}`);
   const jsonResponse = await response.json();
+  
+  // Fix: Ensure screenshot is a proper base64 string.
+  // Browserless/Puppeteer serialization can sometimes return a Buffer object or a byte string.
+  if (jsonResponse.data && jsonResponse.data.screenshot) {
+    const s = jsonResponse.data.screenshot;
+    if (typeof s === 'object' && s.type === 'Buffer') {
+       jsonResponse.data.screenshot = Buffer.from(s.data).toString('base64');
+    } else if (typeof s === 'string' && s.indexOf(',') > -1 && /^\d+,\d+/.test(s)) {
+       // Handle comma-separated byte string (e.g. "255,216,255...") seen in logs
+       const bytes = s.split(',').map((b: string) => parseInt(b.trim()));
+       jsonResponse.data.screenshot = Buffer.from(bytes).toString('base64');
+    }
+  }
+  
   return jsonResponse.data;
 };
 
@@ -89,11 +116,16 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
     **Instructions:**
     Adopt the persona of ${persona.name}. You are currently looking at the webpage.
     Narrate your experience out loud. Be critical, impatient, and honest.
+
+    **CRITICAL INSTRUCTION FOR USER_BUBBLE:**
+    You must NOT sound like a generic UX report. You MUST roleplay as ${persona.name}.
+    Your response must be a visceral, first-person "I" statement that directly connects a UX flaw to your specific life context from your description: "${persona.description}".
+
     **Required Output Format:**
     |||USER_MOOD|||
     (One word: Positive, Neutral, or Negative)
     |||USER_BUBBLE|||
-    (A single, genuine, emotional sentence connecting your specific problem/pain point to the solution you see on the page.)
+    (A single, vivid, first-person sentence. **Golden Record Example:** "I'm stuck staring at a loading spinner while my kids are screaming, and I just need to know if the payment went through!")
     |||USER_DETAILS|||
     ### 1. My Experience
     (2-3 sentences on your immediate reaction.)
@@ -145,15 +177,19 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
 
 // --- Main Handler ---
 export const runTestHandler = async (req: Request, res: Response) => {
+  console.log(`[runTestHandler] START - Request received for URL: ${req.body.url}`);
   let creditDeducted = false;
   let userIdentifier: string | undefined;
 
   try {
-    const { url, personaIds, goal, email } = req.body;
+    const { url: rawUrl, personaIds, goal, email } = req.body;
 
-    if (!url || !personaIds || !goal) {
+    if (!rawUrl || !personaIds || !goal) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
+
+    const url = normalizeUrl(rawUrl);
+    console.log(`[runTestHandler] Normalized URL: ${url}`);
 
     // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
     const forwarded = req.headers['x-forwarded-for'];
@@ -301,6 +337,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
       }
     }
 
+    console.log(`[runTestHandler] DEBUG - Entering analysisPromise for user: ${userIdentifier}`);
     const analysisPromise = (async () => {
       if (shouldDeductCredit) {
           const { error: deductError } = await supabase.rpc('deduct_credits', { user_email: userIdentifier, amount: 3 });
@@ -339,21 +376,22 @@ export const runTestHandler = async (req: Request, res: Response) => {
 
       const result = await scrapeUrl(url);
 
-      const userSessions: any[] = [];
-      for (const pId of personaIds) {
+      // CTO FIX: Run user session generation in parallel to avoid timeouts.
+      const sessionPromises = personaIds.map(async (pId: string) => {
         const activePersona = personas[pId] || personas['alex-busy-pro'];
         if (activePersona) {
-          if (userSessions.length > 0) await delay(1000);
           const sessionOutput = await generateUserSession(result, activePersona, goal, url);
           const moodMatch = sessionOutput.match(/\|\|\|USER_MOOD\|\|\|\s*(.*)/);
           const mood = moodMatch ? moodMatch[1].trim() : 'Neutral';
           let avatarUrl = activePersona.avatar;
           if (mood.toLowerCase().includes('negative')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=sad`;
           if (mood.toLowerCase().includes('positive')) avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${activePersona.name}&mouth=smile`;
-
-          userSessions.push({ persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona });
+          return { persona: activePersona.name, avatar: avatarUrl, analysis: sessionOutput, personaObj: activePersona };
         }
-      }
+        return null;
+      });
+
+      const userSessions = (await Promise.all(sessionPromises)).filter(s => s !== null);
 
       await delay(1000);
       let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, false);
@@ -385,11 +423,19 @@ export const runTestHandler = async (req: Request, res: Response) => {
     })();
 
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 58000));
+    
+    console.log(`[runTestHandler] DEBUG - Awaiting Promise.race`);
     const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
+
+    console.log(`[runTestHandler] SUCCESS - Analysis complete. Sending response.`);
     res.json(finalResponse);
 
   } catch (error: any) {
-    if (creditDeducted && userIdentifier) await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
+    console.error(`[runTestHandler] FATAL ERROR - ${error.message}`, error);
+    if (creditDeducted && userIdentifier) {
+      console.log(`[runTestHandler] REFUND - Refunding 3 credits to ${userIdentifier}`);
+      await supabase.rpc('add_credits', { user_email: userIdentifier, amount: 3 });
+    }
     res.status(500).json({ error: 'Analysis Failed', details: error.message, usageCounted: false });
   }
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { SEOMetadata } from '../components/SEOMetadata';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, VolumeX, Volume2 } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { LandingFAQ } from '../components/LandingFAQ';
@@ -456,102 +457,6 @@ const EcommerceLandingPageVideo: React.FC = () => {
     checkAndClaim();
   }, [searchParams]);
 
-  useEffect(() => {
-    document.title = `${CONFIG.pageTitle} | Product Shift`;
-    
-    // Programmatically update meta description for SEO
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', CONFIG.metaDescription);
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = "description";
-      meta.content = CONFIG.metaDescription;
-      document.head.appendChild(meta);
-    }
-
-    // Add Canonical Link
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
-
-    // Add Open Graph Tags for Social SEO
-    const setMeta = (attr: string, key: string, content: string) => {
-      let m = document.querySelector(`meta[${attr}="${key}"]`);
-      if (!m) {
-        m = document.createElement('meta');
-        m.setAttribute(attr, key);
-        document.head.appendChild(m);
-      }
-      m.setAttribute('content', content);
-    };
-    
-    setMeta('property', 'og:title', CONFIG.pageTitle);
-    setMeta('property', 'og:description', CONFIG.metaDescription);
-    setMeta('property', 'og:url', `https://www.theproductshift.com/${CONFIG.urlSlug}`);
-    setMeta('property', 'og:type', 'website');
-    setMeta('property', 'og:image', 'https://www.theproductshift.com/social-share.png');
-
-    setMeta('name', 'twitter:card', 'summary_large_image');
-    setMeta('name', 'twitter:title', CONFIG.pageTitle);
-    setMeta('name', 'twitter:description', CONFIG.metaDescription);
-    setMeta('name', 'twitter:image', 'https://www.theproductshift.com/social-share.png');
-
-    // Add JSON-LD Structured Data
-    const scriptId = 'json-ld-ecommerce-video';
-    document.getElementById(scriptId)?.remove();
-
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.type = 'application/ld+json';
-    script.text = JSON.stringify({
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "SoftwareApplication",
-            "name": "Product Shift Instant Insights",
-            "applicationCategory": "BusinessApplication",
-            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
-            "description": CONFIG.metaDescription,
-            "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations"
-          },
-          {
-            "@type": "VideoObject",
-            "name": "Product Shift AI UX Demo for E-commerce",
-            "description": "See how Product Shift's AI provides instant usability feedback for e-commerce stores.",
-            "uploadDate": "2024-01-21T08:00:00+00:00",
-            "thumbnailUrl": "https://www.theproductshift.com/video-thumbnail.jpg",
-            "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
-            "duration": "PT1M30S"
-          },
-          {
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "Is the free demo really free?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required." }
-              },
-              {
-                "@type": "Question",
-                "name": "How is this different from Shopify Analytics?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Shopify Analytics tells you WHAT is happening (e.g., high cart abandonment). Our AI Agent tells you WHY (e.g., 'The shipping cost was a surprise')." }
-              }
-            ]
-          }
-        ]
-      });
-    document.head.appendChild(script);
-
-    return () => {
-      document.getElementById(scriptId)?.remove();
-    };
-  }, []);
-
   // Background Animation Effect
   useEffect(() => {
     const container = containerRef.current;
@@ -572,7 +477,41 @@ const EcommerceLandingPageVideo: React.FC = () => {
 
   return (
       <main className="relative bg-white overflow-hidden" ref={containerRef}>
-        {/* Global Background Blobs */}
+        <SEOMetadata
+          title={`${CONFIG.pageTitle} | Product Shift`}
+          description={CONFIG.metaDescription}
+          canonicalUrl={`https://www.theproductshift.com/${CONFIG.urlSlug}`}
+          jsonLd={{
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "SoftwareApplication",
+                "name": "Product Shift Instant Insights",
+                "applicationCategory": "BusinessApplication",
+                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free Demo Analysis" },
+                "description": CONFIG.metaDescription,
+                "featureList": "Instant AI Analysis, User Personas, Actionable Recommendations"
+              },
+              {
+                "@type": "VideoObject",
+                "name": "Product Shift AI UX Demo for E-commerce",
+                "description": "See how Product Shift's AI provides instant usability feedback for e-commerce stores.",
+                "uploadDate": "2024-01-21T08:00:00+00:00",
+                "thumbnailUrl": "https://www.theproductshift.com/video-thumbnail.jpg",
+                "contentUrl": "https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4",
+                "duration": "PT1M30S"
+              },
+              {
+                "@type": "FAQPage",
+                "mainEntity": [
+                  { "@type": "Question", "name": "Is the free demo really free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. You get one complete analysis with our 'Alex' persona for free. No credit card required." } },
+                  { "@type": "Question", "name": "How is this different from Shopify Analytics?", "acceptedAnswer": { "@type": "Answer", "text": "Shopify Analytics tells you WHAT is happening (e.g., high cart abandonment). Our AI Agent tells you WHY (e.g., 'The shipping cost was a surprise')." } }
+                ]
+              }
+            ]
+          }}
+        />
+         {/* Global Background Blobs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
             {[...Array(15)].map((_, i) => (
               <div 

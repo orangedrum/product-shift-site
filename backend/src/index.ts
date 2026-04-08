@@ -3,9 +3,13 @@ import cors from 'cors';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
-import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail } from './services';
+import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
+<<<<<<< HEAD
 import { runFunnelRoastHandler } from './funnel-roaster-controller';
+=======
+import { getAiServiceStatus } from './ai-service';
+>>>>>>> main
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
@@ -130,7 +134,7 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
       
       // Marketing: Send Welcome Email
       // Webhooks don't have an origin header, so we default to production or use an env var if needed.
-      const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com';
+      const baseUrl = getPublicUrl();
       await sendEmail(customerEmail, welcomeSubject, welcomeBody(baseUrl));
     }
   }
@@ -407,7 +411,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (linkError || !linkData.properties?.action_link) throw linkError || new Error('Failed to generate link');
 
     // 3. Send Branded Email via Resend
-    const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+    const baseUrl = getPublicUrl();
     const emailHtml = getMagicLinkTemplate(linkData.properties.action_link, baseUrl);
     await sendEmail(email, 'Sign in to User Mirror', emailHtml, baseUrl);
 
@@ -426,7 +430,7 @@ app.post('/api/user/update-email', authenticateRequest, async (req, res) => {
   if (!newEmail) return res.status(400).json({ error: 'New email required' });
 
   try {
-    const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+    const baseUrl = getPublicUrl();
     
     // Generate a secure, signed token for the new email verification
     // Payload: userId|newEmail|expiry
@@ -531,7 +535,7 @@ app.post('/api/admin/test-email', async (req, res) => {
      return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing in Vercel Env Vars.' });
   }
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   
   let subject = 'Test Email from Backend';
   let content = '<p>If you see this, Resend is working!</p>';
@@ -552,7 +556,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
   if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
   const cancelUrl = `${baseUrl}/account`;
 
@@ -605,6 +609,15 @@ app.post('/api/create-checkout-session', async (req, res) => {
         quantity: 1,
       });
       sessionConfig.metadata.credits = '30';
+    } else if (planId === 'pilot-localization') {
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Localization Pilot', description: 'Spanish & German Dubbing + UX Audit' },
+          unit_amount: 250000, // $2,500.00
+        },
+        quantity: 1,
+      });
     } else {
       return res.status(400).json({ error: 'Invalid plan ID' });
     }
@@ -701,6 +714,12 @@ app.post('/api/verify-payment', async (req, res) => {
 app.post('/api/run-test', runTestHandler);
 app.post('/api/run-funnel-roast', runFunnelRoastHandler);
 
+app.post('/api/run-funnel-roast', async (req, res, next) => {
+  // Use require to break circular dependency and lazy load the controller
+  const { runFunnelRoastHandler } = await import('./funnel-roaster-controller');
+  return runFunnelRoastHandler(req, res);
+});
+
 app.post('/api/analyze', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
   if (!user) return res.status(401).json({ error: 'Not authenticated.' });
@@ -718,7 +737,7 @@ app.post('/api/join-waitlist', async (req, res) => {
   const { error } = await supabase.from('waitlist_emails').insert({ email });
   if (error) return res.status(500).json({ error: 'Could not save email.', details: error.message });
   
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   // Marketing: Send Waitlist Email
   await sendEmail(email, waitlistSubject, waitlistBody(baseUrl), baseUrl);
   
@@ -769,7 +788,7 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
 
       // Marketing: Send Immediate Welcome Email (Email 1)
       if (!isTestEmail(user.email)) {
-        const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+        const baseUrl = getPublicUrl();
         const emailContent = marketingEmails.welcome.body(baseUrl);
         sendEmail(user.email, marketingEmails.welcome.subject, emailContent, baseUrl).catch(console.error);
       }
@@ -792,7 +811,7 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
 
   try {
     // Fetch active free users who haven't finished the sequence
@@ -947,6 +966,7 @@ app.post('/api/user/generate-referral', authenticateRequest, async (req, res) =>
     }
     
     if (error) throw error;
+    if (!data) throw new Error('Failed to generate or retrieve referral code');
     res.json({ referralCode: data.referral_code });
   } catch (e: any) {
     console.error('Generate Referral Error:', e);
@@ -988,6 +1008,16 @@ app.post('/api/user/feedback', authenticateRequest, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
+});
+
+// --- AI Service Health Check ---
+app.get('/api/ai-health', async (req, res) => {
+  try {
+    const status = await getAiServiceStatus();
+    res.status(status.status === 'ok' || status.status === 'degraded' ? 200 : 503).json(status);
+  } catch (e: any) {
+    res.status(500).json({ status: 'error', message: e.message });
+  }
 });
 
 // --- Health Check ---

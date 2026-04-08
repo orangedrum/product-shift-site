@@ -202,8 +202,14 @@ const FunnelRoaster = () => {
     setStep(2);
     setError(null);
 
+<<<<<<< HEAD
     // Ensure the URL has a protocol (matching AiUxAgent logic)
     const fullUrl = formData.url.startsWith('http://') || formData.url.startsWith('https://') ? formData.url : `https://${formData.url}`;
+=======
+    // The input's onChange handler already strips any existing protocol,
+    // so we can safely prepend 'https://' to ensure a valid URL.
+    const fullUrl = `https://${formData.url}`;
+>>>>>>> main
 
     let finalGoal = 'Quickly understand what this page is about.';
     if (siteTaskType === 'purchase') finalGoal = 'Attempt to make a purchase or sign up, thinking aloud about the decision process.';

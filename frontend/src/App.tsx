@@ -37,7 +37,12 @@ import BlogPost from './components/BlogPost';
 import Blog from './components/Blog';
 import BlogLogin from './pages/BlogLogin';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+<<<<<<< HEAD
 import FunnelRoaster from './pages/FunnelRoaster';
+=======
+import AdamLaneSmithProposal from './pages/AdamLaneSmithProposal';
+import FactoringFirmProposal from './pages/FactoringFirmProposal';
+>>>>>>> main
 
 
 const App: React.FC = () => {
@@ -68,6 +73,8 @@ const App: React.FC = () => {
     '/admin-dashboard',
     '/admin-blog',
     '/login', // <--- CRITICAL: Hides header on login page
+    '/proposal/adam-lane-smith',
+    '/factoring-firm-proposal',
     '/blog-login',
     '/styleguide',
     '/funnel-roaster'
@@ -167,7 +174,12 @@ const App: React.FC = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+<<<<<<< HEAD
           <Route path="/funnel-roaster" element={<FunnelRoaster />} />
+=======
+          <Route path="/proposal/adam-lane-smith" element={<AdamLaneSmithProposal />} />
+          <Route path="/factoring-firm-proposal" element={<FactoringFirmProposal />} />
+>>>>>>> main
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />

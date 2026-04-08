@@ -1,5 +1,5 @@
 import express from 'express';
-import { supabase, sendEmail, isTestEmail, emailFrom } from './services';
+import { supabase, sendEmail, isTestEmail, emailFrom, getPublicUrl } from './services';
 import { generateStructuredData } from './analysis-controller';
 import { generateEnhancedContent } from './ai-service';
 import { marketingEmails } from './email-templates';
@@ -123,7 +123,7 @@ router.get('/stats', requireAdminKey, async (req, res) => {
 router.get('/coupons', requireAdminKey, async (req, res) => {
   const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
   
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   
   const coupons = (data || []).map(c => ({
     ...c,
@@ -178,7 +178,7 @@ router.post('/invite-user', requireAdminKey, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   
   // 2. Ensure Auth User Exists (Idempotent)
   await supabase.auth.admin.createUser({
@@ -219,7 +219,7 @@ router.post('/compensate-user', requireAdminKey, async (req, res) => {
   const { email, credits } = req.body;
   await supabase.rpc('add_credits', { user_email: email, amount: credits || 2 });
   
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   const html = `<p>We've added <strong>${credits} credits</strong> to your account as an apology for the recent issue.</p>`;
   await sendEmail(email, "Credits Added: We're sorry!", html, baseUrl);
 
@@ -247,7 +247,7 @@ router.post('/test-email', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email required' });
   if (!process.env.RESEND_API_KEY) return res.json({ success: false, error: 'Configuration Error', details: 'RESEND_API_KEY is missing.' });
 
-  const baseUrl = req.get('origin') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com');
+  const baseUrl = getPublicUrl();
   let subject = 'Test Email from Backend';
   let content = '<p>If you see this, Resend is working!</p>';
 

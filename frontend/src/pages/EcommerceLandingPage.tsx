@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { SEOMetadata } from '../components/SEOMetadata';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { LandingFAQ } from '../components/LandingFAQ';
 import { PricingSection } from '../components/PricingSection';
@@ -507,22 +507,14 @@ const EcommerceLandingPage: React.FC = () => {
 
   return (
       <main className="relative bg-white overflow-hidden" ref={containerRef}>
-        <Helmet>
-          <title>{CONFIG.pageTitle} | Product Shift</title>
-          <meta name="description" content={CONFIG.metaDescription} />
-          <link rel="canonical" href={canonicalUrl} />
-          
-          {/* Open Graph */}
-          <meta property="og:title" content={CONFIG.pageTitle} />
-          <meta property="og:description" content={CONFIG.metaDescription} />
-          <meta property="og:url" content={canonicalUrl} />
-          <meta property="og:type" content="website" />
-          <meta property="og:image" content={socialImage} />
-
-          {/* JSON-LD */}
-          <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-        </Helmet>
-
+        <SEOMetadata
+          title={`${CONFIG.pageTitle} | Product Shift`}
+          description={CONFIG.metaDescription}
+          canonicalUrl={canonicalUrl}
+          imageUrl={socialImage}
+          jsonLd={jsonLd}
+        />
+        
         {/* Global Background Blobs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
             {[...Array(15)].map((_, i) => (
