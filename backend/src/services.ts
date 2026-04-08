@@ -22,7 +22,20 @@ export const emailFrom = (process.env.EMAIL_FROM || 'Product Shift <onboarding@t
 
 // --- Canonical URL Helper ---
 // Use a dedicated env var for public-facing URLs to avoid using Vercel deployment URLs.
-export const getPublicUrl = () => {
+export const getPublicUrl = (req?: any) => {
+  // Priority 1: Dynamic detection from request (Branch-specific)
+  if (req) {
+    const origin = req.headers.origin || req.headers.referer;
+    if (origin) {
+      return origin.replace(/\/$/, '').split('/api')[0].split('?')[0];
+    }
+  }
+  
+  // Priority 2: Vercel Deployment URL (Automatic fallback for Crons/Webhooks)
+  if (process.env.VERCEL_URL && !process.env.PUBLIC_CANONICAL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
   return process.env.PUBLIC_CANONICAL_URL || 'https://www.theproductshift.com';
 }
 

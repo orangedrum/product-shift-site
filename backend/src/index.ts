@@ -426,7 +426,7 @@ app.post('/api/user/update-email', authenticateRequest, async (req, res) => {
   if (!newEmail) return res.status(400).json({ error: 'New email required' });
 
   try {
-    const baseUrl = getPublicUrl();
+    const baseUrl = getPublicUrl(req);
     
     // Generate a secure, signed token for the new email verification
     // Payload: userId|newEmail|expiry
@@ -552,7 +552,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
   if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
 
-  const baseUrl = getPublicUrl();
+  const baseUrl = getPublicUrl(req);
   const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
   const cancelUrl = `${baseUrl}/account`;
 
