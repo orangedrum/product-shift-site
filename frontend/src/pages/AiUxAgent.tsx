@@ -1159,7 +1159,13 @@ const AiPoweredUxHealthtech: React.FC = () => {
                     const details = parts[1] || 'No detailed feedback provided.';
                     const moodAndBubble = parts[0] || '';
                     const bubbleParts = moodAndBubble.split('|||USER_BUBBLE|||') || ['', ''];
-                    const userBubble = bubbleParts[1]?.trim() || "I'm analyzing the page...";
+                    let userBubble = bubbleParts[1]?.trim();
+                    
+                    // Fallback: If AI missed the tag, grab the first sentence of the details
+                    if (!userBubble || userBubble.includes('analyzing the page')) {
+                       const firstLine = details.replace(/### \d\..*/, '').trim().split(/[.!?]/)[0];
+                       userBubble = firstLine ? `${firstLine}.` : "I'm finding some things that could be improved here.";
+                    }
 
                     return (
                       <div key={idx} className="mb-8 pb-8 border-b border-gray-200 last:border-0 break-inside-avoid">

@@ -1,4 +1,39 @@
-import { Persona } from './analysis-controller';
+export type Persona = {
+  id: string;
+  name: string;
+  description: string;
+  avatar: string;
+};
+
+export const USER_SESSION_PROMPT = (persona: Persona, goal: string, url: string, data: any) => `
+    You are facilitating a usability test session.
+    **Context:**
+    - **Persona:** ${persona.name} (${persona.description})
+    - **Goal:** "${goal}"
+    - **URL:** ${url}
+    **Input Data:**
+    - Page Title: "${data.title}"
+    - Headings: ${JSON.stringify(data.headings?.map((h: any) => h.text))}
+    - Introductory Body Text: "${data.bodyText}"
+
+    **Instructions:**
+    Adopt the persona of ${persona.name}. You are currently looking at the webpage.
+    Narrate your experience out loud. Be critical, impatient, and honest.
+
+    **CRITICAL INSTRUCTION FOR USER_BUBBLE:**
+    You must NOT sound like a generic UX report. You MUST roleplay as ${persona.name}.
+    Your response must be a visceral, first-person "I" statement that directly connects a UX flaw to your specific life context: "${persona.description}".
+
+    **Required Output Format:**
+    |||USER_MOOD|||
+    (One word: Positive, Neutral, or Negative)
+    |||USER_BUBBLE|||
+    (A single, vivid, first-person sentence reflecting your persona's frustration or joy.)
+    |||USER_DETAILS|||
+    ### 1. My Experience
+    ### 2. Points of Friction
+    ### 3. What I Think This Is
+`;
 
 /**
  * Cleanse raw AI session output for the aggregator to minimize token noise.
@@ -17,10 +52,12 @@ export const AGGREGATED_REPORT_PROMPT = (url: string, cleansedTranscripts: strin
     You are a Senior UX Researcher. You have just observed usability tests with multiple users.
     
     **Your Mission:**
-    Synthesize the findings into a definitive UX Audit. 
-    CRITICAL: Your quantitative scores MUST logically align with the sentiment of the user sessions.
-    - If users expressed Negative sentiment or significant friction, usability/clarity scores MUST be below 60.
-    - Do not default to high scores if the feedback is critical.
+    Synthesize the findings into a definitive UX Audit.
+
+    **SCORING RUBRIC (Strict):**
+    - If >50% of users had "Negative" sentiment: Scores MUST be < 50.
+    - If users mentioned "Clarity" issues: Clarity score MUST be < 60.
+    - DO NOT default to scores in the 70s or 80s if the transcripts show friction.
 
     **Required Output Format:**
     ### TEST RESULT: [PASS / FAIL]
@@ -34,7 +71,7 @@ export const AGGREGATED_REPORT_PROMPT = (url: string, cleansedTranscripts: strin
     - **FIX:** [Action]
 
     |||SCORES_JSON|||
-    { "usability": [0-100], "desirability": [0-100], "clarity": [0-100] }
+    { "usability": score, "desirability": score, "clarity": score }
 
     **Context:**
     - URL: ${url}
