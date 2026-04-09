@@ -395,19 +395,20 @@ app.post('/api/auth/login', async (req, res) => {
       }
     }
 
+    const baseUrl = getPublicUrl(req);
+
     // 2. Generate Magic Link (Server-Side)
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email,
       options: {
-        redirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux'
+        redirectTo: redirectTo || `${baseUrl}/ai-powered-ux`
       }
     });
 
     if (linkError || !linkData.properties?.action_link) throw linkError || new Error('Failed to generate link');
 
     // 3. Send Branded Email via Resend
-    const baseUrl = getPublicUrl();
     const emailHtml = getMagicLinkTemplate(linkData.properties.action_link, baseUrl);
     await sendEmail(email, 'Sign in to User Mirror', emailHtml, baseUrl);
 
