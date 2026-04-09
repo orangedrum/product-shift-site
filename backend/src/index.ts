@@ -808,13 +808,17 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
 
   const baseUrl = getPublicUrl();
 
+  // WARMUP STRATEGY: Start small (e.g., 50 per day) and increase by 20% every few days.
+  const BATCH_LIMIT = parseInt(process.env.MARKETING_WARMUP_LIMIT || '50', 10);
+
   try {
     // Fetch active free users who haven't finished the sequence
     const { data: users, error } = await supabase
       .from('customers')
       .select('id, email, created_at, marketing_step, plan_status')
       .eq('plan_status', 'free')
-      .lt('marketing_step', 4); // Stop after Day 7 (step 4)
+      .lt('marketing_step', 4)
+      .limit(BATCH_LIMIT); // Controlled batching to prevent spam flags
 
     if (error) throw error;
 

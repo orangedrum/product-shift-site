@@ -20,6 +20,10 @@ export const emailFrom = (process.env.EMAIL_FROM || 'Product Shift <onboarding@t
   .replace(/&lt;/g, '<')
   .replace(/&gt;/g, '>');
 
+// --- Reply-To Config ---
+// This ensures that if a user replies to an automated email, it goes to a real person.
+export const replyToEmail = process.env.REPLY_TO_EMAIL || 'onboarding@theproductshift.com';
+
 // --- Canonical URL Helper ---
 // Use a dedicated env var for public-facing URLs to avoid using Vercel deployment URLs.
 export const getPublicUrl = (req?: any) => {
@@ -43,7 +47,7 @@ export const getPublicUrl = (req?: any) => {
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // --- Email Template Helper ---
-export const getEmailTemplate = (content: string, baseUrl: string = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com') => `
+export const getEmailTemplate = (content: string, baseUrl: string = 'https://www.theproductshift.com') => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -76,7 +80,7 @@ export const getEmailTemplate = (content: string, baseUrl: string = process.env.
 `;
 
 // --- Email Sender ---
-export const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com') => {
+export const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('Resend API key missing. Skipping email.');
@@ -84,7 +88,13 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
   }
   const fullHtml = getEmailTemplate(html, baseUrl);
   try {
-    const payload = { from: emailFrom.trim(), to, subject, html: fullHtml };
+    const payload = { 
+      from: emailFrom.trim(), 
+      to, 
+      subject, 
+      html: fullHtml,
+      reply_to: replyToEmail.trim()
+    };
     console.log(`📨 Resend Payload (Sanitized):`, JSON.stringify({ ...payload, html: '(html_content_hidden)' }));
     
     const res = await fetch('https://api.resend.com/emails', {
