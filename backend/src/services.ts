@@ -16,9 +16,11 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 // --- Email Config ---
-export const emailFrom = (process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>')
-  .replace(/&lt;/g, '<')
-  .replace(/&gt;/g, '>');
+export const emailFrom = (process.env.EMAIL_FROM || '"Product Shift" <onboarding@theproductshift.com>')
+  .replace(/&amp;lt;/g, '<').replace(/&lt;/g, '<')
+  .replace(/&amp;gt;/g, '>').replace(/&gt;/g, '>')
+  // Safety: If display name contains spaces and isn't quoted, wrap it in double quotes for deliverability.
+  .replace(/^([^"].*?\s+.*?)\s*<(.+)>$/, '"$1" <$2>');
 
 // --- Reply-To Config ---
 // This ensures that if a user replies to an automated email, it goes to a real person.
