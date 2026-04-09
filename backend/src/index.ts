@@ -395,19 +395,20 @@ app.post('/api/auth/login', async (req, res) => {
       }
     }
 
+    const baseUrl = getPublicUrl(req);
+
     // 2. Generate Magic Link (Server-Side)
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email,
       options: {
-        redirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux'
+        redirectTo: redirectTo || `${baseUrl}/ai-powered-ux`
       }
     });
 
     if (linkError || !linkData.properties?.action_link) throw linkError || new Error('Failed to generate link');
 
     // 3. Send Branded Email via Resend
-    const baseUrl = getPublicUrl();
     const emailHtml = getMagicLinkTemplate(linkData.properties.action_link, baseUrl);
     await sendEmail(email, 'Sign in to User Mirror', emailHtml, baseUrl);
 
@@ -426,7 +427,7 @@ app.post('/api/user/update-email', authenticateRequest, async (req, res) => {
   if (!newEmail) return res.status(400).json({ error: 'New email required' });
 
   try {
-    const baseUrl = getPublicUrl();
+    const baseUrl = getPublicUrl(req);
     
     // Generate a secure, signed token for the new email verification
     // Payload: userId|newEmail|expiry
@@ -552,7 +553,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
   if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
 
-  const baseUrl = getPublicUrl();
+  const baseUrl = getPublicUrl(req);
   const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
   const cancelUrl = `${baseUrl}/account`;
 
@@ -808,13 +809,17 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
 
   const baseUrl = getPublicUrl();
 
+  // WARMUP STRATEGY: Start small (e.g., 50 per day) and increase by 20% every few days.
+  const BATCH_LIMIT = parseInt(process.env.MARKETING_WARMUP_LIMIT || '50', 10);
+
   try {
     // Fetch active free users who haven't finished the sequence
     const { data: users, error } = await supabase
       .from('customers')
       .select('id, email, created_at, marketing_step, plan_status')
       .eq('plan_status', 'free')
-      .lt('marketing_step', 4); // Stop after Day 7 (step 4)
+      .lt('marketing_step', 4)
+      .limit(BATCH_LIMIT); // Controlled batching to prevent spam flags
 
     if (error) throw error;
 

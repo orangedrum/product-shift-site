@@ -21,10 +21,10 @@ test.describe('Critical Integration Flows', () => {
     // Wait for analysis (timeout increased to 5 minutes for AI latency) OR any valid error state
     // We accept "Error" as a valid completion state for the test runner to avoid failing the build on external AI outages
     await Promise.race([
-      expect(page.locator('text=Demo Result for')).toBeVisible({ timeout: 300000 }),
-      expect(page.locator('text=Error')).toBeVisible({ timeout: 300000 }),
-      expect(page.locator('text=Site Security Error')).toBeVisible({ timeout: 300000 }),
-      expect(page.locator('text=Bad AI Day')).toBeVisible({ timeout: 300000 })
+      expect(page.locator('text=Demo Result for')).toBeVisible({ timeout: 90000 }),
+      expect(page.locator('text=Error')).toBeVisible({ timeout: 90000 }),
+      expect(page.locator('text=Site Security Error')).toBeVisible({ timeout: 90000 }),
+      expect(page.locator('text=Bad AI Day')).toBeVisible({ timeout: 90000 })
     ]);
   });
 
@@ -180,7 +180,7 @@ test.describe('Critical Integration Flows', () => {
       storageState: {
         cookies: [],
         origins: [{
-          origin: process.env.BASE_URL || 'https://product-shift-site-git-staging-jeans-projects-3cddd625.vercel.app',
+          origin: process.env.BASE_URL || 'https://www.theproductshift.com',
           localStorage: [{ name: 'sb-productshift-auth-token', value: JSON.stringify(sessionData.session) }]
         }]
       }
@@ -258,7 +258,7 @@ test.describe('Critical Integration Flows', () => {
       storageState: {
         cookies: [],
         origins: [{
-          origin: process.env.BASE_URL || 'https://product-shift-site-git-staging-jeans-projects-3cddd625.vercel.app',
+          origin: process.env.BASE_URL || 'https://www.theproductshift.com',
           localStorage: [{ name: 'sb-productshift-auth-token', value: JSON.stringify(sessionB.session) }]
         }]
       }

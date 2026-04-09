@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { supabase, sendEmail, delay } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
+import { AGGREGATED_REPORT_PROMPT, USER_SESSION_PROMPT, cleanseTranscript, Persona } from './prompts';
 
 // --- Types ---
 type ScrapedData = {
@@ -150,27 +151,8 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     Upgrade Now at www.theproductshift.com/landingpg-aiuxagent
     `;
   }
-  const prompt = `
-    You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users.
-    **Required Output Format:**
-    ### TEST RESULT: [PASS / FAIL]
-    (Brief explanation).
-    ### Visual & Heuristic Analysis
-    (Comment on visual hierarchy, layout, and trust signals.)
-    ### Actionable Recommendations
-    - **ISSUE:** [Description]
-    - **FIX:** [Action]
-    |||SCORES_JSON|||
-    { "usability": 85, "desirability": 70, "clarity": 90 }
-    **Context:**
-    - **URL:** ${url}
-    - [Visual Screenshot Attached]
-    **User Session Transcripts:**
-    ${sessions.map(s => `--- USER: ${s.persona.name} ---\n${s.output}`).join('\n')}
-    **IMPORTANT:** Do not use markdown tables.
-    **PDF FOOTER:**
-    ${footerContent}
-  `;
+  const sessionText = sessions.map(s => cleanseTranscript(s.persona.name, s.output)).join('\n\n---\n\n');
+  const prompt = AGGREGATED_REPORT_PROMPT(url, sessionText, footerContent);
   return generateContentWithFallback(prompt, data.screenshot);
 };
 
