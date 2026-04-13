@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { supabase, sendEmail, delay } from './services';
+import { supabase, sendEmail, delay, processReferrerReward } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
 import { AGGREGATED_REPORT_PROMPT, USER_SESSION_PROMPT, cleanseTranscript, Persona } from './prompts';
@@ -399,6 +399,12 @@ export const runTestHandler = async (req: Request, res: Response) => {
       
       if (runLog) runId = runLog.id;
       const seoSchema = generateStructuredData(url, result.title, scores, rawExpertReport);
+
+      // --- FLYWHEEL TRIGGER ---
+      // If the test succeeded, check if we need to reward the person who referred this user.
+      if (userIdentifier && !useFreeTier) {
+        processReferrerReward(userIdentifier).catch(err => console.error('Referral reward failed:', err));
+      }
 
       return { message: 'Analysis Complete.', reportId: runId, title: result.title, url: url, screenshot: result.screenshot, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })), expertReport: rawExpertReport, scores, seoSchema };
     })();

@@ -134,3 +134,29 @@ export const isTestEmail = (email: string) => {
          lower.includes('jeankaluza') ||
          lower.includes('productshift');
 };
+
+// --- Referrer Reward Logic (Triggered after first test) ---
+export const processReferrerReward = async (refereeEmail: string) => {
+  const { data: referee } = await supabase
+    .from('customers')
+    .select('referred_by, referrer_rewarded')
+    .eq('email', refereeEmail)
+    .single();
+
+  if (referee?.referred_by && !referee.referrer_rewarded) {
+    console.log(`🎁 Rewarding referrer ${referee.referred_by} for ${refereeEmail}'s first test.`);
+    
+    // 1. Add Credits
+    await supabase.rpc('add_credits', { user_email: referee.referred_by, amount: 3 });
+    
+    // 2. Mark as rewarded
+    await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', refereeEmail);
+    
+    // 3. Increment referrer's count for Champion status
+    await supabase.from('notifications').insert({
+      user_email: referee.referred_by,
+      message: `You earned 3 credits! A user you referred just ran their first test.`,
+      type: 'success'
+    });
+  }
+};

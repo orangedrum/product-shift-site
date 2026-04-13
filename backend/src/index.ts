@@ -3,11 +3,18 @@ import cors from 'cors';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
-import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl } from './services';
+import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl, processReferrerReward } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
+
+// --- Centralized Pricing (Golden Record) ---
+export const calculateCreditsByAmount = (amountTotal: number, metadataCredits?: string) => {
+  if (amountTotal === 1400) return 9;   // $14 = 3 Tests
+  if (amountTotal === 6900) return 45;  // $69 = 15 Tests
+  return parseInt(metadataCredits || '0', 10);
+};
 
 // --- Environment Variables ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -71,11 +78,7 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             ...(segment ? { segment } : {})
           }, { onConflict: 'email' });
         } else if (session.mode === 'payment') {
-          let creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
-          
-          // PRICING STRATEGY OVERRIDE:
-          if (session.amount_total === 1400) creditsToAdd = 9;  // $14 = 9 Credits (3 Tests)
-          if (session.amount_total === 6900) creditsToAdd = 45; // $69 = 45 Credits (15 Tests)
+          const creditsToAdd = calculateCreditsByAmount(session.amount_total || 0, session.metadata?.credits);
 
           // FIX: Ensure customer exists before adding credits
           const { data: customer } = await supabase.from('customers').select('id').eq('email', customerEmail).maybeSingle();
@@ -660,9 +663,7 @@ app.post('/api/verify-payment', async (req, res) => {
             }
 
             // Calculate credits (Mirroring webhook logic)
-            let creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
-            if (session.amount_total === 1400) creditsToAdd = 9;
-            if (session.amount_total === 6900) creditsToAdd = 45;
+            const creditsToAdd = calculateCreditsByAmount(session.amount_total || 0, session.metadata?.credits);
 
             // Attempt to record payment (Unique constraint on stripe_session_id prevents double-counting)
             const { error: insertError } = await supabase.from('payments').insert({
