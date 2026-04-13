@@ -217,13 +217,6 @@ const parseMarkdownToTailwind = (text: string) => {
 app.get('/api/public-report/:id', async (req, res) => {
   const { id } = req.params;
 
-  // Validate ID: Allow UUIDs, Integers (for legacy DBs), or the test mode string
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-  const isInt = /^\d+$/.test(id);
-  if (!isUuid && !isInt && id !== 'test-mode-dummy-id') {
-     return res.status(404).send('Report not found (Invalid ID format).');
-  }
-
   if (id === 'test-mode-dummy-id') {
     const title = 'Test Mode Report';
     return res.send(`
@@ -233,6 +226,13 @@ app.get('/api/public-report/:id', async (req, res) => {
         <body><h1>${title}</h1></body>
       </html>
     `);
+  }
+
+  // Validate ID: Allow UUIDs or Integers (for legacy DBs)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const isInt = /^\d+$/.test(id);
+  if (!isUuid && !isInt) {
+     return res.status(404).send('Report not found (Invalid ID format).');
   }
   
   if (!supabaseUrl || !supabaseServiceKey) return res.status(500).send('Database not configured');

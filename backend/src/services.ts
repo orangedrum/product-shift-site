@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co', 
