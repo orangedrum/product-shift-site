@@ -12,13 +12,6 @@ type ScrapedData = {
   screenshot?: string;
 };
 
-type Persona = {
-  id: string;
-  name: string;
-  description: string;
-  avatar: string;
-};
-
 // --- Personas Configuration ---
 const personas: Record<string, Persona> = {
   'alex-busy-pro': { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
