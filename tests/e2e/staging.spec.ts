@@ -91,10 +91,11 @@ test.describe('Critical Integration Flows', () => {
   test('Report Sharing: Public Link Generation', async ({ page }) => {
     // 1. Go to a known public report (or test the 404 page for invalid ID)
     // This verifies the public report route is active
-    await page.goto('/api/public-report/test-mode-dummy-id');
+    const response = await page.goto('/api/public-report/test-mode-dummy-id');
+    expect(response?.status()).toBe(200);
     
     // 2. Verify content loads (Test Mode report)
-    await expect(page.locator('text=Test Mode Report')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Test Mode Report' })).toBeVisible({ timeout: 15000 });
   });
 
   test('User Segments: SMB vs Tech Content', async ({ page }) => {
