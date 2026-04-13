@@ -214,19 +214,21 @@ const parseMarkdownToTailwind = (text: string) => {
 };
 
 // --- Public Report Endpoint ---
+// 1. Exact match for Test Mode (Bypasses DB checks for E2E)
+app.get('/api/public-report/test-mode-dummy-id', (req, res) => {
+  const title = 'Test Mode Report';
+  return res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head><title>${title}</title></head>
+      <body><h1>${title}</h1></body>
+    </html>
+  `);
+});
+
+// 2. Parameterized route for real reports
 app.get('/api/public-report/:id', async (req, res) => {
   const { id } = req.params;
-
-  if (id === 'test-mode-dummy-id') {
-    const title = 'Test Mode Report';
-    return res.send(`
-      <!DOCTYPE html>
-      <html lang="en">
-        <head><title>${title}</title></head>
-        <body><h1>${title}</h1></body>
-      </html>
-    `);
-  }
 
   // Validate ID: Allow UUIDs or Integers (for legacy DBs)
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
