@@ -289,7 +289,7 @@ test.describe('Critical Integration Flows', () => {
       storageState: {
         cookies: [],
         origins: [{
-          origin: process.env.BASE_URL || 'https://product-shift-site-git-staging-jeans-projects-3cddd625.vercel.app',
+          origin: process.env.BASE_URL || 'https://www.theproductshift.com',
           localStorage: [{ name: 'sb-productshift-auth-token', value: JSON.stringify(sessionA.session) }]
         }]
       }
