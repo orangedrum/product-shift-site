@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
@@ -8,18 +10,6 @@ import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
-
-// CTO FIX: Use require for security middleware to ensure zero-fail loading in Vercel.
-// This specifically avoids the TS2307 errors seen in your build logs.
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-
-// Anti-Bypass Check: Ensure these are not imported at the top of the file via 'import'
-// as that causes conflicting declarations.
-
-// Resolve the actual function (handling potential .default wrapper from Vercel bundler)
-const helmetFn = helmet.default || helmet;
-const rateLimitFn = rateLimit.rateLimit || rateLimit.default || rateLimit;
 
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
 
@@ -54,14 +44,14 @@ const app = express();
 app.set('trust proxy', 1);
 
 // 1. Secure HTTP Headers
-app.use(helmetFn({
+app.use(helmet({
   contentSecurityPolicy: false, // Set to false if using external CDNs like Tailwind
 }));
 
 app.use(cors({ origin: true, credentials: true }));
 
 // 2. Wallet-Drain Protection (Rate Limiting)
-const apiLimiter = rateLimitFn({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per window
   message: { success: false, error: "Too many requests, please try again later." }
