@@ -11,6 +11,11 @@ import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
+// CTO FIX: Use interop-safe initialization for middleware to prevent 500 runtime crashes.
+// This ensures the server boots even if TypeScript type resolution is struggling.
+const helmetMiddleware = (helmet as any).default || helmet;
+const rateLimitMiddleware = (rateLimit as any).default || rateLimit;
+
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
 
 // --- Centralized Pricing (Golden Record) ---
@@ -44,14 +49,14 @@ const app = express();
 app.set('trust proxy', 1);
 
 // 1. Secure HTTP Headers
-app.use(helmet({
+app.use(helmetMiddleware({
   contentSecurityPolicy: false, // Set to false if using external CDNs like Tailwind
 }));
 
 app.use(cors({ origin: true, credentials: true }));
 
 // 2. Wallet-Drain Protection (Rate Limiting)
-const apiLimiter = rateLimit({
+const apiLimiter = rateLimitMiddleware({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per window
   message: { success: false, error: "Too many requests, please try again later." }
