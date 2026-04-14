@@ -729,12 +729,7 @@ app.post('/api/verify-payment', async (req, res) => {
 app.post('/api/run-test', apiLimiter, runTestHandler);
 
 app.post('/api/run-funnel-roast', async (req, res, next) => {
-  // Use require to break circular dependency and lazy load the controller
-  const { runFunnelRoastHandler } = await import('./funnel-roaster-controller');
-  return runFunnelRoastHandler(req, res);
-});
-
-app.post('/api/analyze', authenticateRequest, async (req, res) => {
+  p.post('/api/analyze', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
   if (!user) return res.status(401).json({ error: 'Not authenticated.' });
   req.body.email = user.email;
