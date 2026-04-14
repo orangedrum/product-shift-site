@@ -11,11 +11,6 @@ import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
-// CTO FIX: Use interop-safe require for middleware to prevent "is not a function" runtime crashes.
-// This is the only way to ensure 100% boot success in Vercel Node Lambdas.
-const helmet = require('helmet');
-const { rateLimit } = require('express-rate-limit');
-
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
 
 // --- Centralized Pricing (Golden Record) ---
@@ -49,14 +44,14 @@ const app = express();
 app.set('trust proxy', 1);
 
 // 1. Secure HTTP Headers
-app.use(helmetMiddleware({
+app.use(helmet({
   contentSecurityPolicy: false, // Set to false if using external CDNs like Tailwind
 }));
 
 app.use(cors({ origin: true, credentials: true }));
 
 // 2. Wallet-Drain Protection (Rate Limiting)
-const apiLimiter = rateLimitFunction({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per window
   message: { success: false, error: "Too many requests, please try again later." }
