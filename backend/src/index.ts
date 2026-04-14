@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
@@ -47,14 +49,14 @@ const app = express();
 app.set('trust proxy', 1);
 
 // 1. Secure HTTP Headers
-app.use(helmet({
+app.use(helmetMiddleware({
   contentSecurityPolicy: false, // Set to false if using external CDNs like Tailwind
 }));
 
 app.use(cors({ origin: true, credentials: true }));
 
 // 2. Wallet-Drain Protection (Rate Limiting)
-const apiLimiter = rateLimit({
+const apiLimiter = rateLimitFunction({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per window
   message: { success: false, error: "Too many requests, please try again later." }
