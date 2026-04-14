@@ -1,9 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-// @ts-ignore
-import helmet from 'helmet';
-// @ts-ignore
-import rateLimit from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
@@ -12,6 +8,13 @@ import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
+
+// CTO FIX: Use require for security middleware to ensure zero-fail loading in Vercel Lambdas
+// This prevents the "TypeError: rateLimit is not a function" crash caused by ES Module mismatches.
+const helmet = require('helmet');
+const { rateLimit } = require('express-rate-limit');
+
+console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
 
 // --- Centralized Pricing (Golden Record) ---
 export const calculateCreditsByAmount = (amountTotal: number, metadataCredits?: string) => {
