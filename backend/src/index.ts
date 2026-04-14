@@ -1,7 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import { rateLimit } from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
@@ -11,10 +9,17 @@ import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 
-// CTO FIX: Use interop-safe initialization for middleware to prevent 500 runtime crashes.
-// This ensures the server boots even if TypeScript type resolution is struggling.
-const helmetMiddleware = (helmet as any).default || helmet;
-const rateLimitMiddleware = (rateLimit as any).default || rateLimit;
+// CTO FIX: Use require for security middleware to ensure zero-fail loading in Vercel.
+// This specifically avoids the TS2307 errors seen in your build logs.
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// Anti-Bypass Check: Ensure these are not imported at the top of the file via 'import'
+// as that causes conflicting declarations.
+
+// Resolve the actual function (handling potential .default wrapper from Vercel bundler)
+const helmetFn = helmet.default || helmet;
+const rateLimitFn = rateLimit.rateLimit || rateLimit.default || rateLimit;
 
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
 
@@ -49,14 +54,14 @@ const app = express();
 app.set('trust proxy', 1);
 
 // 1. Secure HTTP Headers
-app.use(helmetMiddleware({
+app.use(helmetFn({
   contentSecurityPolicy: false, // Set to false if using external CDNs like Tailwind
 }));
 
 app.use(cors({ origin: true, credentials: true }));
 
 // 2. Wallet-Drain Protection (Rate Limiting)
-const apiLimiter = rateLimitMiddleware({
+const apiLimiter = rateLimitFn({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per window
   message: { success: false, error: "Too many requests, please try again later." }
@@ -767,6 +772,11 @@ app.post('/api/user/check-account', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
   
+  // Safety: If database isn't ready yet, don't crash the whole app
+  if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+    return res.status(503).json({ error: 'Service initializing' });
+  }
+
   try {
     const { count } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('email', email);
     return res.json({ exists: (count || 0) > 0 });

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { supabase, sendEmail, delay, processReferrerReward } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
-import { AGGREGATED_REPORT_PROMPT, USER_SESSION_PROMPT, cleanseTranscript, Persona } from './prompts';
+import { AGGREGATED_REPORT_PROMPT, USER_SESSION_PROMPT, cleanseTranscript, type Persona } from './prompts';
 
 // --- Types ---
 type ScrapedData = {
