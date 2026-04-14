@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+// @ts-ignore
 import helmet from 'helmet';
+// @ts-ignore
 import rateLimit from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
@@ -219,6 +221,7 @@ app.get('/api/public-report/:id', async (req, res) => {
 
   // 1. Exact match for Test Mode (Bypasses DB checks for E2E)
   if (id === 'test-mode-dummy-id') {
+    console.log('✅ [TEST MODE] Public Report Bypass Triggered');
     const title = 'Test Mode Report';
     return res.status(200).send(`
       <!DOCTYPE html>
