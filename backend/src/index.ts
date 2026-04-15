@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-const helmet = require('helmet');
-const { rateLimit } = require('express-rate-limit');
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
@@ -59,18 +59,14 @@ app.get('/api/public-report/test-mode-dummy-id', (req, res) => {
 });
 
 // 1. Secure HTTP Headers
-// Interop Guard: Some Node environments return helmet as an object with a .default property
-const helmetFn = typeof helmet === 'function' ? helmet : helmet.default;
-app.use(helmetFn({
+app.use(helmet({
   contentSecurityPolicy: false, // Set to false if using external CDNs like Tailwind
 }));
 
 app.use(cors({ origin: true, credentials: true }));
 
 // 2. Wallet-Drain Protection (Rate Limiting)
-// Interop Guard: Version 7+ can be tricky in mixed ESM/CJS environments
-const rateLimitFn = typeof rateLimit === 'function' ? rateLimit : (require('express-rate-limit').rateLimit || require('express-rate-limit'));
-const apiLimiter = rateLimitFn({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per window
   message: { success: false, error: "Too many requests, please try again later." }
