@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Request, Response } from 'express';
 import { supabase } from './services';
 import { scrapeUrl } from './browser-service';
@@ -104,3 +105,6 @@ export const runFunnelRoastHandler = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Analysis Failed', details: error.message, usageCounted: false });
   }
 };
+=======
+export {};
+>>>>>>> main

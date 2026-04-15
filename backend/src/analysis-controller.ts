@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { supabase, sendEmail, delay } from './services';
+import { supabase, sendEmail, delay, processReferrerReward } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
-import { AGGREGATED_REPORT_PROMPT, cleanseTranscript } from './prompts';
+import { AGGREGATED_REPORT_PROMPT, USER_SESSION_PROMPT, cleanseTranscript, Persona } from './prompts';
 
 // --- Types ---
 type ScrapedData = {
@@ -10,13 +10,6 @@ type ScrapedData = {
   headings: { tag: string; text: string }[];
   bodyText: string;
   screenshot?: string;
-};
-
-export type Persona = {
-  id: string;
-  name: string;
-  description: string;
-  avatar: string;
 };
 
 // --- Personas Configuration ---
@@ -151,27 +144,8 @@ const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: 
     Upgrade Now at www.theproductshift.com/landingpg-aiuxagent
     `;
   }
-  const prompt = `
-    You are a Senior UX Researcher. You have just observed usability tests with ${sessions.length} different users.
-    **Required Output Format:**
-    ### TEST RESULT: [PASS / FAIL]
-    (Brief explanation).
-    ### Visual & Heuristic Analysis
-    (Comment on visual hierarchy, layout, and trust signals.)
-    ### Actionable Recommendations
-    - **ISSUE:** [Description]
-    - **FIX:** [Action]
-    |||SCORES_JSON|||
-    { "usability": 85, "desirability": 70, "clarity": 90 }
-    **Context:**
-    - **URL:** ${url}
-    - [Visual Screenshot Attached]
-    **User Session Transcripts:**
-    ${sessions.map(s => `--- USER: ${s.persona.name} ---\n${s.output}`).join('\n')}
-    **IMPORTANT:** Do not use markdown tables.
-    **PDF FOOTER:**
-    ${footerContent}
-  `;
+  const sessionText = sessions.map(s => cleanseTranscript(s.persona.name, s.output)).join('\n\n---\n\n');
+  const prompt = AGGREGATED_REPORT_PROMPT(url, sessionText, footerContent);
   return generateContentWithFallback(prompt, data.screenshot);
 };
 
@@ -418,6 +392,12 @@ export const runTestHandler = async (req: Request, res: Response) => {
       
       if (runLog) runId = runLog.id;
       const seoSchema = generateStructuredData(url, result.title, scores, rawExpertReport);
+
+      // --- FLYWHEEL TRIGGER ---
+      // If the test succeeded, check if we need to reward the person who referred this user.
+      if (userIdentifier && !useFreeTier) {
+        processReferrerReward(userIdentifier).catch(err => console.error('Referral reward failed:', err));
+      }
 
       return { message: 'Analysis Complete.', reportId: runId, title: result.title, url: url, screenshot: result.screenshot, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })), expertReport: rawExpertReport, scores, seoSchema };
     })();

@@ -1,21 +1,28 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
-import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl } from './services';
+import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl, processReferrerReward } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
-<<<<<<< HEAD
 import { runFunnelRoastHandler } from './funnel-roaster-controller';
-=======
 import { getAiServiceStatus } from './ai-service';
->>>>>>> main
 import adminRouter from './admin';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
+console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
+
+// --- Centralized Pricing (Golden Record) ---
+export const calculateCreditsByAmount = (amountTotal: number, metadataCredits?: string) => {
+  if (amountTotal === 1400) return 9;   // $14 = 3 Tests
+  if (amountTotal === 6900) return 45;  // $69 = 15 Tests
+  return parseInt(metadataCredits || '0', 10);
+};
 
 // --- Environment Variables ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 // --- Magic Link Email Template ---
 const getMagicLinkTemplate = (link: string, baseUrl: string) => `
@@ -35,7 +42,20 @@ const getMagicLinkTemplate = (link: string, baseUrl: string) => `
 // Initialize Express App
 const app = express();
 app.set('trust proxy', 1);
+
+// 1. Secure HTTP Headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Set to false if using external CDNs like Tailwind
+}));
+
 app.use(cors({ origin: true, credentials: true }));
+
+// 2. Wallet-Drain Protection (Rate Limiting)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: { success: false, error: "Too many requests, please try again later." }
+});
 
 // --- Stripe Webhook ---
 app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
@@ -75,11 +95,7 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
             ...(segment ? { segment } : {})
           }, { onConflict: 'email' });
         } else if (session.mode === 'payment') {
-          let creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
-          
-          // PRICING STRATEGY OVERRIDE:
-          if (session.amount_total === 1400) creditsToAdd = 9;  // $14 = 9 Credits (3 Tests)
-          if (session.amount_total === 6900) creditsToAdd = 45; // $69 = 45 Credits (15 Tests)
+          const creditsToAdd = calculateCreditsByAmount(session.amount_total || 0, session.metadata?.credits);
 
           // FIX: Ensure customer exists before adding credits
           const { data: customer } = await supabase.from('customers').select('id').eq('email', customerEmail).maybeSingle();
@@ -203,22 +219,23 @@ const parseMarkdownToTailwind = (text: string) => {
 app.get('/api/public-report/:id', async (req, res) => {
   const { id } = req.params;
 
-  // Validate ID: Allow UUIDs, Integers (for legacy DBs), or the test mode string
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-  const isInt = /^\d+$/.test(id);
-  if (!isUuid && !isInt && id !== 'test-mode-dummy-id') {
-     return res.status(404).send('Report not found (Invalid ID format).');
-  }
-
+  // 1. Exact match for Test Mode (Bypasses DB checks for E2E)
   if (id === 'test-mode-dummy-id') {
     const title = 'Test Mode Report';
-    return res.send(`
+    return res.status(200).send(`
       <!DOCTYPE html>
       <html lang="en">
         <head><title>${title}</title></head>
         <body><h1>${title}</h1></body>
       </html>
     `);
+  }
+
+  // Validate ID: Allow UUIDs or Integers (for legacy DBs)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const isInt = /^\d+$/.test(id);
+  if (!isUuid && !isInt) {
+     return res.status(404).send('Report not found (Invalid ID format).');
   }
   
   if (!supabaseUrl || !supabaseServiceKey) return res.status(500).send('Database not configured');
@@ -399,19 +416,20 @@ app.post('/api/auth/login', async (req, res) => {
       }
     }
 
+    const baseUrl = getPublicUrl(req);
+
     // 2. Generate Magic Link (Server-Side)
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email,
       options: {
-        redirectTo: redirectTo || 'https://www.theproductshift.com/ai-powered-ux'
+        redirectTo: redirectTo || `${baseUrl}/ai-powered-ux`
       }
     });
 
     if (linkError || !linkData.properties?.action_link) throw linkError || new Error('Failed to generate link');
 
     // 3. Send Branded Email via Resend
-    const baseUrl = getPublicUrl();
     const emailHtml = getMagicLinkTemplate(linkData.properties.action_link, baseUrl);
     await sendEmail(email, 'Sign in to User Mirror', emailHtml, baseUrl);
 
@@ -430,7 +448,7 @@ app.post('/api/user/update-email', authenticateRequest, async (req, res) => {
   if (!newEmail) return res.status(400).json({ error: 'New email required' });
 
   try {
-    const baseUrl = getPublicUrl();
+    const baseUrl = getPublicUrl(req);
     
     // Generate a secure, signed token for the new email verification
     // Payload: userId|newEmail|expiry
@@ -556,7 +574,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
   if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
 
-  const baseUrl = getPublicUrl();
+  const baseUrl = getPublicUrl(req);
   const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
   const cancelUrl = `${baseUrl}/account`;
 
@@ -663,9 +681,7 @@ app.post('/api/verify-payment', async (req, res) => {
             }
 
             // Calculate credits (Mirroring webhook logic)
-            let creditsToAdd = parseInt(session.metadata?.credits || '0', 10);
-            if (session.amount_total === 1400) creditsToAdd = 9;
-            if (session.amount_total === 6900) creditsToAdd = 45;
+            const creditsToAdd = calculateCreditsByAmount(session.amount_total || 0, session.metadata?.credits);
 
             // Attempt to record payment (Unique constraint on stripe_session_id prevents double-counting)
             const { error: insertError } = await supabase.from('payments').insert({
@@ -711,14 +727,8 @@ app.post('/api/verify-payment', async (req, res) => {
   }
 });
 
-app.post('/api/run-test', runTestHandler);
+app.post('/api/run-test', apiLimiter, runTestHandler);
 app.post('/api/run-funnel-roast', runFunnelRoastHandler);
-
-app.post('/api/run-funnel-roast', async (req, res, next) => {
-  // Use require to break circular dependency and lazy load the controller
-  const { runFunnelRoastHandler } = await import('./funnel-roaster-controller');
-  return runFunnelRoastHandler(req, res);
-});
 
 app.post('/api/analyze', authenticateRequest, async (req, res) => {
   const user = (req as any).user;
@@ -813,13 +823,17 @@ app.get('/api/cron/daily-marketing', async (req, res) => {
 
   const baseUrl = getPublicUrl();
 
+  // WARMUP STRATEGY: Start small (e.g., 50 per day) and increase by 20% every few days.
+  const BATCH_LIMIT = parseInt(process.env.MARKETING_WARMUP_LIMIT || '50', 10);
+
   try {
     // Fetch active free users who haven't finished the sequence
     const { data: users, error } = await supabase
       .from('customers')
       .select('id, email, created_at, marketing_step, plan_status')
       .eq('plan_status', 'free')
-      .lt('marketing_step', 4); // Stop after Day 7 (step 4)
+      .lt('marketing_step', 4)
+      .limit(BATCH_LIMIT); // Controlled batching to prevent spam flags
 
     if (error) throw error;
 
