@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 
 // --- Supabase Client ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co', 
@@ -16,13 +16,32 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 // --- Email Config ---
-export const emailFrom = (process.env.EMAIL_FROM || 'Product Shift <onboarding@theproductshift.com>')
-  .replace(/&lt;/g, '<')
-  .replace(/&gt;/g, '>');
+export const emailFrom = (process.env.EMAIL_FROM || '"Product Shift" <onboarding@theproductshift.com>')
+  .replace(/&amp;lt;/g, '<').replace(/&lt;/g, '<')
+  .replace(/&amp;gt;/g, '>').replace(/&gt;/g, '>')
+  // Safety: If display name contains spaces and isn't quoted, wrap it in double quotes for deliverability.
+  .replace(/^([^"].*?\s+.*?)\s*<(.+)>$/, '"$1" <$2>');
+
+// --- Reply-To Config ---
+// This ensures that if a user replies to an automated email, it goes to a real person.
+export const replyToEmail = process.env.REPLY_TO_EMAIL || 'onboarding@theproductshift.com';
 
 // --- Canonical URL Helper ---
 // Use a dedicated env var for public-facing URLs to avoid using Vercel deployment URLs.
-export const getPublicUrl = () => {
+export const getPublicUrl = (req?: any) => {
+  // Priority 1: Dynamic detection from request (Branch-specific)
+  if (req) {
+    const origin = req.headers.origin || req.headers.referer;
+    if (origin) {
+      return origin.replace(/\/$/, '').split('/api')[0].split('?')[0];
+    }
+  }
+  
+  // Priority 2: Vercel Deployment URL (Automatic fallback for Crons/Webhooks)
+  if (process.env.VERCEL_URL && !process.env.PUBLIC_CANONICAL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
   return process.env.PUBLIC_CANONICAL_URL || 'https://www.theproductshift.com';
 }
 
@@ -30,7 +49,7 @@ export const getPublicUrl = () => {
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // --- Email Template Helper ---
-export const getEmailTemplate = (content: string, baseUrl: string = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com') => `
+export const getEmailTemplate = (content: string, baseUrl: string = 'https://www.theproductshift.com') => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,7 +82,7 @@ export const getEmailTemplate = (content: string, baseUrl: string = process.env.
 `;
 
 // --- Email Sender ---
-export const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.theproductshift.com') => {
+export const sendEmail = async (to: string, subject: string, html: string, baseUrl: string = 'https://www.theproductshift.com') => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('Resend API key missing. Skipping email.');
@@ -71,7 +90,13 @@ export const sendEmail = async (to: string, subject: string, html: string, baseU
   }
   const fullHtml = getEmailTemplate(html, baseUrl);
   try {
-    const payload = { from: emailFrom.trim(), to, subject, html: fullHtml };
+    const payload = { 
+      from: emailFrom.trim(), 
+      to, 
+      subject, 
+      html: fullHtml,
+      reply_to: replyToEmail.trim()
+    };
     console.log(`📨 Resend Payload (Sanitized):`, JSON.stringify({ ...payload, html: '(html_content_hidden)' }));
     
     const res = await fetch('https://api.resend.com/emails', {
@@ -108,4 +133,30 @@ export const isTestEmail = (email: string) => {
          lower.includes('+smb') ||
          lower.includes('jeankaluza') ||
          lower.includes('productshift');
+};
+
+// --- Referrer Reward Logic (Triggered after first test) ---
+export const processReferrerReward = async (refereeEmail: string) => {
+  const { data: referee } = await supabase
+    .from('customers')
+    .select('referred_by, referrer_rewarded')
+    .eq('email', refereeEmail)
+    .single();
+
+  if (referee?.referred_by && !referee.referrer_rewarded) {
+    console.log(`🎁 Rewarding referrer ${referee.referred_by} for ${refereeEmail}'s first test.`);
+    
+    // 1. Add Credits
+    await supabase.rpc('add_credits', { user_email: referee.referred_by, amount: 3 });
+    
+    // 2. Mark as rewarded
+    await supabase.from('customers').update({ referrer_rewarded: true }).eq('email', refereeEmail);
+    
+    // 3. Increment referrer's count for Champion status
+    await supabase.from('notifications').insert({
+      user_email: referee.referred_by,
+      message: `You earned 3 credits! A user you referred just ran their first test.`,
+      type: 'success'
+    });
+  }
 };

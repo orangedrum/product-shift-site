@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, ExternalLink, AlertTriangle, CheckCircle } from 'lucide-react';
+import { BarChart, ExternalLink } from 'lucide-react';
 
 // Type definitions based on backend controller
 type LighthouseResult = {
@@ -65,7 +65,7 @@ const ScoreCircle: React.FC<{ score: number }> = ({ score }) => {
 };
 
 const PerformanceReport: React.FC<{ data: PerformanceReportData }> = ({ data }) => {
-  const { overallScore, pages = [], deviceSettings } = data;
+  const { overallScore, pages, deviceSettings } = data;
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'bg-green-500';
@@ -73,28 +73,8 @@ const PerformanceReport: React.FC<{ data: PerformanceReportData }> = ({ data }) 
     return 'bg-red-500';
   };
 
-  // Generate expert suggestions based on metrics
-  const getSuggestions = (page: LighthouseResult) => {
-    const suggestions = [];
-    if (page.fcp > 1800) {
-      suggestions.push("First Impression is slow. Optimize server response time (TTFB) and remove render-blocking resources.");
-    }
-    if (page.lcp > 2500) {
-      suggestions.push("Main content takes too long to load. Compress hero images, defer non-critical CSS, and preconnect to required origins.");
-    }
-    if (page.tti > 3800) {
-      suggestions.push("Page is unresponsive for too long. Reduce JavaScript execution time, minimize main-thread work, and remove unused code.");
-    }
-    if (page.speedIndex > 3400) {
-      suggestions.push("Visual loading feels sluggish. Ensure text remains visible during webfont load and avoid large layout shifts.");
-    }
-    if (suggestions.length === 0) suggestions.push("Great job! Your core performance metrics are within a healthy range for a good user experience.");
-    return suggestions;
-  };
-
   return (
     <div className="bg-white p-6 md:p-8 rounded-xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-      {/* Header */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-8 border-b-2 border-black pb-6">
         <div>
           <h2 className="text-3xl md:text-4xl font-black text-black flex items-center gap-3">
@@ -105,13 +85,11 @@ const PerformanceReport: React.FC<{ data: PerformanceReportData }> = ({ data }) 
             Analysis of {pages.length} pages based on a simulated <strong className="text-black">{deviceSettings}</strong>.
           </p>
         </div>
-        <div className="mt-6 md:mt-0">
-          <p className="text-sm font-bold text-gray-500 uppercase tracking-wider text-center mb-2">Overall Score</p>
+        <div className="mt-6 md:mt-0 text-center">
+          <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Overall Score</p>
           <ScoreCircle score={overallScore} />
         </div>
       </div>
-
-      {/* Page by Page Breakdown */}
       <div className="space-y-6">
         {pages.map((page, index) => (
           <div key={index} className="bg-gray-50 border-2 border-black rounded-lg p-4">
@@ -127,37 +105,23 @@ const PerformanceReport: React.FC<{ data: PerformanceReportData }> = ({ data }) 
                 </span>
               </div>
             </div>
-
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">First Impression (FCP)</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">FCP</p>
                 <p className="text-xl font-black text-gray-800">{(page.fcp / 1000).toFixed(1)}s</p>
               </div>
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">Main Content Loaded (LCP)</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">LCP</p>
                 <p className="text-xl font-black text-gray-800">{(page.lcp / 1000).toFixed(1)}s</p>
               </div>
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">Time to Interactive (TTI)</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">TTI</p>
                 <p className="text-xl font-black text-gray-800">{(page.tti / 1000).toFixed(1)}s</p>
               </div>
               <div className="p-3 bg-white rounded-md border-2 border-black">
-                <p className="text-xs font-bold text-gray-500 uppercase">Perceived Load Speed (Speed Index)</p>
+                <p className="text-xs font-bold text-gray-500 uppercase">Speed Index</p>
                 <p className="text-xl font-black text-gray-800">{(page.speedIndex / 1000).toFixed(1)}s</p>
               </div>
-            </div>
-
-            {/* Expert Suggestions */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <h4 className="text-sm font-bold text-black mb-2 flex items-center gap-2">
-                {page.performanceScore < 90 ? <AlertTriangle size={16} className="text-amber-500" /> : <CheckCircle size={16} className="text-green-500" />}
-                Optimization Opportunities
-              </h4>
-              <ul className="list-disc pl-5 space-y-1">
-                {getSuggestions(page).map((suggestion, i) => (
-                  <li key={i} className="text-xs text-gray-600 font-medium">{suggestion}</li>
-                ))}
-              </ul>
             </div>
           </div>
         ))}

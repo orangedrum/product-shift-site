@@ -8,11 +8,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   reporter: 'html',
   use: {
-    // Base URL for staging (Update this if your staging URL differs)
-    baseURL: process.env.BASE_URL || 'https://product-shift-site-git-staging-jeans-projects-3cddd625.vercel.app',
+    // Base URL for tests (Defaults to production, but overridden by CI env vars for staging)
+    baseURL: process.env.BASE_URL || 'https://www.theproductshift.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
