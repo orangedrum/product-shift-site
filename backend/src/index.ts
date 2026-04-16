@@ -9,6 +9,7 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUr
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
+import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
 
@@ -635,6 +636,27 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       });
+    } else if (planId === 'seo-shield') {
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { 
+            name: 'Emergency Retainer Shield', 
+            description: '24h Blame Shield Report + Strategy Session' 
+          },
+          unit_amount: 49500, // $495.00
+        },
+        quantity: 1,
+      });
+    } else if (planId === 'seo-portfolio') {
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Portfolio Defense', description: '20 Client Audits + Team Training' },
+          unit_amount: 200000, // $2,000.00
+        },
+        quantity: 1,
+      });
     } else {
       return res.status(400).json({ error: 'Invalid plan ID' });
     }
@@ -741,6 +763,9 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
   return runTestHandler(req, res);
 });
 
+// --- Deep Performance Audit Route ---
+app.post('/api/run-deep-audit', authenticateRequest, runDeepAuditHandler);
+
 // --- Other Routes (Waitlist, Refund, etc.) ---
 app.post('/api/join-waitlist', async (req, res) => {
   const { email } = req.body;
@@ -761,8 +786,15 @@ app.post('/api/user/check-account', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
   
+  // Diagnostic: Check if Supabase is actually configured
+  if (!supabaseUrl || !supabaseServiceKey || supabaseUrl.includes('placeholder')) {
+    console.error('ACCOUNT CHECK ERROR: Supabase Env Vars Missing');
+    return res.status(500).json({ error: 'Server Configuration Error: Supabase URL/Key missing.' });
+  }
+
   try {
-    const { count } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('email', email);
+    const { count, error } = await supabase.from('customers').select('*', { count: 'exact', head: true }).eq('email', email);
+    if (error) throw error;
     return res.json({ exists: (count || 0) > 0 });
   } catch (e: any) {
     console.error('Check account existence error:', e);

@@ -59,8 +59,8 @@ const SeoFirmProposal: React.FC = () => {
             2026 Market Reality Report
           </div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
-            Google's AI is Stealing Your Clicks. <br/>
-            <span className="text-indigo-600">Product Shift Saves Your Retainers.</span>
+            a lot of SEO teams chase traffic without caring about conversions” <br/>
+            <span className="text-indigo-600">But good SEOs care about both</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Informational queries have seen a <span className="text-black font-black underline decoration-red-500">61% drop in organic CTR</span> since AI Overviews. Stop defending "Page 1" rankings to clients who aren't seeing sales. Document the leak before they fire you.
@@ -193,9 +193,9 @@ const SeoFirmProposal: React.FC = () => {
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 'Blame Shield' PDF in 24h</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Full Pitch Deck & Talk Tracks</li>
               </ul>
-              <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer" className="w-full block text-center bg-black text-white border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg">
+              <Link to="/login?plan=seo-shield&segment=tech" className="w-full block text-center bg-black text-white border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg">
                 Deploy Retainer Shield ($495)
-              </a>
+              </Link>
             </div>
 
             {/* Full Audit Option */}
@@ -211,9 +211,9 @@ const SeoFirmProposal: React.FC = () => {
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> White-Label Pitch Assets</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Portfolio Health Report</li>
               </ul>
-              <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer" className="w-full block text-center bg-gray-100 text-black border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+              <Link to="/login?plan=seo-portfolio&segment=tech" className="w-full block text-center bg-gray-100 text-black border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors">
                 Scale Your Defense ($2,000)
-              </a>
+              </Link>
             </div>
           </div>
         </div>
