@@ -116,42 +116,40 @@ const SeoFirmProposal: React.FC = () => {
 
           {/* Right Column: Interactive Tabs */}
           <div className="lg:sticky lg:top-8">
-            <div className="flex gap-2 mb-4 no-print">
-              <button 
-                onClick={() => setActiveTab('chat')}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl border-2 border-black font-black transition-all ${activeTab === 'chat' ? 'bg-black text-white shadow-[4px_4px_0px_0px_rgba(79,70,229,1)]' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-              >
-                <MessageSquare size={18} /> CRO Strategy Chat
-              </button>
-              <button 
-                onClick={() => setActiveTab('report')}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl border-2 border-black font-black transition-all ${activeTab === 'report' ? 'bg-black text-white shadow-[4px_4px_0px_0px_rgba(236,72,153,1)]' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-              >
-                <FileText size={18} /> See Sample Report
-              </button>
-            </div>
+            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[650px]">
+              {/* Unified Tab Header - Integrated into the Card architecture */}
+              <div className="flex no-print border-b-2 border-black bg-gray-50">
+                <button 
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all border-r-2 border-black ${activeTab === 'chat' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
+                >
+                  <MessageSquare size={18} /> Strategy Chat
+                </button>
+                <button 
+                  onClick={() => setActiveTab('report')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all ${activeTab === 'report' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
+                >
+                  <FileText size={18} /> Sample Report
+                </button>
+              </div>
 
-            <div className="min-h-[500px]">
+              {/* Unified Tab Content Area */}
+              <div className="flex-1 flex flex-col overflow-hidden relative">
               {activeTab === 'chat' ? (
-                <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[600px]">
-                  <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="font-bold text-sm uppercase tracking-widest">Strategy Specialist Live</span>
-                    </div>
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <div className="p-3 bg-gray-900 text-white flex items-center justify-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="font-bold text-[10px] uppercase tracking-[0.2em]">Strategy Specialist Live</span>
                   </div>
                   
-                  {/* Chat Message Area */}
                   <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50">
                     <div className="flex justify-start">
                       <div className="max-w-[80%] bg-white border-2 border-black p-4 rounded-2xl rounded-tl-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         <p className="font-bold text-black italic">"Welcome to the Product Shift SEO Partnership portal. To help me provide the best strategy for your agency, what is the biggest conversion hurdle your clients are facing right now?"</p>
                       </div>
                     </div>
-                    {/* Future messages will be rendered here */}
                   </div>
 
-                  {/* Chat Input Placeholder */}
                   <div className="p-4 border-t-2 border-black bg-white">
                     <div className="flex gap-2">
                       <input 
@@ -167,11 +165,12 @@ const SeoFirmProposal: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="animate-fade-in bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-4">
-                   <p className="text-center text-sm font-bold text-gray-500 mb-4 uppercase tracking-widest">Live Example Report Preview</p>
-                   <DemoSection />
+                <div className="animate-fade-in p-4 overflow-y-auto flex-1 bg-white">
+                  <p className="text-center text-sm font-bold text-gray-500 mb-4 uppercase tracking-widest">Live Example Report Preview</p>
+                  <DemoSection />
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>
