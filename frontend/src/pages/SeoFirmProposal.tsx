@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2 } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
