@@ -67,7 +67,7 @@ const SeoOnboarding: React.FC = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left Panel: Next Steps & Calendly */}
+          {/* Left Panel: Roadmap & Audit Form */}
           <div className="space-y-8 animate-fade-in">
             <NeoCard title="Your Strategy Roadmap">
               <div className="space-y-6">
@@ -95,24 +95,6 @@ const SeoOnboarding: React.FC = () => {
               </div>
             </NeoCard>
 
-            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-              <div className="p-4 bg-gray-900 text-white flex items-center gap-2">
-                <Calendar size={20} />
-                <span className="font-bold uppercase tracking-widest text-sm">Book Strategy Call</span>
-              </div>
-              <div className="h-[600px] bg-gray-50">
-                <iframe 
-                  src="https://calendly.com/jean-kaluza/meeting?hide_event_types=1&hide_landing_page_details=1" 
-                  width="100%" 
-                  height="100%" 
-                  frameBorder="0"
-                ></iframe>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Panel: URL Entry & Results */}
-          <div className="space-y-8 animate-fade-in-up">
             {!result ? (
               <NeoCard title="Immediate Value Generator">
                 <form onSubmit={handleRunAudit} className="space-y-6">
@@ -126,7 +108,7 @@ const SeoOnboarding: React.FC = () => {
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
                         placeholder="client-website.com"
-                        className="w-full p-6 text-xl border-4 border-black rounded-xl focus:outline-none shadow-[4px_4px_0px_0px_#000]"
+                        className="w-full p-6 text-xl border-4 border-black rounded-xl focus:outline-none shadow-[4px_4px_0px_0px_#000] bg-white"
                         required
                       />
                       <button 
@@ -184,6 +166,24 @@ const SeoOnboarding: React.FC = () => {
             )}
 
             {error && <AnalysisErrorCard error={error} onReset={() => setError(null)} />}
+          </div>
+
+          {/* Right Panel: Strategy Call */}
+          <div className="space-y-8 animate-fade-in-up">
+            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+              <div className="p-4 bg-gray-900 text-white flex items-center gap-2">
+                <Calendar size={20} />
+                <span className="font-bold uppercase tracking-widest text-sm">Book Strategy Call</span>
+              </div>
+              <div className="h-[750px] bg-gray-50">
+                <iframe 
+                  src="https://calendly.com/jean-kaluza/meeting?hide_event_types=1&hide_landing_page_details=1" 
+                  width="100%" 
+                  height="100%" 
+                  frameBorder="0"
+                ></iframe>
+              </div>
+            </div>
           </div>
         </div>
       </div>

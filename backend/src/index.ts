@@ -147,6 +147,31 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           stripe_session_id: session.id
         });
       }
+
+      // --- LEAD ALERT: Notify Jean of high-value SEO Shield purchases ---
+      if (session.payment_status === 'paid' && (segment === 'seo-onboarding' || session.metadata?.planId?.startsWith('seo-'))) {
+        try {
+          // Retrieve the payment intent to get the latest charge and receipt URL
+          const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string, { expand: ['latest_charge'] });
+          const receiptUrl = (pi.latest_charge as any)?.receipt_url;
+          
+          const adminHtml = `
+            <div style="font-family: sans-serif; color: #111827; padding: 20px; border: 2px solid #000; border-radius: 12px;">
+              <h2 style="color: #4f46e5; font-size: 24px; font-weight: 900; margin-bottom: 16px;">🔥 NEW RETAINER SHIELD LEAD</h2>
+              <p style="font-size: 16px;"><strong>Customer:</strong> ${customerEmail}</p>
+              <p style="font-size: 16px;"><strong>Revenue:</strong> $${(session.amount_total || 0) / 100} ${session.currency?.toUpperCase()}</p>
+              <p style="font-size: 16px;"><strong>Plan ID:</strong> ${session.metadata?.planId}</p>
+              <p style="font-size: 16px;"><strong>Receipt:</strong> <a href="${receiptUrl}" style="color: #4f46e5; font-weight: bold;">View Stripe Receipt</a></p>
+              <hr style="border: 0; border-top: 2px solid #000; margin: 24px 0;" />
+              <p style="color: #6b7280; font-style: italic;">Strategy Insight: This user is currently on the onboarding page running their first audit.</p>
+            </div>
+          `;
+          
+          await sendEmail('jean@theproductshift.com', `New SEO Shield Purchase: ${customerEmail}`, adminHtml, getPublicUrl());
+        } catch (emailErr) {
+          console.error('Failed to send admin lead alert:', emailErr);
+        }
+      }
       
       // Marketing: Send Welcome Email
       // Webhooks don't have an origin header, so we default to production or use an env var if needed.
