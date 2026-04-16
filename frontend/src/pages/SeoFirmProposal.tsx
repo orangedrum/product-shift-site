@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2 } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
@@ -10,6 +9,32 @@ import { NeoButton } from '../components/NeoButton';
 const SeoFirmProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'report'>('chat');
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState<string | null>(null);
+
+  const handleDirectCheckout = async (planId: string) => {
+    setIsCheckoutLoading(planId);
+    try {
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          planId, 
+          segment: 'tech',
+          promotekit_referral: (window as any).promotekit_referral 
+        })
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Unable to start checkout. Please try again.');
+      }
+    } catch (e) {
+      console.error('Checkout error:', e);
+    } finally {
+      setIsCheckoutLoading(null);
+    }
+  };
 
   // Background Animation Effect
   useEffect(() => {
@@ -60,7 +85,7 @@ const SeoFirmProposal: React.FC = () => {
             2026 Market Reality Report
           </div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
-            a lot of SEO teams chase traffic without caring about conversions” <br/>
+            A lot of SEO teams chase traffic without caring about conversions<br/>
             <span className="text-indigo-600">But good SEOs care about both</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -194,9 +219,13 @@ const SeoFirmProposal: React.FC = () => {
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 'Blame Shield' PDF in 24h</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Full Pitch Deck & Talk Tracks</li>
               </ul>
-              <Link to="/login?plan=seo-shield&segment=tech" className="w-full block text-center bg-black text-white border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg">
-                Deploy Retainer Shield ($495)
-              </Link>
+              <button 
+                onClick={() => handleDirectCheckout('seo-shield')}
+                disabled={!!isCheckoutLoading}
+                className="w-full block text-center bg-black text-white border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg disabled:opacity-50"
+              >
+                {isCheckoutLoading === 'seo-shield' ? 'Initializing...' : 'Deploy Retainer Shield ($495)'}
+              </button>
             </div>
 
             {/* Full Audit Option */}
@@ -212,9 +241,13 @@ const SeoFirmProposal: React.FC = () => {
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> White-Label Pitch Assets</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Portfolio Health Report</li>
               </ul>
-              <Link to="/login?plan=seo-portfolio&segment=tech" className="w-full block text-center bg-gray-100 text-black border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors">
-                Scale Your Defense ($2,000)
-              </Link>
+              <button 
+                onClick={() => handleDirectCheckout('seo-portfolio')}
+                disabled={!!isCheckoutLoading}
+                className="w-full block text-center bg-gray-100 text-black border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                {isCheckoutLoading === 'seo-portfolio' ? 'Initializing...' : 'Scale Your Defense ($2,000)'}
+              </button>
             </div>
           </div>
         </div>

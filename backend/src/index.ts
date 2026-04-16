@@ -572,7 +572,7 @@ app.post('/api/admin/test-email', async (req, res) => {
 // --- Create Checkout Session ---
 app.post('/api/create-checkout-session', async (req, res) => {
   const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
-  if (!planId || !email) return res.status(400).json({ error: 'Missing parameters' });
+  if (!planId) return res.status(400).json({ error: 'Missing parameters' });
 
   const baseUrl = getPublicUrl(req);
   const successUrl = `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&segment=${segment || 'tech'}`;
@@ -581,7 +581,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const sessionConfig: any = {
       payment_method_types: ['card'],
-      customer_email: email,
+      ...(email ? { customer_email: email } : {}),
       line_items: [],
       mode: 'payment',
       success_url: successUrl,
