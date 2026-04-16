@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { supabase, sendEmail, delay, processReferrerReward } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
-import { AGGREGATED_REPORT_PROMPT, USER_SESSION_PROMPT, cleanseTranscript, Persona } from './prompts';
+import { AGGREGATED_REPORT_PROMPT, USER_SESSION_PROMPT, cleanseTranscript, type Persona } from './prompts';
 
 // --- Types ---
 type ScrapedData = {
@@ -13,7 +13,7 @@ type ScrapedData = {
 };
 
 // --- Personas Configuration ---
-const personas: Record<string, Persona> = {
+export const personas: Record<string, Persona> = {
   'alex-busy-pro': { id: 'alex-busy-pro', name: 'Alex', description: 'a busy professional with two kids under 5', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Alexandra' },
   'sam-college-student': { id: 'sam-college-student', name: 'Sam', description: 'a budget-conscious college student', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sam' },
   'charlie-family-worker': { id: 'charlie-family-worker', name: 'Charlie', description: 'a masculine, patriotic blue-collar worker', avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Charlie' },
@@ -26,7 +26,7 @@ const personas: Record<string, Persona> = {
 
 // --- Helper Functions ---
 
-const normalizeUrl = (input: string) => {
+export const normalizeUrl = (input: string) => {
   let url = input.trim();
   // Fix double protocol (e.g. https://https://) caused by double-pasting into a pre-filled field
   while (/^https?:\/\/https?:\/\//i.test(url)) {
@@ -39,7 +39,7 @@ const normalizeUrl = (input: string) => {
   return url;
 };
 
-const scrapeUrl = async (url: string) => {
+export const scrapeUrl = async (url: string) => {
   const browserlessToken = process.env.BROWSERLESS_TOKEN;
   if (!browserlessToken) throw new Error('BROWSERLESS_TOKEN is missing in environment variables.');
 
@@ -51,7 +51,7 @@ const scrapeUrl = async (url: string) => {
         const url = context.url;
         // Optimize: Use domcontentloaded + short sleep instead of networkidle2 to prevent timeouts on heavy sites
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
-        await new Promise(r => setTimeout(r, 2000)); // Allow 2s for basic hydration/fonts
+        await new Promise(r => setTimeout(r, 5000)); // CTO UPDATE: Increased to 5s to ensure full hydration/rendering for accuracy
         const title = await page.title();
         const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
         const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText })));
@@ -94,7 +94,7 @@ export const generateStructuredData = (url: string, title: string, scores: any, 
   };
 };
 
-const generateUserSession = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
+export const generateUserSession = async (data: ScrapedData, persona: Persona, goal: string, url: string): Promise<string> => {
   const prompt = `
     You are facilitating a usability test session.
     **Context:**
@@ -130,7 +130,7 @@ const generateUserSession = async (data: ScrapedData, persona: Persona, goal: st
   return generateContentWithFallback(prompt, data.screenshot);
 };
 
-const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
+export const generateAggregatedReport = async (data: ScrapedData, sessions: { persona: Persona, output: string }[], goal: string, url: string, isDemo: boolean): Promise<string> => {
   let footerContent = `
     ---
     **The Product Shift** | AI-Powered UX Audits
@@ -156,7 +156,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
   let userIdentifier: string | undefined;
 
   try {
-    const { url: rawUrl, personaIds, goal, email } = req.body;
+    const { url: rawUrl, personaIds, goal, email, segment } = req.body;
 
     if (!rawUrl || !personaIds || !goal) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -193,9 +193,15 @@ export const runTestHandler = async (req: Request, res: Response) => {
       let { data: customer } = await supabase.from('customers').select('*').eq('email', safeEmail).maybeSingle();
       
       if (!customer) {
+          // CTO UPDATE: Granting 50 credits upon first test if user doesn't exist yet.
           const { data: newCust, error: createErr } = await supabase
               .from('customers')
-              .insert({ email: safeEmail, credits: 5, plan_status: 'free' })
+              .insert({ 
+                email: safeEmail, 
+                credits: 50, 
+                plan_status: 'free',
+                segment: segment || 'smb'
+              })
               .select()
               .single();
           if (!createErr) customer = newCust;

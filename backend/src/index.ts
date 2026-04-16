@@ -17,6 +17,8 @@ console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
 export const calculateCreditsByAmount = (amountTotal: number, metadataCredits?: string) => {
   if (amountTotal === 1400) return 9;   // $14 = 3 Tests
   if (amountTotal === 6900) return 45;  // $69 = 15 Tests
+  if (amountTotal === 49500) return 50; // $495 = 50 Credits (Requested)
+  if (amountTotal === 200000) return 200; // $2,000 = 200 Credits
   return parseInt(metadataCredits || '0', 10);
 };
 
@@ -673,6 +675,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       });
+      sessionConfig.metadata.credits = '50';
     } else if (planId === 'seo-portfolio') {
       sessionConfig.line_items.push({
         price_data: {
@@ -682,6 +685,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       });
+      sessionConfig.metadata.credits = '200';
     } else {
       return res.status(400).json({ error: 'Invalid plan ID' });
     }
@@ -855,7 +859,8 @@ app.get('/api/user/check-account', authenticateRequest, async (req, res) => {
 
     // If customer does not exist, create them (lazy initialization)
     if (!customer) {
-      const initialCredits = skipCredits ? 0 : 5;
+      // CTO UPDATE: Defaulting new users to 50 credits to ensure a successful first experience.
+      const initialCredits = skipCredits ? 0 : 50;
       console.log(`New user detected: ${user.email}. Granting ${initialCredits} credits.`);
       const { data: newCustomer, error: insertError } = await supabase
         .from('customers')

@@ -29,6 +29,12 @@ const SeoOnboarding: React.FC = () => {
     return () => clearInterval(interval);
   }, [isLoading]);
 
+  // Safety: If someone lands here without an email (session loss), redirect to login
+  // so they get their session and credits back before trying a test.
+  useEffect(() => {
+    if (!email && !isLoading && !result) navigate('/login?segment=smb');
+  }, [email, navigate, isLoading, result]);
+
   const handleRunAudit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -45,7 +51,8 @@ const SeoOnboarding: React.FC = () => {
           url: fullUrl, 
           personaIds: ['alex-busy-pro', 'marcus-c-suite', 'sarah-social-shopper'],
           goal: 'Identify why conversion volume is low despite ranking well.',
-          email: email
+          email: email,
+          segment: 'smb'
         })
       });
       const data = await res.json();
@@ -75,7 +82,7 @@ const SeoOnboarding: React.FC = () => {
                   <div className="flex-shrink-0 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold border-2 border-white shadow-sm">1</div>
                   <div>
                     <p className="font-black text-lg">Run your first 'Blame Shield'</p>
-                    <p className="text-gray-600 text-sm">Enter a client URL to the right. We'll generate a high-impact UX autopsy you can take into your next retention meeting.</p>
+                    <p className="text-gray-600 text-sm">Enter a client URL below. We'll generate a high-impact UX autopsy you can take into your next retention meeting.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
