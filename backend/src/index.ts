@@ -685,7 +685,12 @@ app.post('/api/verify-payment', async (req, res) => {
     if (payment) {
       // Check if this is the first payment
       const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', (payment as any)?.email || '').eq('status', 'paid');
-      return res.json({ verified: true, status: payment.status, isFirstPayment: count === 1 });
+      return res.json({ 
+        verified: true, 
+        status: payment.status, 
+        isFirstPayment: count === 1,
+        email: (payment as any).email 
+      });
     }
 
     // 2. Check Stripe directly (Fallback if webhook is slow)
@@ -741,7 +746,12 @@ app.post('/api/verify-payment', async (req, res) => {
     // Check payment count for first payment flag
     const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', session.customer_details?.email || '').eq('status', 'paid');
 
-    return res.json({ verified: session.payment_status === 'paid', status: session.payment_status, isFirstPayment: (count || 0) <= 1 });
+    return res.json({ 
+      verified: session.payment_status === 'paid', 
+      status: session.payment_status, 
+      isFirstPayment: (count || 0) <= 1,
+      email: session.customer_details?.email
+    });
   } catch (e: any) {
     console.error('Verify Payment Error:', e);
     return res.status(500).json({ error: e.message });

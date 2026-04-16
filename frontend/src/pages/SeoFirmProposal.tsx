@@ -19,7 +19,7 @@ const SeoFirmProposal: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           planId, 
-          segment: 'tech',
+          segment: 'seo-onboarding',
           promotekit_referral: (window as any).promotekit_referral 
         })
       });

@@ -40,6 +40,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdamLaneSmithProposal from './pages/AdamLaneSmithProposal';
 import FactoringFirmProposal from './pages/FactoringFirmProposal';
 import SeoFirmProposal from './pages/SeoFirmProposal';
+import SeoOnboarding from './pages/SeoOnboarding';
 
 
 const App: React.FC = () => {
@@ -73,6 +74,7 @@ const App: React.FC = () => {
     '/proposal/adam-lane-smith',
     '/factoring-firm-proposal',
     '/seo-firm-proposal',
+    '/seo-onboarding',
     '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login');
@@ -174,6 +176,7 @@ const App: React.FC = () => {
           <Route path="/proposal/adam-lane-smith" element={<AdamLaneSmithProposal />} />
           <Route path="/factoring-firm-proposal" element={<FactoringFirmProposal />} />
           <Route path="/seo-firm-proposal" element={<SeoFirmProposal />} />
+          <Route path="/seo-onboarding" element={<SeoOnboarding />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />

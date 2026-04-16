@@ -9,6 +9,7 @@ const PaymentConfirmation = () => {
   const sessionId = searchParams.get('session_id');
   const segment = searchParams.get('segment');
   const [status, setStatus] = useState<'loading' | 'success' | 'timeout'>('loading');
+  const [customerEmail, setCustomerEmail] = useState<string | null>(null);
   const [verifiedViaApi, setVerifiedViaApi] = useState(false);
   const [isFirstPayment, setIsFirstPayment] = useState(false);
 
@@ -31,7 +32,11 @@ const PaymentConfirmation = () => {
     if (verifiedViaApi) {
       setStatus('success');
       const timer = setTimeout(() => {
-        navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}${isFirstPayment ? '&first_buy=true' : ''}`);
+        if (segment === 'seo-onboarding') {
+          navigate(`/seo-onboarding?email=${encodeURIComponent(customerEmail || '')}&session_id=${sessionId}`);
+        } else {
+          navigate(`/ai-powered-ux?new_credit=true${segment ? `&segment=${segment}` : ''}${isFirstPayment ? '&first_buy=true' : ''}`);
+        }
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -40,7 +45,7 @@ const PaymentConfirmation = () => {
 
     const startChecks = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      // FIX: Do not return early if session is missing. We can still verify the payment via API.
 
       // 2. Trigger API Verification (Fire & Forget)
       // This runs in parallel with DB polling.
@@ -53,6 +58,7 @@ const PaymentConfirmation = () => {
       .then(data => {
         if (data.verified) {
           if (data.isFirstPayment) setIsFirstPayment(true);
+          if (data.email) setCustomerEmail(data.email);
           setVerifiedViaApi(true); // Triggers re-render -> Fast Lane
         }
       })
@@ -76,8 +82,11 @@ const PaymentConfirmation = () => {
           clearInterval(pollInterval);
           
           // Check if this is the first payment (Explicit check to avoid stale state closure)
-          const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', session.user.email).eq('status', 'paid');
-          const isFirst = count === 1;
+          let isFirst = false;
+          if (session?.user?.email) {
+            const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('email', session.user.email).eq('status', 'paid');
+            isFirst = count === 1;
+          }
 
           setStatus('success');
           // Short delay to show the success state before redirecting
