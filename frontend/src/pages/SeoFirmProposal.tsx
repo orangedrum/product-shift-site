@@ -19,13 +19,17 @@ const SeoFirmProposal: React.FC = () => {
   const [isEmailing, setIsEmailing] = useState(false);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { sender: 'bot', text: "Mission Control active. Google's AI Overviews (SGE) have triggered a 61% drop in CTR for informational keywords. How many clients does your agency currently manage?" }
+    { sender: 'bot', text: "Let's do the math. How many clients does your agency currently manage?" }
   ]);
   const monthsLeft = 12 - new Date().getMonth();
 
   const scrollToBottom = () => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    const container = chatContainerRef.current;
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -138,7 +142,9 @@ const SeoFirmProposal: React.FC = () => {
         }
         break;
       case 4: // Hiring Cost
-        setUserData(prev => ({ ...prev, hiringCost: numVal }));
+        // CTO Logic: If they enter > 15000, assume it's annual and divide by 12
+        const monthlyRate = numVal > 15000 ? Math.round(numVal / 12) : numVal;
+        setUserData(prev => ({ ...prev, hiringCost: monthlyRate }));
         botReply = "Final question: On a scale of 1-10, how concerned are you about the SGE/GEO market shifts?";
         break;
       case 5: // Concern & The Math
@@ -284,7 +290,7 @@ const SeoFirmProposal: React.FC = () => {
 
           {/* Right Column: Interactive Tabs */}
           <div className="lg:sticky lg:top-8">
-            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[600px]">
+            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[500px]">
               {/* Unified Tab Header - Integrated into the Card architecture */}
               <div className="flex no-print border-b-2 border-black bg-gray-50">
                 <button 
