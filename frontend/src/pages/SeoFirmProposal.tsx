@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2 } from 'lucide-react';
+import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2, ArrowRight } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { DemoSection } from '../components/DemoSection';
@@ -21,11 +21,16 @@ const SeoFirmProposal: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<any[]>([
     { sender: 'bot', text: "Mission Control active. Google's AI Overviews (SGE) have triggered a 61% drop in CTR for informational keywords. How many clients does your agency currently manage?" }
   ]);
+  const monthsLeft = 12 - new Date().getMonth();
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
+  };
+
+  const scrollToPricing = () => {
+    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -60,13 +65,30 @@ const SeoFirmProposal: React.FC = () => {
   const handleSendMessage = (e?: React.FormEvent, choice?: string) => {
     if (e) e.preventDefault();
     const sanitizeNum = (val: string) => parseInt(val.replace(/[^0-9]/g, '')) || -1; // -1 to detect "No number provided"
-    const monthsLeft = 12 - new Date().getMonth();
     
     const value = choice || chatInput;
     if (!value && chatStep !== 3 && chatStep !== 7) return;
 
-    // If we are in the email step, handle it separately
+    // --- NEW: Functional Email Logic ---
     if (chatStep === 7) {
+       const annualRisk = userData.retainer * monthsLeft;
+       const plannedHiringSpend = userData.hiring ? (userData.hiringCost * monthsLeft) : 0;
+       const totalExposure = annualRisk + plannedHiringSpend;
+       const roi = totalExposure > 0 ? (totalExposure / 495).toFixed(0) : "72";
+
+       fetch('/api/seo/email-math', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           targetEmail: value,
+           retainer: userData.retainer,
+           hiringCost: userData.hiringCost,
+           totalExposure,
+           monthsLeft,
+           roi
+         })
+       }).catch(console.error);
+
        setChatMessages(prev => [...prev, { sender: 'user', text: value }, { sender: 'bot', text: (
          <div className="flex items-center gap-2 text-green-600 font-bold">
            <CheckCircle2 size={18} /> Breakdown sent to {value}!
@@ -208,7 +230,7 @@ const SeoFirmProposal: React.FC = () => {
           <div className="inline-block px-4 py-1 mb-6 text-sm font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 rounded-full border border-indigo-100">
             2026 Market Reality Report
           </div>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 leading-tight">
             A lot of SEO teams chase traffic without caring about conversions<br/>
             <span className="text-indigo-600">But good SEOs care about both</span>
           </h1>
@@ -217,7 +239,7 @@ const SeoFirmProposal: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+        <div className="grid lg:grid-cols-2 gap-12 items-start mb-24">
           {/* Left Column: Bullet Points */}
           <div className="space-y-8">
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -283,7 +305,7 @@ const SeoFirmProposal: React.FC = () => {
               <div className="flex-1 flex flex-col overflow-hidden relative">
                 {activeTab === 'chat' ? (
                   <div className="flex-1 flex flex-col overflow-hidden">
-                    <div className="p-3 bg-gray-900 text-white flex items-center justify-center gap-2">
+                    <div className="p-3 bg-black text-white flex items-center justify-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
                       <span className="font-bold text-[10px] uppercase tracking-[0.2em]">Strategy Specialist Live</span>
                     </div>

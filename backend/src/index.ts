@@ -802,6 +802,44 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
   return runTestHandler(req, res);
 });
 
+// --- SEO Strategy: Email Math Breakdown ---
+app.post('/api/seo/email-math', async (req, res) => {
+  const { targetEmail, retainer, hiringCost, totalExposure, monthsLeft, roi } = req.body;
+  if (!targetEmail) return res.status(400).json({ error: 'Email required' });
+
+  const baseUrl = getPublicUrl();
+  const emailHtml = `
+    <div style="font-family: sans-serif; color: #111827; max-width: 600px; margin: 0 auto; border: 4px solid #000; padding: 32px; border-radius: 16px;">
+      <h1 style="font-size: 24px; font-weight: 900; text-transform: uppercase; margin-bottom: 24px;">Retainer Risk Analysis</h1>
+      <p style="font-size: 18px; font-weight: bold; margin-bottom: 16px;">We've identified a 2026 financial exposure of <span style="color: #ef4444;">$${totalExposure.toLocaleString()}</span>.</p>
+      
+      <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+        <h2 style="font-size: 14px; font-weight: 900; color: #6b7280; text-transform: uppercase; margin-bottom: 12px;">Calculation Breakdown:</h2>
+        <ul style="list-style: none; padding: 0;">
+          <li style="margin-bottom: 8px;"><strong>Monthly Retainer Risk:</strong> $${retainer.toLocaleString()}</li>
+          ${hiringCost > 0 ? `<li style="margin-bottom: 8px;"><strong>Monthly Planned Hiring:</strong> $${hiringCost.toLocaleString()}</li>` : ''}
+          <li style="margin-bottom: 8px; border-top: 1px solid #d1d5db; padding-top: 8px;"><strong>Months Remaining in 2026:</strong> ${monthsLeft}</li>
+        </ul>
+      </div>
+
+      <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 16px;">The Strategic Solution:</h2>
+      <p style="line-height: 1.5; margin-bottom: 24px;">Our <strong>Emergency Retainer Shield</strong> is a one-time $495 audit performed by Disney-vetted UX researchers. It provides the qualitative "Blame Shield" you need to prove the website is the leak, not your traffic. That is a <strong>${roi}x ROI</strong> compared to your current exposure.</p>
+      
+      <a href="${baseUrl}/seo-firm-proposal" style="display: block; background-color: #000; color: #fff; text-align: center; padding: 16px; border-radius: 8px; text-decoration: none; font-weight: 900; text-transform: uppercase;">Review the Full Proposal</a>
+      
+      <p style="text-align: center; margin-top: 32px; font-style: italic; color: #9ca3af; font-size: 12px;">Generated via User Mirror Strategy Specialist</p>
+    </div>
+  `;
+
+  try {
+    await sendEmail(targetEmail, 'Urgent: 2026 Retainer Math Breakdown', emailHtml, baseUrl);
+    res.json({ success: true });
+  } catch (e: any) {
+    console.error('Email Math Error:', e);
+    res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
 // --- Deep Performance Audit Route ---
 app.post('/api/run-deep-audit', authenticateRequest, runDeepAuditHandler);
 
