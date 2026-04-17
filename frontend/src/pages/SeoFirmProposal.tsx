@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { DemoSection } from '../components/DemoSection';
@@ -8,8 +9,23 @@ import { NeoButton } from '../components/NeoButton';
 
 const SeoFirmProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'report'>('chat');
   const [isCheckoutLoading, setIsCheckoutLoading] = useState<string | null>(null);
+  const [chatStep, setChatStep] = useState(0);
+  const [chatInput, setChatInput] = useState('');
+  const [userData, setUserData] = useState({ clients: 0, atRisk: 0, retainer: 0, hiring: false, hiringCost: 0, concern: 0 });
+  const [chatMessages, setChatMessages] = useState<any[]>([
+    { sender: 'bot', text: "Mission Control active. Google's AI Overviews (SGE) have triggered a 61% drop in CTR for informational keywords. How many clients does your agency currently manage?" }
+  ]);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (activeTab === 'chat') scrollToBottom();
+  }, [chatMessages, activeTab]);
 
   const handleDirectCheckout = async (planId: string) => {
     setIsCheckoutLoading(planId);
@@ -34,6 +50,65 @@ const SeoFirmProposal: React.FC = () => {
     } finally {
       setIsCheckoutLoading(null);
     }
+  };
+
+  const handleSendMessage = (e?: React.FormEvent, choice?: string) => {
+    if (e) e.preventDefault();
+    const value = choice || chatInput;
+    if (!value && chatStep !== 3) return;
+
+    // 1. Log user reply
+    const newMessages = [...chatMessages, { sender: 'user', text: value }];
+    setChatInput('');
+
+    // 2. Determine Bot Response logic
+    let botReply: any = "";
+    let nextStep = chatStep + 1;
+
+    switch (chatStep) {
+      case 0: // Client count
+        setUserData({ ...userData, clients: parseInt(value) || 0 });
+        botReply = "Understood. And how many of those clients are currently questioning results or blaming you for 'low sales'?";
+        break;
+      case 1: // At Risk
+        setUserData({ ...userData, atRisk: parseInt(value) || 0 });
+        botReply = "What is the combined monthly retainer value (revenue) of those specific clients combined? (Rough estimate is fine)";
+        break;
+      case 2: // Retainer value
+        setUserData({ ...userData, retainer: parseInt(value) || 0 });
+        botReply = "Are you currently hiring (or planning to hire) for CRO, Client Success, or Retention roles to solve this?";
+        break;
+      case 3: // Hiring?
+        const isHiring = value.toLowerCase() === 'yes';
+        setUserData({ ...userData, hiring: isHiring });
+        if (isHiring) {
+          botReply = "What do you estimate that specific role costing your agency per month (Salary + Overhead)?";
+        } else {
+          botReply = "Scale of 1-10: How concerned are you about the 61% Organic CTR drop impacting your product value in 2026?";
+          nextStep = 5; // Skip salary question
+        }
+        break;
+      case 4: // Hiring Cost
+        setUserData({ ...userData, hiringCost: parseInt(value) || 0 });
+        botReply = "Final question: On a scale of 1-10, how concerned are you about the SGE/GEO market shifts?";
+        break;
+      case 5: // Concern & The Math
+        const annualRisk = userData.retainer * 12;
+        const roi = annualRisk > 0 ? (annualRisk / 495).toFixed(0) : "72";
+        botReply = (
+          <div className="space-y-4">
+            <p className="font-bold">The Math is clear: You have <span className="text-red-600 font-black">${annualRisk.toLocaleString()} per year</span> in revenue at risk.</p>
+            <p className="text-sm">Our one-time $495 <strong>Emergency Retainer Shield</strong> is a <span className="font-black text-green-600">{roi}x ROI</span> if just one account is saved. Does it make sense to deploy the shield?</p>
+            <div className="flex flex-col gap-3">
+              <NeoButton onClick={() => handleDirectCheckout('seo-shield')} className="w-full">Deploy Retainer Shield Now</NeoButton>
+              <Link to="/login?segment=smb" className="text-xs text-center font-bold text-gray-500 hover:text-black underline">Or try our DIY User Mirror (Start Free)</Link>
+            </div>
+          </div>
+        );
+        break;
+    }
+    setChatMessages([...newMessages, { sender: 'bot', text: botReply }]);
+    setChatStep(nextStep);
   };
 
   // Background Animation Effect
@@ -160,30 +235,73 @@ const SeoFirmProposal: React.FC = () => {
                 {activeTab === 'chat' ? (
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <div className="p-3 bg-gray-900 text-white flex items-center justify-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
                       <span className="font-bold text-[10px] uppercase tracking-[0.2em]">Strategy Specialist Live</span>
                     </div>
                     
                     <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50">
-                      <div className="flex justify-start">
-                        <div className="max-w-[80%] bg-white border-2 border-black p-4 rounded-2xl rounded-tl-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <p className="font-bold text-black italic">"Welcome to the Retainer Shield Portal. SEO Agencies are currently facing a 61% CTR Cliff. Which client of yours is currently most at-risk of churning due to 'low lead volume'?"</p>
+                      {chatMessages.map((msg, idx) => (
+                        <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                          <div className={`max-w-[85%] border-2 border-black p-4 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-black rounded-tl-none'}`}>
+                            {typeof msg.text === 'string' ? <p className="font-bold italic">"{msg.text}"</p> : msg.text}
+                          </div>
                         </div>
-                      </div>
+                      ))}
+                      <div ref={chatEndRef} />
                     </div>
 
                     <div className="p-4 border-t-2 border-black bg-white">
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          disabled 
-                          placeholder="Chat logic coming in next step..." 
-                          className="flex-1 p-3 border-2 border-gray-200 rounded-lg bg-gray-50 italic"
-                        />
-                        <NeoButton variant="primary" disabled className="px-4">
-                          <Send size={18} />
-                        </NeoButton>
-                      </div>
+                      {chatStep === 3 ? (
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleSendMessage(undefined, 'Yes')}
+                            className="flex-1 py-4 border-2 border-black rounded-xl font-black bg-green-500 hover:bg-green-600 shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000] transition-all"
+                          >
+                            YES
+                          </button>
+                          <button 
+                            onClick={() => handleSendMessage(undefined, 'No')}
+                            className="flex-1 py-4 border-2 border-black rounded-xl font-black bg-white hover:bg-gray-50 shadow-[4px_4px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000] transition-all"
+                          >
+                            NO
+                          </button>
+                        </div>
+                      ) : chatStep < 6 ? (
+                        <form onSubmit={handleSendMessage} className="flex gap-2">
+                          <input 
+                            type="text" 
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            placeholder={
+                              chatStep === 0 ? "Enter client count..." :
+                              chatStep === 1 ? "How many are blaming you?" :
+                              chatStep === 2 ? "Enter total monthly revenue..." :
+                              chatStep === 4 ? "Enter monthly salary estimate..." :
+                              chatStep === 5 ? "Concern scale (1-10)..." :
+                              "Type your answer..."
+                            }
+                            className="flex-1 p-3 border-2 border-black rounded-lg bg-white font-bold focus:outline-none focus:shadow-[2px_2px_0px_0px_#4f46e5]"
+                          />
+                          <button 
+                            type="submit"
+                            className="bg-black text-white p-3 rounded-lg border-2 border-black hover:bg-gray-800 transition-colors"
+                          >
+                            <Send size={18} />
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="text-center">
+                          <button 
+                            onClick={() => {
+                              setChatStep(0);
+                              setChatMessages([{ sender: 'bot', text: "Mission Control active. How many clients does your agency manage right now?" }]);
+                            }}
+                            className="text-xs font-black text-gray-400 hover:text-black uppercase tracking-widest flex items-center justify-center gap-1 mx-auto transition-colors"
+                          >
+                            <RefreshCw size={10} /> Restart Math Analysis
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
