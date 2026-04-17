@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw } from 'lucide-react';
+import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2 } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { DemoSection } from '../components/DemoSection';
@@ -10,17 +10,22 @@ import { NeoButton } from '../components/NeoButton';
 const SeoFirmProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'report'>('chat');
   const [isCheckoutLoading, setIsCheckoutLoading] = useState<string | null>(null);
   const [chatStep, setChatStep] = useState(0);
   const [chatInput, setChatInput] = useState('');
   const [userData, setUserData] = useState({ clients: 0, atRisk: 0, retainer: 0, hiring: false, hiringCost: 0, concern: 0 });
+  const [isEmailing, setIsEmailing] = useState(false);
+
   const [chatMessages, setChatMessages] = useState<any[]>([
     { sender: 'bot', text: "Mission Control active. Google's AI Overviews (SGE) have triggered a 61% drop in CTR for informational keywords. How many clients does your agency currently manage?" }
   ]);
 
   const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -54,31 +59,50 @@ const SeoFirmProposal: React.FC = () => {
 
   const handleSendMessage = (e?: React.FormEvent, choice?: string) => {
     if (e) e.preventDefault();
-    const sanitizeNum = (val: string) => parseInt(val.replace(/[^0-9]/g, '')) || 0;
+    const sanitizeNum = (val: string) => parseInt(val.replace(/[^0-9]/g, '')) || -1; // -1 to detect "No number provided"
     const monthsLeft = 12 - new Date().getMonth();
     
     const value = choice || chatInput;
-    if (!value && chatStep !== 3) return;
+    if (!value && chatStep !== 3 && chatStep !== 7) return;
 
-    // 1. Log user reply
+    // If we are in the email step, handle it separately
+    if (chatStep === 7) {
+       setChatMessages(prev => [...prev, { sender: 'user', text: value }, { sender: 'bot', text: (
+         <div className="flex items-center gap-2 text-green-600 font-bold">
+           <CheckCircle2 size={18} /> Breakdown sent to {value}!
+         </div>
+       )}]);
+       setChatInput('');
+       setChatStep(8);
+       return;
+    }
+
     const newMessages = [...chatMessages, { sender: 'user', text: value.toString() }];
     setChatInput('');
 
-    // 2. Determine Bot Response logic
     let botReply: any = "";
     let nextStep = chatStep + 1;
 
+    const numVal = sanitizeNum(value);
+    const isInvalidNum = numVal === -1 && ![3, 5].includes(chatStep);
+
+    if (isInvalidNum) {
+       botReply = "I didn't quite catch a number there. Could you specify that amount again so I can calculate your risk accurately?";
+       setChatMessages([...newMessages, { sender: 'bot', text: botReply }]);
+       return; // Don't advance
+    }
+
     switch (chatStep) {
       case 0: // Client count
-        setUserData(prev => ({ ...prev, clients: sanitizeNum(value) }));
+        setUserData(prev => ({ ...prev, clients: numVal }));
         botReply = "Understood. And how many of those clients are currently questioning results or blaming you for 'low sales'?";
         break;
       case 1: // At Risk
-        setUserData(prev => ({ ...prev, atRisk: sanitizeNum(value) }));
+        setUserData(prev => ({ ...prev, atRisk: numVal }));
         botReply = "What is the combined monthly retainer value (revenue) of those specific clients combined? (Rough estimate is fine)";
         break;
       case 2: // Retainer value
-        setUserData(prev => ({ ...prev, retainer: sanitizeNum(value) }));
+        setUserData(prev => ({ ...prev, retainer: numVal }));
         botReply = "Are you currently hiring (or planning to hire) for CRO, Client Success, or Retention roles to solve this?";
         break;
       case 3: // Hiring?
@@ -92,10 +116,11 @@ const SeoFirmProposal: React.FC = () => {
         }
         break;
       case 4: // Hiring Cost
-        setUserData(prev => ({ ...prev, hiringCost: sanitizeNum(value) }));
+        setUserData(prev => ({ ...prev, hiringCost: numVal }));
         botReply = "Final question: On a scale of 1-10, how concerned are you about the SGE/GEO market shifts?";
         break;
       case 5: // Concern & The Math
+        setUserData(prev => ({ ...prev, concern: numVal }));
         const remainingRetainerRisk = userData.retainer * monthsLeft;
         const plannedHiringSpend = userData.hiring ? (userData.hiringCost * monthsLeft) : 0;
         const totalExposure = remainingRetainerRisk + plannedHiringSpend;
@@ -106,12 +131,26 @@ const SeoFirmProposal: React.FC = () => {
             <div className="p-3 bg-red-50 border-2 border-red-200 rounded-lg">
               <p className="font-bold text-red-900">Total 2026 Financial Exposure:</p>
               <p className="text-3xl font-black text-red-600">${totalExposure.toLocaleString()}</p>
-              <p className="text-[10px] text-red-700 uppercase font-bold mt-1">Based on {monthsLeft} months remaining + {userData.hiring ? 'Planned Hiring Budget' : 'Retainer Risk'}</p>
+              <div className="mt-3 pt-3 border-t border-red-200 space-y-1">
+                 <p className="text-[10px] text-red-700 flex justify-between"><span>Monthly Retainer Risk:</span> <span>${userData.retainer.toLocaleString()}</span></p>
+                 {userData.hiring && <p className="text-[10px] text-red-700 flex justify-between"><span>Planned Hiring Spend:</span> <span>${userData.hiringCost.toLocaleString()}</span></p>}
+                 <p className="text-[10px] text-red-700 flex justify-between font-black"><span>Exposure Period:</span> <span>{monthsLeft} Months</span></p>
+              </div>
             </div>
-            <p className="text-sm font-medium text-gray-700">The math is clear. Our $495 <strong>Retainer Shield</strong> is a <span className="font-black text-green-600">{roi}x ROI</span> compared to your projected spend or potential losses. Shall we deploy the shield?</p>
+            <p className="text-sm font-medium text-gray-700 leading-relaxed">
+              The math is clear. Our $495 <strong>Retainer Shield</strong> is a <span className="font-black text-green-600">{roi}x ROI</span> compared to your potential losses. 
+            </p>
             <div className="flex flex-col gap-3">
               <NeoButton onClick={() => handleDirectCheckout('seo-shield')} className="w-full">Deploy Retainer Shield Now</NeoButton>
-              <Link to="/login?segment=smb" className="text-xs text-center font-bold text-gray-500 hover:text-black underline">Or try our DIY User Mirror (Start Free)</Link>
+              <div className="flex items-center gap-2">
+                 <button 
+                   onClick={() => { setChatStep(7); setChatMessages(prev => [...prev, { sender: 'bot', text: "Who should I send this breakdown to? Enter their email below:" }]); }}
+                   className="flex-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-1 border-2 border-indigo-100 rounded-lg py-2"
+                 >
+                   <Mail size={12} /> Email Work to Team
+                 </button>
+                 <Link to="/login?segment=smb" className="flex-1 text-[10px] text-center font-bold text-gray-400 hover:text-black underline">Or try DIY Tool</Link>
+              </div>
             </div>
           </div>
         );
@@ -249,7 +288,7 @@ const SeoFirmProposal: React.FC = () => {
                       <span className="font-bold text-[10px] uppercase tracking-[0.2em]">Strategy Specialist Live</span>
                     </div>
                     
-                    <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50">
+                    <div ref={chatContainerRef} className="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50 scroll-smooth">
                       {chatMessages.map((msg, idx) => (
                         <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
                           <div className={`max-w-[85%] border-2 border-black p-4 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-black rounded-tl-none'}`}>
@@ -276,13 +315,14 @@ const SeoFirmProposal: React.FC = () => {
                             NO
                           </button>
                         </div>
-                      ) : chatStep < 6 ? (
+                      ) : chatStep < 6 || chatStep === 7 ? (
                         <form onSubmit={handleSendMessage} className="flex gap-2">
                           <input 
-                            type="text" 
+                            type={chatStep === 7 ? "email" : "text"} 
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
                             placeholder={
+                              chatStep === 7 ? "Enter team email..." :
                               chatStep === 0 ? "Enter client count..." :
                               chatStep === 1 ? "How many are blaming you?" :
                               chatStep === 2 ? "Enter total monthly revenue..." :
