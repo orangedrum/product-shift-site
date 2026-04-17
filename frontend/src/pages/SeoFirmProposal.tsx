@@ -54,11 +54,14 @@ const SeoFirmProposal: React.FC = () => {
 
   const handleSendMessage = (e?: React.FormEvent, choice?: string) => {
     if (e) e.preventDefault();
+    const sanitizeNum = (val: string) => parseInt(val.replace(/[^0-9]/g, '')) || 0;
+    const monthsLeft = 12 - new Date().getMonth();
+    
     const value = choice || chatInput;
     if (!value && chatStep !== 3) return;
 
     // 1. Log user reply
-    const newMessages = [...chatMessages, { sender: 'user', text: value }];
+    const newMessages = [...chatMessages, { sender: 'user', text: value.toString() }];
     setChatInput('');
 
     // 2. Determine Bot Response logic
@@ -67,15 +70,15 @@ const SeoFirmProposal: React.FC = () => {
 
     switch (chatStep) {
       case 0: // Client count
-        setUserData({ ...userData, clients: parseInt(value) || 0 });
+        setUserData(prev => ({ ...prev, clients: sanitizeNum(value) }));
         botReply = "Understood. And how many of those clients are currently questioning results or blaming you for 'low sales'?";
         break;
       case 1: // At Risk
-        setUserData({ ...userData, atRisk: parseInt(value) || 0 });
+        setUserData(prev => ({ ...prev, atRisk: sanitizeNum(value) }));
         botReply = "What is the combined monthly retainer value (revenue) of those specific clients combined? (Rough estimate is fine)";
         break;
       case 2: // Retainer value
-        setUserData({ ...userData, retainer: parseInt(value) || 0 });
+        setUserData(prev => ({ ...prev, retainer: sanitizeNum(value) }));
         botReply = "Are you currently hiring (or planning to hire) for CRO, Client Success, or Retention roles to solve this?";
         break;
       case 3: // Hiring?
@@ -89,16 +92,23 @@ const SeoFirmProposal: React.FC = () => {
         }
         break;
       case 4: // Hiring Cost
-        setUserData({ ...userData, hiringCost: parseInt(value) || 0 });
+        setUserData(prev => ({ ...prev, hiringCost: sanitizeNum(value) }));
         botReply = "Final question: On a scale of 1-10, how concerned are you about the SGE/GEO market shifts?";
         break;
       case 5: // Concern & The Math
-        const annualRisk = userData.retainer * 12;
-        const roi = annualRisk > 0 ? (annualRisk / 495).toFixed(0) : "72";
+        const remainingRetainerRisk = userData.retainer * monthsLeft;
+        const plannedHiringSpend = userData.hiring ? (userData.hiringCost * monthsLeft) : 0;
+        const totalExposure = remainingRetainerRisk + plannedHiringSpend;
+        const roi = totalExposure > 0 ? (totalExposure / 495).toFixed(0) : "72";
+        
         botReply = (
           <div className="space-y-4">
-            <p className="font-bold">The Math is clear: You have <span className="text-red-600 font-black">${annualRisk.toLocaleString()} per year</span> in revenue at risk.</p>
-            <p className="text-sm">Our one-time $495 <strong>Emergency Retainer Shield</strong> is a <span className="font-black text-green-600">{roi}x ROI</span> if just one account is saved. Does it make sense to deploy the shield?</p>
+            <div className="p-3 bg-red-50 border-2 border-red-200 rounded-lg">
+              <p className="font-bold text-red-900">Total 2026 Financial Exposure:</p>
+              <p className="text-3xl font-black text-red-600">${totalExposure.toLocaleString()}</p>
+              <p className="text-[10px] text-red-700 uppercase font-bold mt-1">Based on {monthsLeft} months remaining + {userData.hiring ? 'Planned Hiring Budget' : 'Retainer Risk'}</p>
+            </div>
+            <p className="text-sm font-medium text-gray-700">The math is clear. Our $495 <strong>Retainer Shield</strong> is a <span className="font-black text-green-600">{roi}x ROI</span> compared to your projected spend or potential losses. Shall we deploy the shield?</p>
             <div className="flex flex-col gap-3">
               <NeoButton onClick={() => handleDirectCheckout('seo-shield')} className="w-full">Deploy Retainer Shield Now</NeoButton>
               <Link to="/login?segment=smb" className="text-xs text-center font-bold text-gray-500 hover:text-black underline">Or try our DIY User Mirror (Start Free)</Link>
@@ -213,7 +223,7 @@ const SeoFirmProposal: React.FC = () => {
 
           {/* Right Column: Interactive Tabs */}
           <div className="lg:sticky lg:top-8">
-            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[1200px]">
+            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[600px]">
               {/* Unified Tab Header - Integrated into the Card architecture */}
               <div className="flex no-print border-b-2 border-black bg-gray-50">
                 <button 
