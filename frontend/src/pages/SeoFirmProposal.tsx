@@ -386,13 +386,13 @@ const SeoFirmProposal: React.FC = () => {
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
               <h4 className="text-2xl font-black mb-2">The Shield</h4>
-              <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / one-time</span></div>
+              <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / mo</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Save a $3,000/mo retainer</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted UX Audit</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 2026 "Synthetic Buyer" Data</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 'Blame Shield' PDF in 24h</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Full Pitch Deck & Talk Tracks</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Save your clients & retainers</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted CRO Support</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 16 Synthesized user backed Site Audits</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 10 hr of Expert Behavior Science Consultancy</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Actionable Recommendations Your Clients are Looking For</li>
               </ul>
               <button 
                 onClick={() => handleDirectCheckout('seo-shield')}
