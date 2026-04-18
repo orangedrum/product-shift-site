@@ -10,9 +10,10 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 interface PdfViewerProps {
   file: string;
+  scale?: number;
 }
 
-const PdfViewer: React.FC<PdfViewerProps> = ({ file }) => {
+const PdfViewer: React.FC<PdfViewerProps> = ({ file, scale = 1 }) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
 
@@ -35,7 +36,13 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ file }) => {
           loading={<div className="flex justify-center items-center h-96 text-black font-bold"><Loader2 className="animate-spin mr-2" /> Loading PDF...</div>}
           error={<div className="flex justify-center items-center h-96 text-red-600 font-bold">Unable to load PDF.</div>}
         >
-          <Page pageNumber={pageNumber} renderTextLayer={false} renderAnnotationLayer={false} className="shadow-lg" width={500} />
+          <Page 
+            pageNumber={pageNumber} 
+            renderTextLayer={false} 
+            renderAnnotationLayer={false} 
+            className="shadow-lg" 
+            scale={scale} 
+          />
         </Document>
       </div>
       {numPages && (
