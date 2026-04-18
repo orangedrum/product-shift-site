@@ -464,6 +464,44 @@ const SeoFirmProposal: React.FC = () => {
         </div>
       </div>
 
+      {/* Sample Report Modal */}
+      {isPdfModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsPdfModalOpen(false)}>
+          <div className="relative w-full max-w-6xl max-h-[90vh] bg-white rounded-2xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+             <button onClick={() => setIsPdfModalOpen(false)} className="absolute top-4 right-4 p-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors z-10 shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+               <X size={24} />
+             </button>
+             <div className="p-4 border-b-4 border-black bg-indigo-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+               <span className="font-black uppercase tracking-widest text-sm">Sample Audit: Retainer Shield (24h Delivery)</span>
+               <div className="flex items-center gap-3 sm:mr-16">
+                 <div className="flex items-center bg-white border-2 border-black rounded-lg overflow-hidden shadow-[2px_2px_0px_0px_#000]">
+                   <button 
+                     onClick={() => setPdfScale(prev => Math.max(0.5, prev - 0.1))}
+                     className="p-2 hover:bg-gray-100 border-r-2 border-black transition-colors"
+                   >
+                     <ZoomOut size={18} />
+                   </button>
+                   <div className="px-3 font-bold text-xs min-w-[60px] text-center bg-gray-50 select-none">
+                     {Math.round(pdfScale * 100)}%
+                   </div>
+                   <button 
+                     onClick={() => setPdfScale(prev => Math.min(3, prev + 0.1))}
+                     className="p-2 hover:bg-gray-100 border-l-2 border-black transition-colors"
+                   >
+                     <ZoomIn size={18} />
+                   </button>
+                 </div>
+               </div>
+             </div>
+             <div className="flex-1 overflow-auto p-4 bg-gray-100 custom-scrollbar flex justify-center items-start">
+               <div className="transition-all duration-200 ease-out origin-top">
+                 <PdfViewer file="/Beontag - 2026-03-11.pdf" scale={pdfScale} />
+               </div>
+             </div>
+          </div>
+        </div>
+      )}
+
       <div id="about-jean" className="relative z-10 bg-white border-t border-gray-100">
         <About />
       </div>
