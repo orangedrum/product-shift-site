@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2, ArrowRight, X } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { DemoSection } from '../components/DemoSection';
@@ -11,10 +11,10 @@ const SeoFirmProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<'chat' | 'report'>('chat');
   const [isCheckoutLoading, setIsCheckoutLoading] = useState<string | null>(null);
   const [chatStep, setChatStep] = useState(0);
   const [chatInput, setChatInput] = useState('');
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [userData, setUserData] = useState({ clients: 0, atRisk: 0, retainer: 0, hiring: false, hiringCost: 0, concern: 0 });
   const [isEmailing, setIsEmailing] = useState(false);
 
@@ -36,10 +36,6 @@ const SeoFirmProposal: React.FC = () => {
   const scrollToPricing = () => {
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  useEffect(() => {
-    if (activeTab === 'chat') scrollToBottom();
-  }, [chatMessages, activeTab]);
 
   const handleDirectCheckout = async (planId: string) => {
     setIsCheckoutLoading(planId);
@@ -241,8 +237,13 @@ const SeoFirmProposal: React.FC = () => {
             <span className="text-indigo-600">But good SEOs care about both</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Informational queries have seen a <span className="text-black font-black underline decoration-red-500">61% drop in organic CTR</span> since AI Overviews. Stop defending "Page 1" rankings to clients who aren't seeing sales. Document the leak before they fire you.
+            Use our synthesized users and industry backed heuristics tool to document any leaks<span className="text-black font-black underline decoration-red-500"> before they can fire you</span>. Become their CRO strategist without hiring costs or lengthy contracts.
           </p>
+          <div className="mt-6">
+            <button onClick={() => setIsPdfModalOpen(true)} className="inline-flex items-center gap-2 font-black text-indigo-600 hover:text-indigo-800 underline uppercase tracking-widest text-sm transition-colors group">
+              <FileText size={18} className="group-hover:scale-110 transition-transform" /> see sample report
+            </button>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-24">
@@ -291,25 +292,8 @@ const SeoFirmProposal: React.FC = () => {
           {/* Right Column: Interactive Tabs */}
           <div className="lg:sticky lg:top-8">
             <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[500px]">
-              {/* Unified Tab Header - Integrated into the Card architecture */}
-              <div className="flex no-print border-b-2 border-black bg-gray-50">
-                <button 
-                  onClick={() => setActiveTab('chat')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all border-r-2 border-black ${activeTab === 'chat' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
-                >
-                  <MessageSquare size={18} /> Strategy Chat
-                </button>
-                <button 
-                  onClick={() => setActiveTab('report')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all ${activeTab === 'report' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
-                >
-                  <FileText size={18} /> Sample Report
-                </button>
-              </div>
-
-              {/* Unified Tab Content Area */}
+              {/* Chat Content Area */}
               <div className="flex-1 flex flex-col overflow-hidden relative">
-                {activeTab === 'chat' ? (
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <div className="p-3 bg-black text-white flex items-center justify-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
@@ -382,11 +366,6 @@ const SeoFirmProposal: React.FC = () => {
                       )}
                     </div>
                   </div>
-                ) : (
-                  <div className="animate-fade-in p-4 overflow-y-auto flex-1 bg-white flex justify-center items-start">
-                    <PdfViewer file="/Beontag - 2026-03-11.pdf" />
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -458,6 +437,23 @@ const SeoFirmProposal: React.FC = () => {
           </a>
         </div>
       </div>
+
+      {/* Sample Report Modal */}
+      {isPdfModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsPdfModalOpen(false)}>
+          <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+             <button onClick={() => setIsPdfModalOpen(false)} className="absolute top-4 right-4 p-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors z-10 shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+               <X size={24} />
+             </button>
+             <div className="p-4 border-b-4 border-black bg-indigo-50 font-black uppercase tracking-widest text-sm">
+               Sample Audit: Retainer Shield (24h Delivery)
+             </div>
+             <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+               <PdfViewer file="/Beontag - 2026-03-11.pdf" />
+             </div>
+          </div>
+        </div>
+      )}
 
       <div id="about-jean" className="relative z-10 bg-white border-t border-gray-100">
         <About />
