@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2, ArrowRight, X, ZoomIn, ZoomOut } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { DemoSection } from '../components/DemoSection';
@@ -11,10 +11,11 @@ const SeoFirmProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<'chat' | 'report'>('chat');
   const [isCheckoutLoading, setIsCheckoutLoading] = useState<string | null>(null);
   const [chatStep, setChatStep] = useState(0);
   const [chatInput, setChatInput] = useState('');
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [pdfScale, setPdfScale] = useState(1);
   const [userData, setUserData] = useState({ clients: 0, atRisk: 0, retainer: 0, hiring: false, hiringCost: 0, concern: 0 });
   const [isEmailing, setIsEmailing] = useState(false);
 
@@ -33,9 +34,13 @@ const SeoFirmProposal: React.FC = () => {
     document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Reset zoom when modal closes
   useEffect(() => {
-    if (activeTab === 'chat') scrollToBottom();
-  }, [chatMessages, activeTab]);
+    if (!isPdfModalOpen) setPdfScale(1);
+  }, [isPdfModalOpen]);
+
+  // Auto-scroll chat
+  useEffect(() => { scrollToBottom(); }, [chatMessages]);
 
   const handleDirectCheckout = async (planId: string) => {
     setIsCheckoutLoading(planId);
@@ -296,25 +301,8 @@ const SeoFirmProposal: React.FC = () => {
           {/* Right Column: Interactive Tabs */}
           <div className="lg:sticky lg:top-8">
             <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[600px]">
-              {/* Unified Tab Header - Integrated into the Card architecture */}
-              <div className="flex no-print border-b-2 border-black bg-gray-50">
-                <button 
-                  onClick={() => setActiveTab('chat')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all border-r-2 border-black ${activeTab === 'chat' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
-                >
-                  <MessageSquare size={18} /> Strategy Chat
-                </button>
-                <button 
-                  onClick={() => setActiveTab('report')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all ${activeTab === 'report' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
-                >
-                  <FileText size={18} /> Sample Report
-                </button>
-              </div>
-
-              {/* Unified Tab Content Area */}
+              {/* Chat Content Area */}
               <div className="flex-1 flex flex-col overflow-hidden relative">
-                {activeTab === 'chat' ? (
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <div className="p-3 bg-black text-white flex items-center justify-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
@@ -387,11 +375,6 @@ const SeoFirmProposal: React.FC = () => {
                       )}
                     </div>
                   </div>
-                ) : (
-                  <div className="animate-fade-in p-4 overflow-y-auto flex-1 bg-white flex justify-center items-start">
-                    <PdfViewer file="/Beontag - 2026-03-11.pdf" />
-                  </div>
-                )}
               </div>
             </div>
           </div>
