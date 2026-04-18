@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2, ArrowRight, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { Check, TrendingUp, Zap, Calendar, FileText, MessageSquare, Send, MousePointer2, RefreshCw, Mail, CheckCircle2, ArrowRight } from 'lucide-react';
 import About from '../components/About';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { DemoSection } from '../components/DemoSection';
@@ -11,26 +11,21 @@ const SeoFirmProposal: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<'chat' | 'report'>('chat');
   const [isCheckoutLoading, setIsCheckoutLoading] = useState<string | null>(null);
   const [chatStep, setChatStep] = useState(0);
   const [chatInput, setChatInput] = useState('');
-  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
-  const [pdfScale, setPdfScale] = useState(1);
   const [userData, setUserData] = useState({ clients: 0, atRisk: 0, retainer: 0, hiring: false, hiringCost: 0, concern: 0 });
   const [isEmailing, setIsEmailing] = useState(false);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { sender: 'bot', text: "Let's do the math. How many clients does your agency currently manage?" }
+    { sender: 'bot', text: "Mission Control active. Google's AI Overviews (SGE) have triggered a 61% drop in CTR for informational keywords. How many clients does your agency currently manage?" }
   ]);
   const monthsLeft = 12 - new Date().getMonth();
 
   const scrollToBottom = () => {
-    const container = chatContainerRef.current;
-    if (container) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   };
 
@@ -39,8 +34,8 @@ const SeoFirmProposal: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isPdfModalOpen) setPdfScale(1);
-  }, [isPdfModalOpen]);
+    if (activeTab === 'chat') scrollToBottom();
+  }, [chatMessages, activeTab]);
 
   const handleDirectCheckout = async (planId: string) => {
     setIsCheckoutLoading(planId);
@@ -111,7 +106,7 @@ const SeoFirmProposal: React.FC = () => {
     let nextStep = chatStep + 1;
 
     const numVal = sanitizeNum(value);
-    const isInvalidNum = numVal === -1 && ![3, 5].includes(chatStep);
+    const isInvalidNum = numVal === -1 && ![3, 5, 7].includes(chatStep);
 
     if (isInvalidNum) {
        botReply = "I didn't quite catch a number there. Could you specify that amount again so I can calculate your risk accurately?";
@@ -161,25 +156,29 @@ const SeoFirmProposal: React.FC = () => {
               <p className="font-bold text-red-900">Total 2026 Financial Exposure:</p>
               <p className="text-3xl font-black text-red-600">${totalExposure.toLocaleString()}</p>
               <div className="mt-3 pt-3 border-t border-red-200 space-y-1">
-                 <p className="text-[10px] text-red-700 flex justify-between"><span>Monthly Retainer Risk:</span> <span>${userData.retainer.toLocaleString()}</span></p>
-                 {userData.hiring && <p className="text-[10px] text-red-700 flex justify-between"><span>Planned Hiring Spend:</span> <span>${userData.hiringCost.toLocaleString()}</span></p>}
-                 <p className="text-[10px] text-red-700 flex justify-between font-black"><span>Exposure Period:</span> <span>{monthsLeft} Months</span></p>
+                 <p className="text-[10px] text-red-700 flex justify-between uppercase font-bold"><span>Monthly Retainer Risk:</span> <span>${userData.retainer.toLocaleString()}</span></p>
+                 {userData.hiring && <p className="text-[10px] text-red-700 flex justify-between uppercase font-bold"><span>Monthly Hiring Budget:</span> <span>${userData.hiringCost.toLocaleString()}</span></p>}
+                 <p className="text-[10px] text-red-700 flex justify-between font-black uppercase"><span>Exposure Period:</span> <span>{monthsLeft} Months</span></p>
               </div>
             </div>
-            <p className="text-sm font-medium text-gray-700 leading-relaxed">
-              The math is clear. Our $495 <strong>Retainer Shield</strong> is a <span className="font-black text-green-600">{roi}x ROI</span> compared to your potential losses. 
-            </p>
-            <div className="flex flex-col gap-3">
-              <NeoButton onClick={() => handleDirectCheckout('seo-shield')} className="w-full">Deploy Retainer Shield Now</NeoButton>
-              <div className="flex items-center gap-2">
-                 <button 
-                   onClick={() => { setChatStep(7); setChatMessages(prev => [...prev, { sender: 'bot', text: "Who should I send this breakdown to? Enter their email below:" }]); }}
-                   className="flex-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-1 border-2 border-indigo-100 rounded-lg py-2"
-                 >
-                   <Mail size={12} /> Email Work to Team
-                 </button>
-                 <Link to="/login?segment=smb" className="flex-1 text-[10px] text-center font-bold text-gray-400 hover:text-black underline">Or try DIY Tool</Link>
-              </div>
+            <div className="space-y-3">
+               <p className="text-sm font-medium text-gray-700 leading-relaxed">
+                 The math is clear. Our $495 <strong>Retainer Shield</strong> is a <span className="font-black text-green-600 underline">{roi}x ROI</span> compared to your potential losses. 
+               </p>
+               <button 
+                 onClick={() => { setChatStep(7); setChatMessages(prev => [...prev, { sender: 'bot', text: "Who should I send this breakdown to? Enter their email below:" }]); }}
+                 className="block font-black text-indigo-600 hover:text-indigo-800 underline flex items-center gap-1 text-xs uppercase tracking-tighter"
+               >
+                 <Mail size={12} /> Email this math to team <ArrowRight size={12} />
+               </button>
+            </div>
+            <div className="flex flex-col gap-2 pt-2">
+              <Link to="/login?segment=smb" className="w-full">
+                 <NeoButton className="w-full">Give our service a test drive</NeoButton>
+              </Link>
+              <button onClick={scrollToPricing} className="text-[10px] font-black text-gray-400 hover:text-black uppercase tracking-widest text-center">
+                Keep Going
+              </button>
             </div>
           </div>
         );
@@ -242,7 +241,7 @@ const SeoFirmProposal: React.FC = () => {
             <span className="text-indigo-600">But good SEOs care about both</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Use our synthesized users and industry backed heuristics tool to document any leaks<span className="text-black font-black underline decoration-red-500"> before they can fire you</span>. Become their CRO strategist without hiring costs or lengthy contracts.
+            Informational queries have seen a <span className="text-black font-black underline decoration-red-500">61% drop in organic CTR</span> since AI Overviews. Stop defending "Page 1" rankings to clients who aren't seeing sales. Document the leak before they fire you.
           </p>
           <div className="mt-6">
             <button onClick={() => setIsPdfModalOpen(true)} className="inline-flex items-center gap-2 font-black text-indigo-600 hover:text-indigo-800 underline uppercase tracking-widest text-sm transition-colors group">
@@ -296,9 +295,26 @@ const SeoFirmProposal: React.FC = () => {
 
           {/* Right Column: Interactive Tabs */}
           <div className="lg:sticky lg:top-8">
-            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[500px]">
-              {/* Chat Content Area */}
+            <div className="bg-white rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col h-[600px]">
+              {/* Unified Tab Header - Integrated into the Card architecture */}
+              <div className="flex no-print border-b-2 border-black bg-gray-50">
+                <button 
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all border-r-2 border-black ${activeTab === 'chat' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
+                >
+                  <MessageSquare size={18} /> Strategy Chat
+                </button>
+                <button 
+                  onClick={() => setActiveTab('report')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 font-black transition-all ${activeTab === 'report' ? 'bg-black text-white' : 'bg-white text-gray-400 hover:bg-gray-100 hover:text-black'}`}
+                >
+                  <FileText size={18} /> Sample Report
+                </button>
+              </div>
+
+              {/* Unified Tab Content Area */}
               <div className="flex-1 flex flex-col overflow-hidden relative">
+                {activeTab === 'chat' ? (
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <div className="p-3 bg-black text-white flex items-center justify-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
@@ -371,6 +387,11 @@ const SeoFirmProposal: React.FC = () => {
                       )}
                     </div>
                   </div>
+                ) : (
+                  <div className="animate-fade-in p-4 overflow-y-auto flex-1 bg-white flex justify-center items-start">
+                    <PdfViewer file="/Beontag - 2026-03-11.pdf" />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -391,13 +412,13 @@ const SeoFirmProposal: React.FC = () => {
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
               <h4 className="text-2xl font-black mb-2">The Shield</h4>
-              <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / mo</span></div>
+              <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / one-time</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Save your clients & retainers</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted CRO Support</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 16 Synthesized user backed Site Audits</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 10 hr of Expert Behavior Science Consultancy</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Actionable Recommendations Your Clients are Looking For</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Save a $3,000/mo retainer</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted UX Audit</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 2026 "Synthetic Buyer" Data</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 'Blame Shield' PDF in 24h</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Full Pitch Deck & Talk Tracks</li>
               </ul>
               <button 
                 onClick={() => handleDirectCheckout('seo-shield')}
@@ -442,59 +463,6 @@ const SeoFirmProposal: React.FC = () => {
           </a>
         </div>
       </div>
-
-      {/* Sample Report Modal */}
-      {isPdfModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsPdfModalOpen(false)}>
-          <div className="relative w-full max-w-6xl max-h-[90vh] bg-white rounded-2xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-             <button onClick={() => setIsPdfModalOpen(false)} className="absolute top-4 right-4 p-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors z-10 shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
-               <X size={24} />
-             </button>
-             <div className="p-4 border-b-4 border-black bg-indigo-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-               <span className="font-black uppercase tracking-widest text-sm">Sample Audit: Retainer Shield (24h Delivery)</span>
-               <div className="flex items-center gap-3 sm:mr-16">
-                 <div className="flex items-center bg-white border-2 border-black rounded-lg overflow-hidden shadow-[2px_2px_0px_0px_#000]">
-                   <button 
-                     onClick={() => setPdfScale(prev => Math.max(0.5, prev - 0.1))}
-                     className="p-2 hover:bg-gray-100 border-r-2 border-black transition-colors"
-                     title="Zoom Out"
-                   >
-                     <ZoomOut size={18} />
-                   </button>
-                   <div className="px-3 font-bold text-xs min-w-[60px] text-center bg-gray-50 select-none">
-                     {Math.round(pdfScale * 100)}%
-                   </div>
-                   <button 
-                     onClick={() => setPdfScale(prev => Math.min(3, prev + 0.1))}
-                     className="p-2 hover:bg-gray-100 border-l-2 border-black transition-colors"
-                     title="Zoom In"
-                   >
-                     <ZoomIn size={18} />
-                   </button>
-                 </div>
-                 <button 
-                   onClick={() => setPdfScale(1)}
-                   className="text-[10px] font-black uppercase tracking-tighter text-gray-400 hover:text-black transition-colors"
-                 >
-                   Reset
-                 </button>
-               </div>
-             </div>
-             <div className="flex-1 overflow-auto p-4 bg-gray-100 custom-scrollbar">
-               <div 
-                 className="transition-all duration-200 ease-out origin-top"
-                 style={{ 
-                   width: `${pdfScale * 100}%`, 
-                   minWidth: '100%',
-                   margin: '0 auto' 
-                 }}
-               >
-                 <PdfViewer file="/Beontag - 2026-03-11.pdf" />
-               </div>
-             </div>
-          </div>
-        </div>
-      )}
 
       <div id="about-jean" className="relative z-10 bg-white border-t border-gray-100">
         <About />
