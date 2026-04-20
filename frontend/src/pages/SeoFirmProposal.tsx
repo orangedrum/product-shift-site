@@ -265,15 +265,15 @@ const SeoFirmProposal: React.FC = () => {
               <ul className="space-y-4 text-lg font-medium text-gray-700">
                 <li className="flex items-start gap-3">
                   <TrendingUp className="text-indigo-600 flex-shrink-0 mt-1" />
-                  <span><strong>The CTR Cliff Shield:</strong> Prove the "Attribution Gap" with 2026 Synthetic Buyer data showing exactly where the SERP satisfies the query.</span>
+                  <span><strong>The CTR Cliff Shield:</strong> The real issue is almost never the traffic. It's usually the offer, the landing page, or their strategy. Partner with us for Disney-level expertise to go from their SEO guru to become their trusted strategist.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Zap className="text-indigo-600 flex-shrink-0 mt-1" />
-                  <span><strong>Stop Churn Anxiety:</strong> Don't solve retention by hiring more Account Managers. Solve it with Disney-vetted qualitative proof.</span>
+                  <span><strong>A Flexible Partnership:</strong> Don't solve retention by hiring long-contracts, expensive W2 hires, or sticky consulting. Productshift uses their proprietary tools to back your agency with flexible, professional-grade CRO.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <MousePointer2 className="text-indigo-600 flex-shrink-0 mt-1" />
-                  <span><strong>Document the Leak:</strong> Build the "Talk Tracks" and decks that prove the site is the leaky bucket—not your traffic.</span>
+                  <span><strong>Document the leak:</strong> Get on-demand page reports built from synthesized users visiting any page to prove to clients with speed & clarity of exactly where their leaks are.</span>
                 </li>
               </ul>
             </div>
@@ -387,7 +387,7 @@ const SeoFirmProposal: React.FC = () => {
         <div id="pricing" className="mb-16">
           <div className="text-center mb-12 pt-5">
             <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">The Emergency Retainer Shield</h2>
-            <p className="text-xl text-gray-600 font-medium">Save an "at-risk" <span className="text-black font-black underline decoration-green-500 decoration-4">$3,000/mo retainer</span> for a one-time beta rate.</p>
+            <p className="text-xl text-gray-600 font-medium">Save an "at-risk" <span className="text-black font-black underline decoration-green-500 decoration-4">$3,000/mo retainer</span> with our flexible monthly price options. </br> Start and stop, mix and change plans as needed.</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -460,7 +460,7 @@ const SeoFirmProposal: React.FC = () => {
         {/* CTA Section */}
         <div className="text-center max-w-2xl mx-auto">
           <p className="text-lg font-medium text-gray-700 mb-8">
-            Stop Losing Retainers to SGE. Document the leak before they fire you.
+            Stop Losing Retainers to SGE. Document the leak, save your clients, become their CRO hero.
           </p>
           <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg mt-4">
             <Calendar className="mr-2" /> Schedule a Retainer Shield Call
