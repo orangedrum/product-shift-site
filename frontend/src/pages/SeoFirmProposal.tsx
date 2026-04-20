@@ -394,13 +394,17 @@ const SeoFirmProposal: React.FC = () => {
             {/* Pay As You Go Option */}
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-gray-200"></div>
-              <h4 className="text-2xl font-black mb-2">DIY Mirror</h4>
-              <div className="text-4xl font-black mb-6">$0<span className="text-lg font-bold text-gray-500"> / free</span></div>
+              <h4 className="text-2xl font-black mb-2">Pay As You Go</h4>
+              <p className="text-gray-600 font-bold mb-4 leading-tight">Start free, pay only for what you use.</p>
+              <div className="text-4xl font-black mb-6">$0<span className="text-lg font-bold text-gray-500"> / mo</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 50 Free Credits</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Choose From 8 Personas</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> No commitment required</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Get 5 Free Credits</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Top up credits anytime</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Choose From 9 Personas</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Data-based, Actionable Report</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Shareable Reports</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Clear Performance Metrics</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Download & Share Reports</li>
               </ul>
               <Link to="/login?segment=smb" className="w-full block text-center bg-white text-black border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-50 transition-colors">
                 Start for Free
@@ -412,8 +416,9 @@ const SeoFirmProposal: React.FC = () => {
               <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
               <div className="absolute top-4 right-4 bg-red-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded-md shadow-[2px_2px_0px_0px_#000] rotate-3">Recommended</div>
               <h4 className="text-2xl font-black mb-2">The Shield</h4>
-              <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / one-time</span></div>
+              <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / mo</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 50 Free Credits</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Save a $3,000/mo retainer</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted UX Audit</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 2026 "Synthetic Buyer" Data</li>
@@ -433,7 +438,7 @@ const SeoFirmProposal: React.FC = () => {
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-indigo-600"></div>
               <h4 className="text-2xl font-black mb-2">Portfolio Defense</h4>
-              <div className="text-4xl font-black mb-6">$2,000<span className="text-lg font-bold text-gray-500"> / one-time</span></div>
+              <div className="text-4xl font-black mb-6">$2,000<span className="text-lg font-bold text-gray-500"> / mo</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Audit 20 Clients</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> AIO/GEO Content Pivot Guide</li>
