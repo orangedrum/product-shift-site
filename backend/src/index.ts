@@ -671,11 +671,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
             name: 'Emergency Retainer Shield', 
             description: '24h Blame Shield Report + Strategy Session' 
           },
-          unit_amount: 49500, // $495.00
+          unit_amount: 49500, // $495.00 / one-time
         },
         quantity: 1,
       });
-      sessionConfig.metadata.credits = '50';
+      sessionConfig.metadata.credits = '50'; // 50 credits for $495 Shield
     } else if (planId === 'seo-portfolio') {
       sessionConfig.line_items.push({
         price_data: {
@@ -685,7 +685,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       });
-      sessionConfig.metadata.credits = '200';
+      sessionConfig.metadata.credits = '300'; // 300 credits for $2000 Portfolio Defense
     } else {
       return res.status(400).json({ error: 'Invalid plan ID' });
     }

@@ -250,7 +250,7 @@ const SeoFirmProposal: React.FC = () => {
           </p>
           <div className="mt-6">
             <button onClick={() => setIsPdfModalOpen(true)} className="inline-flex items-center gap-2 font-black text-indigo-600 hover:text-indigo-800 underline uppercase tracking-widest text-sm transition-colors group">
-              <FileText size={18} className="group-hover:scale-110 transition-transform" /> see sample report
+              <FileText size={18} className="group-hover:scale-110 transition-transform" /> see on of our sample reports
             </button>
           </div>
         </div>
@@ -440,11 +440,12 @@ const SeoFirmProposal: React.FC = () => {
               <h4 className="text-2xl font-black mb-2">Portfolio Defense</h4>
               <div className="text-4xl font-black mb-6">$2,000<span className="text-lg font-bold text-gray-500"> / mo</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 100 Free Credits</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 300 Free Credits</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 30 hours of consulting</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted Partner</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Loom explanation videos</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Strategy + CRO calls with clients</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Fully embedded yet flexible CRO support</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> We handle the CRO for up to 10 clients</li>
               </ul>
               <button 
