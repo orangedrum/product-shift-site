@@ -510,7 +510,7 @@ const SeoFirmProposal: React.FC = () => {
              </div>
              <div className="flex-1 overflow-auto p-4 bg-gray-100 custom-scrollbar flex justify-center items-start">
                <div className="transition-all duration-200 ease-out origin-top">
-                 <PdfViewer file="/Curly Lovers Colombia - 2026-04-08.pdf" scale={pdfScale} />
+                 <PdfViewer file="/Beontag - 2026-03-11.pdf" scale={pdfScale} />
                </div>
              </div>
           </div>
