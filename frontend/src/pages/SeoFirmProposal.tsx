@@ -390,10 +390,27 @@ const SeoFirmProposal: React.FC = () => {
             <p className="text-xl text-gray-600 font-medium">Save an "at-risk" <span className="text-black font-black underline decoration-green-500 decoration-4">$3,000/mo retainer</span> for a one-time beta rate.</p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Pilot Option */}
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Pay As You Go Option */}
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gray-200"></div>
+              <h4 className="text-2xl font-black mb-2">DIY Mirror</h4>
+              <div className="text-4xl font-black mb-6">$0<span className="text-lg font-bold text-gray-500"> / free</span></div>
+              <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 50 Free Credits</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Choose From 8 Personas</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Data-based, Actionable Report</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Shareable Reports</li>
+              </ul>
+              <Link to="/login?segment=smb" className="w-full block text-center bg-white text-black border-2 border-black py-4 rounded-xl font-bold hover:bg-gray-50 transition-colors">
+                Start for Free
+              </Link>
+            </div>
+
+            {/* Pilot Option ($495) - Highlighted */}
+            <div className="bg-indigo-50 p-8 rounded-2xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden transform md:scale-105 z-10">
               <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+              <div className="absolute top-4 right-4 bg-red-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded-md shadow-[2px_2px_0px_0px_#000] rotate-3">Recommended</div>
               <h4 className="text-2xl font-black mb-2">The Shield</h4>
               <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / one-time</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
@@ -415,7 +432,6 @@ const SeoFirmProposal: React.FC = () => {
             {/* Full Audit Option */}
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-indigo-600"></div>
-              <div className="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-black uppercase px-2 py-1 rounded">Best Value</div>
               <h4 className="text-2xl font-black mb-2">Portfolio Defense</h4>
               <div className="text-4xl font-black mb-6">$2,000<span className="text-lg font-bold text-gray-500"> / one-time</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
