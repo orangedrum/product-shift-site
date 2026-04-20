@@ -265,11 +265,11 @@ const SeoFirmProposal: React.FC = () => {
               <ul className="space-y-4 text-lg font-medium text-gray-700">
                 <li className="flex items-start gap-3">
                   <TrendingUp className="text-indigo-600 flex-shrink-0 mt-1" />
-                  <span><strong>The CTR Cliff Shield:</strong> The real issue is almost never the traffic. It's usually the offer, the landing page, or their strategy. Partner with us for Disney-level expertise to go from their SEO guru to become their trusted strategist.</span>
+                  <span><strong>The CTR Cliff Shield:</strong> The real issue is almost never the traffic. It's usually the offer, the landing page, or their strategy. We can handle all that with Disney-level expertise taking you from SEO guru to invaluable strategist.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Zap className="text-indigo-600 flex-shrink-0 mt-1" />
-                  <span><strong>A Flexible Partnership:</strong> Don't solve retention by hiring long-contracts, expensive W2 hires, or sticky consulting. Productshift uses their proprietary tools to back your agency with flexible, professional-grade CRO.</span>
+                  <span><strong>A Flexible Partnership:</strong> Don't solve retention with long-contracts, expensive W2 hires, or sticky consulting. Productshift uses their proprietary tools to back your agency with flexible, professional-grade CRO.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <MousePointer2 className="text-indigo-600 flex-shrink-0 mt-1" />
@@ -280,19 +280,19 @@ const SeoFirmProposal: React.FC = () => {
 
             {/* How We Can Work Together (Consolidated) */}
             <div className="bg-white p-8 rounded-2xl border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <h3 className="text-2xl font-black mb-6">How We Work Together</h3>
+              <h3 className="text-2xl font-black mb-6">Options Designed for SEO Agencies</h3>
               <div className="space-y-6">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">1</div>
-                  <p className="text-lg font-medium text-gray-700"><span className="font-bold text-black">AIO/GEO Pivot:</span> Use User Mirror to justify why you are rebuilding their content strategy for AI Search.</p>
+                  <p className="text-lg font-medium text-gray-700"><span className="font-bold text-black">Pay-as-you-go:</span> Use Productshift's prioprietary tool, User Mirror, only as needed to empower your team and direct their content strategy.</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">2</div>
-                  <p className="text-lg font-medium text-gray-700"><span className="font-bold text-black">The "Blame Shield":</span> Run a report in 24 hours for any "at-risk" client to reset the conversation.</p>
+                  <p className="text-lg font-medium text-gray-700"><span className="font-bold text-black">The "Blame Shield":</span> Run up to 50 reports monthly for any "at-risk" client to reset the conversations plus get 10 hrs/mo for consulting to bring us to your angry client meetings to properly redirect blame to the leaky buckets.</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">3</div>
-                  <p className="text-lg font-medium text-gray-700"><span className="font-bold text-black">72x ROI:</span> Spend $495 to save a $36,000/year retainer. It’s the easiest math your CFO will ever do.</p>
+                  <p className="text-lg font-medium text-gray-700"><span className="font-bold text-black">Professional Defense:</span> Run up to 100 reports monthly and 20 hours of Disney-vetted consultancy for a more embedded partnership to ensure at-risk retainers.</p>
                 </div>
               </div>
             </div>
