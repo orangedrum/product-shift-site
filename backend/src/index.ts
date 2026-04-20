@@ -18,7 +18,7 @@ export const calculateCreditsByAmount = (amountTotal: number, metadataCredits?: 
   if (amountTotal === 1400) return 9;   // $14 = 3 Tests
   if (amountTotal === 6900) return 45;  // $69 = 15 Tests
   if (amountTotal === 49500) return 50; // $495 = 50 Credits (Requested)
-  if (amountTotal === 200000) return 200; // $2,000 = 200 Credits
+  if (amountTotal === 200000) return 300; // $2,000 = 300 Credits (Updated)
   return parseInt(metadataCredits || '0', 10);
 };
 
@@ -139,6 +139,13 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
           
           if (Object.keys(updates).length > 0) {
             await supabase.from('customers').update(updates).eq('email', customerEmail);
+          }
+
+          // --- SEO EXPIRATION LOGIC ---
+          // If purchasing an SEO Shield or Portfolio, set the credits to expire at end of month
+          if (session.metadata?.planId?.startsWith('seo-')) {
+            const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString();
+            await supabase.from('customers').update({ credits_expiry: endOfMonth }).eq('email', customerEmail);
           }
         }
         await supabase.from('payments').insert({

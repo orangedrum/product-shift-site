@@ -30,7 +30,22 @@ const achievements = [
   }
 ];
 
-const About = () => {
+interface AboutProps {
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+const About: React.FC<AboutProps> = ({ 
+  ctaText = "Free Consultation", 
+  ctaLink = "https://calendly.com/jean-kaluza/app-idea-day-1-facilitation-clone" 
+}) => {
+  const handleCtaClick = (e: React.MouseEvent) => {
+    if (ctaLink.startsWith('#')) {
+      e.preventDefault();
+      document.querySelector(ctaLink)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="about" className="py-20 bg-gradient-subtle">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,12 +74,13 @@ const About = () => {
                 </p>
                 <div className="mt-6">
                   <a 
-                    href="https://calendly.com/jean-kaluza/app-idea-day-1-facilitation-clone" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                    href={ctaLink} 
+                    onClick={handleCtaClick}
+                    target={ctaLink.startsWith('http') ? "_blank" : undefined}
+                    rel={ctaLink.startsWith('http') ? "noopener noreferrer" : undefined}
                     className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105"
                   >
-                    Free Consultation
+                    {ctaText}
                   </a>
                 </div>
               </div>

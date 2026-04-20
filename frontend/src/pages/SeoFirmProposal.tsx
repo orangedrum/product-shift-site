@@ -515,7 +515,7 @@ const SeoFirmProposal: React.FC = () => {
       )}
 
       <div id="about-jean" className="relative z-10 bg-white border-t border-gray-100">
-        <About />
+        <About ctaText="Let's Meet" ctaLink="#meeting-cta" />
       </div>
     </main>
   );
