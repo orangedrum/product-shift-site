@@ -487,7 +487,7 @@ const SeoFirmProposal: React.FC = () => {
                <X size={24} />
              </button>
              <div className="p-4 border-b-4 border-black bg-indigo-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-               <span className="font-black uppercase tracking-widest text-sm">Sample Audit: Retainer Shield (24h Delivery)</span>
+               <span className="font-black uppercase tracking-widest text-sm">Sample Audit: OnDemand, Instant Page Audit Tool</span>
                <div className="flex items-center gap-3 sm:mr-16">
                  <div className="flex items-center bg-white border-2 border-black rounded-lg overflow-hidden shadow-[2px_2px_0px_0px_#000]">
                    <button 
@@ -510,7 +510,7 @@ const SeoFirmProposal: React.FC = () => {
              </div>
              <div className="flex-1 overflow-auto p-4 bg-gray-100 custom-scrollbar flex justify-center items-start">
                <div className="transition-all duration-200 ease-out origin-top">
-                 <PdfViewer file="/Beontag - 2026-03-11.pdf" scale={pdfScale} />
+                 <PdfViewer file="/Curly Lovers Colombia - 2026-04-08.pdf" scale={pdfScale} />
                </div>
              </div>
           </div>
