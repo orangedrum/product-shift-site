@@ -20,7 +20,7 @@ const SeoFirmProposal: React.FC = () => {
   const [isEmailing, setIsEmailing] = useState(false);
 
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { sender: 'bot', text: "Mission Control active. Google's AI Overviews (SGE) have triggered a 61% drop in CTR for informational keywords. How many clients does your agency currently manage?" }
+    { sender: 'bot', text: "Hi. We're ProductShift. Let's do the math together to ensure it's a match. How many clients does your agency currently manage?" }
   ]);
   const monthsLeft = 12 - new Date().getMonth();
 
@@ -418,12 +418,12 @@ const SeoFirmProposal: React.FC = () => {
               <h4 className="text-2xl font-black mb-2">The Shield</h4>
               <div className="text-4xl font-black mb-6">$495<span className="text-lg font-bold text-gray-500"> / mo</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Everything in Pay-as-you-go Plan</li>
                 <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 50 Free Credits</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Save a $3,000/mo retainer</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted UX Audit</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 2026 "Synthetic Buyer" Data</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 'Blame Shield' PDF in 24h</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Full Pitch Deck & Talk Tracks</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 10 hours of consulting</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted Partner</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Angry client call back-up</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> We handle the CRO for up to 3 clients</li>
               </ul>
               <button 
                 onClick={() => handleDirectCheckout('seo-shield')}
@@ -440,11 +440,12 @@ const SeoFirmProposal: React.FC = () => {
               <h4 className="text-2xl font-black mb-2">Portfolio Defense</h4>
               <div className="text-4xl font-black mb-6">$2,000<span className="text-lg font-bold text-gray-500"> / mo</span></div>
               <ul className="space-y-3 mb-8 flex-grow">
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Audit 20 Clients</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> AIO/GEO Content Pivot Guide</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Account Management Training</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> White-Label Pitch Assets</li>
-                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Portfolio Health Report</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 100 Free Credits</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> 30 hours of consulting</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Disney-vetted Partner</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Loom explanation videos</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> Strategy + CRO calls with clients</li>
+                <li className="flex items-center gap-2 font-medium text-gray-700"><Check size={20} className="text-green-600" /> We handle the CRO for up to 10 clients</li>
               </ul>
               <button 
                 onClick={() => handleDirectCheckout('seo-portfolio')}
@@ -460,9 +461,15 @@ const SeoFirmProposal: React.FC = () => {
         {/* CTA Section */}
         <div className="text-center max-w-2xl mx-auto">
           <p className="text-lg font-medium text-gray-700 mb-8">
-            Stop Losing Retainers to SGE. Document the leak, save your clients, become their CRO hero.
+            Stop Losing Retainers to SGE. Let's meet to discuss how we can help document the leak, save your clients, become their CRO hero with minimum overhead.
           </p>
-          <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg mt-4">
+          <a 
+            id="meeting-cta"
+            href="https://calendly.com/jean-kaluza/meeting" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="inline-flex items-center justify-center bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg mt-4 scroll-mt-24"
+          >
             <Calendar className="mr-2" /> Schedule a Retainer Shield Call
           </a>
         </div>
