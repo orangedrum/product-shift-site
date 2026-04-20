@@ -387,7 +387,7 @@ const SeoFirmProposal: React.FC = () => {
         <div id="pricing" className="mb-16">
           <div className="text-center mb-12 pt-5">
             <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">The Emergency Retainer Shield</h2>
-            <p className="text-xl text-gray-600 font-medium">Save an "at-risk" <span className="text-black font-black underline decoration-green-500 decoration-4">$3,000/mo retainer</span> with our flexible monthly price options. </br> Start and stop, mix and change plans as needed.</p>
+            <p className="text-xl text-gray-600 font-medium">Save an "at-risk" <span className="text-black font-black underline decoration-green-500 decoration-4">$3,000/mo retainer</span> with our flexible monthly price options. <br /> Start and stop, mix and change plans as needed.</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
