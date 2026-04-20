@@ -166,6 +166,9 @@ const SeoFirmProposal: React.FC = () => {
                  <p className="text-[10px] text-red-700 flex justify-between font-black uppercase"><span>Exposure Period:</span> <span>{monthsLeft} Months</span></p>
               </div>
             </div>
+            {numVal >= 5 && (
+              <p className="text-sm font-black text-black mt-4">Adjust to the shifting SGE/GEO market with a Productshift solution.</p>
+            )}
             <div className="space-y-3">
                <p className="text-sm font-medium text-gray-700 leading-relaxed">
                  The math is clear. Our $495 <strong>Retainer Shield</strong> is a <span className="font-black text-green-600 underline">{roi}x ROI</span> compared to your potential losses. 
@@ -178,9 +181,9 @@ const SeoFirmProposal: React.FC = () => {
                </button>
             </div>
             <div className="flex flex-col gap-2 pt-2">
-              <Link to="/login?segment=smb" className="w-full">
-                 <NeoButton className="w-full">Give our service a test drive</NeoButton>
-              </Link>
+              <button onClick={scrollToPricing} className="w-full">
+                 <NeoButton className="w-full">Learn more about our services</NeoButton>
+              </button>
               <button onClick={scrollToPricing} className="text-[10px] font-black text-gray-400 hover:text-black uppercase tracking-widest text-center">
                 Keep Going
               </button>
@@ -250,7 +253,7 @@ const SeoFirmProposal: React.FC = () => {
           </p>
           <div className="mt-6">
             <button onClick={() => setIsPdfModalOpen(true)} className="inline-flex items-center gap-2 font-black text-indigo-600 hover:text-indigo-800 underline uppercase tracking-widest text-sm transition-colors group">
-              <FileText size={18} className="group-hover:scale-110 transition-transform" /> see on of our sample reports
+              <FileText size={18} className="group-hover:scale-110 transition-transform" /> see a sample report
             </button>
           </div>
         </div>
