@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
