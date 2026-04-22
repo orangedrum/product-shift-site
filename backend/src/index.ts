@@ -811,21 +811,28 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
 
 // --- Career Registry Ingestion (AI Orchestrator) ---
 app.post('/api/admin/career/ingest', authenticateRequest, async (req, res) => {
-  const { rawData, sourceUrl, assetType } = req.body;
+  const { rawData, sourceUrl, assetType, role } = req.body;
   if (!rawData && !sourceUrl) return res.status(400).json({ error: 'Data or URL required' });
 
   try {
     // This prompt tells Gemini to extract structured career data from your "dump"
     const prompt = `
-      Analyze the following career data (Resume text or Media description):
+      You are a world-class Executive Recruiter and Career Strategist.
+      Analyze the following data for a professional with a diverse background in ${role}.
       "${rawData || sourceUrl}"
       
-      Extract and categorize it into a JSON object with:
+      TASK:
+      1. Extract the STRONGEST and MOST UNIQUE career points. Ignore generic fluff.
+      2. Identify "Key Achievements" as "Floating Wins" (Independent high-value ROI statements).
+      3. Categorize precisely for the role: ${role}.
+
+      Return a JSON object:
       - title, company, dates, description (3 impactful bullets)
       - roi_metrics (any numbers, percentages, or dollar amounts)
       - skills_demonstrated (array of keywords)
       - industry (HealthTech, Fintech, etc.)
-      - type (match one: experience, skill, case_study, talk, recommendation, writing_sample)
+      - type (match one: work_history, skill, case_study, talk, recommendation, writing_sample, win)
+      - role_tag: "${role}"
     `;
 
     const structuredData = await generateContentWithFallback(prompt);

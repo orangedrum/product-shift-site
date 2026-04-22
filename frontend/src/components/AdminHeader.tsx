@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, PenTool, Palette, LogOut, Menu, X, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, PenTool, Palette, LogOut, Menu, X, ExternalLink, Briefcase } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const AdminHeader = () => {
@@ -18,6 +18,7 @@ const AdminHeader = () => {
     { name: 'Dashboard', href: '/admin-dashboard', icon: LayoutDashboard },
     { name: 'Blog Admin', href: '/admin-blog', icon: PenTool },
     { name: 'Styleguide', href: '/styleguide', icon: Palette },
+    { name: 'Career', href: '/admin-career', icon: Briefcase },
   ];
 
   const isActive = (path: string) => location.pathname === path;

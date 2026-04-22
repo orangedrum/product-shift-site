@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
 
 const CareerAdmin: React.FC = () => {
-  const [input, setInput] = useState('');
+  const [activeTab, setActiveTab] = useState<'history' | 'media' | 'wins'>('history');
+  const [chatInput, setChatInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('Product Management');
   const [results, setResults] = useState<any[]>([]);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
 
   const handleBulkIngest = async () => {
     setLoading(true);
@@ -18,12 +23,16 @@ const CareerAdmin: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
         },
-        body: JSON.stringify({ rawData: input })
+        body: JSON.stringify({ 
+          rawData: chatInput,
+          assetType: activeTab,
+          role: selectedRole
+        })
       });
       const data = await res.json();
       if (data.success) {
         setResults([data.asset, ...results]);
-        setInput('');
+        setChatInput('');
       }
     } catch (e) {
       console.error(e);
@@ -46,65 +55,107 @@ const CareerAdmin: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left: Input "Dump" */}
-          <div className="lg:col-span-2 space-y-6">
-            <MarketingCard className="p-6">
-              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-widest">
-                Bulk Ingest Source (Text or Links)
-              </label>
-              <textarea 
-                className="w-full h-64 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-pink focus:outline-none bg-gray-50/50"
-                placeholder="Paste resume text, Vimeo links, or Dovetail article URLs here..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-              />
-              <div className="mt-4 flex justify-end">
-                <NeoButton 
-                  onClick={handleBulkIngest} 
-                  disabled={loading || !input}
-                  className="bg-marketing-gradient border-none text-white px-8"
-                >
-                  {loading ? <Loader2 className="animate-spin" /> : <><Send size={18} className="mr-2" /> Process Career Data</>}
-                </NeoButton>
-              </div>
-            </MarketingCard>
+        {/* Tab Navigation */}
+        <div className="flex gap-4 mb-8 border-b border-gray-200">
+          <button onClick={() => setActiveTab('history')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'history' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
+            <div className="flex items-center gap-2"><History size={16}/> Work History</div>
+          </button>
+          <button onClick={() => setActiveTab('media')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'media' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
+            <div className="flex items-center gap-2"><LinkIcon size={16}/> Media Vault</div>
+          </button>
+          <button onClick={() => setActiveTab('wins')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'wins' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
+            <div className="flex items-center gap-2"><Trophy size={16}/> Key Achievements</div>
+          </button>
+        </div>
 
-            {/* Results Preview */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <CheckCircle size={20} className="text-green-500" /> Recently Structured Assets
-              </h3>
-              {results.map((asset, i) => (
-                <div key={i} className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm animate-fade-in">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{asset.type}</span>
-                      <h4 className="font-bold text-gray-900 mt-2">{asset.title}</h4>
-                      <p className="text-sm text-gray-500">{asset.company}</p>
-                    </div>
-                    {asset.roi_metrics?.length > 0 && (
-                      <div className="text-right">
-                        <p className="text-xs font-bold text-gray-400 uppercase">Impact</p>
-                        <p className="text-lg font-black text-green-600">{asset.roi_metrics[0]}</p>
-                      </div>
-                    )}
+        <div className="grid lg:grid-cols-12 gap-8">
+          {/* Left: Registry Sidekick Chat */}
+          <div className="lg:col-span-8 space-y-6">
+            <MarketingCard className="p-0 overflow-hidden flex flex-col h-[600px]">
+              <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={18} className="text-brand-pink" />
+                  <span className="font-bold text-xs uppercase tracking-tighter">Registry Sidekick</span>
+                </div>
+                <select 
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  className="bg-gray-800 text-white text-xs p-1 rounded border border-gray-700"
+                >
+                  {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
+                    <p className="text-sm text-gray-700 font-medium">
+                      "Ready to ingest. You mentioned 140 PDF variations—don't worry about the noise. Paste any text or links here, and I'll extract only the **strongest, unique points** for your **{selectedRole}** profile. I'll automatically de-duplicate against what we've already saved."
+                    </p>
                   </div>
                 </div>
-              ))}
+                {results.map((r, i) => (
+                  <div key={i} className="flex justify-end">
+                    <div className="max-w-[80%] bg-marketing-gradient text-white p-4 rounded-2xl rounded-tr-none shadow-md">
+                      <p className="text-xs font-black uppercase mb-1 opacity-80">Processed as {r.type}</p>
+                      <p className="text-sm font-bold">{r.title}</p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={chatEndRef} />
+              </div>
+
+              <div className="p-4 bg-white border-t border-gray-100">
+                <div className="flex gap-2">
+                  <textarea 
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder={activeTab === 'media' ? "Paste links here..." : "Paste resume text here..."}
+                    className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-pink focus:outline-none text-sm min-h-[50px] max-h-[150px]"
+                  />
+                  <button 
+                    onClick={handleBulkIngest}
+                    disabled={loading || !chatInput}
+                    className="bg-marketing-gradient text-white p-4 rounded-xl shadow-md hover:scale-105 transition-transform disabled:opacity-50"
+                  >
+                    {loading ? <Loader2 className="animate-spin" /> : <Send size={20} />}
+                  </button>
+                </div>
+                <p className="text-[10px] text-gray-400 mt-2 text-center font-bold uppercase tracking-widest">AI Merit-Extraction Mode Active</p>
+              </div>
+            </MarketingCard>
+          </div>
+
+          {/* Right: Floating Wins & Registry Health */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2"><Trophy size={18} className="text-amber-500" /> Floating Wins</h3>
+              <div className="space-y-4">
+                {results.filter(r => r.type === 'win').length === 0 && (
+                   <p className="text-xs text-gray-400 italic">No floating wins extracted yet. Dump achievements to see them here.</p>
+                )}
+                {/* Map floating wins here */}
+              </div>
             </div>
           </div>
 
-          {/* Right: Asset Distribution */}
-          <div className="space-y-6">
+          {/* Stats column (lg:col-span-2) */}
+          <div className="lg:col-span-2 space-y-6">
             <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
               <h3 className="font-bold text-gray-900 mb-4">Registry Health</h3>
               <div className="space-y-3">
-                <div className="flex justify-between text-sm"><span>Experiences</span> <span className="font-bold">0</span></div>
+                <div className="flex justify-between text-sm"><span>Work History</span> <span className="font-bold">0</span></div>
                 <div className="flex justify-between text-sm"><span>Case Studies</span> <span className="font-bold">0</span></div>
                 <div className="flex justify-between text-sm"><span>Talks</span> <span className="font-bold">0</span></div>
                 <div className="flex justify-between text-sm"><span>Skills</span> <span className="font-bold">0</span></div>
               </div>
+            </div>
+            
+            <div className="p-6 bg-indigo-50 border border-indigo-100 rounded-2xl">
+              <h3 className="font-bold text-indigo-900 mb-2 text-xs uppercase tracking-widest">Pro Tip</h3>
+              <p className="text-xs text-indigo-700 leading-relaxed">
+                Labeling your media links as "Talk" or "Article" manually saves AI credits for the heavy resume lifting. Use the dropdown in the chat to set the context.
+              </p>
             </div>
           </div>
         </div>
