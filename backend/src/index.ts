@@ -9,6 +9,7 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUr
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
+import { careerIngestHandler } from './career-controller';
 import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
@@ -810,43 +811,7 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
 });
 
 // --- Career Registry Ingestion (AI Orchestrator) ---
-app.post('/api/admin/career/ingest', authenticateRequest, async (req, res) => {
-  const { rawData, sourceUrl, assetType, role, label } = req.body;
-  if (!rawData && !sourceUrl) return res.status(400).json({ error: 'Data or URL required' });
-
-  try {
-    // This prompt tells Gemini to extract structured career data from your "dump"
-    const prompt = `
-      You are a world-class Executive Recruiter and Career Strategist.
-      Analyze the following career data. ${role ? `Focus on the perspective of: ${role}.` : 'Identify the primary role/specialization automatically.'}
-      ${label ? `This source is labeled as: ${label}.` : ''}
-      "${rawData || sourceUrl}"
-      
-      TASK:
-      1. Extract STRONGEST unique points only. Deduplicate against common resume fluff.
-      2. Identify ROI statements and "Floating Wins."
-      3. Detect the role/specialization if not specified.
-
-      Return a JSON object:
-      - title, company, dates, description (3 impactful bullets)
-      - roi_metrics (any numbers, percentages, or dollar amounts)
-      - skills_demonstrated (array of keywords)
-      - industry (HealthTech, Fintech, etc.)
-      - type (match: work_history, skill, case_study, talk, recommendation, writing_sample, win)
-      - role_tag (The primary role identified)
-    `;
-
-    const structuredData = await generateContentWithFallback(prompt);
-    const parsed = JSON.parse(structuredData.replace(/```json/g, '').replace(/```/g, ''));
-    
-    const { data, error } = await supabase.from('career_assets').insert([{ ...parsed, source_url: sourceUrl }]);
-    if (error) throw error;
-
-    res.json({ success: true, asset: parsed });
-  } catch (e: any) {
-    res.status(500).json({ error: 'Ingestion failed', details: e.message });
-  }
-});
+app.post('/api/admin/career/ingest', careerIngestHandler);
 
 // --- SEO Strategy: Email Math Breakdown ---
 app.post('/api/seo/email-math', async (req, res) => {
