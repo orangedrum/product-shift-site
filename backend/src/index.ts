@@ -811,28 +811,29 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
 
 // --- Career Registry Ingestion (AI Orchestrator) ---
 app.post('/api/admin/career/ingest', authenticateRequest, async (req, res) => {
-  const { rawData, sourceUrl, assetType, role } = req.body;
+  const { rawData, sourceUrl, assetType, role, label } = req.body;
   if (!rawData && !sourceUrl) return res.status(400).json({ error: 'Data or URL required' });
 
   try {
     // This prompt tells Gemini to extract structured career data from your "dump"
     const prompt = `
       You are a world-class Executive Recruiter and Career Strategist.
-      Analyze the following data for a professional with a diverse background in ${role}.
+      Analyze the following career data. ${role ? `Focus on the perspective of: ${role}.` : 'Identify the primary role/specialization automatically.'}
+      ${label ? `This source is labeled as: ${label}.` : ''}
       "${rawData || sourceUrl}"
       
       TASK:
-      1. Extract the STRONGEST and MOST UNIQUE career points. Ignore generic fluff.
-      2. Identify "Key Achievements" as "Floating Wins" (Independent high-value ROI statements).
-      3. Categorize precisely for the role: ${role}.
+      1. Extract STRONGEST unique points only. Deduplicate against common resume fluff.
+      2. Identify ROI statements and "Floating Wins."
+      3. Detect the role/specialization if not specified.
 
       Return a JSON object:
       - title, company, dates, description (3 impactful bullets)
       - roi_metrics (any numbers, percentages, or dollar amounts)
       - skills_demonstrated (array of keywords)
       - industry (HealthTech, Fintech, etc.)
-      - type (match one: work_history, skill, case_study, talk, recommendation, writing_sample, win)
-      - role_tag: "${role}"
+      - type (match: work_history, skill, case_study, talk, recommendation, writing_sample, win)
+      - role_tag (The primary role identified)
     `;
 
     const structuredData = await generateContentWithFallback(prompt);
