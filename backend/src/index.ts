@@ -192,7 +192,10 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
   res.json({received: true});
 });
 
-app.use(express.json());
+// CTO FIX: Increase payload limit from default 100KB to 10MB to handle large 
+// resume text dumps and career media metadata.
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // --- Mount Admin Routes (Must be after express.json) ---
 app.use('/api/admin', adminRouter);

@@ -50,9 +50,12 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     if (!Array.isArray(parsed.roi_metrics)) parsed.roi_metrics = parsed.roi_metrics ? [parsed.roi_metrics] : [];
     if (!Array.isArray(parsed.skills_demonstrated)) parsed.skills_demonstrated = parsed.skills_demonstrated ? [parsed.skills_demonstrated] : [];
     
+    // CTO Strategy: We only persist the "Structured Truth". 
+    // We do NOT store the original rawData (which could be 1MB+ of text) 
+    // in the database record to keep your storage footprint near zero.
     const { data, error } = await supabase.from('career_assets').insert([{ 
       ...parsed, 
-      source_url: sourceUrl 
+      source_url: sourceUrl || 'direct_upload'
     }]).select().single();
     
     if (error) throw error;
