@@ -22,9 +22,25 @@ const CareerAdmin: React.FC = () => {
   ]);
 
   const [results, setResults] = useState<any[]>([]);
+  const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setLoading(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target?.result as string;
+      setChatInput(text);
+      setLoading(false);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `File "${file.name}" loaded. Click 'Extract' to let me analyze the strategic points.` }]);
+    };
+    reader.readAsText(file);
+  };
 
   const handleBulkIngest = async () => {
     setLoading(true);
@@ -43,15 +59,36 @@ const CareerAdmin: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setResults([data.asset, ...results]);
-        setChatInput(''); setMediaUrl('');
-        setSidekickMessages(prev => [...prev, { sender: 'bot', text: `Successfully processed: ${data.asset.title}. I've categorized this as ${data.asset.role_tag}.` }]);
+        setReviewQueue([data.asset, ...reviewQueue]);
+        setChatInput(''); 
+        setMediaUrl('');
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: `Extraction complete for "${data.asset.title}". Review the bullet points below and approve them to add to your library.` }]);
       }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const approveAsset = async (index: number) => {
+    const asset = reviewQueue[index];
+    setResults([asset, ...results]);
+    setReviewQueue(reviewQueue.filter((_, i) => i !== index));
+    setSidekickMessages(prev => [...prev, { sender: 'bot', text: `"${asset.title}" approved. Your library health has improved.` }]);
+  };
+
+  const discardAsset = (index: number) => {
+    setReviewQueue(reviewQueue.filter((_, i) => i !== index));
+  };
+
+  const handleGeneratePitch = () => {
+    setLoading(true);
+    setSidekickMessages(prev => [...prev, { sender: 'user', text: `Build me a pitch for this JD: ${jdLink}` }]);
+    setTimeout(() => {
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analyzing JD requirements... Filtering your library for high-ROI Disney wins and relevant SaaS experience. Preview generated below." }]);
+      setLoading(false);
+    }, 2000);
   };
 
   return (
