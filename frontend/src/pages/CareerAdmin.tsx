@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
+import { supabase } from '../lib/supabase';
 
 const CareerAdmin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library'>('pdf');
+  const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder'>('pdf');
   const [chatInput, setChatInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Media State
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaLabel, setMediaLabel] = useState('Article');
+  const [jdLink, setJdLink] = useState('');
 
   // Sidebar Chat State
   const [sidekickMessages, setSidekickMessages] = useState<any[]>([
@@ -68,13 +71,16 @@ const CareerAdmin: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex gap-4 mb-8 border-b border-gray-200">
           <button onClick={() => setActiveTab('pdf')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'pdf' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
-            <div className="flex items-center gap-2"><Upload size={16}/> PDF Ingestion</div>
+            <div className="flex items-center gap-2"><Upload size={16}/> Ingest Resumes</div>
           </button>
           <button onClick={() => setActiveTab('media')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'media' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
-            <div className="flex items-center gap-2"><LinkIcon size={16}/> Media Ingestion</div>
+            <div className="flex items-center gap-2"><LinkIcon size={16}/> Ingest Media</div>
           </button>
           <button onClick={() => setActiveTab('library')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'library' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
-            <div className="flex items-center gap-2"><Database size={16}/> Career Library</div>
+            <div className="flex items-center gap-2"><Database size={16}/> Library</div>
+          </button>
+          <button onClick={() => setActiveTab('builder')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'builder' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
+            <div className="flex items-center gap-2"><Wand2 size={16}/> Pitch Builder</div>
           </button>
         </div>
 
@@ -82,25 +88,65 @@ const CareerAdmin: React.FC = () => {
           {/* Left: Active Tab Content */}
           <div className="lg:col-span-8 space-y-6">
             {activeTab === 'pdf' && (
-              <MarketingCard className="p-8 border-dashed border-4 border-gray-200 bg-gray-50/30 flex flex-col items-center justify-center text-center min-h-[400px]">
-                 <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-4 text-gray-400">
-                    <Upload size={32} />
-                 </div>
-                 <h2 className="text-xl font-bold mb-2">Resume PDF Ingestion</h2>
-                 <p className="text-gray-500 max-w-sm mb-6">Drop your resume versions here. AI will extract unique roles, wins, and deduplicate details automatically.</p>
-                 <textarea 
-                    className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl mb-4 text-sm"
-                    placeholder="[BETA] Paste text from PDF here. (Native PDF parser coming in next build)"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                 />
-                 <NeoButton onClick={handleBulkIngest} loading={loading} className="bg-marketing-gradient text-white px-12">Process Resume Version</NeoButton>
-              </MarketingCard>
+              <div className="space-y-6">
+                <MarketingCard className="p-8 border-dashed border-4 border-gray-200 bg-gray-50/30 flex flex-col items-center justify-center text-center">
+                   <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf,.txt,.md" />
+                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-4 text-gray-400 cursor-pointer hover:scale-105 transition-transform" onClick={() => fileInputRef.current?.click()}>
+                      <Upload size={32} />
+                   </div>
+                   <h2 className="text-xl font-bold mb-2">Bulk PDF Ingestion</h2>
+                   <p className="text-gray-500 max-w-sm mb-6 text-sm">Upload your 141+ resume variations. I'll deduplicate and extract the strongest ROI points for each role.</p>
+                   
+                   <div className="w-full space-y-4">
+                      <textarea 
+                        className="w-full h-24 p-4 bg-white border border-gray-200 rounded-xl text-sm"
+                        placeholder="Or paste resume text here..."
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                      />
+                      <NeoButton 
+                        onClick={() => handleBulkIngest()} 
+                        disabled={loading || !chatInput}
+                        className="bg-marketing-gradient text-white px-12"
+                      >
+                        {loading ? <Loader2 className="animate-spin mr-2" /> : <Zap size={18} className="mr-2"/>}
+                        Extract Strategic Assets
+                      </NeoButton>
+                   </div>
+                </MarketingCard>
+
+                {/* Review Queue UI */}
+                {reviewQueue.length > 0 && (
+                  <div className="space-y-4 animate-fade-in">
+                    <h3 className="text-sm font-black uppercase text-gray-400 tracking-widest flex items-center gap-2">
+                       <FileSearch size={16} /> Extracted - Review & Approve
+                    </h3>
+                    {reviewQueue.map((asset, i) => (
+                      <div key={i} className="p-6 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm relative group overflow-hidden">
+                         <div className="absolute top-0 right-0 p-2 flex gap-1">
+                            <button onClick={() => approveAsset(i)} className="p-2 bg-green-500 text-white rounded-lg shadow-sm hover:bg-green-600 transition-colors"><Check size={18} /></button>
+                            <button onClick={() => discardAsset(i)} className="p-2 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 transition-colors"><Trash2 size={18} /></button>
+                         </div>
+                         <div className="mb-4">
+                            <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.type}</span>
+                            <h4 className="text-lg font-bold text-gray-900 mt-2">{asset.title}</h4>
+                            <p className="text-sm text-gray-400 font-bold">{asset.role_tag}</p>
+                         </div>
+                         <ul className="space-y-2 mb-4">
+                            {asset.description?.map((bullet: string, idx: number) => (
+                               <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
+                            ))}
+                         </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
             {activeTab === 'media' && (
               <MarketingCard className="p-8">
-                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><LinkIcon className="text-indigo-600" /> Media Vault Ingestion</h2>
+                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><LinkIcon className="text-indigo-600" /> Strategic Media Ingestion</h2>
                  <div className="space-y-4">
                     <div>
                        <label className="block text-xs font-black uppercase text-gray-400 mb-1">Source URL</label>
@@ -125,9 +171,43 @@ const CareerAdmin: React.FC = () => {
                           <option>Social Content</option>
                        </select>
                     </div>
-                    <NeoButton onClick={handleBulkIngest} loading={loading} className="w-full bg-black text-white py-4 mt-4">Add to Vault</NeoButton>
+                    <NeoButton 
+                      onClick={() => handleBulkIngest()} 
+                      disabled={loading || !mediaUrl}
+                      className="w-full bg-black text-white py-4 mt-4"
+                    >
+                      {loading ? <Loader2 className="animate-spin mr-2" /> : null}
+                      Extract Strategic Value
+                    </NeoButton>
                  </div>
               </MarketingCard>
+            )}
+
+            {activeTab === 'builder' && (
+               <div className="space-y-8 animate-fade-in">
+                  <MarketingCard className="p-8 bg-black text-white">
+                     <h2 className="text-2xl font-black mb-4 flex items-center gap-2 text-brand-pink"><Wand2 /> Pitch Engine</h2>
+                     <p className="text-gray-400 mb-6">Paste a Job Description link below. I will orchestrate your best assets to create a 'Logic Proof' page for this specific role.</p>
+                     <div className="flex gap-3">
+                        <input 
+                          type="text" 
+                          value={jdLink}
+                          onChange={(e) => setJdLink(e.target.value)}
+                          className="flex-1 p-4 bg-gray-900 border-2 border-gray-800 rounded-xl focus:border-brand-pink focus:outline-none"
+                          placeholder="Paste Job Description URL here..."
+                        />
+                        <NeoButton onClick={handleGeneratePitch} disabled={loading || !jdLink} className="bg-brand-pink border-brand-pink">
+                           {loading ? <Loader2 className="animate-spin" /> : 'Generate Pitch'}
+                        </NeoButton>
+                     </div>
+                  </MarketingCard>
+
+                  <div className="p-12 border-4 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-center opacity-60">
+                     <Layout size={48} className="text-gray-300 mb-4" />
+                     <h3 className="text-xl font-bold text-gray-400">Page Preview Area</h3>
+                     <p className="text-sm text-gray-400 max-w-xs">Your tailored 'Logic Proof' resume will render here once a JD is processed. You'll be able to toggle sections like User Mirror process on/off.</p>
+                  </div>
+               </div>
             )}
 
             {activeTab === 'library' && (
@@ -154,6 +234,13 @@ const CareerAdmin: React.FC = () => {
                     <h2 className="text-xl font-bold flex items-center gap-2">Extrapolated Results <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">{results.length} total</span></h2>
                     {results.length === 0 && (
                        <div className="p-12 border-2 border-dashed border-gray-200 rounded-2xl text-center text-gray-400">Your library is currently empty. Start ingesting files or links.</div>
+                    )}
+                    {results.length > 1 && (
+                       <div className="flex justify-end">
+                          <button className="text-xs font-black text-indigo-600 uppercase flex items-center gap-1 hover:underline">
+                             <CheckCircle size={12} /> Auto-Deduplicate Library
+                          </button>
+                       </div>
                     )}
                     {results.map((asset, i) => (
                        <div key={i} className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all group">
