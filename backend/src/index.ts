@@ -809,6 +809,37 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
   return runTestHandler(req, res);
 });
 
+// --- Career Registry Ingestion (AI Orchestrator) ---
+app.post('/api/admin/career/ingest', authenticateRequest, async (req, res) => {
+  const { rawData, sourceUrl, assetType } = req.body;
+  if (!rawData && !sourceUrl) return res.status(400).json({ error: 'Data or URL required' });
+
+  try {
+    // This prompt tells Gemini to extract structured career data from your "dump"
+    const prompt = `
+      Analyze the following career data (Resume text or Media description):
+      "${rawData || sourceUrl}"
+      
+      Extract and categorize it into a JSON object with:
+      - title, company, dates, description (3 impactful bullets)
+      - roi_metrics (any numbers, percentages, or dollar amounts)
+      - skills_demonstrated (array of keywords)
+      - industry (HealthTech, Fintech, etc.)
+      - type (match one: experience, skill, case_study, talk, recommendation, writing_sample)
+    `;
+
+    const structuredData = await generateContentWithFallback(prompt);
+    const parsed = JSON.parse(structuredData.replace(/```json/g, '').replace(/```/g, ''));
+    
+    const { data, error } = await supabase.from('career_assets').insert([{ ...parsed, source_url: sourceUrl }]);
+    if (error) throw error;
+
+    res.json({ success: true, asset: parsed });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Ingestion failed', details: e.message });
+  }
+});
+
 // --- SEO Strategy: Email Math Breakdown ---
 app.post('/api/seo/email-math', async (req, res) => {
   const { targetEmail, retainer, hiringCost, totalExposure, monthsLeft, roi } = req.body;

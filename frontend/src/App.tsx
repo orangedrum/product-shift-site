@@ -41,6 +41,7 @@ import AdamLaneSmithProposal from './pages/AdamLaneSmithProposal';
 import FactoringFirmProposal from './pages/FactoringFirmProposal';
 import SeoFirmProposal from './pages/SeoFirmProposal';
 import SeoOnboarding from './pages/SeoOnboarding';
+import CareerAdmin from './pages/CareerAdmin';
 
 
 const App: React.FC = () => {
@@ -75,6 +76,7 @@ const App: React.FC = () => {
     '/factoring-firm-proposal',
     '/seo-firm-proposal',
     '/seo-onboarding',
+    '/admin-career',
     '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login');
@@ -177,6 +179,7 @@ const App: React.FC = () => {
           <Route path="/factoring-firm-proposal" element={<FactoringFirmProposal />} />
           <Route path="/seo-firm-proposal" element={<SeoFirmProposal />} />
           <Route path="/seo-onboarding" element={<SeoOnboarding />} />
+          <Route path="/admin-career" element={<CareerAdmin />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
