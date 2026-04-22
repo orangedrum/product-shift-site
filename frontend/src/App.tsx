@@ -41,7 +41,7 @@ import AdamLaneSmithProposal from './pages/AdamLaneSmithProposal';
 import FactoringFirmProposal from './pages/FactoringFirmProposal';
 import SeoFirmProposal from './pages/SeoFirmProposal';
 import SeoOnboarding from './pages/SeoOnboarding';
-import CareerAdmin from './pages/CareerAdmin';
+import CareerAdmin from './pages/CareerAdmin'; // Ensure case-perfect resolution
 
 
 const App: React.FC = () => {
