@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 const CareerAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder'>('pdf');
   const [chatInput, setChatInput] = useState('');
+  const [sidekickInput, setSidekickInput] = useState('');
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -24,6 +25,21 @@ const CareerAdmin: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // CTO FIX: Fetch existing library assets on mount to prevent "data loss" on refresh
+  useEffect(() => {
+    const fetchLibrary = async () => {
+      const { data, error } = await supabase
+        .from('career_assets')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (!error && data) {
+        setResults(data);
+      }
+    };
+    fetchLibrary();
+  }, []);
 
   const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
 
@@ -95,6 +111,24 @@ const CareerAdmin: React.FC = () => {
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analyzing JD requirements... Filtering your library for high-ROI Disney wins and relevant SaaS experience. Preview generated below." }]);
       setLoading(false);
     }, 2000);
+  };
+
+  const handleSidekickSend = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!sidekickInput.trim()) return;
+
+    const userMsg = sidekickInput;
+    setSidekickInput('');
+    setSidekickMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
+
+    // Simulated Sidekick Intelligence: If they paste a recommendation-like string, offer to process it.
+    setTimeout(() => {
+      let botReply = "I've noted that. Is there anything specific from your history you'd like me to highlight for a new pitch?";
+      if (userMsg.length > 100) {
+        botReply = "That looks like a detailed update! Should I process this text to extract new wins or work history for your library?";
+      }
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
+    }, 1000);
   };
 
   return (
@@ -394,13 +428,20 @@ const CareerAdmin: React.FC = () => {
               </div>
 
               <div className="p-4 bg-white border-t border-gray-100">
-                <div className="relative">
+                <form onSubmit={handleSidekickSend} className="relative">
                   <input 
-                    className="w-full p-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm"
-                    placeholder="Paste a recommendation or ask to refine..."
+                    value={sidekickInput}
+                    onChange={(e) => setSidekickInput(e.target.value)}
+                    className="w-full p-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-pink"
+                    placeholder="Ask Sidekick to refine or paste text..."
                   />
-                  <button className="absolute right-2 top-2 p-2 bg-gray-900 text-white rounded-lg"><Send size={16} /></button>
-                </div>
+                  <button 
+                    type="submit"
+                    className="absolute right-2 top-2 p-2 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors"
+                  >
+                    <Send size={16} />
+                  </button>
+                </form>
               </div>
             </MarketingCard>
           </div>

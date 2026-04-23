@@ -47,12 +47,12 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
       "${rawData || sourceUrl}"
       
       TASK:
-      1. CHAMPION "EXTRA EXTRA" CONTENT: If this is a published article or video (especially prestigious sources like Dovetail, The Startup, Medium, or ACM), create a 'writing_sample' or 'talk' entry as the PRIMARY asset.
-      2. CASE STUDY DEEP DIVE: If the source is a Case Study, extract a detailed "Logic Proof" structure: The Problem, your strategic Methodology, the Solution, and the measurable ROI Outcome. 
-      3. RECOMMENDATIONS: If the source is a recommendation, extract the author's name/role as 'company' and focus the description on the specific "Jean qualities" and results mentioned.
-      4. THE "LOGIC PROOF": For all primary entries, emphasize the strategic methodology and thought leadership demonstrated. The 'company' field MUST be the publisher or author's organization.
-      5. Extract specific 'win', 'tooling', or 'skill' assets ONLY if they represent unique, high-impact ROI points found within the content that aren't in the context below.
-      6. TECHNICAL TOOLING: Ensure tools like Dovetail, Axure, or specific AI agents are categorized as 'tooling'.
+      1. EXHAUSTIVE EXTRACTION: Extract EVERY unique role, win, skill, and tool found in the text.
+      2. LOGIC OVER LAP: Even if a role title exists in the "CURRENT LIBRARY CONTEXT" below, extract this version if the bullet points provide NEW metrics, different ROI numbers, or unique project details.
+      3. CHAMPION "EXTRA EXTRA": Identify published articles (Dovetail, The Startup) as primary 'writing_sample' assets.
+      4. CASE STUDY DEEP DIVE: For Case Studies, extract the Problem/Methodology/Solution/ROI arc.
+      5. RECOMMENDATIONS: For text-based recommendations, use the author's name as 'company' and extract the specific praise as bullet points.
+      6. TECHNICAL TOOLING: Itemize tools like Dovetail, Axure, or specific AI agents as 'tooling'.
 
       CURRENT LIBRARY CONTEXT (Do not repeat these):
       ${libraryContext || 'Library is currently empty.'}
