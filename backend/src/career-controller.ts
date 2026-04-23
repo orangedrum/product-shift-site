@@ -121,7 +121,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     // 3. AI Selection Logic (The Perfect 24)
     const prompt = `
       You are a World-Class Executive Recruiter. 
-      OBJECTIVE: Select the 'Perfect 24' assets for Jean Kaluza to land this job.
+      OBJECTIVE: Orchestrate a tailored, interactive resume for Jean Kaluza for this specific job.
       
       JOB DESCRIPTION:
       "${jdText}"
@@ -137,7 +137,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       - 2 talk
       - 2 recommendation
       - 2 writing_sample
-      - 4 high-impact wins or technical tooling
+      - 4 technical tooling
+      - Any high-impact wins embedded in the work_history.
 
       Return a JSON object with a single key "selectedIds" containing an ARRAY of asset IDs.
     `;
@@ -151,9 +152,9 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     // Filter full asset data for the frontend
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
 
-    // 4. Generate AI Strategic Summary for the Pitch
-    const summaryPrompt = `Based on this JD and these selected assets, write a 2-sentence 'Strategic Hook' for Jean's pitch page. 
-    Focus on de-risking their specific pain points with Jean's speed.`;
+    // 4. Generate AI Professional Summary for the Resume
+    const summaryPrompt = `Based on this JD and these selected assets, write a 3-sentence 'Professional Summary' for Jean's resume. 
+    It should be high-impact, professional, and focus on the strategic outcomes he delivers.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
     res.json({ 

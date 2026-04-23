@@ -180,7 +180,7 @@ const CareerAdmin: React.FC = () => {
             <div className="flex items-center gap-2"><Database size={16}/> Library</div>
           </button>
           <button onClick={() => setActiveTab('builder')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'builder' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
-            <div className="flex items-center gap-2"><Wand2 size={16}/> Pitch Builder</div>
+            <div className="flex items-center gap-2"><Wand2 size={16}/> The Brag Engine</div>
           </button>
         </div>
 
@@ -333,8 +333,8 @@ const CareerAdmin: React.FC = () => {
             {activeTab === 'builder' && (
                <div className="space-y-8 animate-fade-in">
                   <MarketingCard className="p-8 bg-black text-white">
-                     <h2 className="text-2xl font-black mb-4 flex items-center gap-2 text-brand-pink"><Wand2 /> Pitch Engine</h2>
-                     <p className="text-gray-400 mb-6">Paste a Job Description link below. I will orchestrate your best assets to create a 'Logic Proof' page for this specific role.</p>
+                     <h2 className="text-2xl font-black mb-4 flex items-center gap-2 text-brand-pink"><Wand2 /> The Brag Engine - Resume Builder for Jean Kaluza in 2026</h2>
+                     <p className="text-gray-400 mb-6">Paste a Job Description link below. I will orchestrate your best assets to create a tailored, interactive resume for this specific role. This is NOT a pitch, this is your resume.</p>
                      <div className="flex gap-3">
                         <input 
                           type="text" 
@@ -343,8 +343,8 @@ const CareerAdmin: React.FC = () => {
                           className="flex-1 p-4 bg-gray-900 border-2 border-gray-800 rounded-xl focus:border-brand-pink focus:outline-none"
                           placeholder="Paste Job Description URL here..."
                         />
-                        <NeoButton onClick={handleGeneratePitch} disabled={loading || !jdLink} className="bg-brand-pink border-brand-pink">
-                           {loading ? <Loader2 className="animate-spin" /> : 'Generate Pitch'}
+                        <NeoButton onClick={handleGeneratePitch} disabled={loading || !jdLink} className="bg-brand-pink border-brand-pink text-black font-bold">
+                           {loading ? <Loader2 className="animate-spin" /> : 'Build My Resume'}
                         </NeoButton>
                      </div>
                   </MarketingCard>
@@ -352,50 +352,129 @@ const CareerAdmin: React.FC = () => {
                   {!pitchPreview ? (
                     <div className="p-12 border-4 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-center opacity-60">
                        <Layout size={48} className="text-gray-300 mb-4" />
-                       <h3 className="text-xl font-bold text-gray-400">Page Preview Area</h3>
-                       <p className="text-sm text-gray-400 max-w-xs">Your tailored 'Logic Proof' resume will render here once a JD is processed.</p>
+                       <h3 className="text-xl font-bold text-gray-400">Interactive Resume Preview</h3>
+                       <p className="text-sm text-gray-400 max-w-xs">Your tailored 'Logic Proof' resume will render here once a JD is processed. This is the actual page a hiring manager will see.</p>
                     </div>
                   ) : (
-                    <div className="space-y-8 animate-fade-in">
-                      <div className="p-8 bg-indigo-50 border-2 border-indigo-100 rounded-3xl">
-                        <div className="flex justify-between items-center mb-6">
-                           <h3 className="text-xs font-black uppercase text-indigo-400 tracking-[0.2em]">Strategic Preview: {pitchPreview.targetTitle}</h3>
-                           <NeoButton className="bg-marketing-gradient text-white text-xs px-4">Publish Live Pitch</NeoButton>
-                        </div>
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-indigo-100 mb-8">
-                           <p className="text-2xl font-bold text-gray-900 leading-tight italic">"{pitchPreview.strategicHook}"</p>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="bg-white p-4 rounded-xl border border-indigo-100">
-                              <p className="text-[10px] font-black uppercase text-gray-400 mb-2">Selected Evidence</p>
-                              <ul className="space-y-1">
-                                 {pitchPreview.assets.map((a, idx) => (
-                                    <li key={idx} className="text-xs font-bold text-gray-700 flex items-center gap-2">
-                                       <CheckCircle size={10} className="text-green-500" /> {a.title}
-                                    </li>
-                                 ))}
-                              </ul>
-                           </div>
-                           <div className="space-y-4">
-                              <div className="bg-white p-6 rounded-xl border border-indigo-100">
-                                 <h4 className="font-bold text-sm mb-2 flex items-center gap-2"><Trophy size={14} className="text-amber-500" /> ROI Ticker Items</h4>
-                                 <div className="flex flex-wrap gap-2">
-                                    {pitchPreview.assets.filter(a => a.type === 'win').map((w, idx) => (
-                                       <span key={idx} className="text-[10px] font-black bg-green-50 text-green-700 px-2 py-1 rounded">{w.roi_metrics?.[0]}</span>
-                                    ))}
-                                 </div>
-                              </div>
-                              <div className="bg-gray-900 p-6 rounded-xl text-white">
-                                 <h4 className="font-bold text-sm mb-2 flex items-center gap-2 text-brand-pink"><Eye size={14} /> Interactive Sections</h4>
-                                 <div className="flex flex-col gap-2">
-                                    <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> Include User Mirror Lab</label>
-                                    <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> Include Vibe-Coding Loop</label>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
+                    <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg">
+                      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                         <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.2em]">Preview for: {pitchPreview.targetTitle}</h3>
+                         <NeoButton className="bg-marketing-gradient text-white text-xs px-4 font-bold">Publish Live Resume</NeoButton>
                       </div>
+
+                      {/* Resume Header & Summary */}
+                      <div className="mb-8">
+                         <h2 className="text-3xl font-black text-gray-900 mb-2">Jean Kaluza</h2>
+                         <p className="text-lg text-gray-600 font-medium mb-4">UX Researcher & Strategist | Product Leader | AI Innovator</p>
+                         <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                            <p className="text-sm font-black uppercase text-gray-400 mb-2 tracking-widest">Professional Summary</p>
+                            <p className="text-xl font-bold text-gray-900 leading-tight italic">"{pitchPreview.strategicHook}"</p>
+                         </div>
+                      </div>
+
+                      {/* Million Dollar Wins Ticker (Placeholder for actual component) */}
+                      <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center">
+                         <h4 className="text-sm font-black uppercase text-green-800 flex items-center gap-2"><Trophy size={16} className="text-green-600" /> Million Dollar Wins:</h4>
+                         {pitchPreview.assets.filter(a => a.type === 'win' || (a.type === 'work_history' && a.roi_metrics?.length > 0)).slice(0, 5).map((w, idx) => (
+                            <span key={idx} className="text-xs font-bold text-green-700">{w.roi_metrics?.[0] || w.title}</span>
+                         ))}
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Main Content Column */}
+                        <div className="lg:col-span-2 space-y-8">
+                          {/* Work History */}
+                          <div>
+                            <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Work History</h3>
+                            {pitchPreview.assets.filter(a => a.type === 'work_history').map((job, idx) => (
+                              <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                                <h4 className="text-lg font-bold text-gray-900">{job.title}</h4>
+                                <p className="text-sm text-gray-600 mb-2">{job.company} | {job.dates}</p>
+                                <ul className="list-disc pl-5 space-y-1 text-gray-700 text-sm">
+                                  {job.description?.map((bullet: string, bIdx: number) => (
+                                    <li key={bIdx}>{bullet}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Case Studies */}
+                          <div>
+                            <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Case Studies (Logic Proofs)</h3>
+                            {pitchPreview.assets.filter(a => a.type === 'case_study').map((cs, idx) => (
+                              <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                                <h4 className="text-lg font-bold text-gray-900">{cs.title}</h4>
+                                <p className="text-sm text-gray-600 mb-2">{cs.company}</p>
+                                <p className="text-sm text-gray-700 italic">{cs.description?.[0]}</p>
+                                {cs.source_url && (
+                                  <a href={cs.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-2">
+                                    <ExternalLink size={14} /> View Interactive Proof
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Writing Samples & Talks */}
+                          <div>
+                            <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Publications & Talks</h3>
+                            {pitchPreview.assets.filter(a => a.type === 'writing_sample' || a.type === 'talk').map((item, idx) => (
+                              <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                                <h4 className="text-lg font-bold text-gray-900">{item.title}</h4>
+                                <p className="text-sm text-gray-600 mb-2">{item.company} | {item.dates}</p>
+                                {item.source_url && (
+                                  <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-1">
+                                    <ExternalLink size={14} /> Read/Watch
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Sidebar Column */}
+                        <div className="lg:col-span-1 space-y-8">
+                          {/* Skills */}
+                          <div>
+                            <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Skills</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {pitchPreview.assets.filter(a => a.type === 'skill').map((skill, idx) => (
+                                <span key={idx} className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-800">{skill.title}</span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Technical Tools */}
+                          <div>
+                            <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Technical Tools</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {pitchPreview.assets.filter(a => a.type === 'tooling').map((tool, idx) => (
+                                <span key={idx} className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-800">{tool.title}</span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Recommendations */}
+                          <div>
+                            <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Recommendations</h3>
+                            {pitchPreview.assets.filter(a => a.type === 'recommendation').map((rec, idx) => (
+                              <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                                <p className="text-sm italic text-gray-700 mb-2">"{rec.description?.[0]}"</p>
+                                <p className="text-xs font-bold text-gray-500">- {rec.company}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Interactive Sections */}
+                          <div className="bg-gray-900 p-6 rounded-xl text-white">
+                             <h4 className="font-bold text-sm mb-2 flex items-center gap-2 text-brand-pink"><Eye size={14} /> Interactive Sections</h4>
+                             <div className="flex flex-col gap-2">
+                                <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> User Mirror Lab</label>
+                                <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> Vibe-Coding Loop</label>
+                             </div>
+                          </div>
+                        </div>
                     </div>
                   )}
                </div>
