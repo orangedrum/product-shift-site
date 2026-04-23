@@ -188,6 +188,7 @@ const CareerAdmin: React.FC = () => {
             )}
 
             {activeTab === 'media' && (
+              <div className="space-y-6">
               <MarketingCard className="p-8">
                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><LinkIcon className="text-indigo-600" /> Strategic Media Ingestion</h2>
                  <div className="space-y-4">
