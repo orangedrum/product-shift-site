@@ -23,6 +23,11 @@ const CareerAdmin: React.FC = () => {
   ]);
 
   const [results, setResults] = useState<any[]>([]);
+  const [pitchPreview, setPitchPreview] = useState<{
+    assets: any[],
+    strategicHook: string,
+    targetTitle: string
+  } | null>(null);
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -104,13 +109,31 @@ const CareerAdmin: React.FC = () => {
     setReviewQueue(reviewQueue.filter((_, i) => i !== index));
   };
 
-  const handleGeneratePitch = () => {
+  const handleGeneratePitch = async () => {
     setLoading(true);
-    setSidekickMessages(prev => [...prev, { sender: 'user', text: `Build me a pitch for this JD: ${jdLink}` }]);
-    setTimeout(() => {
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analyzing JD requirements... Filtering your library for high-ROI Disney wins and relevant SaaS experience. Preview generated below." }]);
+    setSidekickMessages(prev => [...prev, { sender: 'user', text: `Building pitch for: ${jdLink}` }]);
+    
+    try {
+      const res = await fetch('/api/admin/career/generate-pitch', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+        },
+        body: JSON.stringify({ jdUrl: jdLink })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPitchPreview(data.data);
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analysis complete! I've selected the 24 assets that best prove your ROI for this role. You can review the page layout below." }]);
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (e: any) {
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Pitch Error: ${e.message}` }]);
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const handleSidekickSend = async (e?: React.FormEvent) => {
@@ -326,11 +349,55 @@ const CareerAdmin: React.FC = () => {
                      </div>
                   </MarketingCard>
 
-                  <div className="p-12 border-4 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-center opacity-60">
-                     <Layout size={48} className="text-gray-300 mb-4" />
-                     <h3 className="text-xl font-bold text-gray-400">Page Preview Area</h3>
-                     <p className="text-sm text-gray-400 max-w-xs">Your tailored 'Logic Proof' resume will render here once a JD is processed. You'll be able to toggle sections like User Mirror process on/off.</p>
-                  </div>
+                  {!pitchPreview ? (
+                    <div className="p-12 border-4 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-center opacity-60">
+                       <Layout size={48} className="text-gray-300 mb-4" />
+                       <h3 className="text-xl font-bold text-gray-400">Page Preview Area</h3>
+                       <p className="text-sm text-gray-400 max-w-xs">Your tailored 'Logic Proof' resume will render here once a JD is processed.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-8 animate-fade-in">
+                      <div className="p-8 bg-indigo-50 border-2 border-indigo-100 rounded-3xl">
+                        <div className="flex justify-between items-center mb-6">
+                           <h3 className="text-xs font-black uppercase text-indigo-400 tracking-[0.2em]">Strategic Preview: {pitchPreview.targetTitle}</h3>
+                           <NeoButton className="bg-marketing-gradient text-white text-xs px-4">Publish Live Pitch</NeoButton>
+                        </div>
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-indigo-100 mb-8">
+                           <p className="text-2xl font-bold text-gray-900 leading-tight italic">"{pitchPreview.strategicHook}"</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="bg-white p-4 rounded-xl border border-indigo-100">
+                              <p className="text-[10px] font-black uppercase text-gray-400 mb-2">Selected Evidence</p>
+                              <ul className="space-y-1">
+                                 {pitchPreview.assets.map((a, idx) => (
+                                    <li key={idx} className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                                       <CheckCircle size={10} className="text-green-500" /> {a.title}
+                                    </li>
+                                 ))}
+                              </ul>
+                           </div>
+                           <div className="space-y-4">
+                              <div className="bg-white p-6 rounded-xl border border-indigo-100">
+                                 <h4 className="font-bold text-sm mb-2 flex items-center gap-2"><Trophy size={14} className="text-amber-500" /> ROI Ticker Items</h4>
+                                 <div className="flex flex-wrap gap-2">
+                                    {pitchPreview.assets.filter(a => a.type === 'win').map((w, idx) => (
+                                       <span key={idx} className="text-[10px] font-black bg-green-50 text-green-700 px-2 py-1 rounded">{w.roi_metrics?.[0]}</span>
+                                    ))}
+                                 </div>
+                              </div>
+                              <div className="bg-gray-900 p-6 rounded-xl text-white">
+                                 <h4 className="font-bold text-sm mb-2 flex items-center gap-2 text-brand-pink"><Eye size={14} /> Interactive Sections</h4>
+                                 <div className="flex flex-col gap-2">
+                                    <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> Include User Mirror Lab</label>
+                                    <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> Include Vibe-Coding Loop</label>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                </div>
             )}
 

@@ -96,3 +96,76 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Ingestion failed', details: e.message });
   }
 };
+
+export const generatePitchHandler = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
+  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { jdUrl } = req.body;
+  if (!jdUrl) return res.status(400).json({ error: 'JD URL required' });
+
+  try {
+    // 1. Scrape the Job Description
+    const jdData = await scrapeUrl(jdUrl);
+    const jdText = `Title: ${jdData.title}\n\nDescription: ${jdData.bodyText}`;
+
+    // 2. Fetch all Career Assets
+    const { data: assets } = await supabase.from('career_assets').select('*');
+    if (!assets || assets.length === 0) {
+      return res.status(404).json({ error: 'Library is empty. Please ingest assets first.' });
+    }
+
+    // 3. AI Selection Logic (The Perfect 24)
+    const prompt = `
+      You are a World-Class Executive Recruiter. 
+      OBJECTIVE: Select the 'Perfect 24' assets for Jean Kaluza to land this job.
+      
+      JOB DESCRIPTION:
+      "${jdText}"
+
+      AVAILABLE ASSETS:
+      ${assets.map(a => `ID: ${a.id} | Type: ${a.type} | Title: ${a.title} | Company: ${a.company}`).join('\n')}
+
+      TASK:
+      Select exactly 24 assets (or as many as available) following these constraints:
+      - 5 work_history
+      - 6 skill
+      - 3 case_study
+      - 2 talk
+      - 2 recommendation
+      - 2 writing_sample
+      - 4 high-impact wins or technical tooling
+
+      Return a JSON object with a single key "selectedIds" containing an ARRAY of asset IDs.
+    `;
+
+    const aiResponse = await generateContentWithFallback(prompt);
+    const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI failed to select assets');
+    
+    const { selectedIds } = JSON.parse(jsonMatch[0]);
+    
+    // Filter full asset data for the frontend
+    const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
+
+    // 4. Generate AI Strategic Summary for the Pitch
+    const summaryPrompt = `Based on this JD and these selected assets, write a 2-sentence 'Strategic Hook' for Jean's pitch page. 
+    Focus on de-risking their specific pain points with Jean's speed.`;
+    const strategicHook = await generateContentWithFallback(summaryPrompt);
+
+    res.json({ 
+      success: true, 
+      data: {
+        assets: curatedPitch,
+        strategicHook,
+        targetTitle: jdData.title
+      }
+    });
+  } catch (e: any) {
+    console.error('❌ [PITCH GENERATION ERROR]:', e);
+    res.status(500).json({ error: 'Pitch generation failed', details: e.message });
+  }
+};
