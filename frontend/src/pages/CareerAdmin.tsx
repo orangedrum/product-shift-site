@@ -213,6 +213,7 @@ const CareerAdmin: React.FC = () => {
                           <option>Video/Talk</option>
                           <option>Case Study</option>
                           <option>Social Content</option>
+                          <option>Recommendation</option>
                        </select>
                     </div>
                     <NeoButton 
@@ -396,7 +397,7 @@ const CareerAdmin: React.FC = () => {
                 <div className="relative">
                   <input 
                     className="w-full p-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm"
-                    placeholder="Ask Sidekick to refine..."
+                    placeholder="Paste a recommendation or ask to refine..."
                   />
                   <button className="absolute right-2 top-2 p-2 bg-gray-900 text-white rounded-lg"><Send size={16} /></button>
                 </div>

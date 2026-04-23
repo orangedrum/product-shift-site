@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { supabase } from './services';
 import { generateContentWithFallback } from './ai-service';
+import { scrapeUrl } from './analysis-controller';
 
 export const careerIngestHandler = async (req: Request, res: Response) => {
   // Admin Auth Check
@@ -11,11 +12,23 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Unauthorized: Admin access required' });
   }
 
-  const { rawData, sourceUrl, role, label } = req.body;
+  let { rawData, sourceUrl, role, label } = req.body;
   if (!rawData && !sourceUrl) return res.status(400).json({ error: 'Data or URL required' });
 
   try {
     console.log(`🚀 [CAREER INGEST] Processing asset for role: ${role || 'Auto-detect'}`);
+
+    // CTO Strategy: If it's a URL ingestion, let's actually scrape the content
+    // so Gemini can read the REAL article rather than guessing based on the URL string.
+    if (sourceUrl && !rawData) {
+      try {
+         const scraped = await scrapeUrl(sourceUrl);
+         rawData = `Title: ${scraped.title}\n\nBody: ${scraped.bodyText}`;
+         console.log(`✅ Scraped content for URL: ${sourceUrl}`);
+      } catch (scrapeErr) {
+         console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);
+      }
+    }
 
     // CTO Logic: Fetch existing asset titles to help AI deduplicate against the current library
     const { data: existingAssets } = await supabase
@@ -28,19 +41,21 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
 
     const prompt = `
       You are a world-class Executive Recruiter and Career Strategist.
-      Analyze the following career data for Jean Kaluza. 
+      Analyze the following career data for Jean Kaluza, a high-level Product Strategist. 
       ${role ? `Focus on the perspective of: ${role}.` : 'Identify the primary role/specialization automatically for each item.'}
-      ${label ? `This source is labeled as: ${label}.` : ''}
+      ${label ? `CRITICAL CONTEXT: This source is specifically a ${label}.` : ''}
       "${rawData || sourceUrl}"
       
+      TASK:
+      1. CHAMPION "EXTRA EXTRA" CONTENT: If this is a published article or video (especially prestigious sources like Dovetail, The Startup, Medium, or ACM), create a 'writing_sample' or 'talk' entry as the PRIMARY asset.
+      2. CASE STUDY DEEP DIVE: If the source is a Case Study, extract a detailed "Logic Proof" structure: The Problem, your strategic Methodology, the Solution, and the measurable ROI Outcome. 
+      3. RECOMMENDATIONS: If the source is a recommendation, extract the author's name/role as 'company' and focus the description on the specific "Jean qualities" and results mentioned.
+      4. THE "LOGIC PROOF": For all primary entries, emphasize the strategic methodology and thought leadership demonstrated. The 'company' field MUST be the publisher or author's organization.
+      5. Extract specific 'win', 'tooling', or 'skill' assets ONLY if they represent unique, high-impact ROI points found within the content that aren't in the context below.
+      6. TECHNICAL TOOLING: Ensure tools like Dovetail, Axure, or specific AI agents are categorized as 'tooling'.
+
       CURRENT LIBRARY CONTEXT (Do not repeat these):
       ${libraryContext || 'Library is currently empty.'}
-
-      TASK:
-      1. Extract EVERY unique career asset NOT already in the Library Context.
-      2. For 'tooling', focus on specialized software (Axure, Dovetail, etc.).
-      3. Identify if the content is "Published" by a reputable source (e.g., Dovetail, The Startup, Medium, ACM, etc.).
-      4. If multiple versions of the same role exist, extract ONLY the version with the highest ROI metrics/impact.
 
       Return a JSON object with a single key "assets" containing an ARRAY of objects.
       Each object in the array MUST follow this schema:
