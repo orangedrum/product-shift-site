@@ -61,10 +61,10 @@ const CareerAdmin: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || data.details || 'Server error');
 
-      setReviewQueue(prev => [data.asset, ...prev]);
+      setReviewQueue(prev => [...data.assets, ...prev]);
       setChatInput(''); 
       setMediaUrl('');
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `Extraction complete for "${data.asset.title}". Review it below.` }]);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `I found ${data.assets.length} strategic assets in that resume! Review them in the queue below.` }]);
     } catch (e: any) {
       console.error(e);
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Error: ${e.message}` }]);
@@ -75,9 +75,13 @@ const CareerAdmin: React.FC = () => {
 
   const approveAsset = async (index: number) => {
     const asset = reviewQueue[index];
-    setResults([asset, ...results]);
-    setReviewQueue(reviewQueue.filter((_, i) => i !== index));
-    setSidekickMessages(prev => [...prev, { sender: 'bot', text: `"${asset.title}" approved. Your library health has improved.` }]);
+    const { data, error } = await supabase.from('career_assets').insert([asset]).select().single();
+    
+    if (!error) {
+      setResults(prev => [data, ...prev]);
+      setReviewQueue(prev => prev.filter((_, i) => i !== index));
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `"${asset.title}" approved and saved to database.` }]);
+    }
   };
 
   const discardAsset = (index: number) => {
@@ -220,6 +224,51 @@ const CareerAdmin: React.FC = () => {
                     </NeoButton>
                  </div>
               </MarketingCard>
+              </div>
+            )}
+
+            {/* Global Review Queue UI (Shows on PDF and Media Ingestion) */}
+            {(activeTab === 'pdf' || activeTab === 'media') && reviewQueue.length > 0 && (
+              <div className="space-y-4 animate-fade-in pt-6 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-black uppercase text-gray-400 tracking-widest flex items-center gap-2">
+                     <FileSearch size={16} /> Extracted - Review & Approve
+                  </h3>
+                  <button onClick={() => setReviewQueue([])} className="text-[10px] font-bold text-red-500 hover:underline uppercase">Clear Queue</button>
+                </div>
+                {reviewQueue.map((asset, i) => (
+                  <div key={i} className="p-6 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm relative group overflow-hidden">
+                     <div className="absolute top-0 right-0 p-2 flex gap-1">
+                        <button onClick={() => approveAsset(i)} className="p-2 bg-green-500 text-white rounded-lg shadow-sm hover:bg-green-600 transition-colors"><Check size={18} /></button>
+                        <button onClick={() => discardAsset(i)} className="p-2 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 transition-colors"><Trash2 size={18} /></button>
+                     </div>
+                     <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                           <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.type}</span>
+                           {asset.is_published && (
+                             <span className="text-[10px] font-black uppercase bg-amber-100 text-amber-700 px-2 py-1 rounded-md flex items-center gap-1">
+                               <Trophy size={10}/> Reputable Source
+                             </span>
+                           )}
+                        </div>
+                        <h4 className="text-lg font-bold text-gray-900">{asset.title}</h4>
+                        <p className="text-sm text-gray-400 font-bold">{asset.company || asset.role_tag}</p>
+                     </div>
+                     <ul className="space-y-2 mb-4">
+                        {asset.description?.map((bullet: string, idx: number) => (
+                           <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
+                        ))}
+                     </ul>
+                     {asset.source_url && asset.source_url !== 'direct_upload' && (
+                       <div className="mt-2 pt-2 border-t border-gray-50">
+                         <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
+                           <ExternalLink size={10} /> View Original Source
+                         </a>
+                       </div>
+                     )}
+                  </div>
+                ))}
+              </div>
             )}
 
             {activeTab === 'builder' && (
@@ -296,6 +345,13 @@ const CareerAdmin: React.FC = () => {
                                       <li key={idx} className="text-sm text-gray-600 flex items-start gap-2"><CheckCircle size={14} className="text-green-500 mt-1 flex-shrink-0" /> {bullet}</li>
                                    ))}
                                 </ul>
+                                {asset.source_url && asset.source_url !== 'direct_upload' && (
+                                   <div className="mb-4">
+                                      <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-4">
+                                         <ExternalLink size={14} /> View Full Article
+                                      </a>
+                                   </div>
+                                )}
                              </div>
                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button className="p-2 hover:bg-gray-50 rounded-lg"><Edit3 size={18} className="text-gray-400" /></button>

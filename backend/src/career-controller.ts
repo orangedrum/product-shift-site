@@ -17,24 +17,45 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
   try {
     console.log(`🚀 [CAREER INGEST] Processing asset for role: ${role || 'Auto-detect'}`);
 
+    // CTO Logic: Fetch existing asset titles to help AI deduplicate against the current library
+    const { data: existingAssets } = await supabase
+      .from('career_assets')
+      .select('title, company, type');
+    
+    const libraryContext = (existingAssets || [])
+      .map(a => `- ${a.type}: ${a.title} (${a.company})`)
+      .join('\n');
+
     const prompt = `
       You are a world-class Executive Recruiter and Career Strategist.
-      Analyze the following career data. ${role ? `Focus on the perspective of: ${role}.` : 'Identify the primary role/specialization automatically.'}
+      Analyze the following career data for Jean Kaluza. 
+      ${role ? `Focus on the perspective of: ${role}.` : 'Identify the primary role/specialization automatically for each item.'}
       ${label ? `This source is labeled as: ${label}.` : ''}
       "${rawData || sourceUrl}"
       
-      TASK:
-      1. Extract STRONGEST unique points only. Deduplicate against common resume fluff.
-      2. Identify ROI statements and "Floating Wins."
-      3. Detect the role/specialization if not specified.
+      CURRENT LIBRARY CONTEXT (Do not repeat these):
+      ${libraryContext || 'Library is currently empty.'}
 
-      Return a JSON object:
-      - title (string), company (string), dates (string), description (Array of 3 impactful strings)
-      - roi_metrics (Array of strings like "$3M saved")
-      - skills_demonstrated (array of keywords)
-      - industry (HealthTech, Fintech, etc.)
-      - type (match: work_history, skill, case_study, talk, recommendation, writing_sample, win)
-      - role_tag (The primary role identified)
+      TASK:
+      1. Extract EVERY unique career asset NOT already in the Library Context.
+      2. For 'tooling', focus on specialized software (Axure, Dovetail, etc.).
+      3. Identify if the content is "Published" by a reputable source (e.g., Dovetail, The Startup, Medium, ACM, etc.).
+      4. If multiple versions of the same role exist, extract ONLY the version with the highest ROI metrics/impact.
+
+      Return a JSON object with a single key "assets" containing an ARRAY of objects.
+      Each object in the array MUST follow this schema:
+      {
+        "title": "Clear title of asset",
+        "company": "Company name or N/A",
+        "dates": "Date range or N/A",
+        "description": ["Bullet 1", "Bullet 2"],
+        "roi_metrics": ["$3M saved", "300% ROI"],
+        "skills_demonstrated": ["Stakeholder Mgmt", "Product Vision"],
+        "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation",
+        "role_tag": "The primary role context (e.g. UX Researcher, Product Manager)",
+        "industry": "e.g. HealthTech, EdTech",
+        "is_published": boolean (true if published by a reputable 3rd party)
+      }
     `;
 
     const structuredData = await generateContentWithFallback(prompt);
@@ -43,23 +64,18 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to produce valid JSON structure');
     
-    const parsed = JSON.parse(jsonMatch[0]);
+    const { assets } = JSON.parse(jsonMatch[0]);
 
-    // Data Normalization for Supabase JSONB
-    if (!Array.isArray(parsed.description)) parsed.description = [parsed.description || ''];
-    if (!Array.isArray(parsed.roi_metrics)) parsed.roi_metrics = parsed.roi_metrics ? [parsed.roi_metrics] : [];
-    if (!Array.isArray(parsed.skills_demonstrated)) parsed.skills_demonstrated = parsed.skills_demonstrated ? [parsed.skills_demonstrated] : [];
-    
-    // CTO Strategy: We only persist the "Structured Truth". 
-    // We do NOT store the original rawData (which could be 1MB+ of text) 
-    // in the database record to keep your storage footprint near zero.
-    const { data, error } = await supabase.from('career_assets').insert([{ 
-      ...parsed, 
+    // Data Normalization
+    const normalizedAssets = assets.map((a: any) => ({
+      ...a,
+      description: Array.isArray(a.description) ? a.description : [a.description],
+      roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
+      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : [],
       source_url: sourceUrl || 'direct_upload'
-    }]).select().single();
-    
-    if (error) throw error;
-    res.json({ success: true, asset: data });
+    }));
+
+    res.json({ success: true, assets: normalizedAssets });
   } catch (e: any) {
     console.error('❌ [CAREER INGEST ERROR]:', e);
     res.status(500).json({ error: 'Ingestion failed', details: e.message });
