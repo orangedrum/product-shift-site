@@ -40,14 +40,15 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
       .join('\n');
 
     const prompt = `
-      You are a world-class Executive Recruiter and Career Strategist.
-      Analyze the following career data for Jean Kaluza, a high-level Product Strategist. 
+      You are a world-class Executive Recruiter.
+      Analyze the following career data for Jean Kaluza, a high-level Product Strategist. Jean uses she/her pronouns.
       ${role ? `Focus on the perspective of: ${role}.` : 'Identify the primary role/specialization automatically for each item.'}
       ${label ? `CRITICAL CONTEXT: This source is specifically a ${label}.` : ''}
       "${rawData || sourceUrl}"
       
       TASK:
-      1. EXHAUSTIVE EXTRACTION: Extract EVERY unique role, win, skill, and tool found in the text.
+      1. EXHAUSTIVE EXTRACTION: Extract EVERY unique role, win, skill, and tool.
+      2. NO DATES: Do NOT extract years, date ranges, or months. Omit the 'dates' field or set to 'N/A'.
       2. LOGIC OVER LAP: Even if a role title exists in the "CURRENT LIBRARY CONTEXT" below, extract this version if the bullet points provide NEW metrics, different ROI numbers, or unique project details.
       3. CHAMPION "EXTRA EXTRA": Identify published articles (Dovetail, The Startup) as primary 'writing_sample' assets.
       4. CASE STUDY DEEP DIVE: For Case Studies, extract the Problem/Methodology/Solution/ROI arc.
@@ -62,7 +63,7 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
       {
         "title": "Clear title of asset",
         "company": "Company name or N/A",
-        "dates": "Date range or N/A",
+        "dates": "N/A",
         "description": ["Bullet 1", "Bullet 2"],
         "roi_metrics": ["$3M saved", "300% ROI"],
         "skills_demonstrated": ["Stakeholder Mgmt", "Product Vision"],
@@ -120,7 +121,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
     // 3. AI Selection Logic (The Perfect 24)
     const prompt = `
-      You are a World-Class Executive Recruiter. 
+      You are a World-Class Executive Recruiter. Jean Kaluza (she/her) is the candidate.
       OBJECTIVE: Orchestrate a tailored, interactive resume for Jean Kaluza for this specific job.
       
       JOB DESCRIPTION:
@@ -130,7 +131,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       ${assets.map(a => `ID: ${a.id} | Type: ${a.type} | Title: ${a.title} | Company: ${a.company}`).join('\n')}
 
       TASK:
-      Select exactly 24 assets (or as many as available) following these constraints:
+      Select exactly 24 assets (omit all dates/years from titles/descriptions):
       - 5 work_history
       - 6 skill
       - 3 case_study
@@ -152,9 +153,9 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     // Filter full asset data for the frontend
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
 
-    // 4. Generate AI Professional Summary for the Resume
-    const summaryPrompt = `Based on this JD and these selected assets, write a 3-sentence 'Professional Summary' for Jean's resume. 
-    It should be high-impact, professional, and focus on the strategic outcomes he delivers.`;
+    // 4. Generate AI Professional Summary
+    const summaryPrompt = `Based on this JD and these assets, write a 3-sentence Professional Summary for Jean Kaluza (she/her). 
+    Output ONLY the summary text. Do NOT include an introduction like "Here is your summary". Focus on her strategic outcomes.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
     res.json({ 

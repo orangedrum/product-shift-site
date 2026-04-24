@@ -109,6 +109,25 @@ const CareerAdmin: React.FC = () => {
     setReviewQueue(reviewQueue.filter((_, i) => i !== index));
   };
 
+  const deleteAsset = async (id: string) => {
+    if (!window.confirm("Are you sure you want to remove this from your library?")) return;
+    const { error } = await supabase.from('career_assets').delete().eq('id', id);
+    if (!error) {
+      setResults(prev => prev.filter(a => a.id !== id));
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Asset deleted from the registry." }]);
+    }
+  };
+
+  const handlePublishResume = async () => {
+    if (!pitchPreview) return;
+    setLoading(true);
+    // Stub for now: In next phase we save to 'resume_profiles' table
+    setTimeout(() => {
+      setLoading(false);
+      alert("Resume Configuration Published! In the next step, this will generate your unique /resume/ url.");
+    }, 1500);
+  };
+
   const handleGeneratePitch = async () => {
     setLoading(true);
     setSidekickMessages(prev => [...prev, { sender: 'user', text: `Building pitch for: ${jdLink}` }]);
@@ -359,7 +378,7 @@ const CareerAdmin: React.FC = () => {
                     <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg">
                       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                          <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.2em]">Preview for: {pitchPreview.targetTitle}</h3>
-                         <NeoButton className="bg-marketing-gradient text-white text-xs px-4 font-bold">Publish Live Resume</NeoButton>
+                         <NeoButton onClick={handlePublishResume} className="bg-marketing-gradient text-white text-xs px-4 font-bold">{loading ? <Loader2 className="animate-spin" /> : 'Publish Live Resume'}</NeoButton>
                       </div>
 
                       {/* Resume Header & Summary */}
@@ -373,10 +392,10 @@ const CareerAdmin: React.FC = () => {
                       </div>
 
                       {/* Million Dollar Wins Ticker (Placeholder for actual component) */}
-                      <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center">
+                      <div className="mb-8 p-4 bg-green-50 border-2 border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center shadow-sm">
                          <h4 className="text-sm font-black uppercase text-green-800 flex items-center gap-2"><Trophy size={16} className="text-green-600" /> Million Dollar Wins:</h4>
-                         {pitchPreview.assets.filter(a => a.type === 'win' || (a.type === 'work_history' && a.roi_metrics?.length > 0)).slice(0, 5).map((w, idx) => (
-                            <span key={idx} className="text-xs font-bold text-green-700">{w.roi_metrics?.[0] || w.title}</span>
+                         {pitchPreview.assets.filter(a => a.type === 'win').slice(0, 6).map((w, idx) => (
+                            <span key={idx} className="text-xs font-black text-green-700 bg-white px-2 py-1 rounded border border-green-100">{w.roi_metrics?.[0] || w.title}</span>
                          ))}
                       </div>
 
@@ -389,7 +408,7 @@ const CareerAdmin: React.FC = () => {
                             {pitchPreview.assets.filter(a => a.type === 'work_history').map((job, idx) => (
                               <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
                                 <h4 className="text-lg font-bold text-gray-900">{job.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2">{job.company} | {job.dates}</p>
+                                <p className="text-sm text-gray-600 mb-2 font-bold">{job.company}</p>
                                 <ul className="list-disc pl-5 space-y-1 text-gray-700 text-sm">
                                   {job.description?.map((bullet: string, bIdx: number) => (
                                     <li key={bIdx}>{bullet}</li>
@@ -399,7 +418,8 @@ const CareerAdmin: React.FC = () => {
                             ))}
                           </div>
 
-                          {/* Case Studies */}
+                          {/* Case Studies (Only show if they exist) */}
+                          {pitchPreview.assets.some(a => a.type === 'case_study') && (
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Case Studies (Logic Proofs)</h3>
                             {pitchPreview.assets.filter(a => a.type === 'case_study').map((cs, idx) => (
@@ -415,6 +435,7 @@ const CareerAdmin: React.FC = () => {
                               </div>
                             ))}
                           </div>
+                          )}
 
                           {/* Writing Samples & Talks */}
                           <div>
@@ -422,7 +443,7 @@ const CareerAdmin: React.FC = () => {
                             {pitchPreview.assets.filter(a => a.type === 'writing_sample' || a.type === 'talk').map((item, idx) => (
                               <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
                                 <h4 className="text-lg font-bold text-gray-900">{item.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2">{item.company} | {item.dates}</p>
+                                <p className="text-sm text-gray-600 mb-2 font-bold">{item.company}</p>
                                 {item.source_url && (
                                   <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-1">
                                     <ExternalLink size={14} /> Read/Watch
@@ -522,13 +543,13 @@ const CareerAdmin: React.FC = () => {
                                    <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.role_tag}</span>
                                 </div>
                                 <h4 className="text-lg font-bold text-gray-900">{asset.title}</h4>
-                                <p className="text-sm text-gray-500 font-medium mb-4">{asset.company} | {asset.dates}</p>
+                                <p className="text-sm text-gray-500 font-bold mb-4">{asset.company}</p>
                                 <ul className="space-y-2 mb-6">
                                    {asset.description?.map((bullet: string, idx: number) => (
                                       <li key={idx} className="text-sm text-gray-600 flex items-start gap-2"><CheckCircle size={14} className="text-green-500 mt-1 flex-shrink-0" /> {bullet}</li>
                                    ))}
                                 </ul>
-                                {asset.source_url && asset.source_url !== 'direct_upload' && (
+                                {asset.source_url && asset.source_url !== 'direct_upload' && asset.source_url !== 'N/A' && (
                                    <div className="mb-4">
                                       <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-4">
                                          <ExternalLink size={14} /> View Full Article
@@ -537,8 +558,8 @@ const CareerAdmin: React.FC = () => {
                                 )}
                              </div>
                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 hover:bg-gray-50 rounded-lg"><Edit3 size={18} className="text-gray-400" /></button>
-                                <button className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
+                                <button className="p-2 hover:bg-gray-50 rounded-lg" title="Edit coming soon"><Edit3 size={18} className="text-gray-400" /></button>
+                                <button onClick={() => deleteAsset(asset.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
                              </div>
                           </div>
                           {asset.roi_metrics?.length > 0 && (
