@@ -9,7 +9,7 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUr
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
-import { careerIngestHandler, generatePitchHandler, sidekickChatHandler } from './career-controller';
+import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler } from './career-controller';
 import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
@@ -817,6 +817,8 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
 app.post('/api/admin/career/ingest', careerIngestHandler);
 app.post('/api/admin/career/generate-pitch', generatePitchHandler);
 app.post('/api/admin/career/sidekick-chat', sidekickChatHandler);
+app.post('/api/admin/career/publish-resume', publishResumeHandler);
+app.delete('/api/admin/career/assets/:id', deleteAssetHandler);
 
 // --- SEO Strategy: Email Math Breakdown ---
 app.post('/api/seo/email-math', async (req, res) => {

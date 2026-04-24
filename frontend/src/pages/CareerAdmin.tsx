@@ -109,6 +109,52 @@ const CareerAdmin: React.FC = () => {
     setReviewQueue(reviewQueue.filter((_, i) => i !== index));
   };
 
+  const deleteAsset = async (id: string) => {
+    if (!window.confirm("Are you sure you want to remove this from your library?")) return;
+    
+    try {
+      const res = await fetch(`/api/admin/career/assets/${id}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+        }
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      
+      setResults(prev => prev.filter(a => a.id !== id));
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Asset deleted from the registry." }]);
+    } catch (e: any) {
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Delete failed: ${e.message}` }]);
+    }
+  };
+
+  const handlePublishResume = async () => {
+    if (!pitchPreview) return;
+    setLoading(true);
+    
+    try {
+      const res = await fetch('/api/admin/career/publish-resume', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+        },
+        body: JSON.stringify({ resumeData: pitchPreview })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: `🚀 RESUME LIVE! You can now send this link to the hiring manager: ${window.location.origin}${data.url}` }]);
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (e: any) {
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Publish Error: ${e.message}` }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGeneratePitch = async () => {
     setLoading(true);
     setSidekickMessages(prev => [...prev, { sender: 'user', text: `Building pitch for: ${jdLink}` }]);
@@ -120,7 +166,10 @@ const CareerAdmin: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
         },
-        body: JSON.stringify({ jdUrl: jdLink })
+        body: JSON.stringify({ 
+          jdUrl: jdLink,
+          currentResume: pitchPreview // Pass context to sidekick
+        })
       });
       const data = await res.json();
       if (data.success) {
@@ -152,14 +201,17 @@ const CareerAdmin: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
         },
-        body: JSON.stringify({ message: userMsg })
+        body: JSON.stringify({ 
+          message: userMsg,
+          currentResume: pitchPreview // CRITICAL: Tell Sidekick what we're looking at
+        })
       });
       const data = await res.json();
       if (data.success) {
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: data.reply }]);
         if (data.suggestedAssets && data.suggestedAssets.length > 0) {
            setReviewQueue(prev => [...data.suggestedAssets, ...prev]);
-           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted ${data.suggestedAssets.length} new strategic points based on User Mirror to fill your gaps. Check the Review Queue!` }]);
+           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've identified ${data.suggestedAssets.length} new strategic points to fill your gaps. Check the Review Queue!` }]);
         }
       } else {
         throw new Error(data.error);
@@ -349,6 +401,30 @@ const CareerAdmin: React.FC = () => {
 
             {activeTab === 'builder' && (
                <div className="space-y-8 animate-fade-in">
+                  {/* NEW: Show suggestions directly in the Builder tab */}
+                  {reviewQueue.length > 0 && (
+                    <div className="p-6 bg-amber-50 border-2 border-amber-100 rounded-3xl animate-bounce-subtle">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Sparkles className="text-amber-500" size={20} />
+                        <h3 className="text-sm font-black uppercase text-amber-700 tracking-widest">Sidekick Suggestions for this Resume</h3>
+                      </div>
+                      <div className="space-y-3">
+                        {reviewQueue.map((asset, i) => (
+                          <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-amber-200">
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">{asset.title}</p>
+                              <p className="text-[10px] text-gray-500 italic">"{asset.description?.[0].substring(0, 60)}..."</p>
+                            </div>
+                            <div className="flex gap-2">
+                               <button onClick={() => approveAsset(i)} className="p-2 bg-green-500 text-white rounded-lg"><Check size={14}/></button>
+                               <button onClick={() => discardAsset(i)} className="p-2 bg-red-100 text-red-500 rounded-lg"><X size={14}/></button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <MarketingCard className="p-8 bg-black text-white">
                      <h2 className="text-2xl font-black mb-4 flex items-center gap-2 text-brand-pink"><Wand2 /> The Brag Engine - Resume Builder for Jean Kaluza in 2026</h2>
                      <p className="text-gray-400 mb-6">Paste a Job Description link below. I will orchestrate your best assets to create a tailored, interactive resume for this specific role. This is NOT a pitch, this is your resume.</p>
@@ -376,7 +452,7 @@ const CareerAdmin: React.FC = () => {
                     <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg">
                       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                          <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.2em]">Preview for: {pitchPreview.targetTitle}</h3>
-                         <NeoButton className="bg-marketing-gradient text-white text-xs px-4 font-bold">Publish Live Resume</NeoButton>
+                         <NeoButton onClick={handlePublishResume} className="bg-marketing-gradient text-white text-xs px-4 font-bold">{loading ? <Loader2 className="animate-spin" /> : 'Publish Live Resume'}</NeoButton>
                       </div>
 
                       {/* Resume Header & Summary */}
@@ -416,7 +492,7 @@ const CareerAdmin: React.FC = () => {
                             ))}
                           </div>
 
-                          {/* Case Studies */}
+                          {/* Case Studies (Only show if they exist) */}
                           {pitchPreview.assets.some(a => a.type === 'case_study') && (
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Case Studies (Logic Proofs)</h3>
@@ -547,7 +623,7 @@ const CareerAdmin: React.FC = () => {
                                       <li key={idx} className="text-sm text-gray-600 flex items-start gap-2"><CheckCircle size={14} className="text-green-500 mt-1 flex-shrink-0" /> {bullet}</li>
                                    ))}
                                 </ul>
-                                {asset.source_url && asset.source_url !== 'direct_upload' && (
+                                {asset.source_url && asset.source_url !== 'direct_upload' && asset.source_url !== 'N/A' && (
                                    <div className="mb-4">
                                       <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-4">
                                          <ExternalLink size={14} /> View Full Article
@@ -556,8 +632,8 @@ const CareerAdmin: React.FC = () => {
                                 )}
                              </div>
                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 hover:bg-gray-50 rounded-lg"><Edit3 size={18} className="text-gray-400" /></button>
-                                <button className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
+                                <button className="p-2 hover:bg-gray-50 rounded-lg" title="Edit coming soon"><Edit3 size={18} className="text-gray-400" /></button>
+                                <button onClick={() => deleteAsset(asset.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
                              </div>
                           </div>
                           {asset.roi_metrics?.length > 0 && (

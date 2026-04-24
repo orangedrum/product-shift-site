@@ -121,25 +121,24 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
     // 3. AI Selection Logic (The Perfect 24)
     const prompt = `
-      You are a World-Class Executive Recruiter. Jean Kaluza (she/her) is the candidate.
+      You are a World-Class Executive Recruiter. Jean Kaluza (she/her) is the candidate. 
       OBJECTIVE: Orchestrate a tailored, interactive resume for Jean Kaluza for this specific job.
       
       JOB DESCRIPTION:
       "${jdText}"
 
-      AVAILABLE ASSETS:
+      STRATEGIC MAPPING LOGIC:
+      - Perform 'Functional Title Mapping'. If Jean's past work history title (e.g., 'UX Lead') matches the JD's requirements for a 'Product Manager', translate the title to 'Product Manager' or 'Product Manager (UX Lead)'.
+      - Do NOT map emerging roles (e.g., 'AI Agent Lead') to time periods before those roles existed (pre-2023).
+
+      AVAILABLE ASSETS (Only select from this list):
       ${assets.map(a => `ID: ${a.id} | Type: ${a.type} | Title: ${a.title} | Company: ${a.company}`).join('\n')}
 
       TASK:
-      Select exactly 24 assets (omit all dates/years from titles/descriptions):
-      - 5 work_history
-      - 6 skill
-      - 3 case_study
-      - 2 talk
-      - 2 recommendation
-      - 2 writing_sample
-      - 4 technical tooling
-      - Any high-impact wins embedded in the work_history.
+      Select a maximum of 24 assets from the list above. 
+      - CRITICAL: Do NOT hallucinate assets. If a type (like case_study) is not in the list, DO NOT include it.
+      - Distribution Goal: 5 work_history, 6 skill, 4 technical tooling, and the best available talks, writing samples, or recommendations.
+      - Omit all dates/years from titles/descriptions to prevent bias.
 
       Return a JSON object with a single key "selectedIds" containing an ARRAY of asset IDs.
     `;
@@ -154,8 +153,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
 
     // 4. Generate AI Professional Summary
-    const summaryPrompt = `Based on this JD and these assets, write a 3-sentence Professional Summary for Jean Kaluza (she/her). 
-    Output ONLY the summary text. Do NOT include an introduction like "Here is your summary". Focus on her strategic outcomes.`;
+    const summaryPrompt = `Based on this JD and these selected assets, write a 3-sentence Professional Summary for Jean Kaluza (she/her). 
+    STRICT OUTPUT: Return ONLY the summary text. No labels, no quotes, no introductory sentences like "Here is a summary...". Just the raw text. Focus on her strategic outcomes and speed.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
     res.json({ 
@@ -179,11 +178,11 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { message } = req.body;
+  const { message, currentResume } = req.body;
   if (!message) return res.status(400).json({ error: 'Message required' });
 
   try {
-    // 1. Fetch library context for AI gap analysis
+    // 1. Fetch library context
     const { data: existingAssets } = await supabase.from('career_assets').select('title, company, type, description');
     const libraryContext = (existingAssets || [])
       .map(a => `- ${a.type}: ${a.title} @ ${a.company}`)
@@ -209,7 +208,9 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
       
       TASK:
       1. ANALYZE: Identify gaps between her library and the target role she mentioned.
-      2. SCULPT & MERGE: Instead of redundant entries, prioritize "Augmenting" existing work history (like ProductShift) with new bullets and ROI that prove end-to-end GM/Growth skills.
+      2. SCULPT & MERGE: Prioritize "Augmenting" existing work history. Focus on 'Title Mapping'—if she needs to be a 'General Manager', re-frame her ProductShift or Disney experience to reflect that functional title.
+      3. NO FAKE CASE STUDIES: Do NOT suggest or generate 'case_study' assets. Jean will add these manually later.
+      3. DEDUCTIVE TITLING: Advise Jean on which titles are 'Translations' (SaaS standard) vs 'Fabrications' (Red flags).
       3. SHOWCASE: Treat User Mirror as a live SaaS case study, not a sandbox.
       4. REPLY: Provide a concise, encouraging strategic response.
       
@@ -242,5 +243,53 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
   } catch (e: any) {
     console.error('❌ [SIDEKICK CHAT ERROR]:', e);
     res.status(500).json({ error: 'Sidekick failed to respond', details: e.message });
+  }
+};
+
+export const deleteAssetHandler = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
+  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { id } = req.params;
+  try {
+    const { error } = await supabase.from('career_assets').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Delete failed', details: e.message });
+  }
+};
+
+export const publishResumeHandler = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
+  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { resumeData } = req.body;
+  if (!resumeData) return res.status(400).json({ error: 'Resume data required' });
+
+  try {
+    // Generate a slug based on the target title
+    const slug = `${resumeData.targetTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
+    
+    const { data, error } = await supabase.from('career_resumes').insert({
+      slug,
+      target_role: resumeData.targetTitle,
+      professional_summary: resumeData.strategicHook,
+      selected_assets: resumeData.assets, // Store IDs or objects
+      is_live: true
+    }).select().single();
+
+    if (error) throw error;
+
+    res.json({ success: true, url: `/resume/${slug}`, data });
+  } catch (e: any) {
+    console.error('❌ [PUBLISH ERROR]:', e);
+    res.status(500).json({ error: 'Publish failed', details: e.message });
   }
 };
