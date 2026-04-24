@@ -171,3 +171,76 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Pitch generation failed', details: e.message });
   }
 };
+
+export const sidekickChatHandler = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
+  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { message } = req.body;
+  if (!message) return res.status(400).json({ error: 'Message required' });
+
+  try {
+    // 1. Fetch library context for AI gap analysis
+    const { data: existingAssets } = await supabase.from('career_assets').select('title, company, type, description');
+    const libraryContext = (existingAssets || [])
+      .map(a => `- ${a.type}: ${a.title} @ ${a.company}`)
+      .join('\n');
+
+    // 2. Strategic Prompting
+    const prompt = `
+      You are the Registry Sidekick, an elite Executive Recruiter and Coach for Jean Kaluza (she/her).
+      Jean is using her 'Brag Engine' to build a library of high-impact career assets.
+      
+      JEAN'S MESSAGE:
+      "${message}"
+      
+      CONTEXT FOR STRATEGY:
+      - Jean built and LAUNCHED 'User Mirror' (AI UX research agent) as a live SaaS product. 
+      - She runs 'ProductShift'.
+      - She is a leader in 'Vibe Coding' (high-velocity AI-assisted engineering). 
+      - She is far beyond basic AI tools (competitors like base44 or lovable don't match her speed/depth).
+      - Her work on User Mirror proves end-to-end product/growth leadership.
+      
+      CURRENT LIBRARY CONTEXT:
+      ${libraryContext || 'Library is currently empty.'}
+      
+      TASK:
+      1. ANALYZE: Identify gaps between her library and the target role she mentioned.
+      2. SCULPT & MERGE: Instead of redundant entries, prioritize "Augmenting" existing work history (like ProductShift) with new bullets and ROI that prove end-to-end GM/Growth skills.
+      3. SHOWCASE: Treat User Mirror as a live SaaS case study, not a sandbox.
+      4. REPLY: Provide a concise, encouraging strategic response.
+      
+      Return a JSON object:
+      {
+        "reply": "Strategic coaching message here.",
+        "suggestedAssets": [
+           {
+             "title": "Clear asset title (can be an existing role name to suggest a merge)",
+             "company": "ProductShift / User Mirror",
+             "dates": "N/A",
+             "description": ["High-impact bullet point proving the skill/win"],
+             "roi_metrics": ["e.g. 10x development velocity"],
+             "type": "win" | "skill" | "tooling" | "work_history",
+             "augmenting_existing": boolean (true if this should merge into a blob),
+             "role_tag": "Product Lead / AI Strategist",
+             "is_published": false
+           }
+        ]
+      }
+    `;
+
+    const aiResponse = await generateContentWithFallback(prompt);
+    const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('AI failed to generate structured strategy.');
+    
+    const data = JSON.parse(jsonMatch[0]);
+    res.json({ success: true, ...data });
+
+  } catch (e: any) {
+    console.error('❌ [SIDEKICK CHAT ERROR]:', e);
+    res.status(500).json({ error: 'Sidekick failed to respond', details: e.message });
+  }
+};

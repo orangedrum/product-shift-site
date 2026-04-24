@@ -109,25 +109,6 @@ const CareerAdmin: React.FC = () => {
     setReviewQueue(reviewQueue.filter((_, i) => i !== index));
   };
 
-  const deleteAsset = async (id: string) => {
-    if (!window.confirm("Are you sure you want to remove this from your library?")) return;
-    const { error } = await supabase.from('career_assets').delete().eq('id', id);
-    if (!error) {
-      setResults(prev => prev.filter(a => a.id !== id));
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Asset deleted from the registry." }]);
-    }
-  };
-
-  const handlePublishResume = async () => {
-    if (!pitchPreview) return;
-    setLoading(true);
-    // Stub for now: In next phase we save to 'resume_profiles' table
-    setTimeout(() => {
-      setLoading(false);
-      alert("Resume Configuration Published! In the next step, this will generate your unique /resume/ url.");
-    }, 1500);
-  };
-
   const handleGeneratePitch = async () => {
     setLoading(true);
     setSidekickMessages(prev => [...prev, { sender: 'user', text: `Building pitch for: ${jdLink}` }]);
@@ -162,15 +143,32 @@ const CareerAdmin: React.FC = () => {
     const userMsg = sidekickInput;
     setSidekickInput('');
     setSidekickMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
+    setLoading(true);
 
-    // Simulated Sidekick Intelligence: If they paste a recommendation-like string, offer to process it.
-    setTimeout(() => {
-      let botReply = "I've noted that. Is there anything specific from your history you'd like me to highlight for a new pitch?";
-      if (userMsg.length > 100) {
-        botReply = "That looks like a detailed update! Should I process this text to extract new wins or work history for your library?";
+    try {
+      const res = await fetch('/api/admin/career/sidekick-chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+        },
+        body: JSON.stringify({ message: userMsg })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: data.reply }]);
+        if (data.suggestedAssets && data.suggestedAssets.length > 0) {
+           setReviewQueue(prev => [...data.suggestedAssets, ...prev]);
+           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted ${data.suggestedAssets.length} new strategic points based on User Mirror to fill your gaps. Check the Review Queue!` }]);
+        }
+      } else {
+        throw new Error(data.error);
       }
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
-    }, 1000);
+    } catch (e: any) {
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Sidekick Error: ${e.message}` }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -378,7 +376,7 @@ const CareerAdmin: React.FC = () => {
                     <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg">
                       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                          <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.2em]">Preview for: {pitchPreview.targetTitle}</h3>
-                         <NeoButton onClick={handlePublishResume} className="bg-marketing-gradient text-white text-xs px-4 font-bold">{loading ? <Loader2 className="animate-spin" /> : 'Publish Live Resume'}</NeoButton>
+                         <NeoButton className="bg-marketing-gradient text-white text-xs px-4 font-bold">Publish Live Resume</NeoButton>
                       </div>
 
                       {/* Resume Header & Summary */}
@@ -418,7 +416,7 @@ const CareerAdmin: React.FC = () => {
                             ))}
                           </div>
 
-                          {/* Case Studies (Only show if they exist) */}
+                          {/* Case Studies */}
                           {pitchPreview.assets.some(a => a.type === 'case_study') && (
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Case Studies (Logic Proofs)</h3>
@@ -549,7 +547,7 @@ const CareerAdmin: React.FC = () => {
                                       <li key={idx} className="text-sm text-gray-600 flex items-start gap-2"><CheckCircle size={14} className="text-green-500 mt-1 flex-shrink-0" /> {bullet}</li>
                                    ))}
                                 </ul>
-                                {asset.source_url && asset.source_url !== 'direct_upload' && asset.source_url !== 'N/A' && (
+                                {asset.source_url && asset.source_url !== 'direct_upload' && (
                                    <div className="mb-4">
                                       <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-4">
                                          <ExternalLink size={14} /> View Full Article
@@ -558,8 +556,8 @@ const CareerAdmin: React.FC = () => {
                                 )}
                              </div>
                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 hover:bg-gray-50 rounded-lg" title="Edit coming soon"><Edit3 size={18} className="text-gray-400" /></button>
-                                <button onClick={() => deleteAsset(asset.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
+                                <button className="p-2 hover:bg-gray-50 rounded-lg"><Edit3 size={18} className="text-gray-400" /></button>
+                                <button className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
                              </div>
                           </div>
                           {asset.roi_metrics?.length > 0 && (

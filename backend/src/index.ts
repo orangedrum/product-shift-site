@@ -9,7 +9,7 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUr
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus } from './ai-service';
 import adminRouter from './admin';
-import { careerIngestHandler, generatePitchHandler } from './career-controller';
+import { careerIngestHandler, generatePitchHandler, sidekickChatHandler } from './career-controller';
 import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
@@ -816,6 +816,7 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
 // --- Career Registry Ingestion (AI Orchestrator) ---
 app.post('/api/admin/career/ingest', careerIngestHandler);
 app.post('/api/admin/career/generate-pitch', generatePitchHandler);
+app.post('/api/admin/career/sidekick-chat', sidekickChatHandler);
 
 // --- SEO Strategy: Email Math Breakdown ---
 app.post('/api/seo/email-math', async (req, res) => {
