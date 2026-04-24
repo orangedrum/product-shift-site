@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2 } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
+import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { SpeechBubble } from '../components/SpeechBubble';
 
@@ -180,7 +181,7 @@ const PublicResume: React.FC = () => {
             <div className="sticky top-24">
               <SpeechBubble 
                 imageSrc="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/jean-avatar.png" // Fallback to provided logic
-               +name="Jean Kaluza"
+                name="Jean Kaluza"
                 role="Product Strategist"
                 quote={`Seen enough proofs? Let's talk ROI for ${resume.target_role}.`}
                 mood="positive"

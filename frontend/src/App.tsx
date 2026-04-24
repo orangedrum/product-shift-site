@@ -80,7 +80,6 @@ const App: React.FC = () => {
     '/admin-career',
     '/blog-login',
     '/styleguide'
-  ].includes(normalizedPath) || location.pathname.startsWith('/login');
   ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/');
 
   // Debugging: Log current path to ensure router is working
