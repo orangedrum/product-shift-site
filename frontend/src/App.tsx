@@ -42,6 +42,7 @@ import FactoringFirmProposal from './pages/FactoringFirmProposal';
 import SeoFirmProposal from './pages/SeoFirmProposal';
 import SeoOnboarding from './pages/SeoOnboarding';
 import CareerAdmin from './pages/CareerAdmin'; // Ensure case-perfect resolution
+import PublicResume from './pages/PublicResume';
 
 
 const App: React.FC = () => {
@@ -80,6 +81,7 @@ const App: React.FC = () => {
     '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login');
+  ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/');
 
   // Debugging: Log current path to ensure router is working
   React.useEffect(() => {
@@ -180,6 +182,7 @@ const App: React.FC = () => {
           <Route path="/seo-firm-proposal" element={<SeoFirmProposal />} />
           <Route path="/seo-onboarding" element={<SeoOnboarding />} />
           <Route path="/admin-career" element={<CareerAdmin />} />
+          <Route path="/resume/:slug" element={<PublicResume />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
