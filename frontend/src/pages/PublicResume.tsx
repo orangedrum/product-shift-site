@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp } from 'lucide-react';
+import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Play } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -14,6 +14,7 @@ const PublicResume: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
+  const statsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -33,6 +34,23 @@ const PublicResume: React.FC = () => {
     };
     fetchResume();
   }, [slug]);
+
+  // Floating Orbs Logic for Performance Metrics
+  useEffect(() => {
+    const container = statsContainerRef.current;
+    if (!container) return;
+
+    const updateOrbs = () => {
+      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+      for (let i = 1; i <= 8; i++) {
+        container.style.setProperty(`--orb-${i}-x`, `${r(0, 100)}%`);
+        container.style.setProperty(`--orb-${i}-y`, `${r(0, 100)}%`);
+      }
+    };
+    updateOrbs();
+    const interval = setInterval(updateOrbs, 4000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="animate-spin text-indigo-600" size={48} /></div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center"><h1 className="text-4xl font-black mb-4">404</h1><p className="text-gray-600 mb-8">This bespoke resume configuration could not be found.</p><Link to="/"><NeoButton>Back to ProductShift</NeoButton></Link></div>;
@@ -79,6 +97,16 @@ const PublicResume: React.FC = () => {
           </div>
           <div className="grid md:grid-cols-2 gap-8 items-end">
             <div>
+              {/* Jean Photo / Talk Video Element */}
+              <div 
+                className="relative w-48 h-48 mb-8 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] cursor-pointer group bg-gray-100"
+                onClick={() => setIsProcessModalOpen(true)}
+              >
+                <img src="/jeankaluza.png" alt="Jean Kaluza" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Play className="text-white fill-white" size={48} />
+                </div>
+              </div>
               <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none text-gray-900">
                 Jean Kaluza
               </h1>
@@ -102,13 +130,30 @@ const PublicResume: React.FC = () => {
         </div>
 
         {/* Performance Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 border-b border-gray-100 pb-12">
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center md:text-left border-l-2 border-gray-100 pl-6 py-2">
-              <p className="text-3xl md:text-4xl font-black text-gray-900 leading-none mb-1">{stat.value}</p>
-              <p className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">{stat.label}</p>
-            </div>
-          ))}
+        <div className="relative mb-20 border-b border-gray-100 pb-12 overflow-hidden rounded-3xl" ref={statsContainerRef}>
+          {/* Floating Orbs Background */}
+          <div className="absolute inset-0 pointer-events-none z-0">
+            {[...Array(8)].map((_, i) => (
+              <div 
+                key={i}
+                className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-20 transition-all duration-[4000ms] ease-in-out"
+                style={{
+                  left: `var(--orb-${i+1}-x, 50%)`,
+                  top: `var(--orb-${i+1}-y, 50%)`,
+                  width: '200px', height: '200px',
+                  backgroundColor: ['#ff1493', '#6366f1', '#fbbf24'][i % 3]
+                }}
+              />
+            ))}
+          </div>
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {stats.map((stat, i) => (
+              <div key={i} className="text-center md:text-left border-l-2 border-gray-100 pl-6 py-2">
+                <p className="text-3xl md:text-4xl font-black text-gray-900 leading-none mb-1">{stat.value}</p>
+                <p className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -143,7 +188,7 @@ const PublicResume: React.FC = () => {
             {(assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk')) && (
               <section>
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase tracking-tighter rotate-[-2deg] shadow-sm">
+                  <div className="bg-black text-white px-6 py-2 text-xl font-black uppercase tracking-tighter rotate-[-2deg] shadow-sm">
                     Extra! Extra!
                   </div>
                   <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">
@@ -230,16 +275,18 @@ const PublicResume: React.FC = () => {
 
             {/* Final Conversion CTA */}
             <div className="sticky top-24">
-              <SpeechBubble 
-                imageSrc="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/jean-avatar.png" // Fallback to provided logic
-                name="Jean Kaluza"
-                role="Product Strategist"
-                quote={`Seen enough proofs? Let's talk ROI for ${resume.target_role}.`}
-                mood="positive"
-              />
+              <div className="relative mb-6 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)] bg-white border border-gray-100">
+                <SpeechBubble 
+                  imageSrc="/jeankaluza.png"
+                  name="Jean Kaluza"
+                  role={resume.mapped_title || "Product Strategist"}
+                  quote={`Seen enough proofs? Let's talk ROI for ${resume.target_role}.`}
+                  mood="positive"
+                />
+              </div>
               <div className="mt-6 flex flex-col gap-3">
                 <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer">
-                  <NeoButton className="w-full bg-marketing-gradient text-white py-4 font-black">Book Strategy Call</NeoButton>
+                  <NeoButton className="w-full bg-marketing-gradient text-white py-4 font-black">Book Interview</NeoButton>
                 </a>
                 <a href="mailto:jean@theproductshift.com" className="w-full">
                   <NeoButton variant="secondary" className="w-full flex items-center justify-center gap-2 font-black">
