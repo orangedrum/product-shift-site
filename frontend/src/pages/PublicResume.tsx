@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Play } from 'lucide-react';
+import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { SpeechBubble } from '../components/SpeechBubble';
 import AgencyPartner from '../components/AgencyPartner';
+import ProductLab from '../components/ProductLab';
+import { VideoThumbnail } from '../components/VideoThumbnail';
 
 const PublicResume: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -14,6 +16,7 @@ const PublicResume: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const statsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,13 +45,13 @@ const PublicResume: React.FC = () => {
 
     const updateOrbs = () => {
       const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-      for (let i = 1; i <= 8; i++) {
+      for (let i = 1; i <= 15; i++) {
         container.style.setProperty(`--orb-${i}-x`, `${r(0, 100)}%`);
         container.style.setProperty(`--orb-${i}-y`, `${r(0, 100)}%`);
       }
     };
     updateOrbs();
-    const interval = setInterval(updateOrbs, 4000);
+    const interval = setInterval(updateOrbs, 3000);
     return () => clearInterval(interval);
   }, [loading]);
 
@@ -97,21 +100,20 @@ const PublicResume: React.FC = () => {
           </div>
           <div className="grid md:grid-cols-2 gap-8 items-end">
             <div>
-              {/* Jean Photo / Talk Video Element */}
-              <div 
-                className="relative w-48 h-48 mb-8 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] cursor-pointer group bg-gray-100"
-                onClick={() => setIsProcessModalOpen(true)}
-              >
-                <img src="/jeankaluza.png" alt="Jean Kaluza" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Play className="text-white fill-white" size={48} />
+              {/* Authority Header: Watch Speaking Reel */}
+              <div className="max-w-[280px] mb-8">
+                <div 
+                  className="relative rounded-2xl overflow-hidden shadow-elegant cursor-pointer group"
+                  onClick={() => setIsVideoOpen(true)}
+                >
+                  <VideoThumbnail imageSrc="/jeankaluza.png" alt="Jean Kaluza - Keynote Speaker" />
                 </div>
               </div>
               <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none text-gray-900">
                 Jean Kaluza
               </h1>
               <p className="text-xl md:text-2xl font-bold text-gray-500 max-w-xl italic">
-                {resume.mapped_title || "Product Strategist & Growth Lead"}
+                {resume.mapped_title || "Executive Strategist"}
               </p>
             </div>
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 relative shadow-sm">
@@ -130,18 +132,19 @@ const PublicResume: React.FC = () => {
         </div>
 
         {/* Performance Stats Row */}
-        <div className="relative mb-20 border-b border-gray-100 pb-12 overflow-hidden rounded-3xl" ref={statsContainerRef}>
+        <div className="relative mb-20 border-b border-gray-100 pb-12 overflow-hidden rounded-[2rem] bg-white/50" ref={statsContainerRef}>
           {/* Floating Orbs Background */}
           <div className="absolute inset-0 pointer-events-none z-0">
-            {[...Array(8)].map((_, i) => (
+            {[...Array(15)].map((_, i) => (
               <div 
                 key={i}
-                className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-20 transition-all duration-[4000ms] ease-in-out"
+                className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[3000ms] ease-in-out"
                 style={{
                   left: `var(--orb-${i+1}-x, 50%)`,
                   top: `var(--orb-${i+1}-y, 50%)`,
-                  width: '200px', height: '200px',
-                  backgroundColor: ['#ff1493', '#6366f1', '#fbbf24'][i % 3]
+                  width: `${200 + (i * 10)}px`,
+                  height: `${200 + (i * 10)}px`,
+                  backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
                 }}
               />
             ))}
@@ -188,7 +191,7 @@ const PublicResume: React.FC = () => {
             {(assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk')) && (
               <section>
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="bg-black text-white px-6 py-2 text-xl font-black uppercase tracking-tighter rotate-[-2deg] shadow-sm">
+                  <div className="bg-black text-white px-10 py-4 text-4xl font-black uppercase tracking-tighter rotate-[-2deg] shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)]">
                     Extra! Extra!
                   </div>
                   <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">
@@ -227,6 +230,7 @@ const PublicResume: React.FC = () => {
             )}
 
             {/* User Mirror SaaS Showcase: Recycled from homepage */}
+            {/* Product Lab Section: EXACT component from homepage */}
             <section className="pt-12">
               <NeoCard className="bg-gray-900 text-white p-10 relative overflow-hidden">
                 <div className="relative z-10">
@@ -243,6 +247,7 @@ const PublicResume: React.FC = () => {
                 </div>
                 <Zap className="absolute -bottom-8 -right-8 text-white/5" size={300} />
               </NeoCard>
+              <ProductLab />
             </section>
           </div>
 
@@ -275,11 +280,11 @@ const PublicResume: React.FC = () => {
 
             {/* Final Conversion CTA */}
             <div className="sticky top-24">
-              <div className="relative mb-6 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)] bg-white border border-gray-100">
+              <div className="relative mb-6 rounded-2xl overflow-hidden shadow-elegant bg-white border border-gray-100">
                 <SpeechBubble 
                   imageSrc="/jeankaluza.png"
                   name="Jean Kaluza"
-                  role={resume.mapped_title || "Product Strategist"}
+                  role={resume.mapped_title || "Executive Strategist"}
                   quote={`Seen enough proofs? Let's talk ROI for ${resume.target_role}.`}
                   mood="positive"
                 />
@@ -356,6 +361,29 @@ const PublicResume: React.FC = () => {
                   Got it, Let's Build
                 </NeoButton>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video Modal for Speaking Reel */}
+      {isVideoOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4" onClick={() => setIsVideoOpen(false)}>
+          <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setIsVideoOpen(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10 p-2 bg-black/50 rounded-full"
+            >
+              <X size={24} />
+            </button>
+            <div className="aspect-video bg-black flex items-center justify-center">
+               {/* Replace with your specific speaking reel URL */}
+               <iframe 
+                 className="w-full h-full"
+                 src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
+                 title="Jean Kaluza Speaking Reel"
+                 allow="autoplay; encrypted-media"
+               />
             </div>
           </div>
         </div>
