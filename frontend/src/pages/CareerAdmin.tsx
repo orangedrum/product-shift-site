@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Copy, Globe } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
@@ -117,27 +117,21 @@ const CareerAdmin: React.FC = () => {
 
   const deleteAsset = async (id: string) => {
     if (!window.confirm("Are you sure you want to remove this from your library?")) return;
-    
     try {
       const res = await fetch(`/api/admin/career/assets/${id}`, {
         method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
-        }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` }
       });
       if (!res.ok) throw new Error('Delete failed');
-      
       setResults(prev => prev.filter(a => a.id !== id));
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Asset deleted from the registry." }]);
     } catch (e: any) {
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Delete failed: ${e.message}` }]);
+      console.error(e);
     }
   };
 
   const handlePublishResume = async () => {
     if (!pitchPreview) return;
     setLoading(true);
-    
     try {
       const res = await fetch('/api/admin/career/publish-resume', {
         method: 'POST',
@@ -150,7 +144,7 @@ const CareerAdmin: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setPublishedResumes(prev => [data.data, ...prev]);
-        setSidekickMessages(prev => [...prev, { sender: 'bot', text: `🚀 RESUME LIVE! You can now send this link to the hiring manager: ${window.location.origin}${data.url}` }]);
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: `🚀 RESUME LIVE! Link: ${window.location.origin}${data.url}` }]);
         window.open(data.url, '_blank');
       } else {
         throw new Error(data.error);
@@ -167,7 +161,6 @@ const CareerAdmin: React.FC = () => {
     const { error } = await supabase.from('career_resumes').delete().eq('id', id);
     if (!error) {
       setPublishedResumes(prev => prev.filter(r => r.id !== id));
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Bespoke resume removed from live status." }]);
     }
   };
 
@@ -184,7 +177,7 @@ const CareerAdmin: React.FC = () => {
         },
         body: JSON.stringify({ 
           jdUrl: jdLink,
-          currentResume: pitchPreview // Pass context to sidekick
+          currentResume: pitchPreview 
         })
       });
       const data = await res.json();
@@ -219,7 +212,7 @@ const CareerAdmin: React.FC = () => {
         },
         body: JSON.stringify({ 
           message: userMsg,
-          currentResume: pitchPreview // CRITICAL: Tell Sidekick what we're looking at
+          currentResume: pitchPreview
         })
       });
       const data = await res.json();
@@ -227,10 +220,8 @@ const CareerAdmin: React.FC = () => {
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: data.reply }]);
         if (data.suggestedAssets && data.suggestedAssets.length > 0) {
            setReviewQueue(prev => [...data.suggestedAssets, ...prev]);
-           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've identified ${data.suggestedAssets.length} new strategic points to fill your gaps. Check the Review Queue!` }]);
+           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted new points to fill your gaps. Check the Review Queue!` }]);
         }
-      } else {
-        throw new Error(data.error);
       }
     } catch (e: any) {
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Sidekick Error: ${e.message}` }]);
@@ -420,30 +411,6 @@ const CareerAdmin: React.FC = () => {
 
             {activeTab === 'builder' && (
                <div className="space-y-8 animate-fade-in">
-                  {/* NEW: Show suggestions directly in the Builder tab */}
-                  {reviewQueue.length > 0 && (
-                    <div className="p-6 bg-amber-50 border-2 border-amber-100 rounded-3xl animate-bounce-subtle">
-                      <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="text-amber-500" size={20} />
-                        <h3 className="text-sm font-black uppercase text-amber-700 tracking-widest">Sidekick Suggestions for this Resume</h3>
-                      </div>
-                      <div className="space-y-3">
-                        {reviewQueue.map((asset, i) => (
-                          <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-amber-200">
-                            <div>
-                              <p className="text-xs font-bold text-gray-900">{asset.title}</p>
-                              <p className="text-[10px] text-gray-500 italic">"{asset.description?.[0].substring(0, 60)}..."</p>
-                            </div>
-                            <div className="flex gap-2">
-                               <button onClick={() => approveAsset(i)} className="p-2 bg-green-500 text-white rounded-lg"><Check size={14}/></button>
-                               <button onClick={() => discardAsset(i)} className="p-2 bg-red-100 text-red-500 rounded-lg"><X size={14}/></button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   <MarketingCard className="p-8 bg-black text-white">
                      <h2 className="text-2xl font-black mb-4 flex items-center gap-2 text-brand-pink"><Wand2 /> The Brag Engine - Resume Builder for Jean Kaluza in 2026</h2>
                      <p className="text-gray-400 mb-6">Paste a Job Description link below. I will orchestrate your best assets to create a tailored, interactive resume for this specific role. This is NOT a pitch, this is your resume.</p>
@@ -470,7 +437,7 @@ const CareerAdmin: React.FC = () => {
                   ) : (
                     <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg">
                       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                         <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.2em]">Preview for: {pitchPreview.targetTitle}</h3>
+                         <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.2em]">Resume Structure: {pitchPreview.targetTitle}</h3>
                          <NeoButton onClick={handlePublishResume} className="bg-marketing-gradient text-white text-xs px-4 font-bold">{loading ? <Loader2 className="animate-spin" /> : 'Publish Live Resume'}</NeoButton>
                       </div>
 
@@ -485,10 +452,10 @@ const CareerAdmin: React.FC = () => {
                       </div>
 
                       {/* Million Dollar Wins Ticker (Placeholder for actual component) */}
-                      <div className="mb-8 p-4 bg-green-50 border-2 border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center shadow-sm">
+                      <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center">
                          <h4 className="text-sm font-black uppercase text-green-800 flex items-center gap-2"><Trophy size={16} className="text-green-600" /> Million Dollar Wins:</h4>
-                         {pitchPreview.assets.filter(a => a.type === 'win').slice(0, 6).map((w, idx) => (
-                            <span key={idx} className="text-xs font-black text-green-700 bg-white px-2 py-1 rounded border border-green-100">{w.roi_metrics?.[0] || w.title}</span>
+                         {pitchPreview.assets.filter(a => a.type === 'win' || (a.type === 'work_history' && a.roi_metrics?.length > 0)).slice(0, 5).map((w, idx) => (
+                            <span key={idx} className="text-xs font-bold text-green-700">{w.roi_metrics?.[0] || w.title}</span>
                          ))}
                       </div>
 
@@ -501,7 +468,7 @@ const CareerAdmin: React.FC = () => {
                             {pitchPreview.assets.filter(a => a.type === 'work_history').map((job, idx) => (
                               <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
                                 <h4 className="text-lg font-bold text-gray-900">{job.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2 font-bold">{job.company}</p>
+                                <p className="text-sm text-gray-600 mb-2">{job.company} | {job.dates}</p>
                                 <ul className="list-disc pl-5 space-y-1 text-gray-700 text-sm">
                                   {job.description?.map((bullet: string, bIdx: number) => (
                                     <li key={bIdx}>{bullet}</li>
@@ -511,8 +478,7 @@ const CareerAdmin: React.FC = () => {
                             ))}
                           </div>
 
-                          {/* Case Studies (Only show if they exist) */}
-                          {pitchPreview.assets.some(a => a.type === 'case_study') && (
+                          {/* Case Studies */}
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Case Studies (Logic Proofs)</h3>
                             {pitchPreview.assets.filter(a => a.type === 'case_study').map((cs, idx) => (
@@ -528,7 +494,6 @@ const CareerAdmin: React.FC = () => {
                               </div>
                             ))}
                           </div>
-                          )}
 
                           {/* Writing Samples & Talks */}
                           <div>
@@ -536,7 +501,7 @@ const CareerAdmin: React.FC = () => {
                             {pitchPreview.assets.filter(a => a.type === 'writing_sample' || a.type === 'talk').map((item, idx) => (
                               <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
                                 <h4 className="text-lg font-bold text-gray-900">{item.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2 font-bold">{item.company}</p>
+                                <p className="text-sm text-gray-600 mb-2">{item.company} | {item.dates}</p>
                                 {item.source_url && (
                                   <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-1">
                                     <ExternalLink size={14} /> Read/Watch
@@ -589,7 +554,6 @@ const CareerAdmin: React.FC = () => {
                              </div>
                           </div>
                         </div>
-                      </div>
                     </div>
                   )}
                </div>
@@ -636,13 +600,13 @@ const CareerAdmin: React.FC = () => {
                                    <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.role_tag}</span>
                                 </div>
                                 <h4 className="text-lg font-bold text-gray-900">{asset.title}</h4>
-                                <p className="text-sm text-gray-500 font-bold mb-4">{asset.company}</p>
+                                <p className="text-sm text-gray-500 font-medium mb-4">{asset.company} | {asset.dates}</p>
                                 <ul className="space-y-2 mb-6">
                                    {asset.description?.map((bullet: string, idx: number) => (
                                       <li key={idx} className="text-sm text-gray-600 flex items-start gap-2"><CheckCircle size={14} className="text-green-500 mt-1 flex-shrink-0" /> {bullet}</li>
                                    ))}
                                 </ul>
-                                {asset.source_url && asset.source_url !== 'direct_upload' && asset.source_url !== 'N/A' && (
+                                {asset.source_url && asset.source_url !== 'direct_upload' && (
                                    <div className="mb-4">
                                       <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-4">
                                          <ExternalLink size={14} /> View Full Article
@@ -651,8 +615,8 @@ const CareerAdmin: React.FC = () => {
                                 )}
                              </div>
                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 hover:bg-gray-50 rounded-lg" title="Edit coming soon"><Edit3 size={18} className="text-gray-400" /></button>
-                                <button onClick={() => deleteAsset(asset.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
+                                <button className="p-2 hover:bg-gray-50 rounded-lg"><Edit3 size={18} className="text-gray-400" /></button>
+                                <button className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
                              </div>
                           </div>
                           {asset.roi_metrics?.length > 0 && (
@@ -665,44 +629,6 @@ const CareerAdmin: React.FC = () => {
                        </div>
                     ))}
                  </div>
-              </div>
-            )}
-
-            {activeTab === 'published' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2"><Globe /> Live Resume Vault</h2>
-                {publishedResumes.length === 0 ? (
-                  <div className="p-12 bg-white border-2 border-dashed border-gray-200 rounded-3xl text-center text-gray-400 font-bold">You haven't published any bespoke resumes yet. Use the Brag Engine to start.</div>
-                ) : (
-                  <div className="grid gap-4">
-                    {publishedResumes.map((res) => (
-                      <div key={res.id} className="p-6 bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-lg font-black text-gray-900">{res.target_role}</h3>
-                            <p className="text-sm text-indigo-600 font-bold mb-4">{res.mapped_title}</p>
-                            <div className="flex gap-4">
-                              <a 
-                                href={`/resume/${res.slug}`} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                className="text-xs font-black uppercase text-gray-400 hover:text-indigo-600 flex items-center gap-1"
-                              >
-                                <ExternalLink size={14} /> View Live
-                              </a>
-                              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/resume/${res.slug}`); alert("Link copied!"); }} className="text-xs font-black uppercase text-gray-400 hover:text-black flex items-center gap-1">
-                                <Copy size={14} /> Copy Link
-                              </button>
-                            </div>
-                          </div>
-                          <button onClick={() => deleteResume(res.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors">
-                            <Trash2 size={20} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
           </div>
