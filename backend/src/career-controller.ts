@@ -283,7 +283,6 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
       slug,
       target_role: resumeData.targetTitle,
       mapped_title: resumeData.mappedTitle,
-      mapped_title: resumeData.mappedTitle,
       professional_summary: resumeData.strategicHook,
       selected_assets: resumeData.assets, // Store IDs or objects
       is_live: true
