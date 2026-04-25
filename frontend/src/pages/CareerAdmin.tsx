@@ -50,12 +50,6 @@ const CareerAdmin: React.FC = () => {
       if (data) setPublishedResumes(data);
     };
     fetchResumes();
-
-    const fetchResumes = async () => {
-      const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
-      if (data) setPublishedResumes(data);
-    };
-    fetchResumes();
   }, []);
 
   const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
