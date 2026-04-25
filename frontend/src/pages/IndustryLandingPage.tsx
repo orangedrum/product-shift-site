@@ -4,8 +4,8 @@ import { supabase } from '../lib/supabase';
 import { BarChart, Bot, Check, Users, AlertCircle, Lock, RefreshCw, Star, ChevronDown, ChevronUp, TrendingUp, Zap, CheckCircle, X, Target, Puzzle } from 'lucide-react';
 import { AnalysisErrorCard } from '../components/AnalysisErrorCard';
 import { LandingFAQ } from '../components/LandingFAQ';
-import { PricingSection } from './components/PricingSection';
-import { VideoPlayer } from './components/VideoPlayer';
+import { PricingSection } from '../components/PricingSection';
+import { VideoPlayer } from '../components/VideoPlayer';
 
 // ==========================================
 // 🛠️ CONFIGURATION SECTION - EDIT THIS 🛠️
@@ -82,6 +82,69 @@ const formatDemoText = (text: string) => {
 
 // --- Components ---
 
+const HeroSection = () => (
+  <section className="relative bg-transparent overflow-hidden">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
+        <main className="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
+          <div className="text-center lg:text-left lg:w-1/2">
+            <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+              <span className="block xl:inline">{CONFIG.heroTitle}</span>{' '}
+              <span className="block text-indigo-600 xl:inline">{CONFIG.heroSubtitle}</span>
+            </h1>
+            <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+              {CONFIG.heroDescription}
+            </p>
+            <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+              <div className="rounded-md shadow">
+                <a href="#demo" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-sm font-bold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-base">
+                  Start Free Audit
+                </a>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-transparent flex items-center justify-center">
+      <div className="p-8 w-full">
+         <VideoPlayer src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" />
+      </div>
+    </div>
+  </section>
+);
+
+const PainSection = () => (
+  <section className="bg-transparent py-16 sm:py-24">
+    <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_#000]">
+        <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+          {CONFIG.painTitle}
+        </h2>
+        <ul className="space-y-6 text-lg text-gray-700">
+          {CONFIG.painPoints.map((point, i) => (
+            <li key={i} className="flex items-start gap-4">
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 border-black ${i < 2 ? 'bg-gray-100' : 'bg-indigo-100'}`}>
+                {i < 2 ? <span className="text-gray-600 font-bold">!</span> : <Check className="text-indigo-600" size={16} />}
+              </div>
+              <p>{point}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+);
+
+const FeaturesSection = () => (
+  <section id="how-it-works" className="py-24 bg-white">
+    <div className="container mx-auto px-4 max-w-7xl text-center">
+      <h2 className="text-3xl font-black mb-8">How it Works</h2>
+      <p className="text-gray-600">Our AI personas browse your site like real users and report back.</p>
+    </div>
+  </section>
+);
+
 const AuthorityBanner = () => (
   <div className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 py-4 overflow-hidden relative border-y-2 border-black">
     <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12"></div>
@@ -141,7 +204,6 @@ const UseCasesSection = () => (
   </section>
 );
 
-const PainSection = () => (
 const IndustryLandingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);

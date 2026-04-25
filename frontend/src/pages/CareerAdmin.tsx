@@ -23,10 +23,12 @@ const CareerAdmin: React.FC = () => {
   ]);
 
   const [results, setResults] = useState<any[]>([]);
+  const [publishedResumes, setPublishedResumes] = useState<any[]>([]);
   const [pitchPreview, setPitchPreview] = useState<{
     assets: any[],
     strategicHook: string,
-    targetTitle: string
+    targetTitle: string,
+    mappedTitle: string
   } | null>(null);
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -45,7 +47,7 @@ const CareerAdmin: React.FC = () => {
     };
     fetchLibrary();
 
-    // CTO FIX: Consolidate fetchResumes to a single declaration and call to fix "Already Declared" error
+    // CTO FIX: Consolidated duplicate declarations to a single instance
     const fetchResumes = async () => {
       const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
       if (data) setPublishedResumes(data);
@@ -561,6 +563,7 @@ const CareerAdmin: React.FC = () => {
                           </div>
                         </div>
                       </div>
+                    </div>
                   )}
                </div>
             )}
