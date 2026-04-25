@@ -8,6 +8,7 @@ import { NeoButton } from '../components/NeoButton';
 import { SpeechBubble } from '../components/SpeechBubble';
 import AgencyPartner from '../components/AgencyPartner';
 import ProductLab from '../components/ProductLab';
+import StatsSection from '../components/StatsSection';
 import { VideoThumbnail } from '../components/VideoThumbnail';
 
 const PublicResume: React.FC = () => {
@@ -16,8 +17,6 @@ const PublicResume: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const statsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -38,32 +37,13 @@ const PublicResume: React.FC = () => {
     fetchResume();
   }, [slug]);
 
-  // Floating Orbs Logic for Performance Metrics
-  useEffect(() => {
-    const container = statsContainerRef.current;
-    if (!container) return;
-
-    const updateOrbs = () => {
-      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-      for (let i = 1; i <= 15; i++) {
-        container.style.setProperty(`--orb-${i}-x`, `${r(0, 100)}%`);
-        container.style.setProperty(`--orb-${i}-y`, `${r(0, 100)}%`);
-      }
-    };
-    updateOrbs();
-    const interval = setInterval(updateOrbs, 3000);
-    return () => clearInterval(interval);
-  }, [loading]);
-
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="animate-spin text-indigo-600" size={48} /></div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center"><h1 className="text-4xl font-black mb-4">404</h1><p className="text-gray-600 mb-8">This bespoke resume configuration could not be found.</p><Link to="/"><NeoButton>Back to ProductShift</NeoButton></Link></div>;
 
-  const stats = [
-    { label: "Years Experience", value: "15+" },
-    { label: "Projects Completed", value: "50+" },
-    { label: "Avg ROI Increase", value: "70%" },
-    { label: "Success Rate", value: "90%" }
-  ];
+  // CTO Logic: Leveraging the exact video play handler from Speaker.tsx
+  const handleVideoPlay = () => {
+    window.open('https://vimeo.com/203961200?fl=pl&fe=sh', '_blank', 'noopener,noreferrer');
+  };
 
   const assets = resume.selected_assets || [];
 
@@ -100,20 +80,24 @@ const PublicResume: React.FC = () => {
           </div>
           <div className="grid md:grid-cols-2 gap-8 items-end">
             <div>
-              {/* Authority Header: Watch Speaking Reel */}
-              <div className="max-w-[280px] mb-8">
-                <div 
-                  className="relative rounded-2xl overflow-hidden shadow-elegant cursor-pointer group"
-                  onClick={() => setIsVideoOpen(true)}
-                >
-                  <VideoThumbnail imageSrc="/jeankaluza.png" alt="Jean Kaluza - Keynote Speaker" />
+              {/* Authority Header: Exact Speaking Reel logic from Speaker.tsx */}
+              <div className="max-w-[320px] mb-8">
+                <div className="relative animate-float">
+                  <VideoThumbnail 
+                    imageSrc="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png"
+                    alt="Jean speaking at conference"
+                    onPlay={handleVideoPlay}
+                    label="Watch Speaking Reel"
+                  />
+                  <div className="absolute -top-4 -right-4 w-24 h-24 bg-marketing-gradient rounded-full opacity-20 animate-pulse blur-xl"></div>
+                  <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-brand-pink rounded-full opacity-30 animate-pulse delay-1000 blur-xl"></div>
                 </div>
               </div>
               <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 leading-none text-gray-900">
                 Jean Kaluza
               </h1>
               <p className="text-xl md:text-2xl font-bold text-gray-500 max-w-xl italic">
-                {resume.mapped_title || "Executive Strategist"}
+                {resume.mapped_title || "Executive Product Strategist"}
               </p>
             </div>
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 relative shadow-sm">
@@ -131,32 +115,9 @@ const PublicResume: React.FC = () => {
           <AgencyPartner />
         </div>
 
-        {/* Performance Stats Row */}
-        <div className="relative mb-20 border-b border-gray-100 pb-12 overflow-hidden rounded-[2rem] bg-white/50" ref={statsContainerRef}>
-          {/* Floating Orbs Background */}
-          <div className="absolute inset-0 pointer-events-none z-0">
-            {[...Array(15)].map((_, i) => (
-              <div 
-                key={i}
-                className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[3000ms] ease-in-out"
-                style={{
-                  left: `var(--orb-${i+1}-x, 50%)`,
-                  top: `var(--orb-${i+1}-y, 50%)`,
-                  width: `${200 + (i * 10)}px`,
-                  height: `${200 + (i * 10)}px`,
-                  backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
-                }}
-              />
-            ))}
-          </div>
-          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center md:text-left border-l-2 border-gray-100 pl-6 py-2">
-                <p className="text-3xl md:text-4xl font-black text-gray-900 leading-none mb-1">{stat.value}</p>
-                <p className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+        {/* Performance Stats Row: Using exact modular component from homepage */}
+        <div className="mb-20">
+          <StatsSection />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -229,24 +190,8 @@ const PublicResume: React.FC = () => {
               </section>
             )}
 
-            {/* User Mirror SaaS Showcase: Recycled from homepage */}
-            {/* Product Lab Section: EXACT component from homepage */}
+            {/* Product Lab Section: Using modular component from homepage */}
             <section className="pt-12">
-              <NeoCard className="bg-gray-900 text-white p-10 relative overflow-hidden">
-                <div className="relative z-10">
-                  <div className="inline-flex items-center px-2 py-1 rounded bg-indigo-600 text-[10px] font-black mb-6 uppercase">Active SaaS Product</div>
-                  <h3 className="text-3xl font-black mb-4">User Mirror: AI-Powered Research</h3>
-                  <p className="text-gray-400 text-lg mb-8 max-w-xl">
-                    I don't just strategy; I build. I launched User Mirror to solve the discovery speed gap. It leverages synthesized personas to run usability audits in seconds, proving end-to-end product/growth leadership.
-                  </p>
-                  <div className="flex gap-4">
-                    <a href="https://www.theproductshift.com/ai-powered-ux" target="_blank" rel="noreferrer">
-                      <NeoButton className="bg-white text-black hover:bg-gray-100">Live Product Demo</NeoButton>
-                    </a>
-                  </div>
-                </div>
-                <Zap className="absolute -bottom-8 -right-8 text-white/5" size={300} />
-              </NeoCard>
               <ProductLab />
             </section>
           </div>
@@ -284,7 +229,7 @@ const PublicResume: React.FC = () => {
                 <SpeechBubble 
                   imageSrc="/jeankaluza.png"
                   name="Jean Kaluza"
-                  role={resume.mapped_title || "Executive Strategist"}
+                  role={resume.mapped_title || "Executive Product Strategist"}
                   quote={`Seen enough proofs? Let's talk ROI for ${resume.target_role}.`}
                   mood="positive"
                 />
