@@ -128,7 +128,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       "${jdText}"
 
       STRATEGIC MAPPING LOGIC:
-      - Perform 'Functional Title Mapping'. If Jean's past work history title (e.g., 'UX Lead') matches the JD's requirements for a 'Product Manager', translate the title to 'Product Manager' or 'Product Manager (UX Lead)'.
+      - HEADLINE SCULPTING: Create a high-authority "Mapped Title" for the resume header (e.g., "General Manager, Nomad Insurance" or "Product & Growth Strategist") that matches the JD exactly while staying rooted in her actual experience.
+      - Perform 'Functional Title Mapping' for roles. If Jean's past work history title (e.g., 'UX Lead') matches the JD's requirements for a 'General Manager', translate the title to 'General Manager (Discovery & Strategy)'.
       - Do NOT map emerging roles (e.g., 'AI Agent Lead') to time periods before those roles existed (pre-2023).
 
       AVAILABLE ASSETS (Only select from this list):
@@ -140,14 +141,14 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       - Distribution Goal: 5 work_history, 6 skill, 4 technical tooling, and the best available talks, writing samples, or recommendations.
       - Omit all dates/years from titles/descriptions to prevent bias.
 
-      Return a JSON object with a single key "selectedIds" containing an ARRAY of asset IDs.
+      Return a JSON object with two keys: "selectedIds" (ARRAY of IDs) and "mappedTitle" (STRING for the resume headline).
     `;
 
     const aiResponse = await generateContentWithFallback(prompt);
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const { selectedIds } = JSON.parse(jsonMatch[0]);
+    const { selectedIds, mappedTitle } = JSON.parse(jsonMatch[0]);
     
     // Filter full asset data for the frontend
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
@@ -162,7 +163,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       data: {
         assets: curatedPitch,
         strategicHook,
-        targetTitle: jdData.title
+        targetTitle: jdData.title,
+        mappedTitle: mappedTitle || "Product Strategist & Growth Lead"
       }
     });
   } catch (e: any) {
@@ -280,6 +282,7 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
     const { data, error } = await supabase.from('career_resumes').insert({
       slug,
       target_role: resumeData.targetTitle,
+      mapped_title: resumeData.mappedTitle,
       professional_summary: resumeData.strategicHook,
       selected_assets: resumeData.assets, // Store IDs or objects
       is_live: true

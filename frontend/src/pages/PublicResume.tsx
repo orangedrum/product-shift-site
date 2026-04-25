@@ -66,7 +66,7 @@ const PublicResume: React.FC = () => {
                 Jean Kaluza
               </h1>
               <p className="text-xl md:text-2xl font-bold text-gray-500 max-w-xl italic">
-                Product Strategist & UX Discovery Lead specializing in end-to-end growth for high-velocity teams.
+                {resume.mapped_title || "Product Strategist & Growth Lead"}
               </p>
             </div>
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 relative shadow-sm">

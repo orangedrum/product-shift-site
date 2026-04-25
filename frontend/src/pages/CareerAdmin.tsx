@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Copy, Globe } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
 import { supabase } from '../lib/supabase';
 
 const CareerAdmin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder'>('pdf');
+  const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder' | 'published'>('pdf');
   const [chatInput, setChatInput] = useState('');
   const [sidekickInput, setSidekickInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,6 +44,12 @@ const CareerAdmin: React.FC = () => {
       }
     };
     fetchLibrary();
+
+    const fetchResumes = async () => {
+      const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
+      if (data) setPublishedResumes(data);
+    };
+    fetchResumes();
   }, []);
 
   const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
@@ -143,6 +149,7 @@ const CareerAdmin: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
+        setPublishedResumes(prev => [data.data, ...prev]);
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: `🚀 RESUME LIVE! You can now send this link to the hiring manager: ${window.location.origin}${data.url}` }]);
         window.open(data.url, '_blank');
       } else {
@@ -152,6 +159,15 @@ const CareerAdmin: React.FC = () => {
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Publish Error: ${e.message}` }]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteResume = async (id: string) => {
+    if (!window.confirm("Permanently delete this published resume?")) return;
+    const { error } = await supabase.from('career_resumes').delete().eq('id', id);
+    if (!error) {
+      setPublishedResumes(prev => prev.filter(r => r.id !== id));
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Bespoke resume removed from live status." }]);
     }
   };
 
@@ -250,6 +266,9 @@ const CareerAdmin: React.FC = () => {
           </button>
           <button onClick={() => setActiveTab('builder')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'builder' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
             <div className="flex items-center gap-2"><Wand2 size={16}/> The Brag Engine</div>
+          </button>
+          <button onClick={() => setActiveTab('published')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'published' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
+            <div className="flex items-center gap-2"><Globe size={16}/> Published</div>
           </button>
         </div>
 
@@ -458,7 +477,7 @@ const CareerAdmin: React.FC = () => {
                       {/* Resume Header & Summary */}
                       <div className="mb-8">
                          <h2 className="text-3xl font-black text-gray-900 mb-2">Jean Kaluza</h2>
-                         <p className="text-lg text-gray-600 font-medium mb-4">UX Researcher & Strategist | Product Leader | AI Innovator</p>
+                         <p className="text-lg text-indigo-600 font-bold mb-4">{pitchPreview.mappedTitle}</p>
                          <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
                             <p className="text-sm font-black uppercase text-gray-400 mb-2 tracking-widest">Professional Summary</p>
                             <p className="text-xl font-bold text-gray-900 leading-tight italic">"{pitchPreview.strategicHook}"</p>
@@ -646,6 +665,44 @@ const CareerAdmin: React.FC = () => {
                        </div>
                     ))}
                  </div>
+              </div>
+            )}
+
+            {activeTab === 'published' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2"><Globe /> Live Resume Vault</h2>
+                {publishedResumes.length === 0 ? (
+                  <div className="p-12 bg-white border-2 border-dashed border-gray-200 rounded-3xl text-center text-gray-400 font-bold">You haven't published any bespoke resumes yet. Use the Brag Engine to start.</div>
+                ) : (
+                  <div className="grid gap-4">
+                    {publishedResumes.map((res) => (
+                      <div key={res.id} className="p-6 bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-lg font-black text-gray-900">{res.target_role}</h3>
+                            <p className="text-sm text-indigo-600 font-bold mb-4">{res.mapped_title}</p>
+                            <div className="flex gap-4">
+                              <a 
+                                href={`/resume/${res.slug}`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-xs font-black uppercase text-gray-400 hover:text-indigo-600 flex items-center gap-1"
+                              >
+                                <ExternalLink size={14} /> View Live
+                              </a>
+                              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/resume/${res.slug}`); alert("Link copied!"); }} className="text-xs font-black uppercase text-gray-400 hover:text-black flex items-center gap-1">
+                                <Copy size={14} /> Copy Link
+                              </button>
+                            </div>
+                          </div>
+                          <button onClick={() => deleteResume(res.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors">
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
