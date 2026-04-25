@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2 } from 'lucide-react';
+import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -13,6 +13,7 @@ const PublicResume: React.FC = () => {
   const [resume, setResume] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -36,6 +37,13 @@ const PublicResume: React.FC = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="animate-spin text-indigo-600" size={48} /></div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center"><h1 className="text-4xl font-black mb-4">404</h1><p className="text-gray-600 mb-8">This bespoke resume configuration could not be found.</p><Link to="/"><NeoButton>Back to ProductShift</NeoButton></Link></div>;
 
+  const stats = [
+    { label: "Years Experience", value: "15+" },
+    { label: "Projects Completed", value: "50+" },
+    { label: "Avg ROI Increase", value: "70%" },
+    { label: "Success Rate", value: "90%" }
+  ];
+
   const assets = resume.selected_assets || [];
 
   return (
@@ -58,8 +66,16 @@ const PublicResume: React.FC = () => {
       <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
         {/* Header Section */}
         <header className="mb-16">
-          <div className="inline-flex items-center px-3 py-1 rounded-full border border-indigo-100 bg-indigo-50 text-[10px] font-black text-indigo-600 mb-6 uppercase tracking-widest">
-            Bespoke Strategy for {resume.target_role}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="inline-flex items-center px-3 py-1 rounded-full border border-indigo-100 bg-indigo-50 text-[10px] font-black text-indigo-600 uppercase tracking-widest">
+              Bespoke Strategy for {resume.target_role}
+            </div>
+            <button 
+              onClick={() => setIsProcessModalOpen(true)}
+              className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors flex items-center gap-2 group"
+            >
+              My Process <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
           <div className="grid md:grid-cols-2 gap-8 items-end">
             <div>
@@ -79,6 +95,21 @@ const PublicResume: React.FC = () => {
             </div>
           </div>
         </header>
+
+        {/* Agency Partner Logo Fold: Directly below Header */}
+        <div className="mb-12 border-t border-gray-50 pt-4">
+          <AgencyPartner />
+        </div>
+
+        {/* Performance Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 border-b border-gray-100 pb-12">
+          {stats.map((stat, i) => (
+            <div key={i} className="text-center md:text-left border-l-2 border-gray-100 pl-6 py-2">
+              <p className="text-3xl md:text-4xl font-black text-gray-900 leading-none mb-1">{stat.value}</p>
+              <p className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">{stat.label}</p>
+            </div>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Main Column */}
@@ -150,11 +181,6 @@ const PublicResume: React.FC = () => {
               </section>
             )}
 
-            {/* HealthTech & Agency Authority Section */}
-            <section className="pt-8">
-              <AgencyPartner />
-            </section>
-
             {/* User Mirror SaaS Showcase: Recycled from homepage */}
             <section className="pt-12">
               <NeoCard className="bg-gray-900 text-white p-10 relative overflow-hidden">
@@ -225,6 +251,68 @@ const PublicResume: React.FC = () => {
           </aside>
         </div>
       </div>
+
+      {/* "How We Work" Modal */}
+      {isProcessModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsProcessModalOpen(false)}>
+          <div className="relative w-full max-w-4xl bg-white rounded-[2rem] border-2 border-black shadow-[12px_12px_0px_0px_#000] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setIsProcessModalOpen(false)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-black transition-colors z-10">
+              <X size={24} />
+            </button>
+            <div className="p-8 md:p-12 overflow-y-auto">
+              <div className="mb-12">
+                <h2 className="text-4xl font-black text-gray-900 mb-2">This is How We Work</h2>
+                <p className="text-gray-500 font-bold uppercase text-xs tracking-widest">End-to-End Strategic Delivery</p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-x-12 gap-y-12">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <Search size={24} />
+                  </div>
+                  <h4 className="text-xl font-black text-gray-900">1. Discovery</h4>
+                  <p className="text-gray-600 leading-relaxed italic text-sm">
+                    Deep dives into user behavior data, stakeholder interviews, and competitive analysis to find the logical "leak" in your current funnel.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div className="w-12 h-12 bg-pink-100 text-brand-pink rounded-xl flex items-center justify-center shadow-sm">
+                    <Target size={24} />
+                  </div>
+                  <h4 className="text-xl font-black text-gray-900">2. Strategy</h4>
+                  <p className="text-gray-600 leading-relaxed italic text-sm">
+                    Mapping the UX logic. We define the functional requirements and strategic hooks that align your product vision with the user's immediate needs.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <Layout size={24} />
+                  </div>
+                  <h4 className="text-xl font-black text-gray-900">3. Execution</h4>
+                  <p className="text-gray-600 leading-relaxed italic text-sm">
+                    High-velocity prototyping and Vibe-Coding. We build and test functional proofs quickly to ensure the design handles real-world friction before scale.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div className="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <TrendingUp size={24} />
+                  </div>
+                  <h4 className="text-xl font-black text-gray-900">4. Growth</h4>
+                  <p className="text-gray-600 leading-relaxed italic text-sm">
+                    ROI tracking and conversion optimization loops. We monitor results post-launch to refine metrics and ensure the long-term success of the product.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-16 pt-8 border-t border-gray-100 flex justify-center">
+                <NeoButton onClick={() => setIsProcessModalOpen(false)} className="bg-black text-white px-12">
+                  Got it, Let's Build
+                </NeoButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating Footer Ticker (Mobile only or persistent) */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 no-print block md:hidden z-50">
