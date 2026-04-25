@@ -276,8 +276,9 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
   if (!resumeData) return res.status(400).json({ error: 'Resume data required' });
 
   try {
-    // Generate a slug based on the target title
-    const slug = `${resumeData.targetTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
+    // CTO Fix: Robust slug generation to handle special characters in JD titles
+    const safeTitle = (resumeData.targetTitle || 'bespoke-resume').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const slug = `${safeTitle}-${Date.now().toString().slice(-4)}`;
     
     const { data, error } = await supabase.from('career_resumes').insert({
       slug,
