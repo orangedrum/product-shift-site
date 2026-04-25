@@ -559,8 +559,6 @@ const CareerAdmin: React.FC = () => {
                              </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
                   )}
                </div>
             )}
