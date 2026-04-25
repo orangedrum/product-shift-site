@@ -45,6 +45,7 @@ const CareerAdmin: React.FC = () => {
     };
     fetchLibrary();
 
+    // CTO FIX: Consolidate fetchResumes to a single declaration and call to fix "Already Declared" error
     const fetchResumes = async () => {
       const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
       if (data) setPublishedResumes(data);
@@ -558,6 +559,8 @@ const CareerAdmin: React.FC = () => {
                                 <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> Vibe-Coding Loop</label>
                              </div>
                           </div>
+                        </div>
+                      </div>
                   )}
                </div>
             )}
