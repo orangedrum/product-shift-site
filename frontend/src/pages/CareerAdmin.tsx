@@ -558,8 +558,6 @@ const CareerAdmin: React.FC = () => {
                                 <label className="flex items-center gap-2 text-[10px] font-bold"><input type="checkbox" defaultChecked /> Vibe-Coding Loop</label>
                              </div>
                           </div>
-                        </div>
-                      </div>
                   )}
                </div>
             )}
