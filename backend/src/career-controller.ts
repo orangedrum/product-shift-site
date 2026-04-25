@@ -80,7 +80,7 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to produce valid JSON structure');
     
-    const { assets } = JSON.parse(jsonMatch[0]);
+    const { assets, mappedTitle } = JSON.parse(jsonMatch[0]);
 
     // Data Normalization
     const normalizedAssets = assets.map((a: any) => ({
@@ -148,7 +148,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const { selectedIds } = JSON.parse(jsonMatch[0]);
+    const { selectedIds, mappedTitle } = JSON.parse(jsonMatch[0]);
     
     // Filter full asset data for the frontend
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
@@ -163,7 +163,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       data: {
         assets: curatedPitch,
         strategicHook,
-        targetTitle: jdData.title
+        targetTitle: jdData.title,
+        mappedTitle: mappedTitle || "Product Strategist & Growth Lead"
       }
     });
   } catch (e: any) {
