@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, Sparkle } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
 import { supabase } from '../lib/supabase';
 
 const CareerAdmin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder' | 'published'>('pdf');
+  const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder' | 'published'>('builder');
   const [chatInput, setChatInput] = useState('');
   const [sidekickInput, setSidekickInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -124,8 +124,10 @@ const CareerAdmin: React.FC = () => {
       });
       if (!res.ok) throw new Error('Delete failed');
       setResults(prev => prev.filter(a => a.id !== id));
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Asset deleted from the registry." }]);
     } catch (e: any) {
       console.error(e);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Delete failed: ${e.message}` }]);
     }
   };
 
@@ -161,6 +163,7 @@ const CareerAdmin: React.FC = () => {
     const { error } = await supabase.from('career_resumes').delete().eq('id', id);
     if (!error) {
       setPublishedResumes(prev => prev.filter(r => r.id !== id));
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Bespoke resume removed from live status." }]);
     }
   };
 
@@ -220,7 +223,7 @@ const CareerAdmin: React.FC = () => {
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: data.reply }]);
         if (data.suggestedAssets && data.suggestedAssets.length > 0) {
            setReviewQueue(prev => [...data.suggestedAssets, ...prev]);
-           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted new points to fill your gaps. Check the Review Queue!` }]);
+           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted new strategic points based on User Mirror to fill your gaps. Check the Review Queue!` }]);
         }
       }
     } catch (e: any) {
@@ -257,9 +260,6 @@ const CareerAdmin: React.FC = () => {
           </button>
           <button onClick={() => setActiveTab('builder')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'builder' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
             <div className="flex items-center gap-2"><Wand2 size={16}/> The Brag Engine</div>
-          </button>
-          <button onClick={() => setActiveTab('published')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'published' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
-            <div className="flex items-center gap-2"><Globe size={16}/> Published</div>
           </button>
         </div>
 
@@ -452,10 +452,10 @@ const CareerAdmin: React.FC = () => {
                       </div>
 
                       {/* Million Dollar Wins Ticker (Placeholder for actual component) */}
-                      <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center">
+                      <div className="mb-8 p-4 bg-green-50 border-2 border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center shadow-sm">
                          <h4 className="text-sm font-black uppercase text-green-800 flex items-center gap-2"><Trophy size={16} className="text-green-600" /> Million Dollar Wins:</h4>
-                         {pitchPreview.assets.filter(a => a.type === 'win' || (a.type === 'work_history' && a.roi_metrics?.length > 0)).slice(0, 5).map((w, idx) => (
-                            <span key={idx} className="text-xs font-bold text-green-700">{w.roi_metrics?.[0] || w.title}</span>
+                         {pitchPreview.assets.filter(a => a.type === 'win').slice(0, 6).map((w, idx) => (
+                            <span key={idx} className="text-xs font-black text-green-700 bg-white px-2 py-1 rounded border border-green-100">{w.roi_metrics?.[0] || w.title}</span>
                          ))}
                       </div>
 
@@ -468,7 +468,7 @@ const CareerAdmin: React.FC = () => {
                             {pitchPreview.assets.filter(a => a.type === 'work_history').map((job, idx) => (
                               <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
                                 <h4 className="text-lg font-bold text-gray-900">{job.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2">{job.company} | {job.dates}</p>
+                                <p className="text-sm text-gray-600 mb-2 font-bold">{job.company}</p>
                                 <ul className="list-disc pl-5 space-y-1 text-gray-700 text-sm">
                                   {job.description?.map((bullet: string, bIdx: number) => (
                                     <li key={bIdx}>{bullet}</li>
@@ -479,6 +479,7 @@ const CareerAdmin: React.FC = () => {
                           </div>
 
                           {/* Case Studies */}
+                          {pitchPreview.assets.some(a => a.type === 'case_study') && (
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Case Studies (Logic Proofs)</h3>
                             {pitchPreview.assets.filter(a => a.type === 'case_study').map((cs, idx) => (
@@ -494,6 +495,7 @@ const CareerAdmin: React.FC = () => {
                               </div>
                             ))}
                           </div>
+                          )}
 
                           {/* Writing Samples & Talks */}
                           <div>
@@ -501,7 +503,7 @@ const CareerAdmin: React.FC = () => {
                             {pitchPreview.assets.filter(a => a.type === 'writing_sample' || a.type === 'talk').map((item, idx) => (
                               <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
                                 <h4 className="text-lg font-bold text-gray-900">{item.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2">{item.company} | {item.dates}</p>
+                                <p className="text-sm text-gray-600 mb-2 font-bold">{item.company}</p>
                                 {item.source_url && (
                                   <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-1">
                                     <ExternalLink size={14} /> Read/Watch
@@ -554,6 +556,8 @@ const CareerAdmin: React.FC = () => {
                              </div>
                           </div>
                         </div>
+                      </div>
+                    </div>
                     </div>
                   )}
                </div>
@@ -600,13 +604,13 @@ const CareerAdmin: React.FC = () => {
                                    <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.role_tag}</span>
                                 </div>
                                 <h4 className="text-lg font-bold text-gray-900">{asset.title}</h4>
-                                <p className="text-sm text-gray-500 font-medium mb-4">{asset.company} | {asset.dates}</p>
+                                <p className="text-sm text-gray-500 font-bold mb-4">{asset.company}</p>
                                 <ul className="space-y-2 mb-6">
                                    {asset.description?.map((bullet: string, idx: number) => (
                                       <li key={idx} className="text-sm text-gray-600 flex items-start gap-2"><CheckCircle size={14} className="text-green-500 mt-1 flex-shrink-0" /> {bullet}</li>
                                    ))}
                                 </ul>
-                                {asset.source_url && asset.source_url !== 'direct_upload' && (
+                                {asset.source_url && asset.source_url !== 'direct_upload' && asset.source_url !== 'N/A' && (
                                    <div className="mb-4">
                                       <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-4">
                                          <ExternalLink size={14} /> View Full Article
@@ -615,8 +619,8 @@ const CareerAdmin: React.FC = () => {
                                 )}
                              </div>
                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 hover:bg-gray-50 rounded-lg"><Edit3 size={18} className="text-gray-400" /></button>
-                                <button className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
+                                <button className="p-2 hover:bg-gray-50 rounded-lg" title="Edit coming soon"><Edit3 size={18} className="text-gray-400" /></button>
+                                <button onClick={() => deleteAsset(asset.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
                              </div>
                           </div>
                           {asset.roi_metrics?.length > 0 && (
@@ -629,6 +633,44 @@ const CareerAdmin: React.FC = () => {
                        </div>
                     ))}
                  </div>
+              </div>
+            )}
+
+            {activeTab === 'published' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2"><Globe /> Live Resume Vault</h2>
+                {publishedResumes.length === 0 ? (
+                  <div className="p-12 bg-white border-2 border-dashed border-gray-200 rounded-3xl text-center text-gray-400 font-bold">You haven't published any bespoke resumes yet. Use the Brag Engine to start.</div>
+                ) : (
+                  <div className="grid gap-4">
+                    {publishedResumes.map((res) => (
+                      <div key={res.id} className="p-6 bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-lg font-black text-gray-900">{res.target_role}</h3>
+                            <p className="text-sm text-indigo-600 font-bold mb-4">{res.mapped_title}</p>
+                            <div className="flex gap-4">
+                              <a 
+                                href={`/resume/${res.slug}`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-xs font-black uppercase text-gray-400 hover:text-indigo-600 flex items-center gap-1"
+                              >
+                                <ExternalLink size={14} /> View Live
+                              </a>
+                              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/resume/${res.slug}`); alert("Link copied!"); }} className="text-xs font-black uppercase text-gray-400 hover:text-black flex items-center gap-1">
+                                <Copy size={14} /> Copy Link
+                              </button>
+                            </div>
+                          </div>
+                          <button onClick={() => deleteResume(res.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors">
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -148,7 +148,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const { selectedIds, mappedTitle } = JSON.parse(jsonMatch[0]);
+    const { selectedIds } = JSON.parse(jsonMatch[0]);
     
     // Filter full asset data for the frontend
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
@@ -163,8 +163,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       data: {
         assets: curatedPitch,
         strategicHook,
-        targetTitle: jdData.title,
-        mappedTitle: mappedTitle || "Product Strategist & Growth Lead"
+        targetTitle: jdData.title
       }
     });
   } catch (e: any) {
@@ -276,9 +275,8 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
   if (!resumeData) return res.status(400).json({ error: 'Resume data required' });
 
   try {
-    // CTO Fix: Robust slug generation to handle special characters in JD titles
-    const safeTitle = (resumeData.targetTitle || 'bespoke-resume').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    const slug = `${safeTitle}-${Date.now().toString().slice(-4)}`;
+    // Generate a slug based on the target title
+    const slug = `${resumeData.targetTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
     
     const { data, error } = await supabase.from('career_resumes').insert({
       slug,
