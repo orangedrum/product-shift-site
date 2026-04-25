@@ -45,12 +45,6 @@ const CareerAdmin: React.FC = () => {
     };
     fetchLibrary();
 
-    // CTO FIX: Consolidate fetchResumes to a single declaration and call
-    const fetchResumes = async () => {
-      const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
-      if (data) setPublishedResumes(data);
-    };
-    fetchResumes();
   }, []);
 
   const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
