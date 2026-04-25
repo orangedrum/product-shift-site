@@ -50,6 +50,12 @@ const CareerAdmin: React.FC = () => {
       if (data) setPublishedResumes(data);
     };
     fetchResumes();
+
+    const fetchResumes = async () => {
+      const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
+      if (data) setPublishedResumes(data);
+    };
+    fetchResumes();
   }, []);
 
   const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
@@ -260,6 +266,9 @@ const CareerAdmin: React.FC = () => {
           </button>
           <button onClick={() => setActiveTab('builder')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'builder' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
             <div className="flex items-center gap-2"><Wand2 size={16}/> The Brag Engine</div>
+          </button>
+          <button onClick={() => setActiveTab('published')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'published' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
+            <div className="flex items-center gap-2"><Globe size={16}/> Published</div>
           </button>
         </div>
 
@@ -557,6 +566,7 @@ const CareerAdmin: React.FC = () => {
                           </div>
                         </div>
                       </div>
+                    </div>
                     </div>
                     </div>
                   )}

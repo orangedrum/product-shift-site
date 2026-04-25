@@ -121,14 +121,14 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
     // 3. AI Selection Logic (The Perfect 24)
     const prompt = `
-      You are a World-Class Executive Recruiter. Jean Kaluza (she/her) is the candidate. 
+      You are a World-Class Executive Recruiter. Jean Kaluza (she/her) is the candidate. Jean built User Mirror.
       OBJECTIVE: Orchestrate a tailored, interactive resume for Jean Kaluza for this specific job.
       
       JOB DESCRIPTION:
       "${jdText}"
 
       STRATEGIC MAPPING LOGIC:
-      - HEADLINE SCULPTING: Create a high-authority "Mapped Title" for the resume header (e.g., "General Manager, Nomad Insurance" or "Product & Growth Strategist") that matches the JD exactly while staying rooted in her actual experience.
+      - HEADLINE SCULPTING: Create a high-authority "Mapped Title" for the resume header (e.g., "General Manager, Nomad Insurance") that matches the JD exactly.
       - Perform 'Functional Title Mapping' for roles. If Jean's past work history title (e.g., 'UX Lead') matches the JD's requirements for a 'General Manager', translate the title to 'General Manager (Discovery & Strategy)'.
       - Do NOT map emerging roles (e.g., 'AI Agent Lead') to time periods before those roles existed (pre-2023).
 
@@ -275,12 +275,14 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
   if (!resumeData) return res.status(400).json({ error: 'Resume data required' });
 
   try {
-    // Generate a slug based on the target title
-    const slug = `${resumeData.targetTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
+    // CTO Fix: Robust slug generation to prevent 500 errors on empty titles
+    const safeTitle = (resumeData.targetTitle || 'bespoke-resume').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const slug = `${safeTitle}-${Date.now().toString().slice(-4)}`;
     
     const { data, error } = await supabase.from('career_resumes').insert({
       slug,
       target_role: resumeData.targetTitle,
+      mapped_title: resumeData.mappedTitle,
       mapped_title: resumeData.mappedTitle,
       professional_summary: resumeData.strategicHook,
       selected_assets: resumeData.assets, // Store IDs or objects
