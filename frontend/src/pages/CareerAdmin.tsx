@@ -45,12 +45,7 @@ const CareerAdmin: React.FC = () => {
     };
     fetchLibrary();
 
-    const fetchResumes = async () => {
-      const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
-      if (data) setPublishedResumes(data);
-    };
-    fetchResumes();
-
+    // CTO FIX: Consolidate fetchResumes to a single declaration and call
     const fetchResumes = async () => {
       const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
       if (data) setPublishedResumes(data);
