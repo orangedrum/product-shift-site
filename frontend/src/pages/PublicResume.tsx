@@ -6,6 +6,7 @@ import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { SpeechBubble } from '../components/SpeechBubble';
+import AgencyPartner from '../components/AgencyPartner';
 
 const PublicResume: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -110,25 +111,49 @@ const PublicResume: React.FC = () => {
             {/* Publications & Talks (The "Extra Extra" Section) */}
             {(assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk')) && (
               <section>
-                <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3">
-                  <Globe size={16} /> Publications & Authority
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-6">
-                  {assets.filter((a: any) => a.type === 'writing_sample' || a.type === 'talk').map((item: any, idx: number) => (
-                    <MarketingCard key={idx} className="p-6 hover:translate-y-[-4px] transition-transform duration-300">
-                       <span className="text-[10px] font-black uppercase text-brand-pink mb-2 block">{item.type.replace('_', ' ')}</span>
-                       <h4 className="text-lg font-black mb-2 leading-tight">{item.title}</h4>
-                       <p className="text-sm text-gray-500 font-bold mb-4">{item.company}</p>
-                       {item.source_url && item.source_url !== 'N/A' && (
-                         <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="text-xs font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-                           Read Full Piece <ExternalLink size={12} />
-                         </a>
-                       )}
-                    </MarketingCard>
-                  ))}
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase tracking-tighter rotate-[-2deg] shadow-sm">
+                    Extra! Extra!
+                  </div>
+                  <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">
+                    Published Pieces
+                  </h3>
+                </div>
+                
+                <div className="border-t border-b border-gray-900 py-8">
+                  <div className="grid sm:grid-cols-2 gap-x-12 gap-y-10">
+                    {assets.filter((a: any) => a.type === 'writing_sample' || a.type === 'talk').map((item: any, idx: number) => (
+                      <div key={idx} className="group cursor-pointer">
+                        <span className="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-widest border-b border-gray-100 pb-1">
+                          {item.company} — {item.type.replace('_', ' ')}
+                        </span>
+                        <h4 className="text-2xl font-black text-gray-900 mb-3 leading-none group-hover:text-indigo-600 transition-colors">
+                          {item.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3 italic">
+                          {item.description?.[0]}
+                        </p>
+                        {item.source_url && item.source_url !== 'N/A' && (
+                          <a 
+                            href={item.source_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-black hover:text-indigo-600 transition-colors"
+                          >
+                            View Full Archive <ExternalLink size={10} />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
+
+            {/* HealthTech & Agency Authority Section */}
+            <section className="pt-8">
+              <AgencyPartner />
+            </section>
 
             {/* User Mirror SaaS Showcase: Recycled from homepage */}
             <section className="pt-12">
