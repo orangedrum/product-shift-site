@@ -112,7 +112,7 @@ const PublicResume: React.FC = () => {
           <p className="text-[10px] font-sans leading-relaxed tracking-wider">
             {assets.filter((a: any) => a.type === 'skill' || a.type === 'tooling').map((s: any) => s.title).join(' • ')}
           </p>
-        </div>
+        </section>
 
         <section>
           <h2 className="text-sm font-black uppercase border-b border-gray-300 mb-3">Professional Experience</h2>
