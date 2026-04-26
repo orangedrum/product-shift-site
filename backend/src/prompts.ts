@@ -102,12 +102,13 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
 
     **TASK:**
-    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, stitch the narrative into a single 'case_study' asset. 
-       - DEPTH: Create an exhaustive, section-by-section breakdown. Do not summarize into paragraphs; extract the full "story" as distinct, in-depth sections.
-       - ARC: Problem (the business threat/gap) -> Methodology (strategic process, research steps) -> Findings (friction points, user insights) -> Conclusion (strategic delivery/resolution) -> Results (final ROI and outcome compared to the beginning).
-       - VISUAL ASSETS: Extract actual 'src' URLs for images, diagrams, or sketches if found in the data. If no URL is available, provide a detailed description of the visual mentioned.
-       - DATA & EVIDENCE: Extract all specific metrics and validation signals. For technical/IOT projects, include hardware specs as high-impact bullet points within 'results' or 'roi_metrics'.
-       - LANGUAGE: Use high-stakes, exciting executive vocabulary. 
+    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST stitch the narrative into a single 'case_study' asset. 
+       - **PRIORITY:** The 'story' object is the most important part of this extraction. Do NOT summarize the story into the 'description' field.
+       - **STRICT SCHEMA:** Use the 'description' array ONLY for a 2-sentence executive summary. Put 100% of the technical depth, sections, and artifacts into the 'story' object.
+       - **ARC:** Problem (the business threat/gap) -> Methodology (strategic process, research steps) -> Findings (friction points, user insights) -> Conclusion (strategic delivery/resolution) -> Results (final ROI and outcome compared to the beginning).
+       - **VISUAL SCAVENGING:** Actively hunt for <img> tag 'src' URLs. If found, include them in 'visuals'. Describe every sketch, wireframe, or team photo mentioned in the text.
+       - **DATA & EVIDENCE:** Extract all specific metrics, IOT hardware specs, and validation signals.
+       - **LANGUAGE:** Use high-stakes, exciting executive vocabulary (e.g., "Critical Failure", "Strategic Intervention", "Engineered Optimization"). 
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
     3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
 
@@ -118,7 +119,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
           "title": "Clear high-authority title",
           "company": "Company/Client name",
           "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation" | "case_study",
-          "description": ["High-impact bullet points"],
+          "description": ["2-sentence summary maximum"],
           "roi_metrics": ["Specific quantifiable wins"],
           "story": { 
             "problem": { "title": "The Business Threat", "content": "Detailed multi-sentence narrative..." },
