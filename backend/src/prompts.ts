@@ -103,14 +103,14 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     **TASK:**
     1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST perform a "Deep Narrative Reconstruction". This is the highest priority task.
-       - **MANDATORY DEPTH:** DO NOT SUMMARIZE into the 'description' field. Every section of the 'story' object (Problem, Methodology, Findings, Conclusion, Results) MUST contain at least 6-8 sentences of high-stakes technical detail.
-       - **NON-NEGOTIABLE:** For 'case_study' types, the 'description' field MUST be empty or just a one-sentence hook. 100% of the value must live in the 'story' object.
+       - **MANDATORY DEPTH:** DO NOT SUMMARIZE into the 'description' field. Every section of the 'story' object MUST contain 6-8 sentences of technical detail.
+       - **STRICT JSON SCHEMA:** For 'case_study' types, the 'description' field MUST contain only a 2-sentence executive summary. 100% of the technical narrative MUST live in the 'story' object.
+       - **VISUAL MAPPING (CRITICAL):** You MUST map the actual 'src' URLs from the 'VISUAL ASSETS FOUND' section into the 'story.visuals' array. Match them to the section they illustrate.
        - **ARC:** 
          - Problem: Define the existential threat to the business/product using the raw data.
-         - Methodology: Detail the exhaustive research, sketches, team collaboration, and tactical process. Map specific artifacts (e.g. 'Tablet Wireframes', 'IOT Sensor Logs') here.
+         - Methodology: Detail the exhaustive research, sketches, team collaboration, and tactical process. Explicitly mention artifacts like 'Tablet Wireframes' or 'Raspberry PI'.
          - Findings: Document specific friction points discovered (e.g., hardware failure points, user drop-offs).
          - Results: Compare the final outcome to the initial problem with high-stakes strategic vocabulary.
-       - **VISUAL MAPPING:** Use the 'VISUAL ASSETS FOUND' data. You MUST include actual 'src' URLs in the 'visuals' array. Match them to the narrative sections they describe.
        - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
     3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.

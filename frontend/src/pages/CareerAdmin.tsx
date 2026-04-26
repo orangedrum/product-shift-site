@@ -106,25 +106,29 @@ const CareerAdmin: React.FC = () => {
   const approveAsset = async (index: number) => {
     const asset = reviewQueue[index];
     
-    // CTO FIX: Destructure to ensure we only send columns that exist in the DB 
-    // and handle the 'story' object as a clean JSONB payload.
     const payload = {
       title: asset.title,
-      company: asset.company || 'N/A',
+      company: asset.company || null,
       type: asset.type,
       description: asset.description,
       roi_metrics: asset.roi_metrics,
-      role_tag: asset.role_tag,
-      industry: asset.industry,
-      is_published: asset.is_published,
+      role_tag: asset.role_tag || null,
+      industry: asset.industry || null,
+      is_published: !!asset.is_published,
       skills_demonstrated: asset.skills_demonstrated,
       source_url: asset.source_url,
-      story: asset.story ? asset.story : null
+      story: asset.story || null
     };
 
     const { data, error } = await supabase.from('career_assets').insert([payload]).select().single();
     
-    if (!error) {
+    if (error) {
+      console.error('❌ Supabase Save Error:', error);
+      setSidekickMessages(prev => [...prev, { 
+        sender: 'bot', 
+        text: `⚠️ Database Error: ${error.message}. Please ensure the 'career_assets' table has columns for: company, role_tag, industry, is_published, and story (JSONB).` 
+      }]);
+    } else {
       setResults(prev => [data, ...prev]);
       setReviewQueue(prev => prev.filter((_, i) => i !== index));
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: `"${asset.title}" approved and saved to database.` }]);
