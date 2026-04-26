@@ -190,7 +190,7 @@ const App: React.FC = () => {
       </main>
       
       {isLandingPage ? (
-        <footer className="py-6 text-center bg-gray-50 border-t border-gray-200">
+        <footer className="py-6 text-center bg-gray-50 border-t border-gray-200 no-print">
           <div className="flex justify-center items-center gap-6">
             <a href="https://www.theproductshift.com" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
               <img src="/Favicon_1Favicon.png" alt="" className="h-5 w-5" />

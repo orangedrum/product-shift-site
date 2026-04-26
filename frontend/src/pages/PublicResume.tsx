@@ -84,7 +84,7 @@ const PublicResume: React.FC = () => {
         ATS-OPTIMIZED PRINT LAYER
         Visible only when printing/downloading. decupled from interactive UI for maximum polish.
       */}
-      <div className="hidden print:block font-serif text-black leading-tight">
+      <div className="hidden print:block font-sans text-black leading-tight">
         <div className="border-b-4 border-black pb-2 mb-6 text-center">
           <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
           <p className="text-xl font-bold text-gray-800">{resume.mapped_title || "Executive Product Strategist"}</p>
@@ -158,12 +158,6 @@ const PublicResume: React.FC = () => {
             <div className="inline-flex items-center px-3 py-1 rounded-full border border-indigo-100 bg-indigo-50 text-[10px] font-black text-indigo-600 uppercase tracking-widest">
               Bespoke Strategy for {resume.target_role}
             </div>
-            <button 
-              onClick={() => setIsProcessModalOpen(true)}
-              className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors flex items-center gap-2 group"
-            >
-              My Process <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-            </button>
           </div>
           <div className="grid md:grid-cols-2 gap-8 items-end">
             <div>
@@ -190,9 +184,21 @@ const PublicResume: React.FC = () => {
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 relative shadow-sm">
                <Sparkles className="absolute -top-3 -left-3 text-brand-pink" size={32} />
                <p className="text-[7px] font-black uppercase text-gray-400 mb-4 tracking-widest">Professional Summary</p>
-               <p className="text-2xl font-bold text-gray-900 leading-tight italic">
+               <p className="text-lg font-bold text-gray-900 leading-tight italic">
                  "{resume.professional_summary}"
                </p>
+
+               <div className="mt-8 flex flex-col items-start gap-4">
+                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10">
+                   <Download size={16} /> Print this resume
+                 </NeoButton>
+                 <button 
+                   onClick={() => setIsProcessModalOpen(true)}
+                   className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group"
+                 >
+                   My Process <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                 </button>
+               </div>
             </div>
           </div>
         </header>
