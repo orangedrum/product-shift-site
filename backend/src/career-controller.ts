@@ -25,6 +25,7 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
       try {
          const scraped = await scrapeUrl(sourceUrl);
          rawData = `Title: ${scraped.title}\n\nBody: ${scraped.bodyText}`;
+         console.log(`🔍 [CAREER INGEST] Scraped Content Length: ${scraped.bodyText?.length || 0} characters.`);
          console.log(`✅ Scraped content for URL: ${sourceUrl}`);
       } catch (scrapeErr) {
          console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);

@@ -321,11 +321,11 @@ const CareerAdmin: React.FC = () => {
                             <div className="mt-4 p-5 bg-gray-50 rounded-2xl border border-gray-200 text-[10px] space-y-4 text-gray-600">
                                <div className="border-l-2 border-indigo-600 pl-3">
                                   <p className="font-black text-indigo-900 uppercase mb-1">{asset.story.problem?.title || 'Problem'}</p>
-                                  <p className="italic leading-relaxed line-clamp-3">{asset.story.problem?.content}</p>
+                                  <p className="italic leading-relaxed">{asset.story.problem?.content}</p>
                                </div>
                                <div className="border-l-2 border-pink-500 pl-3">
                                   <p className="font-black text-pink-900 uppercase mb-1">{asset.story.methodology?.title || 'Process'}</p>
-                                  <p className="leading-relaxed line-clamp-3">{asset.story.methodology?.content}</p>
+                                  <p className="leading-relaxed">{asset.story.methodology?.content}</p>
                                   {asset.story.methodology?.artifacts?.length > 0 && (
                                     <div className="mt-2 flex flex-wrap gap-1">
                                       {asset.story.methodology.artifacts.map((a: string, idx: number) => <span key={idx} className="bg-white px-2 py-0.5 rounded border border-gray-200 text-[8px] font-bold">🛠 {a}</span>)}
@@ -334,7 +334,7 @@ const CareerAdmin: React.FC = () => {
                                 </div>
                                <div className="border-l-2 border-green-500 pl-3">
                                   <p className="font-black text-green-900 uppercase mb-1">{asset.story.results?.title || 'Impact'}</p>
-                                  <p className="font-bold leading-relaxed line-clamp-3">{asset.story.results?.content}</p>
+                                  <p className="font-bold leading-relaxed">{asset.story.results?.content}</p>
                                   {asset.story.results?.metrics?.length > 0 && (
                                     <div className="mt-2 flex flex-wrap gap-1">
                                       {asset.story.results.metrics.map((m: string, idx: number) => <span key={idx} className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8px] font-black">📈 {m}</span>)}

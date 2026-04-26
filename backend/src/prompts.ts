@@ -102,13 +102,14 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
 
     **TASK:**
-    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST stitch the narrative into a single 'case_study' asset. 
-       - **PRIORITY:** The 'story' object is the most important part of this extraction. Do NOT summarize the story into the 'description' field.
-       - **STRICT SCHEMA:** Use the 'description' array ONLY for a 2-sentence executive summary. Put 100% of the technical depth, sections, and artifacts into the 'story' object.
-       - **ARC:** Problem (the business threat/gap) -> Methodology (strategic process, research steps) -> Findings (friction points, user insights) -> Conclusion (strategic delivery/resolution) -> Results (final ROI and outcome compared to the beginning).
-       - **VISUAL SCAVENGING:** Actively hunt for <img> tag 'src' URLs. If found, include them in 'visuals'. Describe every sketch, wireframe, or team photo mentioned in the text.
-       - **DATA & EVIDENCE:** Extract all specific metrics, IOT hardware specs, and validation signals.
-       - **LANGUAGE:** Use high-stakes, exciting executive vocabulary (e.g., "Critical Failure", "Strategic Intervention", "Engineered Optimization"). 
+    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST stitch the narrative into a single 'case_study' asset. This is a "Logic Proof."
+       - **MAXIMUM DEPTH:** Do NOT summarize. I want the full technical narrative. The 'story' object must be massive and detailed.
+       - **PRIORITY:** The 'story' object is the most important part. Put 100% of the technical methodology and project phases here.
+       - **STRICT SCHEMA:** The 'description' field is ONLY for a 2-sentence executive summary.
+       - **ARC:** Problem (the threat) -> Methodology (the process) -> Findings (the friction) -> Conclusion (the solve) -> Results (the ROI comparison).
+       - **VISUAL & DATA SCAVENGING:** Explicitly search for image URLs, chart descriptions, and technical metrics. If an image is mentioned in prose but no URL is found, describe it vividly as a placeholder visual artifact.
+       - **IOT/TECH CONTEXT:** For hardware or IOT, include technical specs and validation signals as high-impact data points.
+       - **TONE:** Use high-stakes executive vocabulary. 
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
     3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
 
