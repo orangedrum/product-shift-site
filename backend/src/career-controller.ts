@@ -62,6 +62,10 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
       roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
       skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
       story: a.type === 'case_study' ? a.story : null,
+      // Ensure visuals is always an array if it exists
+      ...(a.story && { 
+        story: { ...a.story, visuals: Array.isArray(a.story.visuals) ? a.story.visuals : [] } 
+      }),
       source_url: sourceUrl || 'direct_upload'
     }));
 

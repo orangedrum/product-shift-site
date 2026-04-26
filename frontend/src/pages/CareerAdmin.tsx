@@ -105,7 +105,24 @@ const CareerAdmin: React.FC = () => {
 
   const approveAsset = async (index: number) => {
     const asset = reviewQueue[index];
-    const { data, error } = await supabase.from('career_assets').insert([asset]).select().single();
+    
+    // CTO FIX: Destructure to ensure we only send columns that exist in the DB 
+    // and handle the 'story' object as a clean JSONB payload.
+    const payload = {
+      title: asset.title,
+      company: asset.company || 'N/A',
+      type: asset.type,
+      description: asset.description,
+      roi_metrics: asset.roi_metrics,
+      role_tag: asset.role_tag,
+      industry: asset.industry,
+      is_published: asset.is_published,
+      skills_demonstrated: asset.skills_demonstrated,
+      source_url: asset.source_url,
+      story: asset.story ? asset.story : null
+    };
+
+    const { data, error } = await supabase.from('career_assets').insert([payload]).select().single();
     
     if (!error) {
       setResults(prev => [data, ...prev]);
