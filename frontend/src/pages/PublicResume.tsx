@@ -72,7 +72,7 @@ const PublicResume: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 pb-24">
-      {/* SEO & Machine Readability Layer */}
+      {/* SEO & Machine Readability Metadata */}
       <SEOMetadata 
         title={`Jean Kaluza - ${resume.mapped_title || 'Executive Strategist'}`}
         description={resume.professional_summary}
@@ -80,27 +80,64 @@ const PublicResume: React.FC = () => {
         jsonLd={jsonLd}
       />
 
-      {/* HIDDEN SEMANTIC BLOCK: This is the "Fast Lane" for AI/ATS Readers */}
-      <div className="sr-only">
-        <h2>Jean Kaluza - Resume for {resume.target_role}</h2>
-        <p>{resume.professional_summary}</p>
-        <h3>Work Experience</h3>
-        {assets.filter((a: any) => a.type === 'work_history').map((job: any, i: number) => (
-          <div key={i}>
-            <h4>{job.title} at {job.company}</h4>
-            <ul>{job.description?.map((b: string, bi: number) => <li key={bi}>{b}</li>)}</ul>
+      {/* 
+        ATS-OPTIMIZED PRINT LAYER
+        Visible only when printing/downloading. decupled from interactive UI for maximum polish.
+      */}
+      <div className="hidden print:block font-serif text-black leading-tight">
+        <div className="border-b-4 border-black pb-2 mb-6 text-center">
+          <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
+          <p className="text-xl font-bold text-gray-800">{resume.mapped_title || "Executive Product Strategist"}</p>
+          <div className="text-[10px] mt-1 font-sans uppercase tracking-widest">
+            jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza
           </div>
-        ))}
-        <h3>Core Expertise</h3>
-        <ul>{assets.filter((a: any) => a.type === 'skill').map((s: any, i: number) => <li key={i}>{s.title}</li>)}</ul>
-        <h3>Key Publications</h3>
-        {assets.filter((a: any) => a.type === 'writing_sample').map((w: any, i: number) => (
-          <div key={i}>{w.title} - Published by {w.company}</div>
-        ))}
+        </div>
+
+        <section className="mb-6">
+          <h2 className="text-sm font-black uppercase border-b border-gray-300 mb-2">Professional Summary</h2>
+          <p className="text-[11px] leading-relaxed italic">"{resume.professional_summary}"</p>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="text-sm font-black uppercase border-b border-gray-300 mb-2">Strategic Accomplishments</h2>
+          <ul className="list-disc pl-5 text-[11px] space-y-1">
+            {assets.filter((a: any) => a.type === 'win').map((win: any, i: number) => (
+              <li key={i}><strong>{win.title}:</strong> {win.roi_metrics?.[0] || win.description?.[0]}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="text-sm font-black uppercase border-b border-gray-300 mb-2">Pillars of Expertise</h2>
+          <p className="text-[10px] font-sans leading-relaxed tracking-wider">
+            {assets.filter((a: any) => a.type === 'skill' || a.type === 'tooling').map((s: any) => s.title).join(' • ')}
+          </p>
+        </div>
+
+        <section>
+          <h2 className="text-sm font-black uppercase border-b border-gray-300 mb-3">Professional Experience</h2>
+          <div className="space-y-4">
+            {assets.filter((a: any) => a.type === 'work_history').map((job: any, i: number) => (
+              <div key={i} className="break-inside-avoid">
+                <div className="flex justify-between items-baseline mb-1">
+                  <h3 className="font-bold text-sm">{job.title}</h3>
+                  <span className="font-bold text-[10px] font-sans uppercase">{job.company}</span>
+                </div>
+                <ul className="list-disc pl-5 text-[11px] space-y-0.5 leading-snug">
+                  {job.description?.map((bullet: string, bi: number) => (
+                    <li key={bi}>{bullet}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
 
-      {/* 2026 Ticker Header: Persistent high-impact wins */}
-      <div className="w-full bg-black py-3 overflow-hidden border-b-2 border-black sticky top-0 z-50 no-print">
+      {/* INTERACTIVE EXPERIENCE LAYER: Completely hidden when printing */}
+      <div className="print:hidden">
+        {/* 2026 Ticker Header: Persistent high-impact wins */}
+        <div className="w-full bg-black py-3 overflow-hidden border-b-2 border-black sticky top-0 z-50">
         <div className="flex whitespace-nowrap animate-marquee">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 px-4">
@@ -117,7 +154,7 @@ const PublicResume: React.FC = () => {
       <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
         {/* Header Section */}
         <header className="mb-16">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6 no-print">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div className="inline-flex items-center px-3 py-1 rounded-full border border-indigo-100 bg-indigo-50 text-[10px] font-black text-indigo-600 uppercase tracking-widest">
               Bespoke Strategy for {resume.target_role}
             </div>
@@ -128,10 +165,10 @@ const PublicResume: React.FC = () => {
               My Process <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 items-end print:block">
-            <div className="print:mb-8">
+          <div className="grid md:grid-cols-2 gap-8 items-end">
+            <div>
               {/* Authority Header: Exact Speaking Reel logic from Speaker.tsx */}
-              <div className="max-w-[480px] mb-8 no-print">
+              <div className="max-w-[480px] mb-8">
                 <div className="relative animate-float">
                   <VideoThumbnail 
                     imageSrc="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png"
@@ -150,10 +187,10 @@ const PublicResume: React.FC = () => {
                 {resume.mapped_title || "Executive Product Strategist"}
               </p>
             </div>
-            <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 relative shadow-sm print:bg-white print:border-0 print:p-0">
-               <Sparkles className="absolute -top-3 -left-3 text-brand-pink no-print" size={32} />
+            <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 relative shadow-sm">
+               <Sparkles className="absolute -top-3 -left-3 text-brand-pink" size={32} />
                <p className="text-[7px] font-black uppercase text-gray-400 mb-4 tracking-widest">Professional Summary</p>
-               <p className="text-2xl font-bold text-gray-900 leading-tight italic print:text-base print:not-italic">
+               <p className="text-2xl font-bold text-gray-900 leading-tight italic">
                  "{resume.professional_summary}"
                </p>
             </div>
@@ -161,28 +198,28 @@ const PublicResume: React.FC = () => {
         </header>
 
         {/* Agency Partner Logo Fold: Directly below Header */}
-        <div className="mb-12 border-t border-gray-50 pt-4 no-print">
+        <div className="mb-12 border-t border-gray-50 pt-4">
           <AgencyPartner />
         </div>
 
         {/* Performance Stats Row: Using exact modular component from homepage */}
-        <div className="mb-20 no-print">
+        <div className="mb-20">
           <StatsSection />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 print:block">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Main Column */}
           <div className="lg:col-span-8 space-y-16">
             
             {/* Work History */}
             <section>
-              <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3 print:text-black print:border-b print:pb-2">
+              <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3">
                 <Briefcase size={16} /> Work History
               </h3>
               <div className="space-y-12">
                 {assets.filter((a: any) => a.type === 'work_history').map((job: any, idx: number) => (
                   <div key={idx} className="group relative">
-                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gray-100 group-hover:bg-marketing-gradient transition-colors rounded-full no-print" />
+                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gray-100 group-hover:bg-marketing-gradient transition-colors rounded-full" />
                     <h4 className="text-2xl font-black text-gray-900 mb-1">{job.title}</h4>
                     <p className="text-lg font-bold text-indigo-600 mb-4">{job.company}</p>
                     <ul className="space-y-3">
@@ -199,7 +236,7 @@ const PublicResume: React.FC = () => {
             </section>
 
             {/* Product Lab Section: Using modular component from homepage */}
-            <section className="pt-12 no-print">
+            <section className="pt-12">
               <ProductLab />
             </section>
 
@@ -207,7 +244,7 @@ const PublicResume: React.FC = () => {
             {(assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk')) && (
               <section>
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="bg-black text-white px-10 py-4 text-4xl font-black uppercase tracking-tighter rotate-[-2deg] shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] print:shadow-none print:rotate-0 print:text-black print:bg-white print:p-0 print:text-xl">
+                  <div className="bg-black text-white px-10 py-4 text-4xl font-black uppercase tracking-tighter rotate-[-2deg] shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)]">
                     Extra! Extra!
                   </div>
                   <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">
@@ -247,11 +284,11 @@ const PublicResume: React.FC = () => {
           </div>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4 space-y-12 print:mt-12">
+          <aside className="lg:col-span-4 space-y-12">
             {/* Skills & Tooling */}
             <div>
-              <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-6 print:text-black print:border-b print:pb-2">Pillars of Expertise</h3>
-              <div className="flex flex-wrap gap-2 print:block print:space-y-1">
+              <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-6">Pillars of Expertise</h3>
+              <div className="flex flex-wrap gap-2">
                 {assets.filter((a: any) => a.type === 'skill' || a.type === 'tooling').map((item: any, idx: number) => (
                   <span key={idx} className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-black border border-gray-200">
                     {item.title}
@@ -263,19 +300,19 @@ const PublicResume: React.FC = () => {
             {/* Recommendations */}
             {assets.some((a: any) => a.type === 'recommendation') && (
               <div className="space-y-6">
-                <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] print:text-black print:border-b print:pb-2">Validation</h3>
+                <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">Validation</h3>
                 {assets.filter((a: any) => a.type === 'recommendation').map((rec: any, idx: number) => (
-                  <div key={idx} className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 relative print:bg-white print:border-0 print:p-0">
+                  <div key={idx} className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 relative">
                     <p className="text-sm font-bold text-gray-800 italic leading-relaxed mb-4">"{rec.description?.[0]}"</p>
-                    <p className="text-[10px] font-black uppercase text-indigo-400 tracking-wider print:text-gray-500">— {rec.company}</p>
+                    <p className="text-[10px] font-black uppercase text-indigo-400 tracking-wider">— {rec.company}</p>
                   </div>
                 ))}
               </div>
             )}
 
             {/* Final Conversion CTA */}
-            <div className="sticky top-24 no-print">
-              <div className="relative mb-6 rounded-2xl overflow-hidden shadow-elegant bg-white border border-gray-100 no-print">
+            <div className="sticky top-24">
+              <div className="relative mb-6 rounded-2xl overflow-hidden shadow-elegant bg-white border border-gray-100">
                 <SpeechBubble 
                   imageSrc="/jeankaluza.png"
                   name="Jean Kaluza"
@@ -297,6 +334,7 @@ const PublicResume: React.FC = () => {
             </div>
           </aside>
         </div>
+      </div>
       </div>
 
       {/* "How We Work" Modal */}
@@ -390,15 +428,9 @@ const PublicResume: React.FC = () => {
 
       <style>{`
         @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; color: black !important; font-size: 12pt !important; }
-          .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-          a { text-decoration: none !important; color: black !important; }
-          h1, h2, h3, h4 { color: black !important; page-break-after: avoid; }
-          section, div, aside { page-break-inside: avoid; }
-          .bg-gray-50, .bg-indigo-50, .bg-gray-100 { background-color: transparent !important; }
-          .border, .border-2 { border-color: #eee !important; }
-          .shadow-sm, .shadow-elegant, .shadow-lg { shadow: none !important; box-shadow: none !important; }
+          body { background: white !important; color: black !important; font-size: 11pt !important; }
+          @page { margin: 0.75in; }
+          .break-inside-avoid { page-break-inside: avoid; }
         }
       `}</style>
 
