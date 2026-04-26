@@ -256,11 +256,11 @@ const PublicResume: React.FC = () => {
                          <div className="grid md:grid-cols-2 gap-8 mt-8 border-t border-white/20 pt-8">
                             <div>
                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">The Challenge</p>
-                               <p className="text-lg leading-relaxed">{cs.story?.problem || cs.description?.[0]}</p>
+                               <p className="text-lg leading-relaxed">{typeof cs.story?.problem === 'object' ? cs.story.problem.content : (cs.story?.problem || cs.description?.[0])}</p>
                             </div>
                             <div>
                                <p className="text-[10px] font-black uppercase tracking-widest text-[#39ff14] mb-2">The Outcome</p>
-                               <p className="text-lg leading-relaxed font-bold">{cs.story?.results || "Successful strategic delivery."}</p>
+                               <p className="text-lg leading-relaxed font-bold">{typeof cs.story?.results === 'object' ? cs.story.results.content : (cs.story?.results || "Successful strategic delivery.")}</p>
                             </div>
                          </div>
                       </div>
@@ -268,19 +268,31 @@ const PublicResume: React.FC = () => {
                          <div className="md:col-span-2 space-y-8">
                             <div>
                                <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Target size={14} className="text-indigo-600"/> Methodology</h5>
-                               <p className="text-gray-600 leading-relaxed italic">{cs.story?.method}</p>
+                               <p className="text-gray-600 leading-relaxed italic">{typeof cs.story?.methodology === 'object' ? cs.story.methodology.content : (cs.story?.method || cs.story?.methodology)}</p>
                             </div>
                             <div>
                                <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Search size={14} className="text-indigo-600"/> Key Findings</h5>
-                               <p className="text-gray-600 leading-relaxed">{cs.story?.findings}</p>
+                               <p className="text-gray-600 leading-relaxed">{typeof cs.story?.findings === 'object' ? cs.story.findings.content : cs.story?.findings}</p>
                             </div>
                          </div>
+                         {cs.story?.visuals?.length > 0 && (
+                           <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 border-t border-gray-100">
+                              {cs.story.visuals.filter((v: any) => v.url).map((v: any, vIdx: number) => (
+                                <div key={vIdx} className="group/img relative aspect-video rounded-xl overflow-hidden border-2 border-black shadow-[4px_4px_0px_0px_#000] cursor-zoom-in">
+                                   <img src={v.url} alt={v.description} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500" />
+                                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                                      <p className="text-[8px] font-black text-white uppercase tracking-tighter leading-tight">{v.description}</p>
+                                   </div>
+                                </div>
+                              ))}
+                           </div>
+                         )}
                          <div className="space-y-6">
-                            {(cs.story?.data?.length > 0 || cs.roi_metrics?.length > 0) && (
+                            {((cs.story?.results?.metrics?.length > 0) || (cs.story?.data?.length > 0) || cs.roi_metrics?.length > 0) && (
                                <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
                                   <h5 className="font-black text-[10px] uppercase mb-4 tracking-widest">Hard Evidence</h5>
                                   <ul className="space-y-4">
-                                     {(cs.story?.data || cs.roi_metrics || []).map((d: string, di: number) => (
+                                     {(cs.story?.results?.metrics || cs.story?.data || cs.roi_metrics || []).map((d: string, di: number) => (
                                         <li key={di} className="text-xs font-bold text-indigo-900 flex items-start gap-2">
                                            <CheckCircle size={14} className="text-indigo-600 shrink-0" /> {d}
                                         </li>

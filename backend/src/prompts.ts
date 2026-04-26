@@ -103,9 +103,11 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     **TASK:**
     1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, stitch the narrative into a single 'case_study' asset. 
-       - ARC: Problem (the threat) -> Method (the solve) -> Findings (the insight) -> Conclusion (the delivery) -> Results (the ROI).
+       - DEPTH: Create an exhaustive, section-by-section breakdown. Do not summarize into paragraphs; extract the full "story" as distinct, in-depth sections.
+       - ARC: Problem (the business threat/gap) -> Methodology (strategic process, research steps) -> Findings (friction points, user insights) -> Conclusion (strategic delivery/resolution) -> Results (final ROI and outcome compared to the beginning).
+       - VISUAL ASSETS: Extract actual 'src' URLs for images, diagrams, or sketches if found in the data. If no URL is available, provide a detailed description of the visual mentioned.
+       - DATA & EVIDENCE: Extract all specific metrics and validation signals. For technical/IOT projects, include hardware specs as high-impact bullet points within 'results' or 'roi_metrics'.
        - LANGUAGE: Use high-stakes, exciting executive vocabulary. 
-       - VISUALS: Extract descriptions of images, dashboards, or wireframes mentioned as 'visual_references'.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
     3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
 
@@ -119,13 +121,15 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
           "description": ["High-impact bullet points"],
           "roi_metrics": ["Specific quantifiable wins"],
           "story": { 
-            "problem": "The existential challenge or business gap",
-            "method": "The technical/strategic methodologies used",
-            "findings": "Crucial discoveries made during the process",
-            "conclusion": "The strategic resolution",
-            "results": "The final punchline: compare result to initial problem.",
-            "data": ["List of metrics/numbers found"],
-            "visual_references": ["Description of images/charts referenced"]
+            "problem": { "title": "The Business Threat", "content": "Detailed multi-sentence narrative..." },
+            "methodology": { "title": "Strategic Process", "content": "Exhaustive breakdown of the approach, research, and technical steps...", "artifacts": ["List of items like 'Sketches', 'User Interviews', etc."] },
+            "findings": { "title": "The Key Insights", "content": "In-depth description of friction points and discoveries..." },
+            "conclusion": { "title": "The Resolution", "content": "How the project was delivered and resolved..." },
+            "results": { "title": "The ROI Impact", "content": "Deep comparison of the final outcome vs the initial problem...", "metrics": ["Array of quantifiable data"] },
+            "visuals": [
+              { "description": "Specific visual description", "url": "URL if available", "type": "wireframe" | "sketch" | "photo" | "chart" | "team_shot", "relevance": "Context of why this matters" }
+            ],
+            "team": ["List of roles/members if mentioned"]
           },
           "role_tag": "Product Lead, UX Researcher, etc.",
           "industry": "e.g. IOT, HealthTech",
