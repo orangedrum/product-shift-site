@@ -188,7 +188,7 @@ const PublicResume: React.FC = () => {
                  "{resume.professional_summary}"
                </p>
 
-               <div className="mt-8 flex flex-col items-start gap-4">
+               <div className="mt-8 flex flex-col items-start gap-4 no-print">
                  <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10">
                    <Download size={16} /> Print this resume
                  </NeoButton>
@@ -345,7 +345,7 @@ const PublicResume: React.FC = () => {
 
       {/* "How We Work" Modal */}
       {isProcessModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsProcessModalOpen(false)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in no-print" onClick={() => setIsProcessModalOpen(false)}>
           <div className="relative w-full max-w-4xl bg-white rounded-[2rem] border-2 border-black shadow-[12px_12px_0px_0px_#000] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
             <button onClick={() => setIsProcessModalOpen(false)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-black transition-colors z-10">
               <X size={24} />
@@ -407,7 +407,7 @@ const PublicResume: React.FC = () => {
 
       {/* Video Modal for Speaking Reel */}
       {isVideoOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4" onClick={() => setIsVideoOpen(false)}>
+        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 no-print" onClick={() => setIsVideoOpen(false)}>
           <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             <button 
               onClick={() => setIsVideoOpen(false)}
@@ -434,6 +434,7 @@ const PublicResume: React.FC = () => {
 
       <style>{`
         @media print {
+          .no-print { display: none !important; }
           body { background: white !important; color: black !important; font-size: 11pt !important; }
           @page { margin: 0.75in; }
           .break-inside-avoid { page-break-inside: avoid; }
