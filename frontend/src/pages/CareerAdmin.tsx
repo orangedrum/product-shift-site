@@ -317,11 +317,19 @@ const CareerAdmin: React.FC = () => {
                             <h4 className="text-lg font-bold text-gray-900 mt-2">{asset.title}</h4>
                             <p className="text-sm text-gray-400 font-bold">{asset.role_tag}</p>
                          </div>
-                         <ul className="space-y-2 mb-4">
-                            {asset.description?.map((bullet: string, idx: number) => (
-                               <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
-                            ))}
-                         </ul>
+                         {asset.type === 'case_study' && asset.story ? (
+                            <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100 text-[10px] space-y-2 text-gray-600">
+                               <p><strong>Problem:</strong> {asset.story.problem}</p>
+                               <p><strong>Method:</strong> {asset.story.method}</p>
+                               <p><strong>Results:</strong> {asset.story.results}</p>
+                            </div>
+                         ) : (
+                            <ul className="space-y-2 mb-4">
+                               {asset.description?.map((bullet: string, idx: number) => (
+                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
+                               ))}
+                            </ul>
+                         )}
                       </div>
                     ))}
                   </div>

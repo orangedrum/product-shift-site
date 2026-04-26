@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { scrapeUrl } from './analysis-controller';
+import { CAREER_ASSET_EXTRACTION_PROMPT } from './prompts';
 
 export const careerIngestHandler = async (req: Request, res: Response) => {
   // Admin Auth Check
@@ -39,40 +40,7 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
       .map(a => `- ${a.type}: ${a.title} (${a.company})`)
       .join('\n');
 
-    const prompt = `
-      You are a world-class Executive Recruiter.
-      Analyze the following career data for Jean Kaluza, a high-level Product Strategist. Jean uses she/her pronouns.
-      ${role ? `Focus on the perspective of: ${role}.` : 'Identify the primary role/specialization automatically for each item.'}
-      ${label ? `CRITICAL CONTEXT: This source is specifically a ${label}.` : ''}
-      "${rawData || sourceUrl}"
-      
-      TASK:
-      1. EXHAUSTIVE EXTRACTION: Extract EVERY unique role, win, skill, and tool.
-      2. NO DATES: Do NOT extract years, date ranges, or months. Omit the 'dates' field or set to 'N/A'.
-      2. LOGIC OVER LAP: Even if a role title exists in the "CURRENT LIBRARY CONTEXT" below, extract this version if the bullet points provide NEW metrics, different ROI numbers, or unique project details.
-      3. CHAMPION "EXTRA EXTRA": Identify published articles (Dovetail, The Startup) as primary 'writing_sample' assets.
-      4. CASE STUDY DEEP DIVE: For Case Studies, extract the Problem/Methodology/Solution/ROI arc.
-      5. RECOMMENDATIONS: For text-based recommendations, use the author's name as 'company' and extract the specific praise as bullet points.
-      6. TECHNICAL TOOLING: Itemize tools like Dovetail, Axure, or specific AI agents as 'tooling'.
-
-      CURRENT LIBRARY CONTEXT (Do not repeat these):
-      ${libraryContext || 'Library is currently empty.'}
-
-      Return a JSON object with a single key "assets" containing an ARRAY of objects.
-      Each object in the array MUST follow this schema:
-      {
-        "title": "Clear title of asset",
-        "company": "Company name or N/A",
-        "dates": "N/A",
-        "description": ["Bullet 1", "Bullet 2"],
-        "roi_metrics": ["$3M saved", "300% ROI"],
-        "skills_demonstrated": ["Stakeholder Mgmt", "Product Vision"],
-        "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation",
-        "role_tag": "The primary role context (e.g. UX Researcher, Product Manager)",
-        "industry": "e.g. HealthTech, EdTech",
-        "is_published": boolean (true if published by a reputable 3rd party)
-      }
-    `;
+    const prompt = CAREER_ASSET_EXTRACTION_PROMPT(rawData || sourceUrl, libraryContext, role, label);
 
     const structuredData = await generateContentWithFallback(prompt);
     
@@ -87,7 +55,8 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
       ...a,
       description: Array.isArray(a.description) ? a.description : [a.description],
       roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
-      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : [],
+      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.data || []),
+      story: a.type === 'case_study' ? a.story : null,
       source_url: sourceUrl || 'direct_upload'
     }));
 

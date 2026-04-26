@@ -241,6 +241,66 @@ const PublicResume: React.FC = () => {
               </div>
             </section>
 
+            {/* Case Studies (Logic Proofs) */}
+            {assets.some((a: any) => a.type === 'case_study') && (
+              <section>
+                <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3">
+                  <FileText size={16} /> Logic Proofs: Case Studies
+                </h3>
+                <div className="space-y-16">
+                  {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number) => (
+                    <div key={idx} className="group border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="bg-black text-white p-8">
+                         <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2 block">{cs.company}</span>
+                         <h4 className="text-3xl font-black leading-tight mb-4">{cs.title}</h4>
+                         <div className="grid md:grid-cols-2 gap-8 mt-8 border-t border-white/20 pt-8">
+                            <div>
+                               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">The Challenge</p>
+                               <p className="text-lg leading-relaxed">{cs.story?.problem || cs.description?.[0]}</p>
+                            </div>
+                            <div>
+                               <p className="text-[10px] font-black uppercase tracking-widest text-[#39ff14] mb-2">The Outcome</p>
+                               <p className="text-lg leading-relaxed font-bold">{cs.story?.results || "Successful strategic delivery."}</p>
+                            </div>
+                         </div>
+                      </div>
+                      <div className="p-8 grid md:grid-cols-3 gap-12">
+                         <div className="md:col-span-2 space-y-8">
+                            <div>
+                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Target size={14} className="text-indigo-600"/> Methodology</h5>
+                               <p className="text-gray-600 leading-relaxed italic">{cs.story?.method}</p>
+                            </div>
+                            <div>
+                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Search size={14} className="text-indigo-600"/> Key Findings</h5>
+                               <p className="text-gray-600 leading-relaxed">{cs.story?.findings}</p>
+                            </div>
+                         </div>
+                         <div className="space-y-6">
+                            {(cs.story?.data?.length > 0 || cs.roi_metrics?.length > 0) && (
+                               <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+                                  <h5 className="font-black text-[10px] uppercase mb-4 tracking-widest">Hard Evidence</h5>
+                                  <ul className="space-y-4">
+                                     {(cs.story?.data || cs.roi_metrics || []).map((d: string, di: number) => (
+                                        <li key={di} className="text-xs font-bold text-indigo-900 flex items-start gap-2">
+                                           <CheckCircle size={14} className="text-indigo-600 shrink-0" /> {d}
+                                        </li>
+                                     ))}
+                                  </ul>
+                               </div>
+                            )}
+                            {cs.source_url && cs.source_url !== 'N/A' && (
+                               <a href={cs.source_url} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 bg-gray-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-colors">
+                                  View Visual Assets <ExternalLink size={14} />
+                               </a>
+                            )}
+                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Product Lab Section: Using modular component from homepage */}
             <section className="pt-12">
               <ProductLab />

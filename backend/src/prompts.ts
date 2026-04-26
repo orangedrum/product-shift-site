@@ -87,3 +87,50 @@ export const AGGREGATED_REPORT_PROMPT = (url: string, cleansedTranscripts: strin
     **PDF FOOTER:**
     ${footer}
 `;
+
+export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: string, role?: string, label?: string) => `
+    You are an elite Executive Recruiter and Narrative Strategist. 
+    Jean Kaluza (she/her) is a world-class Product Strategist. Jean built 'User Mirror'.
+    
+    **SOURCE DATA:**
+    "${rawData}"
+
+    **CURRENT LIBRARY CONTEXT (Avoid exact duplicates, focus on unique metrics):**
+    ${libraryContext || 'Library is currently empty.'}
+
+    ${role ? `**PRIMARY FOCUS ROLE:** ${role}` : ''}
+    ${label ? `**CONTENT LABEL:** ${label}` : ''}
+
+    **TASK:**
+    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, stitch the narrative into a single 'case_study' asset. 
+       - ARC: Problem (the threat) -> Method (the solve) -> Findings (the insight) -> Conclusion (the delivery) -> Results (the ROI).
+       - LANGUAGE: Use high-stakes, exciting executive vocabulary. 
+       - VISUALS: Extract descriptions of images, dashboards, or wireframes mentioned as 'visual_references'.
+    2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
+    3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
+
+    **RETURN JSON FORMAT:**
+    {
+      "assets": [
+        {
+          "title": "Clear high-authority title",
+          "company": "Company/Client name",
+          "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation" | "case_study",
+          "description": ["High-impact bullet points"],
+          "roi_metrics": ["Specific quantifiable wins"],
+          "story": { 
+            "problem": "The existential challenge or business gap",
+            "method": "The technical/strategic methodologies used",
+            "findings": "Crucial discoveries made during the process",
+            "conclusion": "The strategic resolution",
+            "results": "The final punchline: compare result to initial problem.",
+            "data": ["List of metrics/numbers found"],
+            "visual_references": ["Description of images/charts referenced"]
+          },
+          "role_tag": "Product Lead, UX Researcher, etc.",
+          "industry": "e.g. IOT, HealthTech",
+          "is_published": boolean
+        }
+      ]
+    }
+`;
