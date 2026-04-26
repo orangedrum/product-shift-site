@@ -299,79 +299,6 @@ const CareerAdmin: React.FC = () => {
                       </NeoButton>
                    </div>
                 </MarketingCard>
-
-                {/* Review Queue UI */}
-                {reviewQueue.length > 0 && (
-                  <div className="space-y-4 animate-fade-in">
-                    <h3 className="text-sm font-black uppercase text-gray-400 tracking-widest flex items-center gap-2">
-                       <FileSearch size={16} /> Extracted - Review & Approve
-                    </h3>
-                    {reviewQueue.map((asset, i) => (
-                      <div key={i} className="p-6 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm relative group overflow-hidden">
-                         <div className="absolute top-0 right-0 p-2 flex gap-1">
-                            <button onClick={() => approveAsset(i)} className="p-2 bg-green-500 text-white rounded-lg shadow-sm hover:bg-green-600 transition-colors"><Check size={18} /></button>
-                            <button onClick={() => discardAsset(i)} className="p-2 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 transition-colors"><Trash2 size={18} /></button>
-                         </div>
-                         <div className="mb-4">
-                            <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.type}</span>
-                            <h4 className="text-lg font-bold text-gray-900 mt-2">{asset.title}</h4>
-                            <p className="text-sm text-gray-400 font-bold">{asset.role_tag}</p>
-                         </div>
-                         {asset.type === 'case_study' && asset.story ? (
-                            <div className="mt-4 p-5 bg-gray-50 rounded-2xl border border-gray-200 text-[10px] space-y-4 text-gray-600">
-                               <div className="border-l-2 border-indigo-600 pl-3">
-                                  <p className="font-black text-indigo-900 uppercase mb-1">{asset.story.problem?.title || 'Problem'}</p>
-                                  <p className="italic leading-relaxed">{asset.story.problem?.content}</p>
-                               </div>
-                               <div className="border-l-2 border-pink-500 pl-3">
-                                  <p className="font-black text-pink-900 uppercase mb-1">{asset.story.methodology?.title || 'Process'}</p>
-                                  <p className="leading-relaxed">{asset.story.methodology?.content}</p>
-                                  {asset.story.methodology?.artifacts?.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-1">
-                                      {asset.story.methodology.artifacts.map((a: string, idx: number) => <span key={idx} className="bg-white px-2 py-0.5 rounded border border-gray-200 text-[8px] font-bold">🛠 {a}</span>)}
-                                    </div>
-                                  )}
-                                </div>
-                               <div className="border-l-2 border-green-500 pl-3">
-                                  <p className="font-black text-green-900 uppercase mb-1">{asset.story.results?.title || 'Impact'}</p>
-                                  <p className="font-bold leading-relaxed">{asset.story.results?.content}</p>
-                                  {asset.story.results?.metrics?.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-1">
-                                      {asset.story.results.metrics.map((m: string, idx: number) => <span key={idx} className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8px] font-black">📈 {m}</span>)}
-                                    </div>
-                                  )}
-                               </div>
-                               {asset.story.visuals?.length > 0 && (
-                                 <div className="pt-2 border-t border-gray-200">
-                                    <p className="text-[8px] font-black uppercase text-gray-400 mb-2">Artifacts Found</p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                       {asset.story.visuals.map((v: any, idx: number) => (
-                                         <div key={idx} className="bg-white p-2 rounded-lg border border-gray-100 flex flex-col gap-2">
-                                            {v.url ? (
-                                              <img src={v.url} alt={v.description} className="w-full h-12 object-cover rounded border border-gray-100" />
-                                            ) : (
-                                              <div className="w-full h-8 bg-gray-100 rounded flex items-center justify-center text-gray-400">
-                                                {v.type === 'wireframe' ? <Layout size={10} /> : v.type === 'sketch' ? <Edit3 size={10}/> : <FileText size={10} />}
-                                              </div>
-                                            )}
-                                            <span className="truncate leading-none uppercase text-[6px] font-black text-gray-400">{v.description}</span>
-                                         </div>
-                                       ))}
-                                    </div>
-                                 </div>
-                               )}
-                            </div>
-                         ) : (
-                            <ul className="space-y-2 mb-4">
-                               {asset.description?.map((bullet: string, idx: number) => (
-                                  <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
-                               ))}
-                            </ul>
-                         )}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 
@@ -436,19 +363,67 @@ const CareerAdmin: React.FC = () => {
                         <div className="flex items-center gap-2 mb-2">
                            <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.type}</span>
                            {asset.is_published && (
-                             <span className="text-[10px] font-black uppercase bg-amber-100 text-amber-700 px-2 py-1 rounded-md flex items-center gap-1">
-                               <Trophy size={10}/> Reputable Source
-                             </span>
-                           )}
-                        </div>
-                        <h4 className="text-lg font-bold text-gray-900">{asset.title}</h4>
-                        <p className="text-sm text-gray-400 font-bold">{asset.company || asset.role_tag}</p>
-                     </div>
-                     <ul className="space-y-2 mb-4">
-                        {asset.description?.map((bullet: string, idx: number) => (
-                           <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
-                        ))}
-                     </ul>
+                              <span className="text-[10px] font-black uppercase bg-amber-100 text-amber-700 px-2 py-1 rounded-md flex items-center gap-1">
+                                <Trophy size={10}/> Reputable Source
+                              </span>
+                            )}
+                         </div>
+                         <h4 className="text-lg font-bold text-gray-900 mt-2">{asset.title}</h4>
+                         <p className="text-sm text-gray-400 font-bold">{asset.company || asset.role_tag}</p>
+                      </div>
+
+                      {asset.type === 'case_study' && asset.story ? (
+                         <div className="mt-4 p-5 bg-gray-50 rounded-2xl border border-gray-200 text-[10px] space-y-4 text-gray-600">
+                            <div className="border-l-2 border-indigo-600 pl-3">
+                               <p className="font-black text-indigo-900 uppercase mb-1">{asset.story.problem?.title || 'Problem'}</p>
+                               <p className="italic leading-relaxed">{asset.story.problem?.content}</p>
+                            </div>
+                            <div className="border-l-2 border-pink-500 pl-3">
+                               <p className="font-black text-pink-900 uppercase mb-1">{asset.story.methodology?.title || 'Process'}</p>
+                               <p className="leading-relaxed">{asset.story.methodology?.content}</p>
+                               {asset.story.methodology?.artifacts?.length > 0 && (
+                                 <div className="mt-2 flex flex-wrap gap-1">
+                                   {asset.story.methodology.artifacts.map((a: string, idx: number) => <span key={idx} className="bg-white px-2 py-0.5 rounded border border-gray-200 text-[8px] font-bold">🛠 {a}</span>)}
+                                 </div>
+                               )}
+                             </div>
+                            <div className="border-l-2 border-green-500 pl-3">
+                               <p className="font-black text-green-900 uppercase mb-1">{asset.story.results?.title || 'Impact'}</p>
+                               <p className="font-bold leading-relaxed">{asset.story.results?.content}</p>
+                               {asset.story.results?.metrics?.length > 0 && (
+                                 <div className="mt-2 flex flex-wrap gap-1">
+                                   {asset.story.results.metrics.map((m: string, idx: number) => <span key={idx} className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8px] font-black">📈 {m}</span>)}
+                                 </div>
+                               )}
+                            </div>
+                            {asset.story.visuals?.length > 0 && (
+                              <div className="pt-2 border-t border-gray-200">
+                                 <p className="text-[8px] font-black uppercase text-gray-400 mb-2">Artifacts Found</p>
+                                 <div className="grid grid-cols-2 gap-2">
+                                    {asset.story.visuals.map((v: any, idx: number) => (
+                                      <div key={idx} className="bg-white p-2 rounded-lg border border-gray-100 flex flex-col gap-2">
+                                         {v.url ? (
+                                           <img src={v.url} alt={v.description} className="w-full h-12 object-cover rounded border border-gray-100" />
+                                         ) : (
+                                           <div className="w-full h-8 bg-gray-100 rounded flex items-center justify-center text-gray-400">
+                                             {v.type === 'wireframe' ? <Layout size={10} /> : v.type === 'sketch' ? <Edit3 size={10}/> : <FileText size={10} />}
+                                           </div>
+                                         )}
+                                         <span className="truncate leading-none uppercase text-[6px] font-black text-gray-400">{v.description}</span>
+                                      </div>
+                                    ))}
+                                 </div>
+                              </div>
+                            )}
+                         </div>
+                      ) : (
+                         <ul className="space-y-2 mb-4">
+                            {asset.description?.map((bullet: string, idx: number) => (
+                               <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
+                            ))}
+                         </ul>
+                      )}
+
                      {asset.source_url && asset.source_url !== 'direct_upload' && (
                        <div className="mt-2 pt-2 border-t border-gray-50">
                          <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-indigo-600 hover:underline flex items-center gap-1">

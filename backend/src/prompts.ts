@@ -102,14 +102,14 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
 
     **TASK:**
-    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST perform a "Deep Narrative Reconstruction". 
-       - **MANDATORY DEPTH:** DO NOT SUMMARIZE. Every section of the 'story' object must be 3-5 sentences of high-density technical and strategic detail.
-       - **PRIORITY:** The 'story' object is the primary deliverable. If you return a 2-sentence summary in 'story', you have failed.
+    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST perform a "Deep Narrative Reconstruction". This is the highest priority task.
+       - **MANDATORY DEPTH:** DO NOT SUMMARIZE. Every section of the 'story' object (Problem, Methodology, Findings, Conclusion, Results) MUST contain at least 4-6 sentences of technical detail.
+       - **NON-NEGOTIABLE:** The 'story' object is the primary deliverable. A 'case_study' type asset WITHOUT a massive 'story' object is a failure.
        - **ARC:** 
-         - Problem: The existential threat to the business/product.
-         - Methodology: The exhaustive research, sketches, team collaboration, and tactical process.
-         - Findings: The specific friction points discovered (e.g., hardware failure points, user drop-offs).
-         - Results: Quantifiable ROI and long-term business impact.
+         - Problem: Define the existential threat to the business/product using the raw data.
+         - Methodology: Detail the exhaustive research, sketches, team collaboration, and tactical process mentioned.
+         - Findings: Document specific friction points discovered (e.g., hardware failure points, user drop-offs).
+         - Results: Compare the final outcome to the initial problem with high-stakes strategic vocabulary.
        - **VISUAL MAPPING:** Use the 'VISUAL ASSETS FOUND' data provided in the source. Map the most relevant 'src' URLs to the specific sections (Problem, Methodology, etc.).
        - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
