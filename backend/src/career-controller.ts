@@ -24,7 +24,11 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     if (sourceUrl && !rawData) {
       try {
          const scraped = await scrapeUrl(sourceUrl);
-         rawData = `Title: ${scraped.title}\n\nBody: ${scraped.bodyText}`;
+         rawData = `
+            TITLE: ${scraped.title}
+            VISUAL ASSETS FOUND: ${JSON.stringify(scraped.images)}
+            BODY CONTENT: ${scraped.bodyText}
+         `;
          console.log(`🔍 [CAREER INGEST] Scraped Content Length: ${scraped.bodyText?.length || 0} characters.`);
          console.log(`✅ Scraped content for URL: ${sourceUrl}`);
       } catch (scrapeErr) {

@@ -10,6 +10,7 @@ type ScrapedData = {
   headings: { tag: string; text: string }[];
   bodyText: string;
   screenshot?: string;
+  images?: { src: string; alt: string }[];
 };
 
 // --- Personas Configuration ---
@@ -54,9 +55,17 @@ export const scrapeUrl = async (url: string) => {
         await new Promise(r => setTimeout(r, 5000)); // CTO UPDATE: Increased to 5s to ensure full hydration/rendering for accuracy
         const title = await page.title();
         const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
+        const images = await page.evaluate(() => {
+          return Array.from(document.querySelectorAll('img'))
+            .filter(img => img.src && img.src.startsWith('http'))
+            .map(img => ({ 
+              src: img.src, 
+              alt: img.alt || img.title || 'Visual asset' 
+            })).slice(0, 15);
+        });
         const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText })));
         const screenshot = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false, encoding: 'base64' });
-        return { data: { title, bodyText, headings, screenshot }, type: 'application/json' };
+        return { data: { title, bodyText, headings, images, screenshot }, type: 'application/json' };
       };`,
       context: { url }
     })

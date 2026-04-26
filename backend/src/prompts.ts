@@ -102,14 +102,16 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
 
     **TASK:**
-    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST stitch the narrative into a single 'case_study' asset. This is a "Logic Proof."
-       - **MAXIMUM DEPTH:** Do NOT summarize. I want the full technical narrative. The 'story' object must be massive and detailed.
-       - **PRIORITY:** The 'story' object is the most important part. Put 100% of the technical methodology and project phases here.
-       - **STRICT SCHEMA:** The 'description' field is ONLY for a 2-sentence executive summary.
-       - **ARC:** Problem (the threat) -> Methodology (the process) -> Findings (the friction) -> Conclusion (the solve) -> Results (the ROI comparison).
-       - **VISUAL & DATA SCAVENGING:** Explicitly search for image URLs, chart descriptions, and technical metrics. If an image is mentioned in prose but no URL is found, describe it vividly as a placeholder visual artifact.
-       - **IOT/TECH CONTEXT:** For hardware or IOT, include technical specs and validation signals as high-impact data points.
-       - **TONE:** Use high-stakes executive vocabulary. 
+    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST perform a "Deep Narrative Reconstruction". 
+       - **MANDATORY DEPTH:** DO NOT SUMMARIZE. Every section of the 'story' object must be 3-5 sentences of high-density technical and strategic detail.
+       - **PRIORITY:** The 'story' object is the primary deliverable. If you return a 2-sentence summary in 'story', you have failed.
+       - **ARC:** 
+         - Problem: The existential threat to the business/product.
+         - Methodology: The exhaustive research, sketches, team collaboration, and tactical process.
+         - Findings: The specific friction points discovered (e.g., hardware failure points, user drop-offs).
+         - Results: Quantifiable ROI and long-term business impact.
+       - **VISUAL MAPPING:** Use the 'VISUAL ASSETS FOUND' data provided in the source. Map the most relevant 'src' URLs to the specific sections (Problem, Methodology, etc.).
+       - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
     3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
 
