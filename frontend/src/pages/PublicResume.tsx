@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp } from 'lucide-react';
+import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Download, FileText } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -9,6 +9,7 @@ import { SpeechBubble } from '../components/SpeechBubble';
 import AgencyPartner from '../components/AgencyPartner';
 import ProductLab from '../components/ProductLab';
 import StatsSection from '../components/StatsSection';
+import { SEOMetadata } from '../components/SEOMetadata';
 import { VideoThumbnail } from '../components/VideoThumbnail';
 
 const PublicResume: React.FC = () => {
@@ -48,8 +49,51 @@ const PublicResume: React.FC = () => {
 
   const assets = resume.selected_assets || [];
 
+  // CTO BOT-PROOFING: Generate Structured Data for ATS/LLM Agents
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Jean Kaluza",
+    "jobTitle": resume?.mapped_title || "Executive Product Strategist",
+    "url": window.location.href,
+    "description": resume?.professional_summary,
+    "knowsAbout": assets.filter((a: any) => a.type === 'skill').map((s: any) => s.title),
+    "hasOccupation": assets.filter((a: any) => a.type === 'work_history').map((j: any) => ({
+      "@type": "Occupation",
+      "name": j.title,
+      "occupationLocation": { "@type": "City", "name": j.company }
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 pb-24">
+      {/* SEO & Machine Readability Layer */}
+      <SEOMetadata 
+        title={`Jean Kaluza - ${resume.mapped_title || 'Executive Strategist'}`}
+        description={resume.professional_summary}
+        canonicalUrl={window.location.href}
+        jsonLd={jsonLd}
+      />
+
+      {/* HIDDEN SEMANTIC BLOCK: This is the "Fast Lane" for AI/ATS Readers */}
+      <div className="sr-only">
+        <h2>Jean Kaluza - Resume for {resume.target_role}</h2>
+        <p>{resume.professional_summary}</p>
+        <h3>Work Experience</h3>
+        {assets.filter((a: any) => a.type === 'work_history').map((job: any, i: number) => (
+          <div key={i}>
+            <h4>{job.title} at {job.company}</h4>
+            <ul>{job.description?.map((b: string, bi: number) => <li key={bi}>{b}</li>)}</ul>
+          </div>
+        ))}
+        <h3>Core Expertise</h3>
+        <ul>{assets.filter((a: any) => a.type === 'skill').map((s: any, i: number) => <li key={i}>{s.title}</li>)}</ul>
+        <h3>Key Publications</h3>
+        {assets.filter((a: any) => a.type === 'writing_sample').map((w: any, i: number) => (
+          <div key={i}>{w.title} - Published by {w.company}</div>
+        ))}
+      </div>
+
       {/* 2026 Ticker Header: Persistent high-impact wins */}
       <div className="w-full bg-black py-3 overflow-hidden border-b-2 border-black sticky top-0 z-50">
         <div className="flex whitespace-nowrap animate-marquee">
@@ -82,7 +126,7 @@ const PublicResume: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8 items-end">
             <div>
               {/* Authority Header: Exact Speaking Reel logic from Speaker.tsx */}
-              <div className="max-w-[320px] mb-8">
+              <div className="max-w-[480px] mb-8">
                 <div className="relative animate-float">
                   <VideoThumbnail 
                     imageSrc="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png"
@@ -103,7 +147,7 @@ const PublicResume: React.FC = () => {
             </div>
             <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100 relative shadow-sm">
                <Sparkles className="absolute -top-3 -left-3 text-brand-pink" size={32} />
-               <p className="text-sm font-black uppercase text-gray-400 mb-4 tracking-widest">Professional Summary</p>
+               <p className="text-[7px] font-black uppercase text-gray-400 mb-4 tracking-widest">Professional Summary</p>
                <p className="text-2xl font-bold text-gray-900 leading-tight italic">
                  "{resume.professional_summary}"
                </p>
@@ -149,6 +193,11 @@ const PublicResume: React.FC = () => {
               </div>
             </section>
 
+            {/* Product Lab Section: Using modular component from homepage */}
+            <section className="pt-12">
+              <ProductLab />
+            </section>
+
             {/* Publications & Talks (The "Extra Extra" Section) */}
             {(assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk')) && (
               <section>
@@ -190,11 +239,6 @@ const PublicResume: React.FC = () => {
                 </div>
               </section>
             )}
-
-            {/* Product Lab Section: Using modular component from homepage */}
-            <section className="pt-12">
-              <ProductLab />
-            </section>
           </div>
 
           {/* Sidebar */}
@@ -239,11 +283,11 @@ const PublicResume: React.FC = () => {
                 <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer">
                   <NeoButton className="w-full bg-marketing-gradient text-white py-4 font-black">Book Interview</NeoButton>
                 </a>
-                <a href="mailto:jean@theproductshift.com" className="w-full">
+                <button onClick={() => window.print()} className="w-full">
                   <NeoButton variant="secondary" className="w-full flex items-center justify-center gap-2 font-black">
-                    <Mail size={16} /> Email Direct
+                    <Download size={16} /> Download Resume
                   </NeoButton>
-                </a>
+                </button>
               </div>
             </div>
           </aside>
