@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp } from 'lucide-react';
@@ -17,6 +17,7 @@ const PublicResume: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -40,9 +41,9 @@ const PublicResume: React.FC = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="animate-spin text-indigo-600" size={48} /></div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 text-center"><h1 className="text-4xl font-black mb-4">404</h1><p className="text-gray-600 mb-8">This bespoke resume configuration could not be found.</p><Link to="/"><NeoButton>Back to ProductShift</NeoButton></Link></div>;
 
-  // CTO Logic: Leveraging the exact video play handler from Speaker.tsx
+  // CTO Logic: Leveraging the state to open the speaking reel modal
   const handleVideoPlay = () => {
-    window.open('https://vimeo.com/203961200?fl=pl&fe=sh', '_blank', 'noopener,noreferrer');
+    setIsVideoOpen(true);
   };
 
   const assets = resume.selected_assets || [];
@@ -322,10 +323,9 @@ const PublicResume: React.FC = () => {
               <X size={24} />
             </button>
             <div className="aspect-video bg-black flex items-center justify-center">
-               {/* Replace with your specific speaking reel URL */}
                <iframe 
                  className="w-full h-full"
-                 src="https://fpr0nfpdfdtsoqhl.public.blob.vercel-storage.com/editedproductdemo.mp4" 
+                 src="https://player.vimeo.com/video/203961200?autoplay=1" 
                  title="Jean Kaluza Speaking Reel"
                  allow="autoplay; encrypted-media"
                />
