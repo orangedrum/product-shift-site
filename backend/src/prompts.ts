@@ -103,14 +103,16 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     **TASK:**
     1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST perform a "Deep Narrative Reconstruction". This is the highest priority task.
-       - **MANDATORY DEPTH:** DO NOT SUMMARIZE into the 'description' field. Every section of the 'story' object MUST contain 6-8 sentences of technical detail.
+       - **MANDATORY DEPTH:** DO NOT SUMMARIZE into the 'description' field. Every section of the 'story' object MUST contain multiple high-density technical bullet points.
        - **STRICT JSON SCHEMA:** For 'case_study' types, the 'description' field MUST contain only a 2-sentence executive summary. 100% of the technical narrative MUST live in the 'story' object.
        - **VISUAL MAPPING (CRITICAL):** You MUST map the actual 'src' URLs from the 'VISUAL ASSETS FOUND' section into the 'story.visuals' array. Match them to the section they illustrate.
-       - **ARC:** 
-         - Problem: Define the existential threat to the business/product using the raw data.
-         - Methodology: Detail the exhaustive research, sketches, team collaboration, and tactical process. Explicitly mention artifacts like 'Tablet Wireframes' or 'Raspberry PI'.
-         - Findings: Document specific friction points discovered (e.g., hardware failure points, user drop-offs).
-         - Results: Compare the final outcome to the initial problem with high-stakes strategic vocabulary.
+       - **STRICT ARC (Keys MUST be Arrays of strings/bullets):** 
+         - problem: Bullet points defining the existential threat or business gap.
+         - methodology: Bullet points detailing research, strategy, and artifacts.
+         - process: Bullet points detailing iterative steps and cross-functional collaboration.
+         - findings: Bullet points documenting specific discoveries and friction points.
+         - results: Bullet points comparing final ROI to the initial problem.
+       - **ROI TEASER:** Create a one-sentence "Situation/Solution" synopsis (e.g., "Identified critical IoT sensor lag via on-site ethnographic study, resulting in 100% successful pod access.")
        - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
     3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
@@ -125,11 +127,12 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
           "description": ["2-sentence summary maximum"],
           "roi_metrics": ["Specific quantifiable wins"],
           "story": { 
-            "problem": { "title": "The Business Threat", "content": "Detailed multi-sentence narrative..." },
-            "methodology": { "title": "Strategic Process", "content": "Exhaustive breakdown of the approach, research, and technical steps...", "artifacts": ["List of items like 'Sketches', 'User Interviews', etc."] },
-            "findings": { "title": "The Key Insights", "content": "In-depth description of friction points and discoveries..." },
-            "conclusion": { "title": "The Resolution", "content": "How the project was delivered and resolved..." },
-            "results": { "title": "The ROI Impact", "content": "Deep comparison of the final outcome vs the initial problem...", "metrics": ["Array of quantifiable data"] },
+            "problem": ["Bullet 1", "Bullet 2"],
+            "methodology": ["Bullet 1", "Bullet 2"],
+            "process": ["Bullet 1", "Bullet 2"],
+            "findings": ["Bullet 1", "Bullet 2"],
+            "results": ["Bullet 1", "Bullet 2"],
+            "teaser": "One short Situation/Solution sentence.",
             "visuals": [
               { "description": "Specific visual description", "url": "URL if available", "type": "wireframe" | "sketch" | "photo" | "chart" | "team_shot", "relevance": "Context of why this matters" }
             ],

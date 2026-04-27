@@ -534,7 +534,14 @@ const CareerAdmin: React.FC = () => {
                               <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
                                 <h4 className="text-lg font-bold text-gray-900">{cs.title}</h4>
                                 <p className="text-sm text-gray-600 mb-2">{cs.company}</p>
-                                <p className="text-sm text-gray-700 italic">{cs.description?.[0]}</p>
+                                {cs.story?.teaser ? (
+                                  <div className="bg-indigo-50 p-3 rounded border border-indigo-100 mb-2">
+                                    <p className="text-[10px] font-black text-indigo-600 uppercase mb-1">Key Proof</p>
+                                    <p className="text-sm text-indigo-900 font-bold italic">"{cs.story.teaser}"</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-700 italic">{cs.description?.[0]}</p>
+                                )}
                                 {cs.source_url && (
                                   <a href={cs.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-2">
                                     <ExternalLink size={14} /> View Interactive Proof

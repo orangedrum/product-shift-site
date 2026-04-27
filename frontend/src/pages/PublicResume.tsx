@@ -256,11 +256,19 @@ const PublicResume: React.FC = () => {
                          <div className="grid md:grid-cols-2 gap-8 mt-8 border-t border-white/20 pt-8">
                             <div>
                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">The Challenge</p>
-                               <p className="text-lg leading-relaxed">{typeof cs.story?.problem === 'object' ? cs.story.problem.content : (cs.story?.problem || cs.description?.[0])}</p>
+                               {Array.isArray(cs.story?.problem) ? (
+                                 <ul className="space-y-2">
+                                   {cs.story.problem.map((b: string, i: number) => <li key={i} className="text-lg leading-tight flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-600 rounded-full mt-2.5 shrink-0" /> {b}</li>)}
+                                 </ul>
+                               ) : <p className="text-lg leading-relaxed">{cs.story?.problem || cs.description?.[0]}</p>}
                             </div>
                             <div>
-                               <p className="text-[10px] font-black uppercase tracking-widest text-[#39ff14] mb-2">The Outcome</p>
-                               <p className="text-lg leading-relaxed font-bold">{typeof cs.story?.results === 'object' ? cs.story.results.content : (cs.story?.results || "Successful strategic delivery.")}</p>
+                               <p className="text-[10px] font-black uppercase tracking-widest text-[#39ff14] mb-2">The Results</p>
+                               {Array.isArray(cs.story?.results) ? (
+                                 <ul className="space-y-2">
+                                   {cs.story.results.map((b: string, i: number) => <li key={i} className="text-lg leading-tight font-bold flex items-start gap-2 text-[#39ff14]"><div className="w-1.5 h-1.5 bg-[#39ff14] rounded-full mt-2.5 shrink-0" /> {b}</li>)}
+                                 </ul>
+                               ) : <p className="text-lg leading-relaxed font-bold text-[#39ff14]">{cs.story?.results || "Successful strategic delivery."}</p>}
                             </div>
                          </div>
                       </div>
@@ -268,11 +276,21 @@ const PublicResume: React.FC = () => {
                          <div className="md:col-span-2 space-y-8">
                             <div>
                                <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Target size={14} className="text-indigo-600"/> Methodology</h5>
-                               <p className="text-gray-600 leading-relaxed italic">{typeof cs.story?.methodology === 'object' ? cs.story.methodology.content : (cs.story?.method || cs.story?.methodology)}</p>
+                               <ul className="space-y-1.5">
+                                 {(Array.isArray(cs.story?.methodology) ? cs.story.methodology : [cs.story?.methodology]).map((b: any, i: number) => <li key={i} className="text-gray-600 leading-relaxed italic flex items-start gap-2"><div className="w-1 h-1 bg-gray-400 rounded-full mt-2.5 shrink-0" /> {b}</li>)}
+                               </ul>
                             </div>
                             <div>
-                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Search size={14} className="text-indigo-600"/> Key Findings</h5>
-                               <p className="text-gray-600 leading-relaxed">{typeof cs.story?.findings === 'object' ? cs.story.findings.content : cs.story?.findings}</p>
+                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Zap size={14} className="text-pink-600"/> Process</h5>
+                               <ul className="space-y-1.5">
+                                 {(Array.isArray(cs.story?.process) ? cs.story.process : [cs.story?.process]).map((b: any, i: number) => <li key={i} className="text-gray-600 leading-relaxed flex items-start gap-2"><div className="w-1 h-1 bg-pink-400 rounded-full mt-2.5 shrink-0" /> {b}</li>)}
+                               </ul>
+                            </div>
+                            <div>
+                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Search size={14} className="text-amber-600"/> Findings</h5>
+                               <ul className="space-y-1.5">
+                                 {(Array.isArray(cs.story?.findings) ? cs.story.findings : [cs.story?.findings]).map((b: any, i: number) => <li key={i} className="text-gray-600 leading-relaxed flex items-start gap-2 font-medium"><div className="w-1 h-1 bg-amber-400 rounded-full mt-2.5 shrink-0" /> {b}</li>)}
+                               </ul>
                             </div>
                          </div>
                          {cs.story?.visuals?.length > 0 && (

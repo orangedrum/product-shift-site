@@ -116,7 +116,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       TASK:
       Select a maximum of 24 assets from the list above (DO NOT hallucinate or make up any assets):
       - CRITICAL: Do NOT hallucinate assets. If a type (like case_study) is not in the list, DO NOT include it.
-      - Distribution Goal: 5 work_history, 6 skill, 4 technical tooling, and the best available talks, writing samples, or recommendations.
+      - Distribution Goal: 3 case_study, 5 work_history, 6 skill, 4 technical tooling, and the best available talks, writing samples, or recommendations.
       - Omit all dates/years from titles/descriptions to prevent bias.
 
       Return a JSON object with two keys: "selectedIds" (ARRAY of IDs) and "mappedTitle" (STRING for the resume headline).
