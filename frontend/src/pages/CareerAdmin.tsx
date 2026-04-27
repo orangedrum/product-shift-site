@@ -394,29 +394,35 @@ const CareerAdmin: React.FC = () => {
                       </div>
 
                       {asset.type === 'case_study' && asset.story ? (
-                         <div className="mt-4 p-5 bg-gray-50 rounded-2xl border border-gray-200 text-[10px] space-y-4 text-gray-600">
-                            <div className="border-l-2 border-indigo-600 pl-3">
-                               <p className="font-black text-indigo-900 uppercase mb-1">{asset.story.problem?.title || 'Problem'}</p>
-                               <p className="italic leading-relaxed">{asset.story.problem?.content}</p>
-                            </div>
-                            <div className="border-l-2 border-pink-500 pl-3">
-                               <p className="font-black text-pink-900 uppercase mb-1">{asset.story.methodology?.title || 'Process'}</p>
-                               <p className="leading-relaxed">{asset.story.methodology?.content}</p>
-                               {asset.story.methodology?.artifacts?.length > 0 && (
-                                 <div className="mt-2 flex flex-wrap gap-1">
-                                   {asset.story.methodology.artifacts.map((a: string, idx: number) => <span key={idx} className="bg-white px-2 py-0.5 rounded border border-gray-200 text-[8px] font-bold">🛠 {a}</span>)}
+                         <div className="mt-4 p-5 bg-gray-50 rounded-2xl border border-gray-200 text-[10px] space-y-3 text-gray-600">
+                            {[
+                               { label: 'Problem', key: 'problem', color: 'border-indigo-600', text: 'text-indigo-900' },
+                               { label: 'Methodology', key: 'methodology', color: 'border-purple-500', text: 'text-purple-900' },
+                               { label: 'Process', key: 'process', color: 'border-pink-500', text: 'text-pink-900' },
+                               { label: 'Findings', key: 'findings', color: 'border-amber-500', text: 'text-amber-900' },
+                               { label: 'Results', key: 'results', color: 'border-green-500', text: 'text-green-900' }
+                            ].map((s) => {
+                               const content = asset.story[s.key];
+                               if (!content) return null;
+                               return (
+                                 <div key={s.key} className={`border-l-2 ${s.color} pl-3`}>
+                                    <p className={`font-black uppercase mb-1 ${s.text}`}>{s.label}</p>
+                                    {Array.isArray(content) ? (
+                                      <ul className="list-disc pl-4 space-y-0.5">
+                                        {content.map((b: string, idx: number) => <li key={idx}>{b}</li>)}
+                                      </ul>
+                                    ) : <p className="italic leading-relaxed">{content.content || content}</p>}
                                  </div>
-                               )}
-                             </div>
-                            <div className="border-l-2 border-green-500 pl-3">
-                               <p className="font-black text-green-900 uppercase mb-1">{asset.story.results?.title || 'Impact'}</p>
-                               <p className="font-bold leading-relaxed">{asset.story.results?.content}</p>
-                               {asset.story.results?.metrics?.length > 0 && (
-                                 <div className="mt-2 flex flex-wrap gap-1">
-                                   {asset.story.results.metrics.map((m: string, idx: number) => <span key={idx} className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8px] font-black">📈 {m}</span>)}
-                                 </div>
-                               )}
-                            </div>
+                               );
+                            })}
+                            
+                            {asset.story.teaser && (
+                               <div className="bg-black text-white p-2 rounded mt-2 border border-brand-pink">
+                                  <p className="text-[8px] font-black uppercase text-brand-pink mb-0.5">ROI Teaser</p>
+                                  <p className="font-bold italic">"{asset.story.teaser}"</p>
+                               </div>
+                            )}
+
                             {asset.story.visuals?.length > 0 && (
                               <div className="pt-2 border-t border-gray-200">
                                  <p className="text-[8px] font-black uppercase text-gray-400 mb-2">Artifacts Found</p>

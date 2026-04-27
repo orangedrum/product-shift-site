@@ -255,10 +255,10 @@ const PublicResume: React.FC = () => {
                          <h4 className="text-3xl font-black leading-tight mb-4">{cs.title}</h4>
                          <div className="grid md:grid-cols-2 gap-8 mt-8 border-t border-white/20 pt-8">
                             <div>
-                               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">The Challenge</p>
+                               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">The Problem</p>
                                {Array.isArray(cs.story?.problem) ? (
                                  <ul className="space-y-2">
-                                   {cs.story.problem.map((b: string, i: number) => <li key={i} className="text-lg leading-tight flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-600 rounded-full mt-2.5 shrink-0" /> {b}</li>)}
+                                   {cs.story.problem.map((b: string, i: number) => <li key={i} className="text-lg leading-tight flex items-start gap-2"><div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2.5 shrink-0" /> {b}</li>)}
                                  </ul>
                                ) : <p className="text-lg leading-relaxed">{cs.story?.problem || cs.description?.[0]}</p>}
                             </div>
@@ -291,6 +291,10 @@ const PublicResume: React.FC = () => {
                                <ul className="space-y-1.5">
                                  {(Array.isArray(cs.story?.findings) ? cs.story.findings : [cs.story?.findings]).map((b: any, i: number) => <li key={i} className="text-gray-600 leading-relaxed flex items-start gap-2 font-medium"><div className="w-1 h-1 bg-amber-400 rounded-full mt-2.5 shrink-0" /> {b}</li>)}
                                </ul>
+                            </div>
+                            <div>
+                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Search size={14} className="text-indigo-600"/> Critical Findings</h5>
+                               <p className="text-gray-600 leading-relaxed">{typeof cs.story?.findings === 'object' ? cs.story.findings.content : cs.story?.findings}</p>
                             </div>
                          </div>
                          {cs.story?.visuals?.length > 0 && (
