@@ -409,9 +409,15 @@ const CareerAdmin: React.FC = () => {
                                     <p className={`font-black uppercase mb-1 ${s.text}`}>{s.label}</p>
                                     {Array.isArray(content) ? (
                                       <ul className="list-disc pl-4 space-y-0.5">
-                                        {content.map((b: string, idx: number) => <li key={idx}>{b}</li>)}
+                                        {content.map((b: any, idx: number) => (
+                                          <li key={idx}>{typeof b === 'object' ? (b.content || b.text || JSON.stringify(b)) : b}</li>
+                                        ))}
                                       </ul>
-                                    ) : <p className="italic leading-relaxed">{content.content || content}</p>}
+                                    ) : (
+                                      <p className="italic leading-relaxed">
+                                        {typeof content === 'object' ? (content.content || content.text || JSON.stringify(content)) : content}
+                                      </p>
+                                    )}
                                  </div>
                                );
                             })}
