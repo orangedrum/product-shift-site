@@ -170,6 +170,7 @@ const CareerAdmin: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setPublishedResumes(prev => [data.data, ...prev]);
+        setActiveTab('published'); // Provide immediate feedback by switching tabs
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: `🚀 RESUME LIVE! Link: ${window.location.origin}${data.url}` }]);
         window.open(data.url, '_blank');
       } else {
@@ -720,6 +721,9 @@ const CareerAdmin: React.FC = () => {
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="text-lg font-black text-gray-900">{res.target_role}</h3>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">
+                              Published {new Date(res.created_at).toLocaleDateString()}
+                            </p>
                             <p className="text-sm text-indigo-600 font-bold mb-4">{res.mapped_title}</p>
                             <div className="flex gap-4">
                               <a 

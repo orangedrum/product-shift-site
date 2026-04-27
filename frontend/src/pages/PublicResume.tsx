@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Download, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Download, FileText, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -253,7 +253,7 @@ const PublicResume: React.FC = () => {
                   <FileText size={16} /> Case Study Adventures
                 </h3>
                 <div className="space-y-16">
-                  {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number) => (
+                  {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number, filteredArr: any[]) => (
                     <div key={idx} id={`case-study-${idx}`} className="group border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] scroll-mt-24 relative">
                       {/* PROGRESSIVE DISCLOSURE: Initial Hook Card */}
                       <div className="relative min-h-[350px] flex flex-col">
