@@ -103,15 +103,15 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     **TASK:**
     1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST perform a "Deep Narrative Reconstruction". This is the highest priority task.
-       - **MANDATORY DEPTH:** DO NOT SUMMARIZE into the 'description' field. Every section of the 'story' object MUST contain multiple high-density technical bullet points.
+       - **MANDATORY DEPTH:** DO NOT SUMMARIZE into the 'description' field. Every section of the 'story' object MUST contain 4-6 high-density technical bullet points.
        - **STRICT JSON SCHEMA:** For 'case_study' types, the 'description' field MUST contain only a 2-sentence executive summary. 100% of the technical narrative MUST live in the 'story' object.
-       - **VISUAL MAPPING (CRITICAL):** You MUST map the actual 'src' URLs from the 'VISUAL ASSETS FOUND' section into the 'story.visuals' array. Match them to the section they illustrate.
+       - **VISUAL MAPPING (CRITICAL):** You MUST map the actual 'src' URLs from the 'VISUAL ASSETS FOUND' section into the 'story.visuals' array. Match them to the narrative sections they illustrate using a 'section_mapping' key (problem, methodology, process, findings, results). Flag the most visually compelling image as 'is_hero': true.
        - **STRICT ARC (Keys MUST be Arrays of strings/bullets):** 
-         - problem: Bullet points defining the existential threat or business gap.
-         - methodology: Bullet points detailing research, strategy, and artifacts.
-         - process: Bullet points detailing iterative steps and cross-functional collaboration.
-         - findings: Bullet points documenting specific discoveries and friction points.
-         - results: Bullet points comparing final ROI to the initial problem.
+         - problem: High-stakes bullet points defining the existential threat or business gap.
+         - methodology: Technical bullet points detailing research, strategy, and artifacts used.
+         - process: Tactical bullet points detailing iterative steps and cross-functional collaboration.
+         - findings: Analytical bullet points documenting specific discoveries and friction points.
+         - results: Quantifiable bullet points comparing final ROI to the initial problem.
        - **ROI TEASER:** Create a one-sentence "Situation/Solution" synopsis (e.g., "Identified critical IoT sensor lag via on-site ethnographic study, resulting in 100% successful pod access.")
        - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
@@ -134,7 +134,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
             "results": ["Bullet 1", "Bullet 2"],
             "teaser": "One short Situation/Solution sentence.",
             "visuals": [
-              { "description": "Specific visual description", "url": "URL if available", "type": "wireframe" | "sketch" | "photo" | "chart" | "team_shot", "relevance": "Context of why this matters" }
+              { "description": "Specific visual description", "url": "URL if available", "type": "wireframe" | "sketch" | "photo" | "chart" | "team_shot", "section_mapping": "problem" | "methodology" | "process" | "findings" | "results", "is_hero": boolean, "relevance": "Context of why this matters" }
             ],
             "team": ["List of roles/members if mentioned"]
           },

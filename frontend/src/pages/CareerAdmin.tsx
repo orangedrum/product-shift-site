@@ -442,7 +442,13 @@ const CareerAdmin: React.FC = () => {
                                              {v.type === 'wireframe' ? <Layout size={10} /> : v.type === 'sketch' ? <Edit3 size={10}/> : <FileText size={10} />}
                                            </div>
                                          )}
-                                         <span className="truncate leading-none uppercase text-[6px] font-black text-gray-400">{v.description}</span>
+                                         <div className="flex flex-col gap-0.5">
+                                            <span className="truncate leading-none uppercase text-[6px] font-black text-gray-400">{v.description}</span>
+                                            {v.section_mapping && (
+                                              <span className="text-[5px] font-bold text-indigo-500 uppercase">📍 {v.section_mapping}</span>
+                                            )}
+                                            {v.is_hero && <span className="text-[5px] font-bold text-amber-500 uppercase">🌟 Hero</span>}
+                                         </div>
                                       </div>
                                     ))}
                                  </div>

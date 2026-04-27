@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Download, FileText } from 'lucide-react';
+import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Download, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -19,6 +19,7 @@ const PublicResume: React.FC = () => {
   const [error, setError] = useState(false);
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [expandedStudies, setExpandedStudies] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -45,6 +46,10 @@ const PublicResume: React.FC = () => {
   // CTO Logic: Leveraging the state to open the speaking reel modal
   const handleVideoPlay = () => {
     setIsVideoOpen(true);
+  };
+
+  const toggleStudy = (idx: number) => {
+    setExpandedStudies(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
 
   const assets = resume.selected_assets || [];
@@ -245,106 +250,160 @@ const PublicResume: React.FC = () => {
             {assets.some((a: any) => a.type === 'case_study') && (
               <section>
                 <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3">
-                  <FileText size={16} /> Logic Proofs: Case Studies
+                  <FileText size={16} /> Case Study Adventures
                 </h3>
                 <div className="space-y-16">
                   {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number) => (
-                    <div key={idx} className="group border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                      <div className="bg-black text-white p-8">
-                         <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2 block">{cs.company}</span>
-                         <h4 className="text-3xl font-black leading-tight mb-4">{cs.title}</h4>
-                         <div className="grid md:grid-cols-2 gap-8 mt-8 border-t border-white/20 pt-8">
-                            <div>
-                               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">The Problem</p>
-                               <ul className="space-y-2">
-                                 {(Array.isArray(cs.story?.problem) ? cs.story.problem : [cs.story?.problem || cs.description?.[0]]).map((b: any, i: number) => (
-                                   <li key={i} className="text-lg leading-tight flex items-start gap-2">
-                                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2.5 shrink-0" /> 
-                                     {typeof b === 'object' ? (b.content || b.text || JSON.stringify(b)) : b}
-                                   </li>
-                                 ))}
-                               </ul>
+                    <div key={idx} id={`case-study-${idx}`} className="group border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] scroll-mt-24 relative">
+                      {/* PROGRESSIVE DISCLOSURE: Initial Hook Card */}
+                      <div className="relative min-h-[350px] flex flex-col">
+                        {/* Dynamic Background Image with Stronger Gradient Overlay */}
+                        {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
+                          <div className="absolute inset-0 z-0">
+                             <img 
+                               src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
+                               className="w-full h-full object-cover grayscale opacity-30 group-hover:scale-105 transition-transform duration-1000" 
+                               alt="" 
+                             />
+                             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/90 to-transparent" />
+                          </div>
+                        )}
+                        {!((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
+                           <div className="absolute inset-0 z-0 bg-black" />
+                        )}
+
+                        <div className="relative z-10 p-8 flex-1 flex flex-col justify-between text-white">
+                          <div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2 block">{cs.company}</span>
+                            <h4 className="text-3xl md:text-4xl font-black leading-none mb-6 max-w-2xl">{cs.title}</h4>
+                            {cs.story?.teaser && (
+                              <p className="text-lg md:text-xl font-bold italic text-gray-200 mb-8 border-l-2 border-brand-pink pl-6 leading-snug">
+                                "{cs.story.teaser}"
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-6">
+                            {/* ROI Metrics always visible in teaser */}
+                            <div className="flex flex-wrap gap-3">
+                               {(Array.isArray(cs.story?.results) ? cs.story.results.slice(0, 3) : []).map((m: any, mIdx: number) => (
+                                 <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-[2px_2px_0px_0px_#000]">
+                                   {typeof m === 'object' ? (m.content || m.text) : m}
+                                 </div>
+                               ))}
                             </div>
-                            <div>
-                               <p className="text-[10px] font-black uppercase tracking-widest text-[#39ff14] mb-2">The Results</p>
-                               <ul className="space-y-2">
-                                 {(Array.isArray(cs.story?.results) ? cs.story.results : [cs.story?.results || "Successful strategic delivery."]).map((b: any, i: number) => (
-                                   <li key={i} className="text-lg leading-tight font-bold flex items-start gap-2 text-[#39ff14]">
-                                     <div className="w-1.5 h-1.5 bg-[#39ff14] rounded-full mt-2.5 shrink-0" /> 
-                                     {typeof b === 'object' ? (b.content || b.text || JSON.stringify(b)) : b}
-                                   </li>
-                                 ))}
-                               </ul>
-                            </div>
-                         </div>
+                            
+                            <NeoButton 
+                              onClick={() => toggleStudy(idx)}
+                              className="bg-white text-black border-white shadow-[4px_4px_0px_0px_rgba(255,20,147,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                            >
+                               {expandedStudies[idx] ? <><ChevronUp size={18}/> Hide Details</> : <><Search size={18}/> Explore Logic Proof Adventure</>}
+                            </NeoButton>
+                          </div>
+                        </div>
                       </div>
-                      <div className="p-8 grid md:grid-cols-3 gap-12">
-                         <div className="md:col-span-2 space-y-8">
-                            <div>
-                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Target size={14} className="text-indigo-600"/> Methodology</h5>
-                               <ul className="space-y-1.5">
-                                 {(Array.isArray(cs.story?.methodology) ? cs.story.methodology : [cs.story?.methodology]).map((b: any, i: number) => (
-                                   <li key={i} className="text-gray-600 leading-relaxed italic flex items-start gap-2">
-                                     <div className="w-1 h-1 bg-gray-400 rounded-full mt-2.5 shrink-0" /> 
-                                     {typeof b === 'object' ? (b.content || b.text || JSON.stringify(b)) : b}
-                                   </li>
-                                 ))}
-                               </ul>
-                            </div>
-                            <div>
-                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Zap size={14} className="text-pink-600"/> Process</h5>
-                               <ul className="space-y-1.5">
-                                 {(Array.isArray(cs.story?.process) ? cs.story.process : [cs.story?.process]).map((b: any, i: number) => (
-                                   <li key={i} className="text-gray-600 leading-relaxed flex items-start gap-2">
-                                     <div className="w-1 h-1 bg-pink-400 rounded-full mt-2.5 shrink-0" /> 
-                                     {typeof b === 'object' ? (b.content || b.text || JSON.stringify(b)) : b}
-                                   </li>
-                                 ))}
-                               </ul>
-                            </div>
-                            <div>
-                               <h5 className="font-black text-sm uppercase mb-3 flex items-center gap-2"><Search size={14} className="text-amber-600"/> Findings</h5>
-                               <ul className="space-y-1.5">
-                                 {(Array.isArray(cs.story?.findings) ? cs.story.findings : [cs.story?.findings]).map((b: any, i: number) => (
-                                   <li key={i} className="text-gray-600 leading-relaxed flex items-start gap-2 font-medium">
-                                     <div className="w-1 h-1 bg-amber-400 rounded-full mt-2.5 shrink-0" /> 
-                                     {typeof b === 'object' ? (b.content || b.text || JSON.stringify(b)) : b}
-                                   </li>
-                                 ))}
-                               </ul>
-                            </div>
-                         </div>
-                         {cs.story?.visuals?.length > 0 && (
-                           <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 border-t border-gray-100">
-                              {cs.story.visuals.filter((v: any) => v.url).map((v: any, vIdx: number) => (
-                                <div key={vIdx} className="group/img relative aspect-video rounded-xl overflow-hidden border-2 border-black shadow-[4px_4px_0px_0px_#000] cursor-zoom-in">
-                                   <img src={v.url} alt={v.description} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500" />
-                                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                                      <p className="text-[8px] font-black text-white uppercase tracking-tighter leading-tight">{v.description}</p>
-                                   </div>
-                                </div>
-                              ))}
+
+                      {/* DEEP DIVE ADVENTURE: Expanded Content */}
+                      {expandedStudies[idx] && (
+                        <div className="animate-slide-down border-t-2 border-black bg-white">
+                           <div className="p-8 grid md:grid-cols-2 gap-12">
+                              {/* Column 1: Problem & Methodology */}
+                              <div className="space-y-12">
+                                 <div>
+                                    <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><AlertCircle size={14} className="text-red-500"/> The Problem</h5>
+                                    <ul className="space-y-3">
+                                       {(Array.isArray(cs.story?.problem) ? cs.story.problem : []).map((b: any, bIdx: number) => (
+                                         <li key={bIdx} className="text-gray-800 leading-snug flex items-start gap-3">
+                                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 shrink-0" />
+                                            <span className="text-base font-medium">{typeof b === 'object' ? b.content : b}</span>
+                                         </li>
+                                       ))}
+                                    </ul>
+                                    {/* Mapped Visuals for Problem */}
+                                    <div className="grid grid-cols-2 gap-2 mt-6">
+                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem').map((v: any, vIdx: number) => (
+                                          <div key={vIdx} className="rounded-lg overflow-hidden border border-gray-100 shadow-sm"><img src={v.url} className="w-full h-20 object-cover" alt="" /></div>
+                                       ))}
+                                    </div>
+                                 </div>
+
+                                 <div>
+                                    <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Target size={14} className="text-indigo-600"/> Methodology</h5>
+                                    <ul className="space-y-3">
+                                       {(Array.isArray(cs.story?.methodology) ? cs.story.methodology : []).map((b: any, bIdx: number) => (
+                                         <li key={bIdx} className="text-gray-600 leading-snug flex items-start gap-3 italic">
+                                            <div className="w-1 h-1 bg-indigo-400 rounded-full mt-2.5 shrink-0" />
+                                            <span className="text-sm">{typeof b === 'object' ? b.content : b}</span>
+                                         </li>
+                                       ))}
+                                    </ul>
+                                 </div>
+                              </div>
+
+                              {/* Column 2: Process & Findings */}
+                              <div className="space-y-12">
+                                 <div>
+                                    <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Zap size={14} className="text-pink-500"/> The Process</h5>
+                                    <ul className="space-y-3">
+                                       {(Array.isArray(cs.story?.process) ? cs.story.process : []).map((b: any, bIdx: number) => (
+                                         <li key={bIdx} className="text-gray-700 leading-snug flex items-start gap-3">
+                                            <div className="w-1.5 h-1.5 bg-pink-500 rounded-full mt-2 shrink-0" />
+                                            <span className="text-base font-medium">{typeof b === 'object' ? b.content : b}</span>
+                                         </li>
+                                       ))}
+                                    </ul>
+                                 </div>
+
+                                 <div>
+                                    <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Search size={14} className="text-amber-500"/> Key Findings</h5>
+                                    <ul className="space-y-3">
+                                       {(Array.isArray(cs.story?.findings) ? cs.story.findings : []).map((b: any, bIdx: number) => (
+                                         <li key={bIdx} className="text-gray-800 leading-tight bg-amber-50 p-4 rounded-xl border-l-4 border-amber-400 flex items-start gap-3">
+                                            <span className="text-sm font-bold">"{typeof b === 'object' ? b.content : b}"</span>
+                                         </li>
+                                       ))}
+                                    </ul>
+                                 </div>
+                              </div>
                            </div>
-                         )}
-                         <div className="space-y-6">
-                            {((cs.story?.results?.metrics?.length > 0) || (cs.story?.data?.length > 0) || cs.roi_metrics?.length > 0) && (
-                               <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
-                                  <h5 className="font-black text-[10px] uppercase mb-4 tracking-widest">Hard Evidence</h5>
-                                  <ul className="space-y-4">
-                                     {(cs.story?.results?.metrics || cs.story?.data || cs.roi_metrics || []).map((d: string, di: number) => (
-                                        <li key={di} className="text-xs font-bold text-indigo-900 flex items-start gap-2">
-                                           <CheckCircle size={14} className="text-indigo-600 shrink-0" /> {d}
-                                        </li>
-                                     ))}
-                                  </ul>
-                               </div>
-                            )}
-                            {cs.source_url && cs.source_url !== 'N/A' && (
-                               <a href={cs.source_url} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 bg-gray-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-colors">
-                                  View Visual Assets <ExternalLink size={14} />
-                               </a>
-                            )}
-                         </div>
+
+                           {/* ADVENTURE EXIT CTA: Direct to Source */}
+                           <div className="p-8 border-t border-gray-100 bg-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                              <div className="flex items-center gap-4">
+                                 <div className="p-3 bg-white rounded-full border border-gray-200 shadow-sm"><Globe size={20} className="text-indigo-600"/></div>
+                                 <div className="text-left">
+                                    <p className="font-black text-gray-900 leading-tight uppercase text-[10px] tracking-widest">Ready for the Deep Dive?</p>
+                                    <p className="text-xs text-gray-500">View the original technical breakdown at the source.</p>
+                                 </div>
+                              </div>
+                              <a 
+                                href={cs.source_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs rounded-xl hover:bg-indigo-700 transition-colors shadow-lg"
+                              >
+                                 Read Full Detailed Adventure <ExternalLink size={14} />
+                              </a>
+                           </div>
+                        </div>
+                      )}
+
+                      {/* Case Study Navigation Footer */}
+                      <div className="px-8 pb-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 no-print border-t border-gray-100 mt-auto bg-white">
+                         {idx < filteredArr.length - 1 ? (
+                           <button 
+                             onClick={() => document.getElementById(`case-study-${idx + 1}`)?.scrollIntoView({ behavior: 'smooth' })}
+                             className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors group"
+                           >
+                             Next Case Study <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                           </button>
+                         ) : <div className="hidden sm:block"></div>}
+                         <button 
+                           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                           className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
+                         >
+                           Back to Resume Top
+                         </button>
                       </div>
                     </div>
                   ))}
