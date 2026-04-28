@@ -206,15 +206,19 @@ const PublicResume: React.FC = () => {
                <p className="text-lg font-bold text-gray-900 leading-tight italic">
                  "{resume.professional_summary}"
                </p>
-               {/* Consolidated Print and Process buttons into a single flex container */}
+
                <div className="mt-8 flex flex-wrap items-center gap-4 no-print">
-                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10 flex items-center gap-2">
+                 <NeoButton 
+                   variant="primary" 
+                   onClick={() => window.print()} 
+                   className="px-8 text-sm h-10 flex items-center gap-2"
+                 >
                    <Download size={16} /> Print Resume
                  </NeoButton>
                  <NeoButton 
                    onClick={() => setIsProcessModalOpen(true)}
-                   variant="ghost"
-                   className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group"
+                   variant="secondary"
+                   className="text-sm px-6 h-10 flex items-center gap-2 group"
                  >
                    My Process <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                  </NeoButton>
@@ -272,18 +276,16 @@ const PublicResume: React.FC = () => {
                     <div key={idx} id={`case-study-${idx}`} className="group rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-elegant scroll-mt-24 relative mb-12">
                       {/* PROGRESSIVE DISCLOSURE: Initial Hook Card */}
                       <div className="relative min-h-[380px] flex flex-col">
-                        {/* Dynamic Background Image with Stronger Gradient Overlay */}
-                        {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
-                          <div className="absolute inset-0 z-0">
-                            <img 
-                              src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
-                              className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-[2000ms]" 
-                              alt="" 
-                            />
+                        <div className="absolute inset-0 z-0 bg-black">
+                          {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
+                             <img 
+                               src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
+                               className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-[2000ms]" 
+                               alt="" 
+                             />
                           )}
                           <div className="absolute inset-0 bg-black/60" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                          {/* Accent Marketing Gradient */}
                           <div className="absolute top-0 left-0 right-0 h-1 bg-marketing-gradient" />
                         </div>
 
@@ -297,6 +299,7 @@ const PublicResume: React.FC = () => {
                           </div>
 
                           <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-6">
+                            {/* ROI Metrics always visible in teaser */}
                             <div className="flex flex-wrap gap-3">
                                {resolveStoryContent(cs.story, 'results').slice(0, 3).map((m: any, mIdx: number) => (
                                  <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
@@ -316,9 +319,12 @@ const PublicResume: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* DEEP DIVE ADVENTURE: Expanded Content */}
                       {expandedStudies[idx] && (
                         <div className="animate-slide-down border-t-2 border-black bg-white">
+                        <div className="animate-slide-down bg-white">
                            <div className="p-8 grid md:grid-cols-2 gap-12">
+                              {/* Column 1: Problem & Methodology */}
                               <div className="space-y-12">
                                  <div>
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><AlertCircle size={14} className="text-red-500"/> The Problem</h5>
@@ -330,7 +336,10 @@ const PublicResume: React.FC = () => {
                                          </li>
                                        ))}
                                     </ul>
+                                    {/* Mapped Visuals for Problem */}
                                     <div className="grid grid-cols-2 gap-2 mt-6">
+                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem').map((v: any, vIdx: number) => (
+                                          <div key={vIdx} className="rounded-lg overflow-hidden border border-gray-100 shadow-sm"><img src={v.url} className="w-full h-20 object-cover" alt="" /></div>
                                        {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem' || v.is_hero).slice(0, 2).map((v: any, vIdx: number) => (
                                           <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video"><img src={v.url} className="w-full h-full object-cover" alt="" /></div>
                                        ))}
@@ -355,6 +364,7 @@ const PublicResume: React.FC = () => {
                                  </div>
                               </div>
 
+                              {/* Column 2: Process & Findings */}
                               <div className="space-y-12">
                                  <div>
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Zap size={14} className="text-pink-500"/> The Process</h5>
@@ -385,10 +395,16 @@ const PublicResume: React.FC = () => {
                                  </div>
                               </div>
                            </div>
+
+                           {/* ADVENTURE EXIT CTA: Direct to Source */}
+                           <div className="p-8 border-t border-gray-100 bg-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
                            <div className="p-8 bg-indigo-50/50 flex flex-col md:flex-row items-center justify-between gap-6">
                               <div className="flex items-center gap-4">
+                                 <div className="p-3 bg-white rounded-full border border-gray-200 shadow-sm"><Globe size={20} className="text-indigo-600"/></div>
                                  <div className="p-3 bg-white rounded-full shadow-sm"><Globe size={20} className="text-indigo-600"/></div>
                                  <div className="text-left">
+                                    <p className="font-black text-gray-900 leading-tight uppercase text-[10px] tracking-widest">Ready for the Deep Dive?</p>
+                                    <p className="text-xs text-gray-500">View the original technical breakdown at the source.</p>
                                     <p className="font-black text-indigo-900 leading-tight uppercase text-[10px] tracking-widest">Ready for the Deep Dive?</p>
                                     <p className="text-xs text-indigo-700 font-medium">View the full project case study on my primary domain.</p>
                                  </div>
@@ -397,6 +413,7 @@ const PublicResume: React.FC = () => {
                                 href={cs.source_url} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
+                                className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs rounded-xl hover:bg-indigo-700 transition-colors shadow-lg"
                                 className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:-translate-y-1"
                               >
                                  Read Full Detailed Adventure <ExternalLink size={14} />
@@ -405,20 +422,21 @@ const PublicResume: React.FC = () => {
                         </div>
                       )}
 
+                      {/* Case Study Navigation Footer */}
                       <div className="px-8 pb-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 no-print border-t border-gray-100 mt-auto bg-white">
                          {idx < filteredArr.length - 1 ? (
                            <button 
                              onClick={() => document.getElementById(`case-study-${idx + 1}`)?.scrollIntoView({ behavior: 'smooth' })}
                              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors group"
                            >
-                             Next Case Study Adventure <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                             Next Case Study <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                            </button>
                          ) : <div className="hidden sm:block"></div>}
                          <button 
                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                            className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
                          >
-                           Back to Top
+                           Back to Resume Top
                          </button>
                       </div>
                     </div>
@@ -426,12 +444,14 @@ const PublicResume: React.FC = () => {
                 </div>
               </section>
             )}
-            
+
+            {/* Product Lab Section: Using modular component from homepage */}
             <section className="pt-12">
               <ProductLab />
             </section>
 
-            {assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk') && (
+            {/* Publications & Talks (The "Extra Extra" Section) */}
+            {(assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk')) && (
               <section>
                 <div className="flex items-center gap-4 mb-8">
                   <div className="bg-black text-white px-10 py-4 text-4xl font-black uppercase tracking-tighter rotate-[-2deg] shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)]">
