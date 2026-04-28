@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Download, FileText, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { Trophy, CheckCircle, ExternalLink, Eye, Mail, MessageSquare, Zap, Globe, Briefcase, Sparkles, Loader2, X, ArrowRight, Search, Target, Layout, TrendingUp, Download, FileText, ChevronDown, ChevronUp, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -50,6 +50,20 @@ const PublicResume: React.FC = () => {
 
   const toggleStudy = (idx: number) => {
     setExpandedStudies(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  // CTO FIX: Defensive Resolver to handle "Terminology Drift" from the AI
+  const resolveStoryContent = (story: any, key: string) => {
+    const synonyms: Record<string, string[]> = {
+      problem: ['problem', 'the_problem', 'business_threat', 'challenge'],
+      results: ['results', 'outcome', 'impact', 'roi_impact'],
+      methodology: ['methodology', 'strategic_methodology', 'strategy', 'approach'],
+      process: ['process', 'the_process', 'strategic_process', 'execution'],
+      findings: ['findings', 'key_findings', 'critical_findings', 'insights']
+    };
+    const targetKeys = synonyms[key] || [key];
+    const content = targetKeys.map(k => story?.[k]).find(val => val !== undefined);
+    return Array.isArray(content) ? content : (content ? [content] : []);
   };
 
   const assets = resume.selected_assets || [];
@@ -197,6 +211,10 @@ const PublicResume: React.FC = () => {
                  <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10">
                    <Download size={16} /> Print this resume
                  </NeoButton>
+               <div className="mt-8 flex flex-wrap items-center gap-4 no-print">
+                 <button onClick={() => window.print()} className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105">
+                   <Download className="mr-2" size={16} /> Print Resume
+                 </button>
                  <button 
                    onClick={() => setIsProcessModalOpen(true)}
                    className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group"
@@ -225,6 +243,7 @@ const PublicResume: React.FC = () => {
             {/* Work History */}
             <section>
               <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3">
+              <h3 className="text-xs font-black uppercase text-indigo-400 tracking-[0.3em] mb-8 flex items-center gap-3">
                 <Briefcase size={16} /> Work History
               </h3>
               <div className="space-y-12">
@@ -233,10 +252,15 @@ const PublicResume: React.FC = () => {
                     <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gray-100 group-hover:bg-marketing-gradient transition-colors rounded-full" />
                     <h4 className="text-2xl font-black text-gray-900 mb-1">{job.title}</h4>
                     <p className="text-lg font-bold text-indigo-600 mb-4">{job.company}</p>
+                    <div className="absolute -left-6 top-0 bottom-0 w-1 bg-indigo-50 group-hover:bg-indigo-600 transition-colors rounded-full" />
+                    <h4 className="text-2xl font-extrabold text-gray-900 mb-1">{job.title}</h4>
+                    <p className="text-lg font-medium text-indigo-600 mb-4 tracking-tight">{job.company}</p>
                     <ul className="space-y-3">
                       {job.description?.map((bullet: string, bIdx: number) => (
                         <li key={bIdx} className="text-gray-600 leading-relaxed font-medium flex items-start gap-3">
                           <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
+                        <li key={bIdx} className="text-gray-500 leading-relaxed font-medium flex items-start gap-3">
+                          <CheckCircle className="mt-1 text-green-500 shrink-0" size={16} />
                           {bullet}
                         </li>
                       ))}
@@ -254,40 +278,38 @@ const PublicResume: React.FC = () => {
                 </h3>
                 <div className="space-y-16">
                   {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number, filteredArr: any[]) => (
-                    <div key={idx} id={`case-study-${idx}`} className="group border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] scroll-mt-24 relative">
+                    <div key={idx} id={`case-study-${idx}`} className="group rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-elegant scroll-mt-24 relative mb-12">
                       {/* PROGRESSIVE DISCLOSURE: Initial Hook Card */}
-                      <div className="relative min-h-[350px] flex flex-col">
+                      <div className="relative min-h-[380px] flex flex-col">
                         {/* Dynamic Background Image with Stronger Gradient Overlay */}
                         {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
                           <div className="absolute inset-0 z-0">
-                             <img 
-                               src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
-                               className="w-full h-full object-cover grayscale opacity-30 group-hover:scale-105 transition-transform duration-1000" 
-                               alt="" 
-                             />
-                             <div className="absolute inset-0 bg-gradient-to-br from-black via-black/90 to-transparent" />
-                          </div>
-                        )}
-                        {!((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
-                           <div className="absolute inset-0 z-0 bg-black" />
-                        )}
+                            <img 
+                              src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
+                              className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-[2000ms]" 
+                              alt="" 
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-black/60" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                          {/* Accent Marketing Gradient */}
+                          <div className="absolute top-0 left-0 right-0 h-1 bg-marketing-gradient" />
+                        </div>
 
                         <div className="relative z-10 p-8 flex-1 flex flex-col justify-between text-white">
                           <div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2 block">{cs.company}</span>
-                            <h4 className="text-3xl md:text-4xl font-black leading-none mb-6 max-w-2xl">{cs.title}</h4>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-2 block">{cs.company}</span>
+                            <h4 className="text-4xl md:text-6xl font-black leading-[0.9] mb-6 max-w-2xl">{cs.title}</h4>
                             {cs.story?.teaser && (
-                              <p className="text-lg md:text-xl font-bold italic text-gray-200 mb-8 border-l-2 border-brand-pink pl-6 leading-snug">
-                                "{cs.story.teaser}"
-                              </p>
+                              <p className="text-lg md:text-xl font-medium italic text-gray-200 mb-8 border-l-2 border-brand-pink pl-6 leading-relaxed">"{cs.story.teaser}"</p>
                             )}
                           </div>
 
                           <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-6">
                             {/* ROI Metrics always visible in teaser */}
                             <div className="flex flex-wrap gap-3">
-                               {(Array.isArray(cs.story?.results) ? cs.story.results.slice(0, 3) : []).map((m: any, mIdx: number) => (
-                                 <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-[2px_2px_0px_0px_#000]">
+                               {resolveStoryContent(cs.story, 'results').slice(0, 3).map((m: any, mIdx: number) => (
+                                 <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
                                    {typeof m === 'object' ? (m.content || m.text) : m}
                                  </div>
                                ))}
@@ -295,9 +317,10 @@ const PublicResume: React.FC = () => {
                             
                             <NeoButton 
                               onClick={() => toggleStudy(idx)}
-                              className="bg-white text-black border-white shadow-[4px_4px_0px_0px_rgba(255,20,147,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                              variant={expandedStudies[idx] ? "secondary" : "primary"}
+                              className="h-12 px-8 rounded-full"
                             >
-                               {expandedStudies[idx] ? <><ChevronUp size={18}/> Hide Details</> : <><Search size={18}/> Explore Logic Proof Adventure</>}
+                               {expandedStudies[idx] ? <><ChevronUp size={20}/> Hide Journey</> : <><Search size={20}/> Explore Logic Proof Adventure</>}
                             </NeoButton>
                           </div>
                         </div>
@@ -306,6 +329,7 @@ const PublicResume: React.FC = () => {
                       {/* DEEP DIVE ADVENTURE: Expanded Content */}
                       {expandedStudies[idx] && (
                         <div className="animate-slide-down border-t-2 border-black bg-white">
+                        <div className="animate-slide-down bg-white">
                            <div className="p-8 grid md:grid-cols-2 gap-12">
                               {/* Column 1: Problem & Methodology */}
                               <div className="space-y-12">
@@ -316,6 +340,10 @@ const PublicResume: React.FC = () => {
                                          <li key={bIdx} className="text-gray-800 leading-snug flex items-start gap-3">
                                             <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 shrink-0" />
                                             <span className="text-base font-medium">{typeof b === 'object' ? b.content : b}</span>
+                                       {resolveStoryContent(cs.story, 'problem').map((b: any, bIdx: number) => (
+                                         <li key={bIdx} className="text-gray-900 leading-relaxed flex items-start gap-3">
+                                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2.5 shrink-0" />
+                                            <span className="text-base font-bold tracking-tight">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
@@ -323,6 +351,8 @@ const PublicResume: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-2 mt-6">
                                        {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem').map((v: any, vIdx: number) => (
                                           <div key={vIdx} className="rounded-lg overflow-hidden border border-gray-100 shadow-sm"><img src={v.url} className="w-full h-20 object-cover" alt="" /></div>
+                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem' || v.is_hero).slice(0, 2).map((v: any, vIdx: number) => (
+                                          <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video"><img src={v.url} className="w-full h-full object-cover" alt="" /></div>
                                        ))}
                                     </div>
                                  </div>
@@ -331,12 +361,18 @@ const PublicResume: React.FC = () => {
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Target size={14} className="text-indigo-600"/> Methodology</h5>
                                     <ul className="space-y-3">
                                        {(Array.isArray(cs.story?.methodology) ? cs.story.methodology : []).map((b: any, bIdx: number) => (
+                                       {resolveStoryContent(cs.story, 'methodology').map((b: any, bIdx: number) => (
                                          <li key={bIdx} className="text-gray-600 leading-snug flex items-start gap-3 italic">
                                             <div className="w-1 h-1 bg-indigo-400 rounded-full mt-2.5 shrink-0" />
                                             <span className="text-sm">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
+                                    <div className="grid grid-cols-2 gap-2 mt-6">
+                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'methodology' || v.type === 'sketch').slice(0, 2).map((v: any, vIdx: number) => (
+                                          <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video bg-gray-50"><img src={v.url} className="w-full h-full object-contain p-2" alt="" /></div>
+                                       ))}
+                                    </div>
                                  </div>
                               </div>
 
@@ -346,12 +382,19 @@ const PublicResume: React.FC = () => {
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Zap size={14} className="text-pink-500"/> The Process</h5>
                                     <ul className="space-y-3">
                                        {(Array.isArray(cs.story?.process) ? cs.story.process : []).map((b: any, bIdx: number) => (
+                                       {resolveStoryContent(cs.story, 'process').map((b: any, bIdx: number) => (
                                          <li key={bIdx} className="text-gray-700 leading-snug flex items-start gap-3">
                                             <div className="w-1.5 h-1.5 bg-pink-500 rounded-full mt-2 shrink-0" />
                                             <span className="text-base font-medium">{typeof b === 'object' ? b.content : b}</span>
+                                            <span className="text-sm font-semibold">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
+                                    <div className="grid grid-cols-2 gap-2 mt-6">
+                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'process' || v.type === 'wireframe').slice(0, 2).map((v: any, vIdx: number) => (
+                                          <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video bg-gray-50"><img src={v.url} className="w-full h-full object-cover" alt="" /></div>
+                                       ))}
+                                    </div>
                                  </div>
 
                                  <div>
@@ -359,6 +402,8 @@ const PublicResume: React.FC = () => {
                                     <ul className="space-y-3">
                                        {(Array.isArray(cs.story?.findings) ? cs.story.findings : []).map((b: any, bIdx: number) => (
                                          <li key={bIdx} className="text-gray-800 leading-tight bg-amber-50 p-4 rounded-xl border-l-4 border-amber-400 flex items-start gap-3">
+                                       {resolveStoryContent(cs.story, 'findings').map((b: any, bIdx: number) => (
+                                         <li key={bIdx} className="text-gray-900 leading-tight bg-gray-50 p-4 rounded-2xl border-l-4 border-indigo-600 flex items-start gap-3 shadow-sm">
                                             <span className="text-sm font-bold">"{typeof b === 'object' ? b.content : b}"</span>
                                          </li>
                                        ))}
@@ -369,11 +414,15 @@ const PublicResume: React.FC = () => {
 
                            {/* ADVENTURE EXIT CTA: Direct to Source */}
                            <div className="p-8 border-t border-gray-100 bg-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                           <div className="p-8 bg-indigo-50/50 flex flex-col md:flex-row items-center justify-between gap-6">
                               <div className="flex items-center gap-4">
                                  <div className="p-3 bg-white rounded-full border border-gray-200 shadow-sm"><Globe size={20} className="text-indigo-600"/></div>
+                                 <div className="p-3 bg-white rounded-full shadow-sm"><Globe size={20} className="text-indigo-600"/></div>
                                  <div className="text-left">
                                     <p className="font-black text-gray-900 leading-tight uppercase text-[10px] tracking-widest">Ready for the Deep Dive?</p>
                                     <p className="text-xs text-gray-500">View the original technical breakdown at the source.</p>
+                                    <p className="font-black text-indigo-900 leading-tight uppercase text-[10px] tracking-widest">Ready for the Deep Dive?</p>
+                                    <p className="text-xs text-indigo-700 font-medium">View the full project case study on my primary domain.</p>
                                  </div>
                               </div>
                               <a 
@@ -381,6 +430,7 @@ const PublicResume: React.FC = () => {
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs rounded-xl hover:bg-indigo-700 transition-colors shadow-lg"
+                                className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:-translate-y-1"
                               >
                                  Read Full Detailed Adventure <ExternalLink size={14} />
                               </a>

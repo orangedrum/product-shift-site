@@ -102,16 +102,16 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
 
     **TASK:**
-    1. **STORYTELLING EXTRACTION (If Case Study/IOT):** If the source describes a specific project, you MUST perform a "Deep Narrative Reconstruction". This is the highest priority task.
-       - **MANDATORY DEPTH:** DO NOT SUMMARIZE into the 'description' field. Every section of the 'story' object MUST contain 4-6 high-density technical bullet points.
-       - **STRICT JSON SCHEMA:** For 'case_study' types, the 'description' field MUST contain only a 2-sentence executive summary. 100% of the technical narrative MUST live in the 'story' object.
+    1. **STORYTELLING EXTRACTION (For Case Study, Talk, or Writing Sample):** If the source describes a specific project or published thought leadership, you MUST perform a "Deep Narrative Reconstruction".
+       - **MANDATORY DEPTH:** Every section of the 'story' object MUST contain 4-6 high-density technical bullet points. DO NOT SUMMARIZE into 'description'.
+       - **STRICT JSON SCHEMA:** For these types, the 'description' field MUST contain only a 2-sentence hook. 100% of the value must live in the 'story' object.
        - **VISUAL MAPPING (CRITICAL):** You MUST map the actual 'src' URLs from the 'VISUAL ASSETS FOUND' section into the 'story.visuals' array. Match them to the narrative sections they illustrate using a 'section_mapping' key (problem, methodology, process, findings, results). Flag the most visually compelling image as 'is_hero': true.
        - **STRICT ARC (Keys MUST be Arrays of strings/bullets):** 
-         - problem: High-stakes bullet points defining the existential threat or business gap.
-         - methodology: Technical bullet points detailing research, strategy, and artifacts used.
-         - process: Tactical bullet points detailing iterative steps and cross-functional collaboration.
-         - findings: Analytical bullet points documenting specific discoveries and friction points.
-         - results: Quantifiable bullet points comparing final ROI to the initial problem.
+         - problem: High-stakes bullet points defining the existential threat, business gap, or "The Why".
+         - methodology: Technical bullet points detailing the research, strategy, or artifacts.
+         - process: Tactical bullet points detailing the iterative execution and delivery.
+         - findings: Analytical bullet points documenting specific discoveries and "Aha!" moments.
+         - results: Quantifiable bullet points comparing the final outcome to the initial problem.
        - **ROI TEASER:** Create a one-sentence "Situation/Solution" synopsis (e.g., "Identified critical IoT sensor lag via on-site ethnographic study, resulting in 100% successful pod access.")
        - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
