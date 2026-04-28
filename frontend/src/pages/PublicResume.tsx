@@ -207,14 +207,10 @@ const PublicResume: React.FC = () => {
                  "{resume.professional_summary}"
                </p>
 
-               <div className="mt-8 flex flex-col items-start gap-4 no-print">
-                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10">
-                   <Download size={16} /> Print this resume
-                 </NeoButton>
                <div className="mt-8 flex flex-wrap items-center gap-4 no-print">
-                 <button onClick={() => window.print()} className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105">
-                   <Download className="mr-2" size={16} /> Print Resume
-                 </button>
+                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10 flex items-center gap-2">
+                   <Download size={16} /> Print Resume
+                 </NeoButton>
                  <button 
                    onClick={() => setIsProcessModalOpen(true)}
                    className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group"
@@ -249,16 +245,11 @@ const PublicResume: React.FC = () => {
               <div className="space-y-12">
                 {assets.filter((a: any) => a.type === 'work_history').map((job: any, idx: number) => (
                   <div key={idx} className="group relative">
-                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gray-100 group-hover:bg-marketing-gradient transition-colors rounded-full" />
-                    <h4 className="text-2xl font-black text-gray-900 mb-1">{job.title}</h4>
-                    <p className="text-lg font-bold text-indigo-600 mb-4">{job.company}</p>
                     <div className="absolute -left-6 top-0 bottom-0 w-1 bg-indigo-50 group-hover:bg-indigo-600 transition-colors rounded-full" />
                     <h4 className="text-2xl font-extrabold text-gray-900 mb-1">{job.title}</h4>
                     <p className="text-lg font-medium text-indigo-600 mb-4 tracking-tight">{job.company}</p>
                     <ul className="space-y-3">
                       {job.description?.map((bullet: string, bIdx: number) => (
-                        <li key={bIdx} className="text-gray-600 leading-relaxed font-medium flex items-start gap-3">
-                          <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
                         <li key={bIdx} className="text-gray-500 leading-relaxed font-medium flex items-start gap-3">
                           <CheckCircle className="mt-1 text-green-500 shrink-0" size={16} />
                           {bullet}
@@ -282,17 +273,18 @@ const PublicResume: React.FC = () => {
                       {/* PROGRESSIVE DISCLOSURE: Initial Hook Card */}
                       <div className="relative min-h-[380px] flex flex-col">
                         {/* Dynamic Background Image with Stronger Gradient Overlay */}
-                        {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
-                          <div className="absolute inset-0 z-0">
-                            <img 
-                              src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
-                              className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-[2000ms]" 
-                              alt="" 
-                            />
+                        <div className="absolute inset-0 z-0 bg-black">
+                          {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
+                             <>
+                               <img 
+                                 src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
+                                 className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-[2000ms]" 
+                                 alt="" 
+                               />
+                               <div className="absolute inset-0 bg-black/60" />
+                               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                             </>
                           )}
-                          <div className="absolute inset-0 bg-black/60" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                          {/* Accent Marketing Gradient */}
                           <div className="absolute top-0 left-0 right-0 h-1 bg-marketing-gradient" />
                         </div>
 
@@ -336,14 +328,10 @@ const PublicResume: React.FC = () => {
                                  <div>
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><AlertCircle size={14} className="text-red-500"/> The Problem</h5>
                                     <ul className="space-y-3">
-                                       {(Array.isArray(cs.story?.problem) ? cs.story.problem : []).map((b: any, bIdx: number) => (
-                                         <li key={bIdx} className="text-gray-800 leading-snug flex items-start gap-3">
-                                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 shrink-0" />
-                                            <span className="text-base font-medium">{typeof b === 'object' ? b.content : b}</span>
                                        {resolveStoryContent(cs.story, 'problem').map((b: any, bIdx: number) => (
-                                         <li key={bIdx} className="text-gray-900 leading-relaxed flex items-start gap-3">
+                                         <li key={bIdx} className="text-gray-900 leading-relaxed flex items-start gap-3 font-bold tracking-tight">
                                             <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2.5 shrink-0" />
-                                            <span className="text-base font-bold tracking-tight">{typeof b === 'object' ? b.content : b}</span>
+                                            <span className="text-base">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
@@ -360,11 +348,10 @@ const PublicResume: React.FC = () => {
                                  <div>
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Target size={14} className="text-indigo-600"/> Methodology</h5>
                                     <ul className="space-y-3">
-                                       {(Array.isArray(cs.story?.methodology) ? cs.story.methodology : []).map((b: any, bIdx: number) => (
                                        {resolveStoryContent(cs.story, 'methodology').map((b: any, bIdx: number) => (
                                          <li key={bIdx} className="text-gray-600 leading-snug flex items-start gap-3 italic">
                                             <div className="w-1 h-1 bg-indigo-400 rounded-full mt-2.5 shrink-0" />
-                                            <span className="text-sm">{typeof b === 'object' ? b.content : b}</span>
+                                            <span className="text-sm font-medium">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
