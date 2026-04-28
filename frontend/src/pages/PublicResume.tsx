@@ -147,12 +147,6 @@ const PublicResume: React.FC = () => {
                     <li key={bi}>{bullet}</li>
                   ))}
                 </ul>
-                                    {/* Mapped Visuals for Process */}
-                                    <div className="grid grid-cols-2 gap-2 mt-6">
-                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'process' || v.type === 'wireframe').slice(0, 2).map((v: any, vIdx: number) => (
-                                          <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video bg-gray-50"><img src={v.url} className="w-full h-full object-cover" alt="" /></div>
-                                       ))}
-                                    </div>
               </div>
             ))}
           </div>
@@ -213,10 +207,14 @@ const PublicResume: React.FC = () => {
                  "{resume.professional_summary}"
                </p>
 
-               <div className="mt-8 flex flex-wrap items-center gap-4 no-print">
-                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10 flex items-center gap-2">
-                   <Download size={16} /> Print Resume
+               <div className="mt-8 flex flex-col items-start gap-4 no-print">
+                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10">
+                   <Download size={16} /> Print this resume
                  </NeoButton>
+               <div className="mt-8 flex flex-wrap items-center gap-4 no-print">
+                 <button onClick={() => window.print()} className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105">
+                   <Download className="mr-2" size={16} /> Print Resume
+                 </button>
                  <button 
                    onClick={() => setIsProcessModalOpen(true)}
                    className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group"
@@ -245,16 +243,22 @@ const PublicResume: React.FC = () => {
             {/* Work History */}
             <section>
               <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3">
+              <h3 className="text-xs font-black uppercase text-indigo-400 tracking-[0.3em] mb-8 flex items-center gap-3">
                 <Briefcase size={16} /> Work History
               </h3>
               <div className="space-y-12">
                 {assets.filter((a: any) => a.type === 'work_history').map((job: any, idx: number) => (
                   <div key={idx} className="group relative">
+                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gray-100 group-hover:bg-marketing-gradient transition-colors rounded-full" />
+                    <h4 className="text-2xl font-black text-gray-900 mb-1">{job.title}</h4>
+                    <p className="text-lg font-bold text-indigo-600 mb-4">{job.company}</p>
                     <div className="absolute -left-6 top-0 bottom-0 w-1 bg-indigo-50 group-hover:bg-indigo-600 transition-colors rounded-full" />
                     <h4 className="text-2xl font-extrabold text-gray-900 mb-1">{job.title}</h4>
                     <p className="text-lg font-medium text-indigo-600 mb-4 tracking-tight">{job.company}</p>
                     <ul className="space-y-3">
                       {job.description?.map((bullet: string, bIdx: number) => (
+                        <li key={bIdx} className="text-gray-600 leading-relaxed font-medium flex items-start gap-3">
+                          <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
                         <li key={bIdx} className="text-gray-500 leading-relaxed font-medium flex items-start gap-3">
                           <CheckCircle className="mt-1 text-green-500 shrink-0" size={16} />
                           {bullet}
@@ -278,18 +282,17 @@ const PublicResume: React.FC = () => {
                       {/* PROGRESSIVE DISCLOSURE: Initial Hook Card */}
                       <div className="relative min-h-[380px] flex flex-col">
                         {/* Dynamic Background Image with Stronger Gradient Overlay */}
-                        <div className="absolute inset-0 z-0 bg-black">
-                          {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
-                             <>
-                               <img 
-                                 src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
-                                 className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-[2000ms]" 
-                                 alt="" 
-                               />
-                               <div className="absolute inset-0 bg-black/60" />
-                               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                             </>
+                        {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
+                          <div className="absolute inset-0 z-0">
+                            <img 
+                              src={cs.story.visuals.find((v: any) => v.is_hero)?.url || cs.story.visuals[0].url} 
+                              className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-[2000ms]" 
+                              alt="" 
+                            />
                           )}
+                          <div className="absolute inset-0 bg-black/60" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                          {/* Accent Marketing Gradient */}
                           <div className="absolute top-0 left-0 right-0 h-1 bg-marketing-gradient" />
                         </div>
 
@@ -336,12 +339,14 @@ const PublicResume: React.FC = () => {
                                        {resolveStoryContent(cs.story, 'problem').map((b: any, bIdx: number) => (
                                          <li key={bIdx} className="text-gray-900 leading-relaxed flex items-start gap-3 font-bold tracking-tight">
                                             <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2.5 shrink-0" />
-                                            <span className="text-base">{typeof b === 'object' ? b.content : b}</span>
+                                            <span className="text-base font-bold tracking-tight">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
                                     {/* Mapped Visuals for Problem */}
                                     <div className="grid grid-cols-2 gap-2 mt-6">
+                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem').map((v: any, vIdx: number) => (
+                                          <div key={vIdx} className="rounded-lg overflow-hidden border border-gray-100 shadow-sm"><img src={v.url} className="w-full h-20 object-cover" alt="" /></div>
                                        {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem' || v.is_hero).slice(0, 2).map((v: any, vIdx: number) => (
                                           <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video"><img src={v.url} className="w-full h-full object-cover" alt="" /></div>
                                        ))}
@@ -354,19 +359,13 @@ const PublicResume: React.FC = () => {
                                        {resolveStoryContent(cs.story, 'methodology').map((b: any, bIdx: number) => (
                                          <li key={bIdx} className="text-gray-600 leading-snug flex items-start gap-3 italic">
                                             <div className="w-1 h-1 bg-indigo-400 rounded-full mt-2.5 shrink-0" />
-                                            <span className="text-sm font-medium">{typeof b === 'object' ? b.content : b}</span>
+                                            <span className="text-sm">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
                                     <div className="grid grid-cols-2 gap-2 mt-6">
                                        {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'methodology' || v.type === 'sketch').slice(0, 2).map((v: any, vIdx: number) => (
                                           <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video bg-gray-50"><img src={v.url} className="w-full h-full object-contain p-2" alt="" /></div>
-                                       ))}
-                                    </div>
-                                    {/* Mapped Visuals for Findings */}
-                                    <div className="grid grid-cols-2 gap-2 mt-6">
-                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'findings' || v.type === 'chart').slice(0, 2).map((v: any, vIdx: number) => (
-                                          <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video"><img src={v.url} className="w-full h-full object-cover" alt="" /></div>
                                        ))}
                                     </div>
                                  </div>
@@ -377,12 +376,10 @@ const PublicResume: React.FC = () => {
                                  <div>
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Zap size={14} className="text-pink-500"/> The Process</h5>
                                     <ul className="space-y-3">
-                                       {(Array.isArray(cs.story?.process) ? cs.story.process : []).map((b: any, bIdx: number) => (
                                        {resolveStoryContent(cs.story, 'process').map((b: any, bIdx: number) => (
-                                         <li key={bIdx} className="text-gray-700 leading-snug flex items-start gap-3">
+                                         <li key={bIdx} className="text-gray-700 leading-snug flex items-start gap-3 font-semibold">
                                             <div className="w-1.5 h-1.5 bg-pink-500 rounded-full mt-2 shrink-0" />
-                                            <span className="text-base font-medium">{typeof b === 'object' ? b.content : b}</span>
-                                            <span className="text-sm font-semibold">{typeof b === 'object' ? b.content : b}</span>
+                                            <span className="text-sm">{typeof b === 'object' ? b.content : b}</span>
                                          </li>
                                        ))}
                                     </ul>
@@ -404,12 +401,6 @@ const PublicResume: React.FC = () => {
                                          </li>
                                        ))}
                                     </ul>
-                                    {/* Mapped Visuals for Methodology */}
-                                    <div className="grid grid-cols-2 gap-2 mt-6">
-                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'methodology' || v.type === 'sketch').slice(0, 2).map((v: any, vIdx: number) => (
-                                          <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video bg-gray-50"><img src={v.url} className="w-full h-full object-contain p-2" alt="" /></div>
-                                       ))}
-                                    </div>
                                  </div>
                               </div>
                            </div>
@@ -469,111 +460,43 @@ const PublicResume: React.FC = () => {
             </section>
 
             {/* Publications & Talks (The "Extra Extra" Section) */}
-            {assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk') && (
-              <section className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <div className="bg-black text-white px-8 py-3 text-3xl font-black uppercase tracking-tighter rotate-[-1deg] shadow-[4px_4px_0px_0px_#000] border-2 border-black">
+            {(assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk')) && (
+              <section>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="bg-black text-white px-10 py-4 text-4xl font-black uppercase tracking-tighter rotate-[-2deg] shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)]">
                     Extra! Extra!
                   </div>
-                  <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">Thought Leadership</h3>
+                  <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em]">
+                    Published Pieces
+                  </h3>
                 </div>
                 
-                <div className="grid grid-cols-1 gap-8">
-                  {assets.filter((a: any) => a.type === 'writing_sample' || a.type === 'talk').map((item: any, idx: number) => {
-                    const extraIdx = 1000 + idx; 
-                    const hasStory = item.story && Object.keys(item.story).some(k => item.story[k]?.length > 0);
-
-                    return (
-                      <div key={idx} className="group rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-elegant relative">
-                        <div className="relative min-h-[300px] flex flex-col">
-                          <div className="absolute inset-0 z-0 bg-black">
-                            {((item.story?.visuals?.find((v: any) => v.is_hero) || item.story?.visuals?.[0])?.url) && (
-                               <>
-                                 <img 
-                                   src={item.story.visuals.find((v: any) => v.is_hero)?.url || item.story.visuals[0].url} 
-                                   className="w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-[2000ms]" 
-                                   alt="" 
-                                 />
-                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                               </>
-                            )}
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-marketing-gradient" />
-                          </div>
-
-                          <div className="relative z-10 p-8 flex-1 flex flex-col justify-between text-white">
-                            <div>
-                              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-2 block">{item.company} • {item.type.replace('_', ' ')}</span>
-                              <h4 className="text-3xl md:text-5xl font-black leading-[1] mb-6 max-w-2xl">{item.title}</h4>
-                              <p className="text-lg font-medium italic text-gray-200 mb-8 border-l-2 border-brand-pink pl-6 leading-relaxed line-clamp-2">
-                                {item.description?.[0]}
-                              </p>
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-6">
-                              <div className="flex flex-wrap gap-3">
-                                 {item.roi_metrics?.slice(0, 2).map((m: any, mIdx: number) => (
-                                   <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">
-                                     {m}
-                                   </div>
-                                 ))}
-                              </div>
-                              
-                              <div className="flex gap-3">
-                                {hasStory && (
-                                  <NeoButton 
-                                    onClick={() => toggleStudy(extraIdx)}
-                                    variant={expandedStudies[extraIdx] ? "secondary" : "primary"}
-                                    className="h-10 px-6 rounded-full text-xs"
-                                  >
-                                     {expandedStudies[extraIdx] ? <ChevronUp size={16}/> : <><Search size={16} className="mr-2"/> Explore Story</>}
-                                  </NeoButton>
-                                )}
-                                {item.source_url && item.source_url !== 'N/A' && (
-                                  <a href={item.source_url} target="_blank" rel="noopener noreferrer">
-                                    <NeoButton variant="secondary" className="h-10 px-6 rounded-full text-xs flex items-center gap-2">
-                                      {item.type === 'talk' ? 'Watch' : 'Read'} <ExternalLink size={14} />
-                                    </NeoButton>
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {expandedStudies[extraIdx] && (
-                          <div className="animate-slide-down bg-white border-t border-gray-100">
-                             <div className="p-8 grid md:grid-cols-2 gap-12">
-                                <div className="space-y-12">
-                                   <div>
-                                      <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><AlertCircle size={14} className="text-red-500"/> The Problem</h5>
-                                      <ul className="space-y-3">
-                                         {resolveStoryContent(item.story, 'problem').map((b: any, bIdx: number) => (
-                                           <li key={bIdx} className="text-gray-900 leading-relaxed flex items-start gap-3 font-bold tracking-tight">
-                                              <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2.5 shrink-0" />
-                                              <span className="text-base">{typeof b === 'object' ? b.content : b}</span>
-                                           </li>
-                                         ))}
-                                      </ul>
-                                   </div>
-                                </div>
-                                <div className="space-y-12">
-                                   <div>
-                                      <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Search size={14} className="text-amber-500"/> Key Findings</h5>
-                                      <ul className="space-y-3">
-                                         {resolveStoryContent(item.story, 'findings').map((b: any, bIdx: number) => (
-                                           <li key={bIdx} className="text-gray-900 leading-tight bg-gray-50 p-4 rounded-2xl border-l-4 border-indigo-600 flex items-start gap-3 shadow-sm">
-                                              <span className="text-sm font-bold">"{typeof b === 'object' ? b.content : b}"</span>
-                                           </li>
-                                         ))}
-                                      </ul>
-                                   </div>
-                                </div>
-                             </div>
-                          </div>
+                <div className="border-t border-b border-gray-900 py-8">
+                  <div className="grid sm:grid-cols-2 gap-x-12 gap-y-10">
+                    {assets.filter((a: any) => a.type === 'writing_sample' || a.type === 'talk').map((item: any, idx: number) => (
+                      <div key={idx} className="group cursor-pointer">
+                        <span className="text-[10px] font-bold uppercase text-gray-500 mb-2 block tracking-widest border-b border-gray-100 pb-1">
+                          {item.company} — {item.type.replace('_', ' ')}
+                        </span>
+                        <h4 className="text-2xl font-black text-gray-900 mb-3 leading-none group-hover:text-indigo-600 transition-colors">
+                          {item.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3 italic">
+                          {item.description?.[0]}
+                        </p>
+                        {item.source_url && item.source_url !== 'N/A' && (
+                          <a 
+                            href={item.source_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-black hover:text-indigo-600 transition-colors"
+                          >
+                            View Full Archive <ExternalLink size={10} />
+                          </a>
                         )}
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
