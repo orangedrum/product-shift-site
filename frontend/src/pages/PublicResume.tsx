@@ -206,21 +206,18 @@ const PublicResume: React.FC = () => {
                <p className="text-lg font-bold text-gray-900 leading-tight italic">
                  "{resume.professional_summary}"
                </p>
-
-               <div className="mt-8 flex flex-col items-start gap-4 no-print">
-                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10">
-                   <Download size={16} /> Print this resume
-                 </NeoButton>
+               {/* Consolidated Print and Process buttons into a single flex container */}
                <div className="mt-8 flex flex-wrap items-center gap-4 no-print">
-                 <button onClick={() => window.print()} className="inline-flex items-center justify-center h-11 rounded-md px-8 text-sm font-medium bg-black hover:bg-gray-800 text-white shadow-md transition-transform transform hover:scale-105">
-                   <Download className="mr-2" size={16} /> Print Resume
-                 </button>
-                 <button 
+                 <NeoButton onClick={() => window.print()} className="bg-black text-white px-8 text-sm h-10 flex items-center gap-2">
+                   <Download size={16} /> Print Resume
+                 </NeoButton>
+                 <NeoButton 
                    onClick={() => setIsProcessModalOpen(true)}
+                   variant="ghost"
                    className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group"
                  >
                    My Process <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                 </button>
+                 </NeoButton>
                </div>
             </div>
           </div>
@@ -243,22 +240,16 @@ const PublicResume: React.FC = () => {
             {/* Work History */}
             <section>
               <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.3em] mb-8 flex items-center gap-3">
-              <h3 className="text-xs font-black uppercase text-indigo-400 tracking-[0.3em] mb-8 flex items-center gap-3">
                 <Briefcase size={16} /> Work History
               </h3>
               <div className="space-y-12">
                 {assets.filter((a: any) => a.type === 'work_history').map((job: any, idx: number) => (
                   <div key={idx} className="group relative">
-                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gray-100 group-hover:bg-marketing-gradient transition-colors rounded-full" />
-                    <h4 className="text-2xl font-black text-gray-900 mb-1">{job.title}</h4>
-                    <p className="text-lg font-bold text-indigo-600 mb-4">{job.company}</p>
                     <div className="absolute -left-6 top-0 bottom-0 w-1 bg-indigo-50 group-hover:bg-indigo-600 transition-colors rounded-full" />
                     <h4 className="text-2xl font-extrabold text-gray-900 mb-1">{job.title}</h4>
                     <p className="text-lg font-medium text-indigo-600 mb-4 tracking-tight">{job.company}</p>
                     <ul className="space-y-3">
                       {job.description?.map((bullet: string, bIdx: number) => (
-                        <li key={bIdx} className="text-gray-600 leading-relaxed font-medium flex items-start gap-3">
-                          <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
                         <li key={bIdx} className="text-gray-500 leading-relaxed font-medium flex items-start gap-3">
                           <CheckCircle className="mt-1 text-green-500 shrink-0" size={16} />
                           {bullet}
@@ -329,7 +320,6 @@ const PublicResume: React.FC = () => {
                       {/* DEEP DIVE ADVENTURE: Expanded Content */}
                       {expandedStudies[idx] && (
                         <div className="animate-slide-down border-t-2 border-black bg-white">
-                        <div className="animate-slide-down bg-white">
                            <div className="p-8 grid md:grid-cols-2 gap-12">
                               {/* Column 1: Problem & Methodology */}
                               <div className="space-y-12">
@@ -345,8 +335,7 @@ const PublicResume: React.FC = () => {
                                     </ul>
                                     {/* Mapped Visuals for Problem */}
                                     <div className="grid grid-cols-2 gap-2 mt-6">
-                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem').map((v: any, vIdx: number) => (
-                                          <div key={vIdx} className="rounded-lg overflow-hidden border border-gray-100 shadow-sm"><img src={v.url} className="w-full h-20 object-cover" alt="" /></div>
+                                       {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem').slice(0, 2).map((v: any, vIdx: number) => (
                                        {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem' || v.is_hero).slice(0, 2).map((v: any, vIdx: number) => (
                                           <div key={vIdx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm aspect-video"><img src={v.url} className="w-full h-full object-cover" alt="" /></div>
                                        ))}
@@ -393,8 +382,6 @@ const PublicResume: React.FC = () => {
                                  <div>
                                     <h5 className="font-black text-xs uppercase text-gray-400 tracking-widest mb-4 flex items-center gap-2"><Search size={14} className="text-amber-500"/> Key Findings</h5>
                                     <ul className="space-y-3">
-                                       {(Array.isArray(cs.story?.findings) ? cs.story.findings : []).map((b: any, bIdx: number) => (
-                                         <li key={bIdx} className="text-gray-800 leading-tight bg-amber-50 p-4 rounded-xl border-l-4 border-amber-400 flex items-start gap-3">
                                        {resolveStoryContent(cs.story, 'findings').map((b: any, bIdx: number) => (
                                          <li key={bIdx} className="text-gray-900 leading-tight bg-gray-50 p-4 rounded-2xl border-l-4 border-indigo-600 flex items-start gap-3 shadow-sm">
                                             <span className="text-sm font-bold">"{typeof b === 'object' ? b.content : b}"</span>
@@ -404,16 +391,11 @@ const PublicResume: React.FC = () => {
                                  </div>
                               </div>
                            </div>
-
                            {/* ADVENTURE EXIT CTA: Direct to Source */}
-                           <div className="p-8 border-t border-gray-100 bg-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
                            <div className="p-8 bg-indigo-50/50 flex flex-col md:flex-row items-center justify-between gap-6">
                               <div className="flex items-center gap-4">
-                                 <div className="p-3 bg-white rounded-full border border-gray-200 shadow-sm"><Globe size={20} className="text-indigo-600"/></div>
                                  <div className="p-3 bg-white rounded-full shadow-sm"><Globe size={20} className="text-indigo-600"/></div>
                                  <div className="text-left">
-                                    <p className="font-black text-gray-900 leading-tight uppercase text-[10px] tracking-widest">Ready for the Deep Dive?</p>
-                                    <p className="text-xs text-gray-500">View the original technical breakdown at the source.</p>
                                     <p className="font-black text-indigo-900 leading-tight uppercase text-[10px] tracking-widest">Ready for the Deep Dive?</p>
                                     <p className="text-xs text-indigo-700 font-medium">View the full project case study on my primary domain.</p>
                                  </div>
@@ -422,7 +404,6 @@ const PublicResume: React.FC = () => {
                                 href={cs.source_url} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs rounded-xl hover:bg-indigo-700 transition-colors shadow-lg"
                                 className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:-translate-y-1"
                               >
                                  Read Full Detailed Adventure <ExternalLink size={14} />
