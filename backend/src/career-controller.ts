@@ -136,11 +136,18 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     STRICT OUTPUT: Return ONLY the summary text. No labels, no quotes, no introductory sentences like "Here is a summary...". Just the raw text. Focus on her strategic outcomes and speed.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
+    // 5. Generate AI Cover Letter
+    const clPrompt = `Based on this JD and these selected assets, write a professional, high-stakes cover letter for Jean Kaluza (she/her). 
+    Focus on proving her ROI and how her background building 'User Mirror' fits this specific role. 
+    STRICT OUTPUT: Return ONLY the raw body text of the letter (3-4 paragraphs). No dates, address blocks, or sign-offs.`;
+    const coverLetter = await generateContentWithFallback(clPrompt);
+
     res.json({ 
       success: true, 
       data: {
         assets: curatedPitch,
         strategicHook,
+        coverLetter,
         targetTitle: jdData.title,
         mappedTitle: mappedTitle || "Product Strategist & Growth Lead"
       }
@@ -263,6 +270,7 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
       target_role: resumeData.targetTitle,
       mapped_title: resumeData.mappedTitle,
       professional_summary: resumeData.strategicHook,
+      cover_letter: resumeData.coverLetter,
       selected_assets: resumeData.assets, // Store IDs or objects
       is_live: true
     }).select().single();

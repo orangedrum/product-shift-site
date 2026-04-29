@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, Sparkle } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, Sparkle, PenTool } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
@@ -28,8 +28,10 @@ const CareerAdmin: React.FC = () => {
     assets: any[],
     strategicHook: string,
     targetTitle: string,
-    mappedTitle: string
+    mappedTitle: string,
+    coverLetter?: string
   } | null>(null);
+  const [previewMode, setPreviewMode] = useState<'resume' | 'cover'>('resume');
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -502,31 +504,86 @@ const CareerAdmin: React.FC = () => {
                        <p className="text-sm text-gray-400 max-w-xs">Your tailored 'Logic Proof' resume will render here once a JD is processed. This is the actual page a hiring manager will see.</p>
                     </div>
                   ) : (
-                    <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg">
-                      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                         <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.2em]">Resume Structure: {pitchPreview.targetTitle}</h3>
-                         <NeoButton onClick={handlePublishResume} className="bg-marketing-gradient text-white text-xs px-4 font-bold">{loading ? <Loader2 className="animate-spin" /> : 'Publish Live Resume'}</NeoButton>
-                      </div>
-
-                      {/* Resume Header & Summary */}
-                      <div className="mb-8">
-                         <h2 className="text-3xl font-black text-gray-900 mb-2">Jean Kaluza</h2>
-                         <p className="text-lg text-indigo-600 font-bold mb-4">{pitchPreview.mappedTitle}</p>
-                         <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
-                            <p className="text-sm font-black uppercase text-gray-400 mb-2 tracking-widest">Professional Summary</p>
-                            <p className="text-xl font-bold text-gray-900 leading-tight italic">"{pitchPreview.strategicHook}"</p>
+                    <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg transition-all">
+                      <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
+                         <div className="flex bg-gray-100 p-1 rounded-xl">
+                            <button 
+                              onClick={() => setPreviewMode('resume')}
+                              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${previewMode === 'resume' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
+                            >
+                              Resume
+                            </button>
+                            <button 
+                              onClick={() => setPreviewMode('cover')}
+                              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${previewMode === 'cover' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
+                            >
+                              Cover Letter
+                            </button>
                          </div>
+                         <NeoButton onClick={handlePublishResume} className="bg-marketing-gradient text-white text-xs px-6 font-bold">{loading ? <Loader2 className="animate-spin" /> : 'Publish Live Resume'}</NeoButton>
                       </div>
 
-                      {/* Million Dollar Wins Ticker (Placeholder for actual component) */}
-                      <div className="mb-8 p-4 bg-green-50 border-2 border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center shadow-sm">
-                         <h4 className="text-sm font-black uppercase text-green-800 flex items-center gap-2"><Trophy size={16} className="text-green-600" /> Million Dollar Wins:</h4>
-                         {pitchPreview.assets.filter(a => a.type === 'win').slice(0, 6).map((w, idx) => (
-                            <span key={idx} className="text-xs font-black text-green-700 bg-white px-2 py-1 rounded border border-green-100">{w.roi_metrics?.[0] || w.title}</span>
-                         ))}
-                      </div>
+                      {previewMode === 'resume' ? (
+                        <div className="space-y-8 animate-fade-in">
+                           {/* Bespoke Header */}
+                           <div className="mb-8">
+                              <h2 className="text-3xl font-black text-gray-900 mb-2">Jean Kaluza</h2>
+                              <input 
+                                type="text"
+                                className="w-full text-lg text-indigo-600 font-bold mb-4 bg-indigo-50 border-2 border-transparent focus:border-indigo-200 rounded-lg p-2 outline-none"
+                                value={pitchPreview.mappedTitle}
+                                onChange={(e) => setPitchPreview({...pitchPreview, mappedTitle: e.target.value})}
+                                placeholder="Mapped Role Title..."
+                              />
+                              <div className="bg-gray-50 p-6 rounded-2xl border-2 border-gray-100 focus-within:border-indigo-200 transition-all">
+                                 <p className="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-[0.2em] flex items-center gap-2">
+                                    <PenTool size={12} className="text-indigo-400" /> Bespoke Summary (Editable)
+                                 </p>
+                                 <textarea 
+                                   className="w-full text-xl font-bold text-gray-900 leading-tight italic bg-transparent border-none focus:ring-0 resize-none p-0"
+                                   value={pitchPreview.strategicHook}
+                                   onChange={(e) => setPitchPreview({...pitchPreview, strategicHook: e.target.value})}
+                                   rows={3}
+                                 />
+                              </div>
+                           </div>
 
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                           {/* Million Dollar Wins Ticker */}
+                           <div className="mb-8 p-4 bg-green-50 border-2 border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center shadow-sm">
+                              <h4 className="text-sm font-black uppercase text-green-800 flex items-center gap-2"><Trophy size={16} className="text-green-600" /> Million Dollar Wins:</h4>
+                              {pitchPreview.assets.filter(a => a.type === 'win').slice(0, 6).map((w, idx) => (
+                                 <span key={idx} className="text-xs font-black text-green-700 bg-white px-2 py-1 rounded border border-green-100">{w.roi_metrics?.[0] || w.title}</span>
+                              ))}
+                           </div>
+
+                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 opacity-40 grayscale pointer-events-none select-none">
+                              {/* Assets column placeholder to indicate structure */}
+                              <div className="lg:col-span-2 space-y-4">
+                                 <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                                 <div className="h-24 bg-gray-100 rounded-xl"></div>
+                                 <div className="h-24 bg-gray-100 rounded-xl"></div>
+                              </div>
+                           </div>
+                           <p className="text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest mt-8">Asset mapping is locked by JD logic. Edit the narrative above.</p>
+                        </div>
+                      ) : (
+                        <div className="animate-fade-in space-y-4">
+                           <div className="bg-indigo-50/40 p-8 rounded-3xl border-2 border-indigo-100">
+                              <p className="text-[10px] font-black uppercase text-indigo-400 mb-6 tracking-[0.3em] border-b border-indigo-100 pb-2 flex items-center gap-2">
+                                 <PenTool size={12} /> Bespoke ROI Cover Letter (Editable)
+                              </p>
+                              <textarea 
+                                className="w-full text-lg font-medium text-gray-700 leading-relaxed bg-transparent border-none focus:ring-0 min-h-[550px] resize-none"
+                                value={pitchPreview.coverLetter || ''}
+                                onChange={(e) => setPitchPreview({...pitchPreview, coverLetter: e.target.value})}
+                                placeholder="Refining the strategy..."
+                              />
+                           </div>
+                        </div>
+                      )}
+
+                      {/* Hidden standard grid preserved for logic */}
+                      <div className="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content Column */}
                         <div className="lg:col-span-2 space-y-8">
                           {/* Work History */}

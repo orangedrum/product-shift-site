@@ -21,6 +21,7 @@ const PublicResume: React.FC = () => {
   const [error, setError] = useState(false);
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
   const [expandedStudies, setExpandedStudies] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
@@ -204,6 +205,11 @@ const PublicResume: React.FC = () => {
                   <NeoButton variant="primary" onClick={() => window.print()} className="px-8 h-12 flex items-center gap-2">
                     <Download size={18} /> Print Resume
                   </NeoButton>
+                  {resume.cover_letter && (
+                    <NeoButton variant="secondary" onClick={() => setIsCoverLetterOpen(true)} className="px-8 h-12 flex items-center gap-2">
+                      <FileText size={18} /> ROI Cover Letter
+                    </NeoButton>
+                  )}
                   <NeoButton variant="secondary" onClick={() => setIsProcessModalOpen(true)} className="px-8 h-12 flex items-center gap-2 group">
                     Strategic Process <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </NeoButton>
@@ -634,6 +640,29 @@ const PublicResume: React.FC = () => {
                 <NeoButton onClick={() => setIsProcessModalOpen(false)} variant="primary" className="px-16 h-14 rounded-full text-lg">
                   Got it, Let's Build
                 </NeoButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cover Letter Modal */}
+      {isCoverLetterOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in no-print" onClick={() => setIsCoverLetterOpen(false)}>
+          <div className="relative w-full max-w-3xl bg-white rounded-[2.5rem] border-2 border-black shadow-elegant overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setIsCoverLetterOpen(false)} className="absolute top-8 right-8 p-3 text-gray-400 hover:text-black transition-colors z-10">
+              <X size={32} />
+            </button>
+            <div className="p-10 md:p-16 overflow-y-auto">
+              <div className="mb-10">
+                <h2 className="text-4xl font-black text-gray-900 mb-2 tracking-tighter">Strategic Proposal</h2>
+                <p className="text-indigo-600 font-black uppercase text-xs tracking-[0.3em]">{resume.mapped_title}</p>
+              </div>
+              <div className="prose prose-lg max-w-none">
+                <p className="text-gray-700 leading-relaxed font-medium whitespace-pre-wrap">
+                  {resume.cover_letter}
+                </p>
+                <p className="mt-8 font-black text-black">— Jean Kaluza</p>
               </div>
             </div>
           </div>
