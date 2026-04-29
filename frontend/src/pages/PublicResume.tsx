@@ -151,7 +151,7 @@ const PublicResume: React.FC = () => {
       {/* --- INTERACTIVE EXPERIENCE LAYER --- */}
       <div className="print:hidden">
         {/* Million Dollar Win Ticker */}
-        <div className="w-full bg-black py-3 overflow-hidden border-b-2 border-black sticky top-0 z-50">
+        <div className="w-full bg-black py-3 overflow-hidden border-b border-white/10 sticky top-0 z-50">
           <div className="flex whitespace-nowrap animate-marquee">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex items-center gap-12 px-4">
@@ -169,7 +169,7 @@ const PublicResume: React.FC = () => {
           {/* Header & Reel */}
           <header className="mb-20">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full border-2 border-black bg-indigo-50 text-[10px] font-black text-indigo-600 uppercase tracking-widest shadow-[2px_2px_0px_0px_#000]">
+              <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 text-[10px] font-black text-indigo-600 uppercase tracking-widest shadow-sm">
                 Bespoke Strategy: {resume.target_role}
               </div>
             </div>
@@ -195,22 +195,22 @@ const PublicResume: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="bg-white p-10 rounded-3xl border-2 border-black relative shadow-elegant">
-                <Sparkles className="absolute -top-4 -left-4 text-brand-pink fill-brand-pink" size={40} />
-                <p className="text-[10px] font-black uppercase text-gray-400 mb-6 tracking-[0.3em] border-b border-gray-100 pb-2">Executive Summary</p>
+              <div className="bg-white p-10 rounded-3xl border border-gray-100 relative shadow-2xl">
+                <Sparkles className="absolute -top-4 -left-4 text-brand-pink" size={40} />
+                <p className="text-[10px] font-black uppercase text-gray-400 mb-6 tracking-[0.3em] border-b border-gray-50 pb-2">Executive Summary</p>
                 <p className="text-xl md:text-2xl font-bold text-gray-900 leading-tight italic">
                   "{resume.professional_summary}"
                 </p>
                 <div className="mt-10 flex flex-wrap items-center gap-4">
-                  <NeoButton variant="primary" onClick={() => window.print()} className="px-8 h-12 flex items-center gap-2">
+                  <NeoButton variant="primary" onClick={() => window.print()} className="px-8 h-12 flex items-center gap-2 bg-black hover:bg-gray-900 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 border-none">
                     <Download size={18} /> Print Resume
                   </NeoButton>
                   {resume.cover_letter && (
-                    <NeoButton variant="secondary" onClick={() => setIsCoverLetterOpen(true)} className="px-8 h-12 flex items-center gap-2">
+                    <NeoButton variant="secondary" onClick={() => setIsCoverLetterOpen(true)} className="px-8 h-12 flex items-center gap-2 hover:bg-gray-50 shadow-md hover:shadow-lg transition-all hover:-translate-y-1">
                       <FileText size={18} /> ROI Cover Letter
                     </NeoButton>
                   )}
-                  <NeoButton variant="secondary" onClick={() => setIsProcessModalOpen(true)} className="px-8 h-12 flex items-center gap-2 group">
+                  <NeoButton variant="secondary" onClick={() => setIsProcessModalOpen(true)} className="px-8 h-12 flex items-center gap-2 group hover:bg-gray-50 shadow-md hover:shadow-lg transition-all hover:-translate-y-1">
                     Strategic Process <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </NeoButton>
                 </div>
@@ -218,7 +218,7 @@ const PublicResume: React.FC = () => {
             </div>
           </header>
 
-          <div className="mb-20 border-t-2 border-black pt-12">
+          <div className="mb-20 border-t border-gray-100 pt-12">
             <AgencyPartner />
           </div>
 
@@ -264,7 +264,7 @@ const PublicResume: React.FC = () => {
                   </h3>
                   <div className="space-y-12">
                     {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number, filteredArr: any[]) => (
-                      <div key={idx} id={`case-study-${idx}`} className="group rounded-3xl overflow-hidden bg-white border-2 border-black shadow-elegant scroll-mt-24 relative">
+                      <div key={idx} id={`case-study-${idx}`} className="group rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 scroll-mt-24 relative">
                         {/* Card Hook (Always Visible) */}
                         <div className="relative min-h-[400px] flex flex-col">
                           <div className="absolute inset-0 z-0 bg-black">
@@ -314,7 +314,7 @@ const PublicResume: React.FC = () => {
 
                         {/* Expanded Adventure Content */}
                         {expandedStudies[idx] && (
-                          <div className="animate-slide-down border-t-2 border-black bg-white">
+                          <div className="animate-slide-down border-t border-gray-100 bg-white">
                              <div className="p-10 grid md:grid-cols-2 gap-16">
                                 {/* Column 1: Problem & Methodology */}
                                 <div className="space-y-16">
@@ -322,7 +322,7 @@ const PublicResume: React.FC = () => {
                                       <h5 className="font-black text-xs uppercase text-gray-400 tracking-[0.3em] flex items-center gap-3"><AlertCircle size={16} className="text-red-500"/> The Strategic Threat</h5>
                                       <ul className="space-y-4">
                                          {resolveStoryContent(cs.story, 'problem').map((b: any, bIdx: number) => (
-                                           <li key={bIdx} className="text-gray-900 leading-snug flex items-start gap-4 font-bold text-lg tracking-tight">
+                                           <li key={bIdx} className="text-gray-900 leading-snug flex items-start gap-4 font-semibold text-lg tracking-tight">
                                               <div className="w-2 h-2 bg-red-500 rounded-full mt-2.5 shrink-0" />
                                               <span>{typeof b === 'object' ? b.content : b}</span>
                                            </li>
@@ -331,7 +331,7 @@ const PublicResume: React.FC = () => {
                                       {/* Section Mapped Visuals */}
                                       <div className="grid grid-cols-2 gap-4 mt-8">
                                          {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'problem' || v.is_hero).slice(0, 2).map((v: any, vIdx: number) => (
-                                            <div key={vIdx} className="rounded-2xl overflow-hidden border-2 border-black shadow-sm aspect-video bg-gray-50">
+                                            <div key={vIdx} className="rounded-2xl overflow-hidden border border-gray-100 shadow-md aspect-video bg-gray-50">
                                               <img src={v.url} className="w-full h-full object-cover" alt={v.description} />
                                             </div>
                                          ))}
@@ -350,7 +350,7 @@ const PublicResume: React.FC = () => {
                                       </ul>
                                       <div className="grid grid-cols-2 gap-4 mt-8">
                                          {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'methodology' || v.type === 'sketch').slice(0, 2).map((v: any, vIdx: number) => (
-                                            <div key={vIdx} className="rounded-2xl overflow-hidden border-2 border-black shadow-sm aspect-video bg-gray-50 flex items-center justify-center p-2">
+                                            <div key={vIdx} className="rounded-2xl overflow-hidden border border-gray-100 shadow-md aspect-video bg-gray-50 flex items-center justify-center p-2">
                                               <img src={v.url} className="max-w-full max-h-full object-contain" alt={v.description} />
                                             </div>
                                          ))}
@@ -364,7 +364,7 @@ const PublicResume: React.FC = () => {
                                       <h5 className="font-black text-xs uppercase text-gray-400 tracking-[0.3em] flex items-center gap-3"><Zap size={16} className="text-pink-500"/> The Execution Loop</h5>
                                       <ul className="space-y-4">
                                          {resolveStoryContent(cs.story, 'process').map((b: any, bIdx: number) => (
-                                           <li key={bIdx} className="text-gray-700 leading-snug flex items-start gap-4 font-bold text-lg tracking-tight">
+                                           <li key={bIdx} className="text-gray-700 leading-snug flex items-start gap-4 font-semibold text-lg tracking-tight">
                                               <div className="w-2 h-2 bg-pink-500 rounded-full mt-2.5 shrink-0" />
                                               <span>{typeof b === 'object' ? b.content : b}</span>
                                            </li>
@@ -372,7 +372,7 @@ const PublicResume: React.FC = () => {
                                       </ul>
                                       <div className="grid grid-cols-2 gap-4 mt-8">
                                          {cs.story?.visuals?.filter((v: any) => v.section_mapping === 'process' || v.type === 'wireframe').slice(0, 2).map((v: any, vIdx: number) => (
-                                            <div key={vIdx} className="rounded-2xl overflow-hidden border-2 border-black shadow-sm aspect-video bg-gray-50">
+                                            <div key={vIdx} className="rounded-2xl overflow-hidden border border-gray-100 shadow-md aspect-video bg-gray-50">
                                               <img src={v.url} className="w-full h-full object-cover" alt={v.description} />
                                             </div>
                                          ))}
@@ -383,7 +383,7 @@ const PublicResume: React.FC = () => {
                                       <h5 className="font-black text-xs uppercase text-gray-400 tracking-[0.3em] flex items-center gap-3"><Search size={16} className="text-amber-500"/> Critical Discovery</h5>
                                       <ul className="space-y-4">
                                          {resolveStoryContent(cs.story, 'findings').map((b: any, bIdx: number) => (
-                                           <li key={bIdx} className="text-gray-900 bg-gray-50 p-6 rounded-2xl border-l-4 border-indigo-600 flex items-start gap-4 shadow-sm">
+                                           <li key={bIdx} className="text-gray-900 bg-indigo-50/30 p-6 rounded-2xl border-l-4 border-indigo-600 flex items-start gap-4 shadow-md">
                                               <span className="text-lg font-black italic">"{typeof b === 'object' ? b.content : b}"</span>
                                            </li>
                                          ))}
@@ -395,7 +395,7 @@ const PublicResume: React.FC = () => {
                              {/* Adventure Exit CTA */}
                              <div className="p-10 bg-indigo-50/50 flex flex-col md:flex-row items-center justify-between gap-8">
                                 <div className="flex items-center gap-5">
-                                   <div className="p-4 bg-white rounded-full border-2 border-black shadow-sm"><GlobeIcon size={24} className="text-indigo-600"/></div>
+                                   <div className="p-4 bg-white rounded-full border border-gray-100 shadow-md"><GlobeIcon size={24} className="text-indigo-600"/></div>
                                    <div className="text-left">
                                       <p className="font-black text-indigo-900 leading-tight uppercase text-xs tracking-widest mb-1">Ready for the Deep Dive?</p>
                                       <p className="text-sm text-indigo-700 font-bold">View the full logic proof on Jean's primary domain.</p>
@@ -444,7 +444,7 @@ const PublicResume: React.FC = () => {
               {assets.some((a: any) => a.type === 'writing_sample' || a.type === 'talk') && (
                 <section className="space-y-12">
                   <div className="flex items-center gap-6">
-                    <div className="bg-black text-white px-8 py-3 text-3xl font-black uppercase tracking-tighter rotate-[-1.5deg] shadow-[4px_4px_0px_0px_#000] border-2 border-black">
+                    <div className="bg-black text-white px-8 py-3 text-3xl font-black uppercase tracking-tighter shadow-xl">
                       Extra! Extra!
                     </div>
                     <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em]">Thought Leadership</h3>
@@ -456,7 +456,7 @@ const PublicResume: React.FC = () => {
                       const hasStory = item.story && Object.keys(item.story).some(k => item.story[k]?.length > 0);
 
                       return (
-                        <div key={idx} className="group rounded-3xl overflow-hidden bg-white border-2 border-black shadow-elegant relative">
+                        <div key={idx} className="group rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-xl relative">
                           <div className="relative min-h-[320px] flex flex-col">
                             <div className="absolute inset-0 z-0 bg-black">
                               {((item.story?.visuals?.find((v: any) => v.is_hero) || item.story?.visuals?.[0])?.url) && (
@@ -513,7 +513,7 @@ const PublicResume: React.FC = () => {
                           </div>
 
                           {expandedStudies[extraIdx] && (
-                            <div className="animate-slide-down bg-white border-t-2 border-black">
+                            <div className="animate-slide-down bg-white border-t border-gray-100">
                                <div className="p-10 grid md:grid-cols-2 gap-16">
                                   <div className="space-y-10">
                                      <h5 className="font-black text-xs uppercase text-gray-400 tracking-[0.3em] flex items-center gap-3"><AlertCircle size={16} className="text-red-500"/> The Thesis</h5>
@@ -554,7 +554,7 @@ const PublicResume: React.FC = () => {
                 <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em]">Expertise Pillars</h3>
                 <div className="flex flex-wrap gap-2.5">
                   {assets.filter((a: any) => a.type === 'skill' || a.type === 'tooling').map((item: any, idx: number) => (
-                    <span key={idx} className="px-4 py-2 bg-gray-50 text-gray-800 rounded-xl text-xs font-black border-2 border-gray-100 hover:border-black transition-colors cursor-default">
+                    <span key={idx} className="px-4 py-2 bg-gray-50 text-gray-800 rounded-xl text-xs font-black border border-gray-100 hover:border-indigo-200 transition-colors cursor-default">
                       {item.title}
                     </span>
                   ))}
@@ -567,10 +567,10 @@ const PublicResume: React.FC = () => {
                   <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em]">Validation</h3>
                   <div className="space-y-8">
                     {assets.filter((a: any) => a.type === 'recommendation').map((rec: any, idx: number) => (
-                      <div key={idx} className="bg-indigo-50 p-8 rounded-[2rem] border-2 border-black relative shadow-sm">
+                      <div key={idx} className="bg-indigo-50 p-8 rounded-[2rem] border border-indigo-100 relative shadow-md">
                         <p className="text-lg font-bold text-gray-900 italic leading-relaxed mb-6">"{rec.description?.[0]}"</p>
                         <p className="text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em]">— {rec.company}</p>
-                        <div className="absolute -bottom-3 -right-3 p-3 bg-white border-2 border-black rounded-full text-indigo-600 shadow-sm"><Info size={20} /></div>
+                        <div className="absolute -bottom-3 -right-3 p-3 bg-white border border-gray-100 rounded-full text-indigo-600 shadow-md"><Info size={20} /></div>
                       </div>
                     ))}
                   </div>
@@ -579,7 +579,7 @@ const PublicResume: React.FC = () => {
 
               {/* Conversion CTA */}
               <div className="sticky top-28 space-y-8">
-                <div className="rounded-[2.5rem] overflow-hidden border-2 border-black shadow-elegant bg-white">
+                <div className="rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-2xl bg-white">
                   <SpeechBubble 
                     imageSrc="/jeankaluza.png"
                     name="Jean Kaluza"
@@ -590,14 +590,14 @@ const PublicResume: React.FC = () => {
                 </div>
                 <div className="flex flex-col gap-4">
                   <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer">
-                    <NeoButton className="w-full bg-marketing-gradient text-white py-5 font-black text-lg h-auto rounded-[1.25rem]">
+                    <NeoButton className="w-full bg-marketing-gradient text-white py-5 font-black text-lg h-auto rounded-[1.25rem] border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
                       Schedule ROI Interview
                     </NeoButton>
                   </a>
                   <NeoButton 
                     variant="secondary" 
                     onClick={() => window.print()}
-                    className="w-full py-5 font-black h-auto rounded-[1.25rem] flex items-center justify-center gap-3"
+                    className="w-full py-5 font-black h-auto rounded-[1.25rem] flex items-center justify-center gap-3 bg-white border border-gray-200 shadow-md hover:shadow-lg transition-all hover:-translate-y-1"
                   >
                     <Download size={20} /> Get PDF Version
                   </NeoButton>
@@ -611,7 +611,7 @@ const PublicResume: React.FC = () => {
       {/* --- MODALS --- */}
       {isProcessModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in no-print" onClick={() => setIsProcessModalOpen(false)}>
-          <div className="relative w-full max-w-4xl bg-white rounded-[2.5rem] border-2 border-black shadow-elegant overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-4xl bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
             <button onClick={() => setIsProcessModalOpen(false)} className="absolute top-8 right-8 p-3 text-gray-400 hover:text-black transition-colors z-10">
               <X size={32} />
             </button>
@@ -628,7 +628,7 @@ const PublicResume: React.FC = () => {
                   { title: "4. Growth", icon: <TrendingUp size={28}/>, color: "bg-green-100 text-green-600", text: "ROI tracking and conversion optimization loops to refine metrics and ensure long-term success." }
                 ].map((step, i) => (
                   <div key={i} className="space-y-5">
-                    <div className={`w-14 h-14 ${step.color} rounded-2xl flex items-center justify-center border-2 border-black shadow-[3px_3px_0px_0px_#000]`}>
+                    <div className={`w-14 h-14 ${step.color} rounded-2xl flex items-center justify-center shadow-md`}>
                       {step.icon}
                     </div>
                     <h4 className="text-2xl font-black text-gray-900 tracking-tight">{step.title}</h4>
@@ -636,7 +636,7 @@ const PublicResume: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <div className="mt-20 pt-10 border-t-2 border-black flex justify-center">
+              <div className="mt-20 pt-10 border-t border-gray-100 flex justify-center">
                 <NeoButton onClick={() => setIsProcessModalOpen(false)} variant="primary" className="px-16 h-14 rounded-full text-lg">
                   Got it, Let's Build
                 </NeoButton>
@@ -649,7 +649,7 @@ const PublicResume: React.FC = () => {
       {/* Cover Letter Modal */}
       {isCoverLetterOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in no-print" onClick={() => setIsCoverLetterOpen(false)}>
-          <div className="relative w-full max-w-3xl bg-white rounded-[2.5rem] border-2 border-black shadow-elegant overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-3xl bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
             <button onClick={() => setIsCoverLetterOpen(false)} className="absolute top-8 right-8 p-3 text-gray-400 hover:text-black transition-colors z-10">
               <X size={32} />
             </button>
@@ -683,7 +683,7 @@ const PublicResume: React.FC = () => {
       )}
 
       {/* Mobile Sticky Ticker */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-black p-4 no-print block md:hidden z-50 shadow-2xl">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 no-print block md:hidden z-50 shadow-2xl">
          <NeoButton onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} variant="primary" className="w-full bg-marketing-gradient border-none">
            Back to Top
          </NeoButton>

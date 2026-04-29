@@ -504,7 +504,7 @@ const CareerAdmin: React.FC = () => {
                        <p className="text-sm text-gray-400 max-w-xs">Your tailored 'Logic Proof' resume will render here once a JD is processed. This is the actual page a hiring manager will see.</p>
                     </div>
                   ) : (
-                    <div className="animate-fade-in p-8 bg-white border-2 border-gray-200 rounded-3xl shadow-lg transition-all">
+                    <div className="animate-fade-in p-8 bg-white border border-gray-100 rounded-3xl shadow-xl transition-all">
                       <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
                          <div className="flex bg-gray-100 p-1 rounded-xl">
                             <button 
@@ -535,7 +535,7 @@ const CareerAdmin: React.FC = () => {
                                 onChange={(e) => setPitchPreview({...pitchPreview, mappedTitle: e.target.value})}
                                 placeholder="Mapped Role Title..."
                               />
-                              <div className="bg-gray-50 p-6 rounded-2xl border-2 border-gray-100 focus-within:border-indigo-200 transition-all">
+                              <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 focus-within:border-indigo-200 transition-all">
                                  <p className="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-[0.2em] flex items-center gap-2">
                                     <PenTool size={12} className="text-indigo-400" /> Bespoke Summary (Editable)
                                  </p>
@@ -549,7 +549,7 @@ const CareerAdmin: React.FC = () => {
                            </div>
 
                            {/* Million Dollar Wins Ticker */}
-                           <div className="mb-8 p-4 bg-green-50 border-2 border-green-200 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center shadow-sm">
+                           <div className="mb-8 p-4 bg-green-50 border border-green-100 rounded-xl flex flex-wrap gap-x-6 gap-y-2 items-center shadow-sm">
                               <h4 className="text-sm font-black uppercase text-green-800 flex items-center gap-2"><Trophy size={16} className="text-green-600" /> Million Dollar Wins:</h4>
                               {pitchPreview.assets.filter(a => a.type === 'win').slice(0, 6).map((w, idx) => (
                                  <span key={idx} className="text-xs font-black text-green-700 bg-white px-2 py-1 rounded border border-green-100">{w.roi_metrics?.[0] || w.title}</span>
@@ -568,7 +568,7 @@ const CareerAdmin: React.FC = () => {
                         </div>
                       ) : (
                         <div className="animate-fade-in space-y-4">
-                           <div className="bg-indigo-50/40 p-8 rounded-3xl border-2 border-indigo-100">
+                           <div className="bg-indigo-50/40 p-8 rounded-3xl border border-indigo-50">
                               <p className="text-[10px] font-black uppercase text-indigo-400 mb-6 tracking-[0.3em] border-b border-indigo-100 pb-2 flex items-center gap-2">
                                  <PenTool size={12} /> Bespoke ROI Cover Letter (Editable)
                               </p>
