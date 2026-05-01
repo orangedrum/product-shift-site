@@ -114,9 +114,10 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       ${assets.map(a => `ID: ${a.id} | Type: ${a.type} | Title: ${a.title} | Company: ${a.company}`).join('\n')}
 
       TASK:
-      Select a maximum of 24 assets from the list above (DO NOT hallucinate or make up any assets):
+      Select a maximum of 24 assets from the list above.
       - CRITICAL: Do NOT hallucinate assets. If a type (like case_study) is not in the list, DO NOT include it.
-      - Distribution Goal: 3 case_study, 5 work_history, 6 skill, 4 technical tooling, and the best available talks, writing samples, or recommendations.
+      - DIVERSITY REQUIREMENT: You MUST select assets from every available category (work_history, skill, tooling, talk, recommendation) to ensure a complete resume. Do not leave sections empty if data exists.
+      - Distribution Goal: 3 case_study, 5 work_history, 6 skill, 4 technical tooling, 2 talks, 2 writing_samples, 2 recommendations.
       - Omit all dates/years from titles/descriptions to prevent bias.
 
       Return a JSON object with two keys: "selectedIds" (ARRAY of IDs) and "mappedTitle" (STRING for the resume headline).
@@ -137,8 +138,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
     // 5. Generate AI Cover Letter
-    const clPrompt = `Write a concise, high-stakes strategic cover letter for Jean Kaluza (she/her). 
-    Focus on ROI and the 'User Mirror' foundation. Maximum 3 paragraphs. Be direct, authoritative, and brief. No address blocks or sign-offs.`;
+    const clPrompt = `Write a high-stakes, authoritative strategic cover letter for Jean Kaluza (she/her). 
+    Focus on ROI and how her background building 'User Mirror' solves the specific business threats in this JD. Length: 4-5 substantial paragraphs. Be direct and executive-level. No address blocks or sign-offs.`;
     const coverLetter = await generateContentWithFallback(clPrompt);
 
     res.json({ 

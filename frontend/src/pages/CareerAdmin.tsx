@@ -35,6 +35,22 @@ const CareerAdmin: React.FC = () => {
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // CTO Helper: Enable live editing of assets within the pitch preview
+  const updatePitchAsset = (id: string, field: string, value: any) => {
+    if (!pitchPreview) return;
+    const updatedAssets = pitchPreview.assets.map(a => {
+      if (a.id === id) {
+        if (field.includes('.')) {
+          const [obj, sub] = field.split('.');
+          return { ...a, [obj]: { ...a[obj], [sub]: value } };
+        }
+        return { ...a, [field]: value };
+      }
+      return a;
+    });
+    setPitchPreview({ ...pitchPreview, assets: updatedAssets });
+  };
+
   // CTO FIX: Fetch existing library assets on mount to prevent "data loss" on refresh
   useEffect(() => {
     const fetchLibrary = async () => {
@@ -556,48 +572,30 @@ const CareerAdmin: React.FC = () => {
                               ))}
                            </div>
 
-                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 opacity-40 grayscale pointer-events-none select-none">
-                              {/* Assets column placeholder to indicate structure */}
-                              <div className="lg:col-span-2 space-y-4">
-                                 <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                                 <div className="h-24 bg-gray-100 rounded-xl"></div>
-                                 <div className="h-24 bg-gray-100 rounded-xl"></div>
-                              </div>
-                           </div>
-                           <p className="text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest mt-8">Asset mapping is locked by JD logic. Edit the narrative above.</p>
-                        </div>
-                      ) : (
-                        <div className="animate-fade-in space-y-4">
-                           <div className="bg-indigo-50/40 p-8 rounded-3xl border border-indigo-50">
-                              <p className="text-[10px] font-black uppercase text-indigo-400 mb-6 tracking-[0.3em] border-b border-indigo-100 pb-2 flex items-center gap-2">
-                                 <PenTool size={12} /> Bespoke ROI Cover Letter (Editable)
-                              </p>
-                              <textarea 
-                                className="w-full text-lg font-medium text-gray-700 leading-relaxed bg-transparent border-none focus:ring-0 min-h-[550px] resize-none"
-                                value={pitchPreview.coverLetter || ''}
-                                onChange={(e) => setPitchPreview({...pitchPreview, coverLetter: e.target.value})}
-                                placeholder="Refining the strategy..."
-                              />
-                           </div>
-                        </div>
-                      )}
-
-                      {/* Hidden standard grid preserved for logic */}
-                      <div className="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content Column */}
                         <div className="lg:col-span-2 space-y-8">
                           {/* Work History */}
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Work History</h3>
                             {pitchPreview.assets.filter(a => a.type === 'work_history').map((job, idx) => (
-                              <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
-                                <h4 className="text-lg font-bold text-gray-900">{job.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2 font-bold">{job.company}</p>
-                                <ul className="list-disc pl-5 space-y-1 text-gray-700 text-sm">
-                                  {job.description?.map((bullet: string, bIdx: number) => (
-                                    <li key={bIdx}>{bullet}</li>
-                                  ))}
-                                </ul>
+                              <div key={idx} className="mb-6 p-4 bg-gray-50/50 border border-gray-100 rounded-xl">
+                                <input 
+                                  className="w-full font-bold text-gray-900 bg-transparent border-none focus:ring-0 p-0 mb-1" 
+                                  value={job.title} 
+                                  onChange={(e) => updatePitchAsset(job.id, 'title', e.target.value)}
+                                />
+                                <input 
+                                  className="w-full text-xs text-indigo-600 font-bold bg-transparent border-none focus:ring-0 p-0 mb-2 uppercase" 
+                                  value={job.company} 
+                                  onChange={(e) => updatePitchAsset(job.id, 'company', e.target.value)}
+                                />
+                                <textarea 
+                                  className="w-full text-sm text-gray-600 bg-transparent border-none focus:ring-0 p-0 resize-none" 
+                                  rows={job.description?.length || 2}
+                                  value={job.description?.join('\n')}
+                                  onChange={(e) => updatePitchAsset(job.id, 'description', e.target.value.split('\n'))}
+                                />
                               </div>
                             ))}
                           </div>
@@ -607,21 +605,23 @@ const CareerAdmin: React.FC = () => {
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Case Studies (Logic Proofs)</h3>
                             {pitchPreview.assets.filter(a => a.type === 'case_study').map((cs, idx) => (
-                              <div key={idx} className="mb-6 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
-                                <h4 className="text-lg font-bold text-gray-900">{cs.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2">{cs.company}</p>
+                              <div key={idx} className="mb-6 p-4 bg-indigo-50/30 border border-indigo-100 rounded-xl">
+                                <input 
+                                  className="w-full font-bold text-gray-900 bg-transparent border-none focus:ring-0 p-0 mb-1" 
+                                  value={cs.title} 
+                                  onChange={(e) => updatePitchAsset(cs.id, 'title', e.target.value)}
+                                />
                                 {cs.story?.teaser ? (
-                                  <div className="bg-indigo-50 p-3 rounded border border-indigo-100 mb-2">
+                                  <div className="bg-white p-3 rounded-lg border border-indigo-100 mb-2 mt-2">
                                     <p className="text-[10px] font-black text-indigo-600 uppercase mb-1">Key Proof</p>
-                                    <p className="text-sm text-indigo-900 font-bold italic">"{cs.story.teaser}"</p>
+                                    <textarea 
+                                      className="w-full text-sm text-indigo-900 font-bold italic bg-transparent border-none focus:ring-0 p-0 resize-none"
+                                      value={cs.story.teaser}
+                                      onChange={(e) => updatePitchAsset(cs.id, 'story.teaser', e.target.value)}
+                                    />
                                   </div>
                                 ) : (
                                   <p className="text-sm text-gray-700 italic">{cs.description?.[0]}</p>
-                                )}
-                                {cs.source_url && (
-                                  <a href={cs.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-2">
-                                    <ExternalLink size={14} /> View Interactive Proof
-                                  </a>
                                 )}
                               </div>
                             ))}
@@ -633,13 +633,12 @@ const CareerAdmin: React.FC = () => {
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Publications & Talks</h3>
                             {pitchPreview.assets.filter(a => a.type === 'writing_sample' || a.type === 'talk').map((item, idx) => (
                               <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
-                                <h4 className="text-lg font-bold text-gray-900">{item.title}</h4>
-                                <p className="text-sm text-gray-600 mb-2 font-bold">{item.company}</p>
-                                {item.source_url && (
-                                  <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline mt-1">
-                                    <ExternalLink size={14} /> Read/Watch
-                                  </a>
-                                )}
+                                <input 
+                                  className="w-full font-bold text-gray-900 bg-transparent border-none focus:ring-0 p-0 mb-1" 
+                                  value={item.title} 
+                                  onChange={(e) => updatePitchAsset(item.id, 'title', e.target.value)}
+                                />
+                                <p className="text-xs text-gray-400 font-bold uppercase">{item.company}</p>
                               </div>
                             ))}
                           </div>
@@ -652,7 +651,12 @@ const CareerAdmin: React.FC = () => {
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Skills</h3>
                             <div className="flex flex-wrap gap-2">
                               {pitchPreview.assets.filter(a => a.type === 'skill').map((skill, idx) => (
-                                <span key={idx} className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-800">{skill.title}</span>
+                                <input 
+                                  key={idx} 
+                                  className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-700 border-none focus:ring-2 focus:ring-indigo-200 w-24" 
+                                  value={skill.title}
+                                  onChange={(e) => updatePitchAsset(skill.id, 'title', e.target.value)}
+                                />
                               ))}
                             </div>
                           </div>
@@ -662,7 +666,12 @@ const CareerAdmin: React.FC = () => {
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Technical Tools</h3>
                             <div className="flex flex-wrap gap-2">
                               {pitchPreview.assets.filter(a => a.type === 'tooling').map((tool, idx) => (
-                                <span key={idx} className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-800">{tool.title}</span>
+                                <input 
+                                  key={idx} 
+                                  className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-700 border-none focus:ring-2 focus:ring-indigo-200 w-24" 
+                                  value={tool.title}
+                                  onChange={(e) => updatePitchAsset(tool.id, 'title', e.target.value)}
+                                />
                               ))}
                             </div>
                           </div>
@@ -671,8 +680,13 @@ const CareerAdmin: React.FC = () => {
                           <div>
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Recommendations</h3>
                             {pitchPreview.assets.filter(a => a.type === 'recommendation').map((rec, idx) => (
-                              <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
-                                <p className="text-sm italic text-gray-700 mb-2">"{rec.description?.[0]}"</p>
+                              <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
+                                <textarea 
+                                  className="w-full text-xs italic text-gray-700 bg-transparent border-none focus:ring-0 p-0 resize-none mb-1" 
+                                  rows={3}
+                                  value={rec.description?.[0]}
+                                  onChange={(e) => updatePitchAsset(rec.id, 'description', [e.target.value])}
+                                />
                                 <p className="text-xs font-bold text-gray-500">- {rec.company}</p>
                               </div>
                             ))}
@@ -688,6 +702,22 @@ const CareerAdmin: React.FC = () => {
                           </div>
                         </div>
                       </div>
+                    </div>
+                      ) : (
+                        <div className="animate-fade-in space-y-4">
+                           <div className="bg-indigo-50/40 p-8 rounded-3xl border border-indigo-50">
+                              <p className="text-[10px] font-black uppercase text-indigo-400 mb-6 tracking-[0.3em] border-b border-indigo-100 pb-2 flex items-center gap-2">
+                                 <PenTool size={12} /> Bespoke ROI Cover Letter (Editable)
+                              </p>
+                              <textarea 
+                                className="w-full text-lg font-medium text-gray-700 leading-relaxed bg-transparent border-none focus:ring-0 min-h-[550px] resize-none"
+                                value={pitchPreview.coverLetter || ''}
+                                onChange={(e) => setPitchPreview({...pitchPreview, coverLetter: e.target.value})}
+                                placeholder="Refining the strategy..."
+                              />
+                           </div>
+                        </div>
+                      )}
                     </div>
                   )}
                </div>
