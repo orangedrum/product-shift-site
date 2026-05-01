@@ -195,10 +195,10 @@ const PublicResume: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="bg-white p-10 rounded-3xl border border-gray-100 relative shadow-2xl overflow-hidden">
+              <div className="bg-white p-10 rounded-3xl border border-gray-100 relative shadow-xl overflow-hidden">
                 <Sparkles className="absolute -top-4 -left-4 text-brand-pink" size={40} />
                 <p className="text-[10px] font-black uppercase text-gray-400 mb-6 tracking-[0.3em] border-b border-gray-50 pb-2">Executive Summary</p>
-                <p className="text-[1em] text-gray-600 leading-normal">
+                <p className="text-[1em] text-gray-600 leading-normal font-medium">
                   {resume.professional_summary}
                 </p>
                 <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -259,8 +259,8 @@ const PublicResume: React.FC = () => {
               {/* Case Study Adventures */}
               {assets.some((a: any) => a.type === 'case_study') && (
                 <section>
-                  <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em] mb-12 flex items-center gap-4">
-                    <Zap size={20} className="text-brand-pink" /> Logic Proof Adventures
+                  <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em] mb-8 flex items-center gap-4">
+                    <Zap size={20} className="text-brand-pink" /> Strategic Case Studies
                   </h3>
                   <div className="flex overflow-x-auto gap-6 pb-8 snap-x scrollbar-hide -mx-4 px-4">
                     {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number, filteredArr: any[]) => (
@@ -306,9 +306,9 @@ const PublicResume: React.FC = () => {
                               <NeoButton 
                                 onClick={() => toggleStudy(idx)}
                                 variant={expandedStudies[idx] ? "secondary" : "primary"}
-                                className="h-14 px-10 rounded-full text-sm font-black"
+                                className="h-12 px-8 rounded-full text-xs font-black"
                               >
-                                 {expandedStudies[idx] ? <><ChevronUp size={20} className="mr-2"/> Hide Journey</> : <><Search size={20} className="mr-2"/> Explore Logic Proof</>}
+                                 {expandedStudies[idx] ? <><ChevronUp size={18} className="mr-2"/> Hide Case Study</> : <><Search size={18} className="mr-2"/> Explore Case Study</>}
                               </NeoButton>
                             </div>
                           </div>
@@ -321,8 +321,8 @@ const PublicResume: React.FC = () => {
                                 {/* dashboard quick-scan view */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                    <div className="space-y-2">
-                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2"><AlertCircle size={12} className="text-red-500"/> Threat</h5>
-                                      <p className="text-gray-900 text-xs font-bold leading-snug line-clamp-2">
+                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2"><AlertCircle size={12} className="text-red-500"/> Problem</h5>
+                                      <p className="text-gray-900 text-xs font-semibold leading-snug line-clamp-2">
                                          {resolveStoryContent(cs.story, 'problem')[0]?.content || resolveStoryContent(cs.story, 'problem')[0]}
                                       </p>
                                    </div>
@@ -334,15 +334,15 @@ const PublicResume: React.FC = () => {
                                    </div>
                                    <div className="space-y-2">
                                       <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2"><Zap size={12} className="text-pink-500"/> Process</h5>
-                                      <p className="text-gray-700 text-xs font-bold leading-snug line-clamp-2">
-                                         {resolveStoryContent(cs.story, 'process')[0]?.content || resolveStoryContent(cs.story, 'process')[0]}
+                                      <p className="text-gray-700 text-xs font-medium leading-snug line-clamp-2">
+                                         {resolveStoryContent(cs.story, 'process')[0]?.content || resolveStoryContent(cs.story, 'process')[0] || "Rapid prototyping & visual validation."}
                                       </p>
                                    </div>
                                 </div>
 
                                 <div className="pt-6 border-t border-gray-50">
                                    <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2 mb-2"><Search size={12} className="text-amber-500"/> Standout Discovery</h5>
-                                   <div className="text-gray-900 bg-indigo-50/30 p-4 rounded-xl border-l-2 border-indigo-600 text-xs italic font-bold">
+                                   <div className="text-gray-900 bg-indigo-50/30 p-4 rounded-xl border-l-2 border-indigo-600 text-xs font-bold">
                                       "{resolveStoryContent(cs.story, 'findings')[0]?.content || resolveStoryContent(cs.story, 'findings')[0]}"
                                    </div>
                                 </div>
@@ -480,7 +480,7 @@ const PublicResume: React.FC = () => {
             {/* SIDEBAR */}
             <aside className="lg:col-span-4 space-y-16">
               {/* Skills & Tooling */}
-              <div className="space-y-8">
+                <div className="space-y-8 px-[30px]">
                 <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em]">Expertise Pillars</h3>
                 <div className="flex flex-wrap gap-2.5">
                   {assets.filter((a: any) => a.type === 'skill' || a.type === 'tooling').map((item: any, idx: number) => (
@@ -493,7 +493,7 @@ const PublicResume: React.FC = () => {
 
               {/* Recommendations */}
               {assets.some((a: any) => a.type === 'recommendation') && (
-                <div className="space-y-8">
+                  <div className="space-y-8 px-[30px]">
                   <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em]">Validation</h3>
                   <div className="space-y-8">
                     {assets.filter((a: any) => a.type === 'recommendation').map((rec: any, idx: number) => (
@@ -508,8 +508,8 @@ const PublicResume: React.FC = () => {
               )}
 
               {/* Conversion CTA */}
-              <div className="sticky top-28 space-y-8">
-                <div className="rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-2xl bg-white m-[30px]">
+                <div className="sticky top-28 m-[30px] space-y-8">
+                  <div className="rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-xl bg-white">
                   <SpeechBubble 
                     imageSrc="/jeankaluza.png"
                     name="Jean Kaluza"

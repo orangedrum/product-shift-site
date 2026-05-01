@@ -132,14 +132,13 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
 
     // 4. Generate AI Professional Summary
-    const summaryPrompt = `Based on this JD and these selected assets, write a 3-sentence Professional Summary for Jean Kaluza (she/her). 
-    STRICT OUTPUT: Return ONLY the summary text. No labels, no quotes, no introductory sentences like "Here is a summary...". Just the raw text. Focus on her strategic outcomes and speed.`;
+    const summaryPrompt = `Based on this JD and these selected assets, write a single high-impact, 1-sentence Professional Summary for Jean Kaluza (she/her). 
+    STRICT OUTPUT: Return ONLY the text. Maximum 30 words. Focus on ROI and strategic delivery. No labels, no quotes.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
     // 5. Generate AI Cover Letter
-    const clPrompt = `Based on this JD and these selected assets, write a professional, high-stakes cover letter for Jean Kaluza (she/her). 
-    Focus on proving her ROI and how her background building 'User Mirror' fits this specific role. 
-    STRICT OUTPUT: Return ONLY the raw body text of the letter (3-4 paragraphs). No dates, address blocks, or sign-offs.`;
+    const clPrompt = `Write a concise, high-stakes strategic cover letter for Jean Kaluza (she/her). 
+    Focus on ROI and the 'User Mirror' foundation. Maximum 3 paragraphs. Be direct, authoritative, and brief. No address blocks or sign-offs.`;
     const coverLetter = await generateContentWithFallback(clPrompt);
 
     res.json({ 
