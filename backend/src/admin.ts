@@ -1,7 +1,7 @@
 import express from 'express';
-import { supabase, sendEmail, isTestEmail, emailFrom, getPublicUrl } from './services';
+import { supabase, sendEmail, isTestEmail, emailFrom, getPublicUrl, delay } from './services';
 import { generateStructuredData } from './analysis-controller';
-import { generateEnhancedContent } from './ai-service';
+import { generateEnhancedContent, generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
 import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler } from './career-controller';
 
@@ -23,6 +23,26 @@ router.post('/career/generate-pitch', requireAdminKey, generatePitchHandler);
 router.post('/career/sidekick-chat', requireAdminKey, sidekickChatHandler);
 router.post('/career/publish-resume', requireAdminKey, publishResumeHandler);
 router.delete('/career/assets/:id', requireAdminKey, deleteAssetHandler);
+
+// --- Admin AI Diagnostic Endpoint ---
+router.post('/ai-test', requireAdminKey, async (req, res) => {
+  try {
+    const result = await generateContentWithFallback("Reply with the word 'READY' if you are active.");
+    res.json({ success: true, aiResponse: result });
+  } catch (e: any) {
+    res.status(500).json({ success: false, error: e.message, hint: "Check if 'Generative Language API' is enabled in Google Cloud Console." });
+  }
+});
+
+// --- Admin AI Diagnostic Endpoint ---
+router.post('/ai-test', requireAdminKey, async (req, res) => {
+  try {
+    const result = await generateContentWithFallback("Reply with the word 'READY' if you are active.");
+    res.json({ success: true, aiResponse: result });
+  } catch (e: any) {
+    res.status(500).json({ success: false, error: e.message, hint: "Check if 'Generative Language API' is enabled in Google Cloud Console." });
+  }
+});
 
 // --- Admin Stats Endpoint ---
 router.get('/stats', requireAdminKey, async (req, res) => {

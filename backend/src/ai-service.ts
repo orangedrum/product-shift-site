@@ -59,6 +59,10 @@ const getAvailableModels = async (apiKey: string): Promise<{ models: ModelParams
 export const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is missing in environment variables");
+
+  // CTO DIAGNOSTIC: Masked Key Log to verify ground truth in Vercel
+  const maskedKey = `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`;
+  console.log(`[AI Service] Starting generation. Key: ${maskedKey}`);
   
   const genAI = new GoogleGenerativeAI(apiKey);
   let errorLog: string[] = [];
@@ -78,7 +82,8 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
                       name.includes('banana') || 
                       name.includes('gemma') || 
                       name.includes('lyria') || 
-                      name.includes('deep-research');
+                      name.includes('deep-research') ||
+                      name.includes('banana');
       
       if (isNoise) return false;
 
@@ -97,17 +102,18 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
         // CTO FIX: Update priority list for 2026 model naming conventions.
         // We prefer Flash for speed, falling back to Pro for reasoning depth.
         const priority = [
+            'gemini-1.5-flash', 
+            'gemini-1.5-pro',
             'gemini-flash-latest', 
             'gemini-1.5-flash-latest', 
-            'gemini-1.5-flash', 
+            'gemini-2.0-flash',
             'gemini-pro-latest', 
-            'gemini-1.5-pro', 
             'gemini-pro'
         ];
         
-        // Find the best match index (partial match for aliases)
-        const scoreA = priority.findIndex(p => a.includes(p));
-        const scoreB = priority.findIndex(p => b.includes(p));
+        // Find the best match index (Exact match or very close alias)
+        const scoreA = priority.findIndex(p => a === p || a === `models/${p}`);
+        const scoreB = priority.findIndex(p => b === p || b === `models/${p}`);
         
         const finalA = scoreA === -1 ? 999 : scoreA;
         const finalB = scoreB === -1 ? 999 : scoreB;
@@ -141,6 +147,12 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       console.log(`✅ Model '${modelName}' succeeded.`);
       return response.text();
     } catch (error: any) {
+      // CTO DIAGNOSTIC: Specific 403 handling
+      if (error.message.includes('403') || error.message.includes('Forbidden')) {
+        console.error(`🚨 [PERMISSIONS ERROR] Project denied access to ${modelName}.`);
+        console.error(`👉 ACTION REQUIRED: Enable the 'Generative Language API' in Google Cloud Console or check API Key restrictions.`);
+      }
+
       if (error.message.includes('503') || error.message.includes('429')) {
         const waitTime = 1000 * Math.pow(2, attempt); // 2s, 4s...
         console.log(`[AI Service] Model busy. Waiting ${waitTime}ms before next attempt.`);
