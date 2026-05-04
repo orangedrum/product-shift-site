@@ -7,7 +7,7 @@ import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generati
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
 import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl, processReferrerReward } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
-import { getAiServiceStatus } from './ai-service';
+import { getAiServiceStatus, generateContentWithFallback } from './ai-service';
 import adminRouter from './admin';
 import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler } from './career-controller';
 import { runDeepAuditHandler } from './performance-controller';
@@ -45,6 +45,12 @@ const getMagicLinkTemplate = (link: string, baseUrl: string) => `
 // Initialize Express App
 const app = express();
 app.set('trust proxy', 1);
+
+// CTO DIAGNOSTIC: Log every incoming request to find the ground truth for 404s
+app.use((req, _res, next) => {
+  console.log(`🎯 [INCOMING REQUEST] ${req.method} ${req.url} (Path: ${req.path})`);
+  next();
+});
 
 // 1. Secure HTTP Headers
 app.use(helmet({
@@ -190,6 +196,16 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
     }
   }
   res.json({received: true});
+});
+
+// --- Admin AI Diagnostic Endpoint (Moved to Main App for Routing Purity) ---
+app.get('/api/ai-test', async (req, res) => {
+  try {
+    const result = await generateContentWithFallback("Reply with the word 'READY' if you are active.");
+    res.json({ success: true, aiResponse: result });
+  } catch (e: any) {
+    res.status(500).json({ success: false, error: e.message, hint: "Check if 'Generative Language API' is enabled in Google Cloud Console." });
+  }
 });
 
 // CTO FIX: Increase payload limit from default 100KB to 10MB to handle large 

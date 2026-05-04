@@ -24,16 +24,6 @@ router.post('/career/sidekick-chat', requireAdminKey, sidekickChatHandler);
 router.post('/career/publish-resume', requireAdminKey, publishResumeHandler);
 router.delete('/career/assets/:id', requireAdminKey, deleteAssetHandler);
 
-// --- Admin AI Diagnostic Endpoint ---
-router.get('/ai-test', async (req, res) => {
-  try {
-    const result = await generateContentWithFallback("Reply with the word 'READY' if you are active.");
-    res.json({ success: true, aiResponse: result });
-  } catch (e: any) {
-    res.status(500).json({ success: false, error: e.message, hint: "Check if 'Generative Language API' is enabled in Google Cloud Console." });
-  }
-});
-
 // --- Admin Stats Endpoint ---
 router.get('/stats', requireAdminKey, async (req, res) => {
   const excludeTest = req.query.exclude_test_data === 'true';
