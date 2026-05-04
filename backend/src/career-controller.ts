@@ -77,13 +77,8 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
 };
 
 export const generatePitchHandler = async (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
   const { jdUrl } = req.body;
+  console.log(`🎯 [PITCH GEN] Received request for URL: ${jdUrl || 'NONE'}`);
   if (!jdUrl) return res.status(400).json({ error: 'JD URL required' });
 
   try {

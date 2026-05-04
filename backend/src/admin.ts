@@ -3,6 +3,7 @@ import { supabase, sendEmail, isTestEmail, emailFrom, getPublicUrl } from './ser
 import { generateStructuredData } from './analysis-controller';
 import { generateEnhancedContent } from './ai-service';
 import { marketingEmails } from './email-templates';
+import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler } from './career-controller';
 
 const router = express.Router();
 
@@ -15,6 +16,13 @@ const requireAdminKey = (req: express.Request, res: express.Response, next: expr
   }
   next();
 };
+
+// --- Career Registry Routes (Moved into Admin Router for Routing Purity) ---
+router.post('/career/ingest', requireAdminKey, careerIngestHandler);
+router.post('/career/generate-pitch', requireAdminKey, generatePitchHandler);
+router.post('/career/sidekick-chat', requireAdminKey, sidekickChatHandler);
+router.post('/career/publish-resume', requireAdminKey, publishResumeHandler);
+router.delete('/career/assets/:id', requireAdminKey, deleteAssetHandler);
 
 // --- Admin Stats Endpoint ---
 router.get('/stats', requireAdminKey, async (req, res) => {

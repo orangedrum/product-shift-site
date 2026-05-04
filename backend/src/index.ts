@@ -813,13 +813,6 @@ app.post('/api/analyze', authenticateRequest, async (req, res) => {
   return runTestHandler(req, res);
 });
 
-// --- Career Registry Ingestion (AI Orchestrator) ---
-app.post('/api/admin/career/ingest', careerIngestHandler);
-app.post('/api/admin/career/generate-pitch', generatePitchHandler);
-app.post('/api/admin/career/sidekick-chat', sidekickChatHandler);
-app.post('/api/admin/career/publish-resume', publishResumeHandler);
-app.delete('/api/admin/career/assets/:id', deleteAssetHandler);
-
 // --- SEO Strategy: Email Math Breakdown ---
 app.post('/api/seo/email-math', async (req, res) => {
   const { targetEmail, retainer, hiringCost, totalExposure, monthsLeft, roi } = req.body;
