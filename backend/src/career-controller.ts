@@ -4,6 +4,14 @@ import { generateContentWithFallback } from './ai-service';
 import { scrapeUrl } from './analysis-controller';
 import { CAREER_ASSET_EXTRACTION_PROMPT, SIDEKICK_CHAT_PROMPT } from './prompts';
 
+// Define a type for the ingestion item
+interface IngestionItem {
+  rawData?: string;
+  sourceUrl?: string;
+  documentTypeHint?: 'resume' | 'cover_letter' | 'auto'; // Hint for AI
+  label?: string; // Optional label for the item, e.g., filename
+}
+
 export const careerIngestHandler = async (req: Request, res: Response) => {
   // Admin Auth Check
   const authHeader = req.headers.authorization;
@@ -13,8 +21,13 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Unauthorized: Admin access required' });
   }
 
-  let { rawData, sourceUrl, role, label } = req.body;
-  if (!rawData && !sourceUrl) return res.status(400).json({ error: 'Data or URL required' });
+  // Expect an array of ingestion items
+  const ingestionItems: IngestionItem[] = req.body.items; 
+  if (!ingestionItems || !Array.isArray(ingestionItems) || ingestionItems.length === 0) {
+    return res.status(400).json({ error: 'Array of ingestion items required' });
+  }
+
+  const allExtractedAssets: any[] = [];
 
   try {
     console.log(`🚀 [CAREER INGEST] Processing asset for role: ${role || 'Auto-detect'}`);
@@ -22,54 +35,83 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
     // CTO Strategy: If it's a URL ingestion, let's actually scrape the content
     // so Gemini can read the REAL article rather than guessing based on the URL string.
     if (sourceUrl && !rawData) {
-      try {
-         const scraped = await scrapeUrl(sourceUrl);
-         rawData = `
-            TITLE: ${scraped.title}
-            VISUAL ASSETS FOUND: ${JSON.stringify(scraped.images)}
-            BODY CONTENT: ${scraped.bodyText}
-         `;
-         console.log(`🔍 [CAREER INGEST] Scraped Content Length: ${scraped.bodyText?.length || 0} characters.`);
-         console.log(`✅ Scraped content for URL: ${sourceUrl}`);
-      } catch (scrapeErr) {
-         console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);
+      // Loop through each item in the array
+      for (const item of ingestionItems) {
+        let { rawData, sourceUrl, role, label, documentTypeHint } = item;
+
+        if (!rawData && !sourceUrl) {
+          console.warn('Skipping ingestion item: Data or URL required.');
+          continue; // Skip to the next item
+        }
+
+        try {
+          console.log(`🚀 [CAREER INGEST] Processing asset for role: ${role || 'Auto-detect'} from source: ${sourceUrl || 'raw data'}`);
+
+          // CTO Strategy: If it's a URL ingestion, let's actually scrape the content
+          // so Gemini can read the REAL article rather than guessing based on the URL string.
+          if (sourceUrl && !rawData) {
+            try {
+               const scraped = await scrapeUrl(sourceUrl);
+               rawData = `
+                  TITLE: ${scraped.title}
+                  VISUAL ASSETS FOUND: ${JSON.stringify(scraped.images)}
+                  BODY CONTENT: ${scraped.bodyText}
+               `;
+               console.log(`🔍 [CAREER INGEST] Scraped Content Length: ${scraped.bodyText?.length || 0} characters.`);
+               console.log(`✅ Scraped content for URL: ${sourceUrl}`);
+            } catch (scrapeErr) {
+               console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);
+            }
+          }
+
+          // CTO Logic: Fetch existing asset titles to help AI deduplicate against the current library
+          const { data: existingAssets } = await supabase
+            .from('career_assets')
+            .select('title, company, type');
+          
+          const libraryContext = (existingAssets || [])
+            .map(a => `- ${a.type}: ${a.title} (${a.company})`)
+            .join('\n');
+
+          const prompt = CAREER_ASSET_EXTRACTION_PROMPT(rawData || sourceUrl, libraryContext, role, label, documentTypeHint);
+
+          const structuredData = await generateContentWithFallback(prompt);
+          
+          // Robust JSON extraction
+          const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
+          if (!jsonMatch) {
+            console.error('AI failed to produce valid JSON structure for item:', item);
+            continue; // Skip to the next item if AI fails for this one
+          }
+          
+          const { assets } = JSON.parse(jsonMatch[0]);
+
+          // Data Normalization
+          const normalizedAssets = assets.map((a: any) => ({
+            ...a,
+            description: Array.isArray(a.description) ? a.description : [a.description],
+            roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
+            skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
+            story: a.type === 'case_study' || a.type === 'talk' || a.type === 'writing_sample' ? a.story : null, // Only store story for specific types
+            // Ensure visuals is always an array if it exists
+            ...(a.story && { 
+              story: { ...a.story, visuals: Array.isArray(a.story.visuals) ? a.story.visuals : [] } 
+            }),
+            source_url: sourceUrl || 'direct_upload'
+          }));
+          allExtractedAssets.push(...normalizedAssets);
+
+        } catch (e: any) {
+          console.error('❌ [CAREER INGEST ERROR] for item:', item, e);
+          // Continue processing other items even if one fails
+        }
       }
-    }
 
-    // CTO Logic: Fetch existing asset titles to help AI deduplicate against the current library
-    const { data: existingAssets } = await supabase
-      .from('career_assets')
-      .select('title, company, type');
-    
-    const libraryContext = (existingAssets || [])
-      .map(a => `- ${a.type}: ${a.title} (${a.company})`)
-      .join('\n');
+      if (allExtractedAssets.length === 0) {
+        return res.status(500).json({ error: 'Ingestion failed for all provided items.', details: 'No assets could be extracted.' });
+      }
 
-    const prompt = CAREER_ASSET_EXTRACTION_PROMPT(rawData || sourceUrl, libraryContext, role, label);
-
-    const structuredData = await generateContentWithFallback(prompt);
-    
-    // Robust JSON extraction
-    const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('AI failed to produce valid JSON structure');
-    
-    const { assets, mappedTitle } = JSON.parse(jsonMatch[0]);
-
-    // Data Normalization
-    const normalizedAssets = assets.map((a: any) => ({
-      ...a,
-      description: Array.isArray(a.description) ? a.description : [a.description],
-      roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
-      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
-      story: a.type === 'case_study' ? a.story : null,
-      // Ensure visuals is always an array if it exists
-      ...(a.story && { 
-        story: { ...a.story, visuals: Array.isArray(a.story.visuals) ? a.story.visuals : [] } 
-      }),
-      source_url: sourceUrl || 'direct_upload'
-    }));
-
-    res.json({ success: true, assets: normalizedAssets });
+      res.json({ success: true, assets: allExtractedAssets });
   } catch (e: any) {
     console.error('❌ [CAREER INGEST ERROR]:', e);
     res.status(500).json({ error: 'Ingestion failed', details: e.message });
@@ -189,6 +231,8 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
             const { data: newAsset, error: addError } = await supabase.from('career_assets').insert([data.asset]).select().single();
             if (addError) throw addError;
             reply = `Successfully added "${newAsset.title}" (${newAsset.type}) to your library.`;
+            // Ensure the new asset includes the ID for potential immediate updates
+            data.asset.id = newAsset.id; 
             suggestedAssets = [newAsset]; // Return the newly added asset for immediate display
           } else {
             reply = "I understood you wanted to add an asset, but couldn't find the details. Can you be more specific?";
@@ -226,7 +270,7 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
       }
     }
 
-    res.json({ success: true, reply, suggestedAssets });
+    res.json({ success: true, reply, suggestedAssets, updatedResume: data.updatedResume });
 
   } catch (e: any) {
     console.error('❌ [SIDEKICK CHAT ERROR]:', e);

@@ -100,7 +100,24 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     ${role ? `**PRIMARY FOCUS ROLE:** ${role}` : ''}
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
+    ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is likely a ${documentTypeHint.replace('_', ' ')}.` : ''}
 
+    **TASK:**
+    First, determine if the SOURCE DATA is a RESUME or a COVER LETTER.
+
+    **IF IT IS A COVER LETTER:**
+    1.  **Extract Narrative Themes:** Identify the core strategic arguments, unique voice, and "connective tissue" Jean uses to link her experience to the role.
+    2.  **Summarize Voice:** Condense these into 3-5 concise bullet points.
+    3.  **Asset Type:** Create a single asset of type "narrative_theme".
+    4.  **Description:** Store the summarized voice/themes in the 'description' field.
+    5.  **No Story/ROI:** Do NOT extract 'story' or 'roi_metrics' for cover letters.
+    6.  **Title:** Use a descriptive title like "Cover Letter Voice: [Key Theme]".
+    7.  **Company:** Set to "Jean Kaluza".
+
+    **IF IT IS A RESUME:**
+    (Follow the instructions below for resume extraction)
+
+    --- RESUME EXTRACTION INSTRUCTIONS ---
     **TASK:**
     1. **STORYTELLING EXTRACTION (For Case Study, Talk, or Writing Sample):** If the source describes a specific project or published thought leadership, you MUST perform a "Deep Narrative Reconstruction".
        - **MANDATORY DEPTH:** Every section of the 'story' object MUST contain 4-6 high-density technical bullet points. DO NOT SUMMARIZE into 'description'.
@@ -123,9 +140,11 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
         {
           "title": "Clear high-authority title",
           "company": "Company/Client name",
-          "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation" | "case_study",
+          "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation" | "case_study" | "narrative_theme",
           "description": ["2-sentence summary maximum"],
           "roi_metrics": ["Specific quantifiable wins"],
+          "recommender_name": "Name of the recommender (if type is recommendation)",
+          "recommender_title": "Title of the recommender (if type is recommendation)",
           "story": { 
             "problem": ["Bullet 1", "Bullet 2"],
             "methodology": ["Bullet 1", "Bullet 2"],
@@ -169,6 +188,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     Analyze Jean's message. Determine if she wants to:
     1.  **Perform a CRUD operation** (Add, Update, Remove) on her career assets.
     2.  **Receive strategic coaching or suggestions** for her resume.
+    3.  **Modify or "Retry" the current Resume/Pitch draft** (the specific mapped titles, hook, or cover letter).
 
     **If a CRUD operation is detected:**
     -   Extract all necessary details (title, type, company, description, ROI, ID if updating/removing).
@@ -182,10 +202,22 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     -   Provide a concise, encouraging strategic 'reply'.
     -   Optionally, suggest new assets or modifications in 'suggestedAssets' based on Jean's context.
 
+    **If a request to modify or "retry" the draft is detected:**
+    -   Set the 'action' to 'chat'.
+    -   In 'reply', explain the strategic reasoning for the adjustments.
+    -   Provide the modified resume object in 'updatedResume'. Ensure it maintains the required distribution (approx 24 assets).
+
     **Return a JSON object:**
     {
       "action": "chat" | "add" | "update" | "remove",
       "reply": "Strategic coaching message or confirmation of action.",
+      "updatedResume": { // MUST be provided if Jean asks to modify the current pitch/draft
+        "assets": [ /* full array of selected asset objects */ ],
+        "strategicHook": "The single-sentence professional summary",
+        "targetTitle": "The original target role title",
+        "mappedTitle": "The updated bespoke headline",
+        "coverLetter": "The updated 4-5 paragraph strategic cover letter"
+      },
       "asset": { // Only for 'add' or 'update' actions
         "id": "UUID (if updating existing, otherwise omit)",
         "title": "Clear asset title",
@@ -193,6 +225,8 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
         "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation" | "case_study",
         "description": ["Concise bullet point 1", "Concise bullet point 2"],
         "roi_metrics": ["Quantifiable win 1", "Quantifiable win 2"],
+        "recommender_name": "Name of the recommender (if type is recommendation)",
+        "recommender_title": "Title of the recommender (if type is recommendation)",
         "role_tag": "Product Lead, UX Researcher, etc. (if applicable)",
         "industry": "e.g. IOT, HealthTech (if applicable)",
         "source_url": "URL (if applicable)",

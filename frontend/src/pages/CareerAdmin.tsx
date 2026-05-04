@@ -32,6 +32,7 @@ const CareerAdmin: React.FC = () => {
     coverLetter?: string
   } | null>(null);
   const [previewMode, setPreviewMode] = useState<'resume' | 'cover'>('resume');
+  const [documentTypeHint, setDocumentTypeHint] = useState<'auto' | 'resume' | 'cover_letter'>('auto'); // New state for document type hint
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -84,26 +85,33 @@ const CareerAdmin: React.FC = () => {
     reader.onload = async (event) => {
       const text = event.target?.result as string;
       setChatInput(text);
-      setLoading(false);
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `File "${file.name}" loaded. Click 'Extract' to let me analyze the strategic points.` }]);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `File "${file.name}" loaded. Select document type and click 'Extract' to analyze.` }]);
     };
     reader.readAsText(file);
+    setLoading(false); // Set loading false after file read is initiated
   };
 
   const handleBulkIngest = async () => {
     setLoading(true);
-    const payload = activeTab === 'media' 
-      ? { sourceUrl: mediaUrl, label: mediaLabel, assetType: 'media' }
-      : { rawData: chatInput, assetType: 'resume' };
+    setSidekickMessages(prev => [...prev, { sender: 'user', text: `Ingesting documents and/or media links.` }]);
+
+    const ingestionItems: { rawData?: string; sourceUrl?: string; documentTypeHint?: 'resume' | 'cover_letter' | 'auto'; label?: string; }[] = [];
+
+    if (chatInput.trim()) {
+      ingestionItems.push({ rawData: chatInput, documentTypeHint: documentTypeHint, label: 'Pasted Text' });
+    }
+    if (mediaUrl.trim()) {
+      ingestionItems.push({ sourceUrl: mediaUrl, documentTypeHint: documentTypeHint, label: mediaLabel });
+    }
 
     try {
-      const res = await fetch('/api/admin/career/ingest', {
+      const res = await fetch('/api/admin/career/ingest', { // Changed to accept array
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ items: ingestionItems }) // Send array of items
       });
       
       const data = await res.json();
@@ -112,7 +120,7 @@ const CareerAdmin: React.FC = () => {
       setReviewQueue(prev => [...data.assets, ...prev]);
       setChatInput(''); 
       setMediaUrl('');
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `I found ${data.assets.length} strategic assets in that resume! Review them in the queue below.` }]);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `I found ${data.assets.length} strategic assets! Review them in the queue below.` }]);
     } catch (e: any) {
       console.error(e);
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Error: ${e.message}` }]);
@@ -268,6 +276,10 @@ const CareerAdmin: React.FC = () => {
            setReviewQueue(prev => [...data.suggestedAssets, ...prev]);
            setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted new strategic points based on User Mirror to fill your gaps. Check the Review Queue!` }]);
         }
+        if (data.updatedResume) {
+          setPitchPreview(data.updatedResume);
+          setSidekickMessages(prev => [...prev, { sender: 'bot', text: `✨ I've recalibrated your resume and cover letter drafts to reflect the '${userMsg}' direction. You can see the live changes in the Brag Engine preview.` }]);
+        }
       }
     } catch (e: any) {
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Sidekick Error: ${e.message}` }]);
@@ -295,7 +307,7 @@ const CareerAdmin: React.FC = () => {
           <button onClick={() => setActiveTab('pdf')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'pdf' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
             <div className="flex items-center gap-2"><Upload size={16}/> Ingest Resumes</div>
           </button>
-          <button onClick={() => setActiveTab('media')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'media' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
+          <button onClick={() => setActiveTab('media')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'media' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}> {/* Renamed to Ingest Media */}
             <div className="flex items-center gap-2"><LinkIcon size={16}/> Ingest Media</div>
           </button>
           <button onClick={() => setActiveTab('library')} className={`pb-4 px-2 font-bold text-sm uppercase tracking-widest transition-all ${activeTab === 'library' ? 'border-b-4 border-brand-pink text-black' : 'text-gray-400'}`}>
@@ -314,24 +326,46 @@ const CareerAdmin: React.FC = () => {
           <div className="lg:col-span-8 space-y-6">
             {activeTab === 'pdf' && (
               <div className="space-y-6">
-                <MarketingCard className="p-8 border-dashed border-4 border-gray-200 bg-gray-50/30 flex flex-col items-center justify-center text-center">
-                   <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf,.txt,.md" />
+                <MarketingCard className="p-8 border-dashed border-4 border-gray-200 bg-gray-50/30 flex flex-col items-center justify-center text-center"> {/* Changed to accept multiple files */}
+                   <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf,.txt,.md" multiple />
                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-4 text-gray-400 cursor-pointer hover:scale-105 transition-transform" onClick={() => fileInputRef.current?.click()}>
                       <Upload size={32} />
                    </div>
-                   <h2 className="text-xl font-bold mb-2">Bulk PDF Ingestion</h2>
-                   <p className="text-gray-500 max-w-sm mb-6 text-sm">Upload your 141+ resume variations. I'll deduplicate and extract the strongest ROI points for each role.</p>
+                   <h2 className="text-xl font-bold mb-2">Bulk Document Ingestion</h2> {/* Updated text */}
+                   <p className="text-gray-500 max-w-sm mb-6 text-sm">Upload your resumes and cover letters. I'll extract strategic points.</p> {/* Updated text */}
                    
                    <div className="w-full space-y-4">
+                      {selectedFiles.length > 0 && ( /* Display selected files */
+                        <div className="mb-4 text-left">
+                          <p className="text-sm font-bold text-gray-700 mb-2">Selected Files:</p>
+                          <ul className="list-disc list-inside text-sm text-gray-600">
+                            {selectedFiles.map((file, index) => (
+                              <li key={index}>{file.name}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                       <textarea 
                         className="w-full h-24 p-4 bg-white border border-gray-200 rounded-xl text-sm"
                         placeholder="Or paste resume text here..."
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
                       />
+                      <div> {/* New dropdown for document type hint */}
+                         <label className="block text-xs font-black uppercase text-gray-400 mb-1">Document Type Hint</label>
+                         <select 
+                           className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl"
+                           value={documentTypeHint}
+                           onChange={(e) => setDocumentTypeHint(e.target.value as 'auto' | 'resume' | 'cover_letter')}
+                         >
+                            <option value="auto">Auto-detect</option>
+                            <option value="resume">Resume</option>
+                            <option value="cover_letter">Cover Letter</option>
+                         </select>
+                      </div>
                       <NeoButton 
-                        onClick={() => handleBulkIngest()} 
-                        disabled={loading || !chatInput}
+                        onClick={() => handleBulkIngest()}
+                        disabled={loading || (!chatInput && selectedFiles.length === 0 && !mediaUrl.trim())} // Disable if no input
                         className="bg-marketing-gradient text-white px-12"
                       >
                         {loading ? <Loader2 className="animate-spin mr-2" /> : <Zap size={18} className="mr-2"/>}
@@ -371,9 +405,21 @@ const CareerAdmin: React.FC = () => {
                           <option>Recommendation</option>
                        </select>
                     </div>
+                    <div> {/* New dropdown for document type hint */}
+                         <label className="block text-xs font-black uppercase text-gray-400 mb-1">Document Type Hint</label>
+                         <select 
+                           className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl"
+                           value={documentTypeHint}
+                           onChange={(e) => setDocumentTypeHint(e.target.value as 'auto' | 'resume' | 'cover_letter')}
+                         >
+                            <option value="auto">Auto-detect</option>
+                            <option value="resume">Resume</option>
+                            <option value="cover_letter">Cover Letter</option>
+                         </select>
+                      </div>
                     <NeoButton 
-                      onClick={() => handleBulkIngest()} 
-                      disabled={loading || !mediaUrl}
+                      onClick={() => handleBulkIngest()}
+                      disabled={loading || (!chatInput && selectedFiles.length === 0 && !mediaUrl.trim())} // Disable if no input
                       className="w-full bg-black text-white py-4 mt-4"
                     >
                       {loading ? <Loader2 className="animate-spin mr-2" /> : null}
@@ -405,6 +451,11 @@ const CareerAdmin: React.FC = () => {
                            {asset.is_published && (
                               <span className="text-[10px] font-black uppercase bg-amber-100 text-amber-700 px-2 py-1 rounded-md flex items-center gap-1">
                                 <Trophy size={10}/> Reputable Source
+                              </span>
+                            )}
+                           {asset.type === 'narrative_theme' && ( /* Display for new narrative_theme type */
+                              <span className="text-[10px] font-black uppercase bg-purple-100 text-purple-700 px-2 py-1 rounded-md flex items-center gap-1">
+                                <MessageSquare size={10}/> Cover Letter Voice
                               </span>
                             )}
                          </div>
@@ -681,11 +732,24 @@ const CareerAdmin: React.FC = () => {
                             <h3 className="text-xl font-black text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">Recommendations</h3>
                             {pitchPreview.assets.filter(a => a.type === 'recommendation').map((rec, idx) => (
                               <div key={idx} className="mb-4 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
+                                <input 
+                                  className="w-full text-sm font-bold text-gray-900 bg-transparent border-none focus:ring-0 p-0 mb-1" 
+                                  value={rec.recommender_name || ''} 
+                                  onChange={(e) => updatePitchAsset(rec.id, 'recommender_name', e.target.value)}
+                                  placeholder="Recommender Name"
+                                />
+                                <input 
+                                  className="w-full text-xs text-gray-500 font-bold bg-transparent border-none focus:ring-0 p-0 mb-2 uppercase" 
+                                  value={rec.recommender_title || ''} 
+                                  onChange={(e) => updatePitchAsset(rec.id, 'recommender_title', e.target.value)}
+                                  placeholder="Recommender Title"
+                                />
                                 <textarea 
                                   className="w-full text-xs italic text-gray-700 bg-transparent border-none focus:ring-0 p-0 resize-none mb-1" 
                                   rows={3}
                                   value={rec.description?.[0]}
                                   onChange={(e) => updatePitchAsset(rec.id, 'description', [e.target.value])}
+                                  placeholder="Recommendation Quote"
                                 />
                                 <p className="text-xs font-bold text-gray-500">- {rec.company}</p>
                               </div>
