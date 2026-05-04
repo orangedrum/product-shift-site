@@ -68,22 +68,51 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const modelsToTry = allModels
     .map((m: any) => m.name?.replace('models/', '') || '')
     .filter(name => {
-      // Updated Filter: Gemini 1.5 and 2.0 are multimodal (text + images).
-      // We must ensure they are included for vision tasks.
-      const isVisionSupported = name.includes('vision') || name.includes('flash') || name.includes('1.5') || name.includes('2.0');
+      // CTO FIX: The models list in 2026 is returning massive amounts of noise (nano, preview, robotics, etc.)
+      // that are often restricted or unstable. We must aggressively filter for standard, high-reliability models.
+      const isNoise = name.includes('preview') || 
+                      name.includes('tts') || 
+                      name.includes('image') || 
+                      name.includes('robotics') || 
+                      name.includes('nano') || 
+                      name.includes('banana') || 
+                      name.includes('gemma') || 
+                      name.includes('lyria') || 
+                      name.includes('deep-research');
       
+      if (isNoise) return false;
+
+      const isMultimodal = name.includes('flash') || name.includes('1.5') || name.includes('2.0') || name.includes('2.5');
+      const isVisionSupported = name.includes('vision') || isMultimodal;
+
       if (screenshot) {
         return isVisionSupported;
       } else {
-        // For text-only, avoid legacy 'vision' specific models, but allow flash/1.5/2.0
-        return !name.includes('vision');
+        // For text-only, avoid legacy 'vision' specific models
+        const isLegacyVision = name.includes('vision') && !isMultimodal;
+        return !isLegacyVision;
       }
     })
     .sort((a, b) => {
-        // Smart Priority: Prefer Flash (Speed/Cost) -> Pro (Quality) -> Vision (Legacy)
-        // This sort ensures we try the most efficient models first if they exist in the list
-        const priority = ['gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-pro', 'gemini-pro-vision'];
-        return (priority.indexOf(a) === -1 ? 99 : priority.indexOf(a)) - (priority.indexOf(b) === -1 ? 99 : priority.indexOf(b));
+        // CTO FIX: Update priority list for 2026 model naming conventions.
+        // We prefer Flash for speed, falling back to Pro for reasoning depth.
+        const priority = [
+            'gemini-flash-latest', 
+            'gemini-1.5-flash-latest', 
+            'gemini-1.5-flash', 
+            'gemini-pro-latest', 
+            'gemini-1.5-pro', 
+            'gemini-pro'
+        ];
+        
+        // Find the best match index (partial match for aliases)
+        const scoreA = priority.findIndex(p => a.includes(p));
+        const scoreB = priority.findIndex(p => b.includes(p));
+        
+        const finalA = scoreA === -1 ? 999 : scoreA;
+        const finalB = scoreB === -1 ? 999 : scoreB;
+
+        return finalA - finalB;
     });
 
   if (modelsToTry.length === 0) {
