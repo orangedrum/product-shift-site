@@ -149,8 +149,10 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
     } catch (error: any) {
       // CTO DIAGNOSTIC: Specific 403 handling
       if (error.message.includes('403') || error.message.includes('Forbidden')) {
-        console.error(`🚨 [PERMISSIONS ERROR] Project denied access to ${modelName}.`);
-        console.error(`👉 ACTION REQUIRED: Enable the 'Generative Language API' in Google Cloud Console or check API Key restrictions.`);
+        const permMsg = `🚨 [PERMISSIONS ERROR] Project denied access to ${modelName}. ACTION REQUIRED: 1. Go to https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com and click ENABLE. 2. Check https://console.cloud.google.com/apis/credentials to ensure the key is not restricted.`;
+        console.error(permMsg);
+        // CTO FIX: Stop retrying on configuration errors. This prevents 58s timeouts.
+        throw new Error(permMsg);
       }
 
       if (error.message.includes('503') || error.message.includes('429')) {

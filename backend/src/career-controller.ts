@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { scrapeUrl } from './analysis-controller';
-import { CAREER_ASSET_EXTRACTION_PROMPT } from './prompts';
+import { CAREER_ASSET_EXTRACTION_PROMPT, SIDEKICK_CHAT_PROMPT } from './prompts';
 
 export const careerIngestHandler = async (req: Request, res: Response) => {
   // Admin Auth Check
@@ -164,63 +164,69 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
   if (!message) return res.status(400).json({ error: 'Message required' });
 
   try {
+    console.log(`💬 [SIDEKICK CHAT] User message: ${message}`);
     // 1. Fetch library context
     const { data: existingAssets } = await supabase.from('career_assets').select('title, company, type, description');
     const libraryContext = (existingAssets || [])
       .map(a => `- ${a.type}: ${a.title} @ ${a.company}`)
       .join('\n');
 
-    // 2. Strategic Prompting
-    const prompt = `
-      You are the Registry Sidekick, an elite Executive Recruiter and Coach for Jean Kaluza (she/her).
-      Jean is using her 'Brag Engine' to build a library of high-impact career assets.
-      
-      JEAN'S MESSAGE:
-      "${message}"
-      
-      CONTEXT FOR STRATEGY:
-      - Jean built and LAUNCHED 'User Mirror' (AI UX research agent) as a live SaaS product. 
-      - She runs 'ProductShift'.
-      - She is a leader in 'Vibe Coding' (high-velocity AI-assisted engineering). 
-      - She is far beyond basic AI tools (competitors like base44 or lovable don't match her speed/depth).
-      - Her work on User Mirror proves end-to-end product/growth leadership.
-      
-      CURRENT LIBRARY CONTEXT:
-      ${libraryContext || 'Library is currently empty.'}
-      
-      TASK:
-      1. ANALYZE: Identify gaps between her library and the target role she mentioned.
-      2. SCULPT & MERGE: Prioritize "Augmenting" existing work history. Focus on 'Title Mapping'—if she needs to be a 'General Manager', re-frame her ProductShift or Disney experience to reflect that functional title.
-      3. NO FAKE CASE STUDIES: Do NOT suggest or generate 'case_study' assets. Jean will add these manually later.
-      3. DEDUCTIVE TITLING: Advise Jean on which titles are 'Translations' (SaaS standard) vs 'Fabrications' (Red flags).
-      3. SHOWCASE: Treat User Mirror as a live SaaS case study, not a sandbox.
-      4. REPLY: Provide a concise, encouraging strategic response.
-      
-      Return a JSON object:
-      {
-        "reply": "Strategic coaching message here.",
-        "suggestedAssets": [
-           {
-             "title": "Clear asset title (can be an existing role name to suggest a merge)",
-             "company": "ProductShift / User Mirror",
-             "dates": "N/A",
-             "description": ["High-impact bullet point proving the skill/win"],
-             "roi_metrics": ["e.g. 10x development velocity"],
-             "type": "win" | "skill" | "tooling" | "work_history",
-             "augmenting_existing": boolean (true if this should merge into a blob),
-             "role_tag": "Product Lead / AI Strategist",
-             "is_published": false
-           }
-        ]
-      }
-    `;
-
-    const aiResponse = await generateContentWithFallback(prompt);
+    const aiResponse = await generateContentWithFallback(SIDEKICK_CHAT_PROMPT(message, libraryContext, currentResume));
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to generate structured strategy.');
     
     const data = JSON.parse(jsonMatch[0]);
-    res.json({ success: true, ...data });
+    console.log('🤖 [SIDEKICK RESPONSE]:', JSON.stringify(data, null, 2));
+
+    let reply = data.reply || "I'm not sure how to handle that request, but I'm always learning!";
+    let suggestedAssets = data.suggestedAssets || [];
+
+    // Handle CRUD operations
+    if (data.action) {
+      switch (data.action) {
+        case 'add':
+          if (data.asset) {
+            const { data: newAsset, error: addError } = await supabase.from('career_assets').insert([data.asset]).select().single();
+            if (addError) throw addError;
+            reply = `Successfully added "${newAsset.title}" (${newAsset.type}) to your library.`;
+            suggestedAssets = [newAsset]; // Return the newly added asset for immediate display
+          } else {
+            reply = "I understood you wanted to add an asset, but couldn't find the details. Can you be more specific?";
+          }
+          break;
+        case 'update':
+          if (data.asset && data.asset.id) {
+            const { data: updatedAsset, error: updateError } = await supabase.from('career_assets').update(data.asset).eq('id', data.asset.id).select().single();
+            if (updateError) throw updateError;
+            reply = `Successfully updated "${updatedAsset.title}" (${updatedAsset.type}) in your library.`;
+            suggestedAssets = [updatedAsset];
+          } else {
+            reply = "I understood you wanted to update an asset, but couldn't find the ID or details. Can you be more specific?";
+          }
+          break;
+        case 'remove':
+          if (data.remove_criteria && (data.remove_criteria.id || (data.remove_criteria.title && data.remove_criteria.type))) {
+            let query = supabase.from('career_assets').delete();
+            if (data.remove_criteria.id) {
+              query = query.eq('id', data.remove_criteria.id);
+            } else if (data.remove_criteria.title && data.remove_criteria.type) {
+              query = query.eq('title', data.remove_criteria.title).eq('type', data.remove_criteria.type);
+            }
+            const { error: removeError } = await query;
+            if (removeError) throw removeError;
+            reply = `Successfully removed asset from your library.`;
+          } else {
+            reply = "I understood you wanted to remove an asset, but couldn't find enough details (ID, or Title and Type). Can you be more specific?";
+          }
+          break;
+        case 'chat':
+        default:
+          // Regular chat, reply and suggestedAssets are already set
+          break;
+      }
+    }
+
+    res.json({ success: true, reply, suggestedAssets });
 
   } catch (e: any) {
     console.error('❌ [SIDEKICK CHAT ERROR]:', e);
