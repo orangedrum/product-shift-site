@@ -25,17 +25,7 @@ router.post('/career/publish-resume', requireAdminKey, publishResumeHandler);
 router.delete('/career/assets/:id', requireAdminKey, deleteAssetHandler);
 
 // --- Admin AI Diagnostic Endpoint ---
-router.post('/ai-test', requireAdminKey, async (req, res) => {
-  try {
-    const result = await generateContentWithFallback("Reply with the word 'READY' if you are active.");
-    res.json({ success: true, aiResponse: result });
-  } catch (e: any) {
-    res.status(500).json({ success: false, error: e.message, hint: "Check if 'Generative Language API' is enabled in Google Cloud Console." });
-  }
-});
-
-// --- Admin AI Diagnostic Endpoint ---
-router.post('/ai-test', requireAdminKey, async (req, res) => {
+router.get('/ai-test', async (req, res) => {
   try {
     const result = await generateContentWithFallback("Reply with the word 'READY' if you are active.");
     res.json({ success: true, aiResponse: result });
