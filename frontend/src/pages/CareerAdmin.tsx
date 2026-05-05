@@ -33,6 +33,7 @@ const CareerAdmin: React.FC = () => {
   } | null>(null);
   const [previewMode, setPreviewMode] = useState<'resume' | 'cover'>('resume');
   const [documentTypeHint, setDocumentTypeHint] = useState<'auto' | 'resume' | 'cover_letter'>('auto'); // New state for document type hint
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -77,18 +78,11 @@ const CareerAdmin: React.FC = () => {
   const roles = ['Product Management', 'UX Research', 'Design', 'Development', 'Media Buying'];
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
     
-    setLoading(true);
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const text = event.target?.result as string;
-      setChatInput(text);
-      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `File "${file.name}" loaded. Select document type and click 'Extract' to analyze.` }]);
-    };
-    reader.readAsText(file);
-    setLoading(false); // Set loading false after file read is initiated
+    setSelectedFiles(files);
+    setSidekickMessages(prev => [...prev, { sender: 'bot', text: `${files.length} file(s) loaded. Select document type and click 'Extract' to analyze.` }]);
   };
 
   const handleBulkIngest = async () => {
@@ -97,11 +91,31 @@ const CareerAdmin: React.FC = () => {
 
     const ingestionItems: { rawData?: string; sourceUrl?: string; documentTypeHint?: 'resume' | 'cover_letter' | 'auto'; label?: string; }[] = [];
 
+    // 1. Process multiple uploaded files
+    for (const file of selectedFiles) {
+      try {
+        const text = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onerror = reject;
+          reader.readAsText(file);
+        });
+        ingestionItems.push({ rawData: text, documentTypeHint, label: file.name });
+      } catch (err) {
+        console.error(`Error reading file ${file.name}:`, err);
+      }
+    }
+
     if (chatInput.trim()) {
       ingestionItems.push({ rawData: chatInput, documentTypeHint: documentTypeHint, label: 'Pasted Text' });
     }
     if (mediaUrl.trim()) {
       ingestionItems.push({ sourceUrl: mediaUrl, documentTypeHint: documentTypeHint, label: mediaLabel });
+    }
+
+    if (ingestionItems.length === 0) {
+      setLoading(false);
+      return;
     }
 
     try {
@@ -120,6 +134,7 @@ const CareerAdmin: React.FC = () => {
       setReviewQueue(prev => [...data.assets, ...prev]);
       setChatInput(''); 
       setMediaUrl('');
+      setSelectedFiles([]); // Clear queue after successful ingest
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: `I found ${data.assets.length} strategic assets! Review them in the queue below.` }]);
     } catch (e: any) {
       console.error(e);
