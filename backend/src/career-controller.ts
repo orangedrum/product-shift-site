@@ -45,16 +45,23 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
 
         // Scrape URL content if provided
         if (sourceUrl && !rawData) {
-          try {
-             const scraped = await scrapeUrl(sourceUrl);
-             rawData = `
-                TITLE: ${scraped.title}
-                VISUAL ASSETS FOUND: ${JSON.stringify(scraped.images)}
-                BODY CONTENT: ${scraped.bodyText}
-             `;
-             console.log(`✅ Scraped content for URL: ${sourceUrl}`);
-          } catch (scrapeErr) {
-             console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);
+          // CTO FIX: Defensive check to skip scraping if sourceUrl is clearly raw text
+          const isActualUrl = sourceUrl.trim().startsWith('http') || (sourceUrl.includes('.') && !sourceUrl.includes(' '));
+          
+          if (isActualUrl) {
+            try {
+               const scraped = await scrapeUrl(sourceUrl);
+               rawData = `
+                  TITLE: ${scraped.title}
+                  VISUAL ASSETS FOUND: ${JSON.stringify(scraped.images)}
+                  BODY CONTENT: ${scraped.bodyText}
+               `;
+               console.log(`✅ Scraped content for URL: ${sourceUrl}`);
+            } catch (scrapeErr) {
+               console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);
+            }
+          } else {
+            console.log(`ℹ️ [CAREER INGEST] sourceUrl detected as raw text, skipping scraper.`);
           }
         }
 
