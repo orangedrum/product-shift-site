@@ -30,48 +30,37 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
   const allExtractedAssets: any[] = [];
 
   try {
-    console.log(`🚀 [CAREER INGEST] Processing asset for role: ${role || 'Auto-detect'}`);
+    // Loop through each item in the array
+    for (const item of ingestionItems) {
+      let { rawData, sourceUrl, label, documentTypeHint } = item;
+      const role = (item as any).role || (req.body as any).role; // Robust role detection
 
-    // CTO Strategy: If it's a URL ingestion, let's actually scrape the content
-    // so Gemini can read the REAL article rather than guessing based on the URL string.
-    if (sourceUrl && !rawData) {
-      // Loop through each item in the array
-      for (const item of ingestionItems) {
-        let { rawData, sourceUrl, role, label, documentTypeHint } = item;
+      if (!rawData && !sourceUrl) {
+        console.warn('Skipping ingestion item: Data or URL required.');
+        continue; 
+      }
 
-        if (!rawData && !sourceUrl) {
-          console.warn('Skipping ingestion item: Data or URL required.');
-          continue; // Skip to the next item
+      try {
+        console.log(`🚀 [CAREER INGEST] Processing item: ${label || sourceUrl || 'raw data'}`);
+
+        // Scrape URL content if provided
+        if (sourceUrl && !rawData) {
+          try {
+             const scraped = await scrapeUrl(sourceUrl);
+             rawData = `
+                TITLE: ${scraped.title}
+                VISUAL ASSETS FOUND: ${JSON.stringify(scraped.images)}
+                BODY CONTENT: ${scraped.bodyText}
+             `;
+             console.log(`✅ Scraped content for URL: ${sourceUrl}`);
+          } catch (scrapeErr) {
+             console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);
+          }
         }
 
-        try {
-          console.log(`🚀 [CAREER INGEST] Processing asset for role: ${role || 'Auto-detect'} from source: ${sourceUrl || 'raw data'}`);
-
-          // CTO Strategy: If it's a URL ingestion, let's actually scrape the content
-          // so Gemini can read the REAL article rather than guessing based on the URL string.
-          if (sourceUrl && !rawData) {
-            try {
-               const scraped = await scrapeUrl(sourceUrl);
-               rawData = `
-                  TITLE: ${scraped.title}
-                  VISUAL ASSETS FOUND: ${JSON.stringify(scraped.images)}
-                  BODY CONTENT: ${scraped.bodyText}
-               `;
-               console.log(`🔍 [CAREER INGEST] Scraped Content Length: ${scraped.bodyText?.length || 0} characters.`);
-               console.log(`✅ Scraped content for URL: ${sourceUrl}`);
-            } catch (scrapeErr) {
-               console.warn('Scraping failed, falling back to URL-only analysis', scrapeErr);
-            }
-          }
-
-          // CTO Logic: Fetch existing asset titles to help AI deduplicate against the current library
-          const { data: existingAssets } = await supabase
-            .from('career_assets')
-            .select('title, company, type');
-          
-          const libraryContext = (existingAssets || [])
-            .map(a => `- ${a.type}: ${a.title} (${a.company})`)
-            .join('\n');
+        // Fetch existing asset titles for deduplication context
+        const { data: existingAssets } = await supabase.from('career_assets').select('title, company, type');
+        const libraryContext = (existingAssets || []).map(a => `- ${a.type}: ${a.title} (${a.company})`).join('\n');
 
           const prompt = CAREER_ASSET_EXTRACTION_PROMPT(rawData || sourceUrl, libraryContext, role, label, documentTypeHint);
 

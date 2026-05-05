@@ -420,18 +420,6 @@ const CareerAdmin: React.FC = () => {
                           <option>Recommendation</option>
                        </select>
                     </div>
-                    <div> {/* New dropdown for document type hint */}
-                         <label className="block text-xs font-black uppercase text-gray-400 mb-1">Document Type Hint</label>
-                         <select 
-                           className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl"
-                           value={documentTypeHint}
-                           onChange={(e) => setDocumentTypeHint(e.target.value as 'auto' | 'resume' | 'cover_letter')}
-                         >
-                            <option value="auto">Auto-detect</option>
-                            <option value="resume">Resume</option>
-                            <option value="cover_letter">Cover Letter</option>
-                         </select>
-                      </div>
                     <NeoButton 
                       onClick={() => handleBulkIngest()}
                       disabled={loading || (!chatInput && selectedFiles.length === 0 && !mediaUrl.trim())} // Disable if no input
