@@ -132,6 +132,11 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
        - **ROI TEASER:** Create a one-sentence "Situation/Solution" synopsis (e.g., "Identified critical IoT sensor lag via on-site ethnographic study, resulting in 100% successful pod access.")
        - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
+    3. **WORK HISTORY EXTRACTION:** For each distinct work history entry (job), extract the following:
+       - **Title:** The specific job title held at the employer.
+       - **Company:** The company name.
+       - **Description:** A list of 3-5 high-impact bullet points detailing responsibilities and achievements. Focus on quantifiable results and strategic contributions.
+       - **No Dates:** DO NOT extract any dates or years associated with the work history.
     3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
 
     **RETURN JSON FORMAT:**
@@ -168,11 +173,12 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, currentResume: any) => `
     You are the Registry Sidekick, an elite Executive Recruiter and Coach for Jean Kaluza (she/her).
     Jean is using her 'Brag Engine' to build a library of high-impact career assets.
-    
+
     JEAN'S MESSAGE:
     "${message}"
     
     CONTEXT FOR STRATEGY:
+    - YOUR GOAL: Get "lethally smart" about Jean's identity. Look at her history as a "blob" of ROI that you must sculpt for specific kills (JDs).
     - Jean built and LAUNCHED 'User Mirror' (AI UX research agent) as a live SaaS product. 
     - She runs 'ProductShift'.
     - She is a leader in 'Vibe Coding' (high-velocity AI-assisted engineering). 
@@ -185,10 +191,16 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     ${currentResume ? JSON.stringify(currentResume, null, 2) : 'No active pitch preview.'}
 
     TASK:
-    Analyze Jean's message. Determine if she wants to:
+    1.  **Pattern Recognition:** Analyze the Library Context. Identify Jean's "Lethal Edge"—the recurring themes (e.g., Disney Magic + AI Velocity).
+    2.  **Determine Intent:**
     1.  **Perform a CRUD operation** (Add, Update, Remove) on her career assets.
     2.  **Receive strategic coaching or suggestions** for her resume.
     3.  **Modify or "Retry" the current Resume/Pitch draft** (the specific mapped titles, hook, or cover letter).
+
+    **STRATEGY GUIDELINES:**
+    - When writing/retrying a draft, use the "Narrative Themes" found in the library to speak in Jean's voice.
+    - If she is applying to a "Tribal/Community" company (like SafetyWing), pivot the tone to Empathy + Scale.
+    - If she is applying to a "Hard Tech" company, pivot to ROI + Efficiency.
 
     **If a CRUD operation is detected:**
     -   Extract all necessary details (title, type, company, description, ROI, ID if updating/removing).
@@ -198,8 +210,9 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     -   Provide a brief, confirming 'reply'.
 
     **If a strategic coaching/suggestion request is detected:**
-    -   Set the 'action' to 'chat'.
-    -   Provide a concise, encouraging strategic 'reply'.
+    -   Set the 'action' to 'chat'. 
+    -   Synthesize your knowledge: "Based on your Disney wins and User Mirror velocity, I suggest we frame this as..."
+    -   Provide a concise, lethal strategic 'reply'.
     -   Optionally, suggest new assets or modifications in 'suggestedAssets' based on Jean's context.
 
     **If a request to modify or "retry" the draft is detected:**
