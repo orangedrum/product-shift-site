@@ -88,7 +88,7 @@ export const AGGREGATED_REPORT_PROMPT = (url: string, cleansedTranscripts: strin
     ${footer}
 `;
 
-export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: string, role?: string, label?: string) => `
+export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: string, role?: string, label?: string, documentTypeHint?: string) => `
     You are an elite Executive Recruiter and Narrative Strategist. 
     Jean Kaluza (she/her) is a world-class Product Strategist. Jean built 'User Mirror'.
     

@@ -110,7 +110,7 @@ const CareerAdmin: React.FC = () => {
       ingestionItems.push({ rawData: chatInput, documentTypeHint: documentTypeHint, label: 'Pasted Text' });
     }
     if (mediaUrl.trim()) {
-      ingestionItems.push({ sourceUrl: mediaUrl, documentTypeHint: documentTypeHint, label: mediaLabel });
+      ingestionItems.push({ sourceUrl: mediaUrl, documentTypeHint: 'auto', label: mediaLabel });
     }
 
     if (ingestionItems.length === 0) {
