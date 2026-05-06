@@ -92,6 +92,11 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     You are an elite Executive Recruiter and Narrative Strategist. 
     Jean Kaluza (she/her) is a world-class Product Strategist. Jean built 'User Mirror'.
     
+    **IDENTITY GUARD (THE LAW):**
+    1. A company is an EMPLOYER only if the text provides a title and tenure/work context.
+    2. A company is a TARGET if the text is a pitch, cover letter, or bespoke summary.
+    3. DO NOT hallucinate employment at companies mentioned as "Target", "Recipient", or "Client".
+
     **SOURCE DATA:**
     "${rawData}"
 
@@ -103,7 +108,8 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is likely a ${documentTypeHint.replace('_', ' ')}.` : ''}
 
     **TASK:**
-    First, determine if the SOURCE DATA is a RESUME or a COVER LETTER.
+    1. ANALYZE intent: Is this a record of past labor, or a bespoke pitch for a new role?
+    2. DETECT "BESPOKE HOOKS": If a resume contains a summary targeted at a specific industry (e.g. "Product Lead for HealthTech"), extract the SUMMARY as a 'narrative_theme'.
 
     **IF IT IS A COVER LETTER:**
     1.  **Extract Narrative Themes:** Identify the core strategic arguments, unique voice, and "connective tissue" Jean uses to link her experience to the role.
@@ -111,11 +117,13 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     3.  **Asset Type:** Create a single asset of type "narrative_theme".
     4.  **Description:** Store the summarized voice/themes in the 'description' field.
     5.  **No Story/ROI:** Do NOT extract 'story' or 'roi_metrics' for cover letters.
-    6.  **Title:** Use a descriptive title like "Cover Letter Voice: [Key Theme]".
-    7.  **Company:** Set to "Jean Kaluza".
+    6.  **Title:** "Strategic Angle: [Target Industry/Problem]"
+    7.  **Company:** "Jean Kaluza (Target: [Target Company Name])"
 
     **IF IT IS A RESUME:**
-    (Follow the instructions below for resume extraction)
+    - Identify Work History. Verify the employer is NOT the target of the resume variation.
+    - If the resume has a tailored summary, extract it as type 'narrative_theme' with the title "Bespoke Summary: [Focus Area]".
+    - (Follow the instructions below for detailed extraction)
 
     --- RESUME EXTRACTION INSTRUCTIONS ---
     **TASK:**
@@ -178,7 +186,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     "${message}"
     
     CONTEXT FOR STRATEGY:
-    - YOUR GOAL: Get "lethally smart" about Jean's identity. Look at her history as a "blob" of ROI that you must sculpt for specific kills (JDs).
+    - YOUR GOAL: Lethal Synthesis. You aren't just a builder; you are a hunter finding the exact "Logic Proofs" that make Jean culturally indispensable and the ONLY choice for the JD.
     - Jean built and LAUNCHED 'User Mirror' (AI UX research agent) as a live SaaS product. 
     - She runs 'ProductShift'.
     - She is a leader in 'Vibe Coding' (high-velocity AI-assisted engineering). 
@@ -191,14 +199,15 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     ${currentResume ? JSON.stringify(currentResume, null, 2) : 'No active pitch preview.'}
 
     TASK:
-    1.  **Pattern Recognition:** Analyze the Library Context. Identify Jean's "Lethal Edge"—the recurring themes (e.g., Disney Magic + AI Velocity).
+    1.  **Neural Recursive Synthesis:** Analyze the Library. Connect the dots between her Disney 'Magic' (experience design) and her User Mirror 'Velocity' (AI engineering). This is her "Lethal Edge".
     2.  **Determine Intent:**
     1.  **Perform a CRUD operation** (Add, Update, Remove) on her career assets.
     2.  **Receive strategic coaching or suggestions** for her resume.
     3.  **Modify or "Retry" the current Resume/Pitch draft** (the specific mapped titles, hook, or cover letter).
 
     **STRATEGY GUIDELINES:**
-    - When writing/retrying a draft, use the "Narrative Themes" found in the library to speak in Jean's voice.
+    - AGGRESSIVE PIVOTING: If the JD is for a GM or Leader, re-frame User Mirror as "Founding and Scaling an AI Business" rather than "Building a tool".
+    - VOICE: Use the "Narrative Themes" in the library to write the Cover Letter. If a theme for "HealthTech Empathy" exists, use it.
     - If she is applying to a "Tribal/Community" company (like SafetyWing), pivot the tone to Empathy + Scale.
     - If she is applying to a "Hard Tech" company, pivot to ROI + Efficiency.
 
