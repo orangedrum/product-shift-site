@@ -32,10 +32,24 @@ const CareerAdmin: React.FC = () => {
     coverLetter?: string
   } | null>(null);
   const [previewMode, setPreviewMode] = useState<'resume' | 'cover'>('resume');
-  const [documentTypeHint, setDocumentTypeHint] = useState<'auto' | 'resume' | 'cover_letter'>('auto'); // New state for document type hint
+  const [documentTypeHint, setDocumentTypeHint] = useState<'auto' | 'resume' | 'cover_letter' | 'linkedin_profile'>('auto'); // New state for document type hint
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // CTO Helper: Enable live editing of assets within the review queue before approval
+  const updateReviewAsset = (index: number, field: string, value: any) => {
+    const updatedQueue = [...reviewQueue];
+    const asset = { ...updatedQueue[index] };
+    if (field.includes('.')) {
+      const [obj, sub] = field.split('.');
+      asset[obj] = { ...asset[obj], [sub]: value };
+    } else {
+      asset[field] = value;
+    }
+    updatedQueue[index] = asset;
+    setReviewQueue(updatedQueue);
+  };
 
   // CTO Helper: Enable live editing of assets within the pitch preview
   const updatePitchAsset = (id: string, field: string, value: any) => {
@@ -374,6 +388,7 @@ const CareerAdmin: React.FC = () => {
                            onChange={(e) => setDocumentTypeHint(e.target.value as 'auto' | 'resume' | 'cover_letter')}
                          >
                             <option value="auto">Auto-detect</option>
+                            <option value="linkedin_profile">LinkedIn Profile (Ground Truth)</option>
                             <option value="resume">Resume</option>
                             <option value="cover_letter">Cover Letter</option>
                          </select>
@@ -462,9 +477,45 @@ const CareerAdmin: React.FC = () => {
                               </span>
                             )}
                          </div>
-                         <h4 className="text-lg font-bold text-gray-900 mt-2">{asset.title}</h4>
-                         <p className="text-sm text-gray-400 font-bold">{asset.company || asset.role_tag}</p>
+                         <input 
+                           className="w-full text-lg font-bold text-gray-900 bg-transparent border-b border-transparent focus:border-indigo-200 focus:ring-0 p-0 mt-2"
+                           value={asset.title}
+                           onChange={(e) => updateReviewAsset(i, 'title', e.target.value)}
+                           placeholder="Asset Title"
+                         />
+                         <input 
+                           className="w-full text-sm text-gray-400 font-bold bg-transparent border-b border-transparent focus:border-indigo-200 focus:ring-0 p-0 mb-4"
+                           value={asset.company || ''}
+                           onChange={(e) => updateReviewAsset(i, 'company', e.target.value)}
+                           placeholder="Company Name"
+                         />
                       </div>
+
+                      {asset.type === 'work_history' && asset.is_proposed_new_employer && (
+                         <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl animate-fade-in">
+                            <p className="text-[10px] font-black text-amber-800 uppercase mb-2 flex items-center gap-2">
+                               <AlertCircle size={14}/> Identity Verification Required
+                            </p>
+                            <p className="text-sm font-bold text-amber-900 mb-3">I found a new potential employer: <span className="underline decoration-amber-400 decoration-2 underline-offset-4">{asset.company}</span>. Did you actually work here?</p>
+                            <div className="flex gap-2">
+                               <button 
+                                 onClick={() => updateReviewAsset(i, 'is_proposed_new_employer', false)} 
+                                 className="px-4 py-2 bg-amber-600 text-white text-[10px] font-black uppercase rounded-lg shadow-sm hover:bg-amber-700 transition-all active:scale-95"
+                               >
+                                 Yes, Verify Employer
+                               </button>
+                               <button 
+                                 onClick={() => {
+                                    updateReviewAsset(i, 'type', 'narrative_theme'); // Pivot if not work history
+                                    updateReviewAsset(i, 'is_proposed_new_employer', false);
+                                 }} 
+                                 className="px-4 py-2 bg-white border-2 border-amber-300 text-amber-700 text-[10px] font-black uppercase rounded-lg hover:bg-amber-100 transition-all active:scale-95"
+                               >
+                                 No, this is a Target/Pitch
+                               </button>
+                            </div>
+                         </div>
+                      )}
 
                       {asset.type === 'case_study' && asset.story ? (
                          <div className="mt-4 p-5 bg-gray-50 rounded-2xl border border-gray-200 text-[10px] space-y-3 text-gray-600">
@@ -529,11 +580,13 @@ const CareerAdmin: React.FC = () => {
                             )}
                          </div>
                       ) : (
-                         <ul className="space-y-2 mb-4">
-                            {asset.description?.map((bullet: string, idx: number) => (
-                               <li key={idx} className="text-sm text-gray-600 flex items-start gap-2 italic">"{bullet}"</li>
-                            ))}
-                         </ul>
+                         <textarea 
+                           className="w-full text-sm text-gray-600 bg-gray-50/50 p-3 rounded-lg border-none focus:ring-2 focus:ring-indigo-100 mb-4 resize-none italic" 
+                           rows={asset.description?.length || 2}
+                           value={asset.description?.join('\n')}
+                           onChange={(e) => updateReviewAsset(i, 'description', e.target.value.split('\n'))}
+                           placeholder="Asset Description (One bullet per line)"
+                         />
                       )}
 
                      {asset.source_url && asset.source_url !== 'direct_upload' && (

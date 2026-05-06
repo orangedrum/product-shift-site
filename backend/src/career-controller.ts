@@ -8,7 +8,7 @@ import { CAREER_ASSET_EXTRACTION_PROMPT, SIDEKICK_CHAT_PROMPT } from './prompts'
 interface IngestionItem {
   rawData?: string;
   sourceUrl?: string;
-  documentTypeHint?: 'resume' | 'cover_letter' | 'auto'; // Hint for AI
+  documentTypeHint?: 'resume' | 'cover_letter' | 'linkedin_profile' | 'auto'; // Hint for AI
   label?: string; // Optional label for the item, e.g., filename
 }
 
@@ -67,9 +67,17 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
 
         // Fetch existing asset titles for deduplication context
         const { data: existingAssets } = await supabase.from('career_assets').select('title, company, type');
-        const libraryContext = (existingAssets || []).map(a => `- ${a.type}: ${a.title} (${a.company})`).join('\n');
+        const libraryAssets = existingAssets || [];
+        const libraryContext = libraryAssets.map(a => `- ${a.type}: ${a.title} (${a.company})`).join('\n');
 
-          const prompt = CAREER_ASSET_EXTRACTION_PROMPT(rawData || sourceUrl, libraryContext, role, label, documentTypeHint);
+        // CTO FIX: Generate a hard list of verified employers to ground the AI
+        const verifiedEmployers = libraryAssets
+          .filter(a => a.type === 'work_history')
+          .map(a => a.company)
+          .filter((v, i, self) => v && self.indexOf(v) === i)
+          .join(', ');
+
+        const prompt = CAREER_ASSET_EXTRACTION_PROMPT(rawData || sourceUrl, libraryContext, role, label, documentTypeHint, verifiedEmployers);
 
           const structuredData = await generateContentWithFallback(prompt);
           

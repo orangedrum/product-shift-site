@@ -105,7 +105,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     ${role ? `**PRIMARY FOCUS ROLE:** ${role}` : ''}
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
-    ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is likely a ${documentTypeHint.replace('_', ' ')}.` : ''}
+    ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is a ${documentTypeHint.replace('_', ' ')}.` : ''}
 
     **TASK:**
     1. ANALYZE intent: Is this a record of past labor, or a bespoke pitch for a new role?
@@ -158,6 +158,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
           "roi_metrics": ["Specific quantifiable wins"],
           "recommender_name": "Name of the recommender (if type is recommendation)",
           "recommender_title": "Title of the recommender (if type is recommendation)",
+          "is_proposed_new_employer": boolean,
           "story": { 
             "problem": ["Bullet 1", "Bullet 2"],
             "methodology": ["Bullet 1", "Bullet 2"],
@@ -187,6 +188,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     
     CONTEXT FOR STRATEGY:
     - YOUR GOAL: Lethal Synthesis. You aren't just a builder; you are a hunter finding the exact "Logic Proofs" that make Jean culturally indispensable and the ONLY choice for the JD.
+    - **GROUND TRUTH:** If the library contains an asset with the label 'LinkedIn Master' or 'Verified History', prioritize those facts over any conflicting data in other assets.
     - Jean built and LAUNCHED 'User Mirror' (AI UX research agent) as a live SaaS product. 
     - She runs 'ProductShift'.
     - She is a leader in 'Vibe Coding' (high-velocity AI-assisted engineering). 
