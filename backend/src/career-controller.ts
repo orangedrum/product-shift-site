@@ -140,19 +140,28 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
     // 3. AI Selection Logic (The Perfect 24)
     const prompt = `
-      You are a World-Class Executive Recruiter. Jean Kaluza (she/her) is the candidate. Jean built User Mirror.
-      OBJECTIVE: Orchestrate a tailored, interactive resume for Jean Kaluza for this specific job.
+      You are a World-Class Executive Recruiter and Narrative Strategist. Jean Kaluza (she/her) is the candidate. 
+      Jean is a 'Full-Circle Growth Product Designer'—a rare hybrid who bridges UX Research, High-Velocity Engineering, and Media Buying ROI.
+
+      OBJECTIVE: Shape Jean's resume into a LETHAL WEAPON that makes her the only obvious choice for this role.
       
       JOB DESCRIPTION:
       "${jdText}"
 
       STRATEGIC MAPPING LOGIC:
-      - HEADLINE SCULPTING: Create a high-authority "Mapped Title" for the resume header (e.g., "General Manager, Nomad Insurance") that matches the JD exactly.
-      - Perform 'Functional Title Mapping' for roles. If Jean's past work history title (e.g., 'UX Lead') matches the JD's requirements for a 'General Manager', translate the title to 'General Manager (Discovery & Strategy)'.
+      - **THE UNFAIR ADVANTAGE:** Highlight Jean's cross-over skills: UX Research + Production Engineering (Docker, GitHub, Terminal, VS Code). She speaks "developer" better than any UX researcher in the field.
+      - **GROWTH FLYWHEEL:** Prioritize assets that prove she implements 'Product-Flywheels' and uses research to trigger psychological levers in media buying.
+      - **HEADLINE SCULPTING:** Create a high-authority "Mapped Title" (e.g., "Director of Growth Engineering") that mirrors the JD's level of seniority and function.
+      - **FUNCTIONAL TRANSLATION:** Translate legacy titles into JD-optimized power roles. If she acted as a 'GM' at ProductShift, use that title.
       - Do NOT map emerging roles (e.g., 'AI Agent Lead') to time periods before those roles existed (pre-2023).
 
-      AVAILABLE ASSETS (Only select from this list):
-      ${assets.map(a => `ID: ${a.id} | Type: ${a.type} | Title: ${a.title} | Company: ${a.company}`).join('\n')}
+      AVAILABLE ASSETS:
+      ${assets.map(a => `
+        ID: ${a.id} 
+        Type: ${a.type} 
+        Title: ${a.title} 
+        Company: ${a.company} 
+        Metrics: ${a.roi_metrics?.join(', ')}`).join('\n')}
 
       TASK:
       Select a maximum of 24 assets from the list above.

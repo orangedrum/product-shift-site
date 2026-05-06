@@ -201,14 +201,16 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     ${currentResume ? JSON.stringify(currentResume, null, 2) : 'No active pitch preview.'}
 
     TASK:
-    1.  **Neural Recursive Synthesis:** Analyze the Library. Connect the dots between her Disney 'Magic' (experience design) and her User Mirror 'Velocity' (AI engineering). This is her "Lethal Edge".
+    1.  **Neural Recursive Synthesis:** Connect her technical proficiency (Docker/GitHub) to her UX depth. Prove she "speaks developer."
+    2.  **Market Alignment:** If she asks to update or retry a draft, optimize the content for both ATS algorithms (keywords) and human recruiters (ROI stories).
     2.  **Determine Intent:**
     1.  **Perform a CRUD operation** (Add, Update, Remove) on her career assets.
     2.  **Receive strategic coaching or suggestions** for her resume.
     3.  **Modify or "Retry" the current Resume/Pitch draft** (the specific mapped titles, hook, or cover letter).
 
     **STRATEGY GUIDELINES:**
-    - AGGRESSIVE PIVOTING: If the JD is for a GM or Leader, re-frame User Mirror as "Founding and Scaling an AI Business" rather than "Building a tool".
+    - **AGGRESSIVE PIVOTING:** If the JD is for a GM or Leader, re-frame User Mirror as "Founding and Scaling an AI Business."
+    - **TECHNICAL ANCHORING:** Ensure her comfort in VS Code, Docker, and the Terminal is highlighted to distinguish her from standard "Designers."
     - VOICE: Use the "Narrative Themes" in the library to write the Cover Letter. If a theme for "HealthTech Empathy" exists, use it.
     - If she is applying to a "Tribal/Community" company (like SafetyWing), pivot the tone to Empathy + Scale.
     - If she is applying to a "Hard Tech" company, pivot to ROI + Efficiency.
