@@ -88,10 +88,10 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
             continue; // Skip to the next item if AI fails for this one
           }
           
-          const { assets } = JSON.parse(jsonMatch[0]);
+          const { assets } = JSON.parse(jsonMatch[0]) || { assets: [] };
 
           // Data Normalization
-          const normalizedAssets = assets.map((a: any) => ({
+          const normalizedAssets = (assets || []).map((a: any) => ({
             ...a,
             description: Array.isArray(a.description) ? a.description : [a.description],
             roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],

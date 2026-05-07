@@ -105,11 +105,14 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     ${role ? `**PRIMARY FOCUS ROLE:** ${role}` : ''}
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
-    ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is a ${documentTypeHint.replace('_', ' ')}.` : ''}
+    ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is likely a ${documentTypeHint.replace('_', ' ')}.` : ''}
 
     **TASK:**
-    1. ANALYZE intent: Is this a record of past labor, or a bespoke pitch for a new role?
-    2. DETECT "BESPOKE HOOKS": If a resume contains a summary targeted at a specific industry (e.g. "Product Lead for HealthTech"), extract the SUMMARY as a 'narrative_theme'.
+    1. ANALYZE intent: Is this past labor (Resume), a pitch (Cover Letter), or strategic thought leadership (Article/Talk/Case Study)?
+    2. **STORYTELLING EXTRACTION:** If the source describes a specific project, article, or talk, perform a "Deep Narrative Reconstruction". 
+       - Extract assets of type "writing_sample", "talk", or "case_study".
+       - Connect findings to Jean's "Full-Circle" identity (Technical + Strategy + Research).
+    3. DETECT "BESPOKE HOOKS": If a resume contains a summary targeted at a specific industry, extract it as a 'narrative_theme'.
 
     **IF IT IS A COVER LETTER:**
     1.  **Extract Narrative Themes:** Identify the core strategic arguments, unique voice, and "connective tissue" Jean uses to link her experience to the role.
@@ -121,13 +124,13 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     7.  **Company:** "Jean Kaluza (Target: [Target Company Name])"
 
     **IF IT IS A RESUME:**
-    - Identify Work History. Verify the employer is NOT the target of the resume variation.
+    - Identify Work History. Verify employers against the IDENTITY GUARD and VERIFIED LIST.
     - If the resume has a tailored summary, extract it as type 'narrative_theme' with the title "Bespoke Summary: [Focus Area]".
     - (Follow the instructions below for detailed extraction)
 
-    --- RESUME EXTRACTION INSTRUCTIONS ---
+    --- EXTRACTION INSTRUCTIONS (GENERAL) ---
     **TASK:**
-    1. **STORYTELLING EXTRACTION (For Case Study, Talk, or Writing Sample):** If the source describes a specific project or published thought leadership, you MUST perform a "Deep Narrative Reconstruction".
+    1. **DEEP NARRATIVE RECONSTRUCTION (For Case Study, Talk, or Writing Sample):**
        - **MANDATORY DEPTH:** Every section of the 'story' object MUST contain 4-6 high-density technical bullet points. DO NOT SUMMARIZE into 'description'.
        - **STRICT JSON SCHEMA:** For these types, the 'description' field MUST contain only a 2-sentence hook. 100% of the value must live in the 'story' object.
        - **VISUAL MAPPING (CRITICAL):** You MUST map the actual 'src' URLs from the 'VISUAL ASSETS FOUND' section into the 'story.visuals' array. Match them to the narrative sections they illustrate using a 'section_mapping' key (problem, methodology, process, findings, results). Flag the most visually compelling image as 'is_hero': true.
@@ -140,12 +143,11 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
        - **ROI TEASER:** Create a one-sentence "Situation/Solution" synopsis (e.g., "Identified critical IoT sensor lag via on-site ethnographic study, resulting in 100% successful pod access.")
        - **TONE:** High-stakes, authoritative, "CTO-level" vocabulary.
     2. **ATOMIC SCAVENGING:** Separately extract EVERY unique skill, methodology, or 'win' found in the text that isn't already captured in the library. 
-    3. **WORK HISTORY EXTRACTION:** For each distinct work history entry (job), extract the following:
-       - **Title:** The specific job title held at the employer.
+    3. **WORK HISTORY EXTRACTION:** For each distinct work history entry:
+       - **Title:** The specific job title held.
        - **Company:** The company name.
        - **Description:** A list of 3-5 high-impact bullet points detailing responsibilities and achievements. Focus on quantifiable results and strategic contributions.
        - **No Dates:** DO NOT extract any dates or years associated with the work history.
-    3. **NO DATES:** Do NOT extract years or months. Omit the 'dates' field or set to 'N/A'.
 
     **RETURN JSON FORMAT:**
     {
@@ -188,11 +190,11 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     
     CONTEXT FOR STRATEGY:
     - YOUR GOAL: Lethal Synthesis. You aren't just a builder; you are a hunter finding the exact "Logic Proofs" that make Jean culturally indispensable and the ONLY choice for the JD.
+    - **IDENTITY:** Jean is a rare 'Full-Circle Growth Product Designer'. She speaks "developer" better than any researcher, leading cross-functional teams through successful release cycles. She bridges Engineering (Docker, GitHub, Terminal, VS Code) and Marketing (Media Buying/Psychological Triggers). She lives off Design Thinking and Product-Flywheels.
     - **GROUND TRUTH:** If the library contains an asset with the label 'LinkedIn Master' or 'Verified History', prioritize those facts over any conflicting data in other assets.
     - Jean built and LAUNCHED 'User Mirror' (AI UX research agent) as a live SaaS product. 
-    - She runs 'ProductShift'.
-    - She is a leader in 'Vibe Coding' (high-velocity AI-assisted engineering). 
-    - Her work on User Mirror proves end-to-end product/growth leadership.
+    - She implements the 'Product Flywheel' to turn traffic into compounding growth.
+    - She excels at leading cross-functional teams through complex release cycles.
     
     CURRENT LIBRARY CONTEXT (for reference, do not modify directly unless explicitly instructed by Jean):
     ${libraryContext || 'Library is currently empty.'}
