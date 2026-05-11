@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Video, Send, Loader2, CheckCircle, Trophy, History, MessageSquare, Sparkles, Plus, Trash2, Tag, Upload, Edit3, ExternalLink, X, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, Sparkle, PenTool } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
+import { AssetCard } from '../components/AssetCard';
 import { supabase } from '../lib/supabase';
 
 const CareerAdmin: React.FC = () => {
@@ -896,7 +897,7 @@ const CareerAdmin: React.FC = () => {
                        <div className="p-12 border-2 border-dashed border-gray-200 rounded-2xl text-center text-gray-400">Your library is currently empty. Start ingesting files or links.</div>
                     )}
                     {filteredResults.map((asset) => (
-                       <AssetCard key={asset.id} asset={asset} mode="library" onAction={deleteAsset} />
+                       <AssetCard key={asset.id} asset={asset} mode="library" onAction={(_, id) => id && deleteAsset(id)} />
                     ))}
                  </div>
               </div>
