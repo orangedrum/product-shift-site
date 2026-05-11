@@ -140,10 +140,10 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
     // 3. AI Selection Logic (The Perfect 24)
     const prompt = `
-      You are a World-Class Executive Recruiter and Narrative Strategist. Jean Kaluza (she/her) is the candidate. 
+      You are a World-Class Executive Recruiter and Strategy Consultant. Jean Kaluza (she/her) is the candidate. 
       Jean is a 'Full-Circle Growth Product Designer'—a rare hybrid who bridges UX Research, High-Velocity Engineering, and Media Buying ROI.
 
-      OBJECTIVE: Shape Jean's resume into a LETHAL WEAPON that makes her the only obvious choice for this role.
+      OBJECTIVE: Analyze the JD and provide a strategic recommendation for Jean's resume.
       
       JOB DESCRIPTION:
       "${jdText}"
@@ -177,7 +177,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const { selectedIds, mappedTitle } = JSON.parse(jsonMatch[0]);
+    const { selectedIds, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
     
     // Filter full asset data for the frontend
     const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
@@ -199,7 +199,9 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         strategicHook,
         coverLetter,
         targetTitle: jdData.title,
-        mappedTitle: mappedTitle || "Product Strategist & Growth Lead"
+        mappedTitle: mappedTitle || "Product Strategist & Growth Lead",
+        strategicReasoning,
+        gapAnalysis
       }
     });
   } catch (e: any) {
