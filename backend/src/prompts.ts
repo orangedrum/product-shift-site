@@ -108,10 +108,10 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is likely a ${documentTypeHint.replace('_', ' ')}.` : ''}
 
     **TASK:**
-    1. ANALYZE intent: Is this past labor (Resume), a pitch (Cover Letter), or strategic thought leadership?
+    1. ANALYZE intent: Is this past labor (Resume), a pitch (Cover Letter), or strategic thought leadership (Article/Talk/Case Study)?
     2. **STORYTELLING EXTRACTION:** If the source describes a specific project, article, or talk, perform a "Deep Narrative Reconstruction". 
        - Extract assets of type "writing_sample", "talk", or "case_study".
-       - Connect findings to Jean's "Full-Circle" identity.
+       - Connect findings to Jean's "Full-Circle" identity (Technical + Strategy + Research).
     3. DETECT "BESPOKE HOOKS": If a resume contains a summary targeted at a specific industry, extract it as a 'narrative_theme'.
 
     **IF IT IS A COVER LETTER:**

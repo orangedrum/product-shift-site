@@ -9,6 +9,8 @@ const CareerAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder' | 'published'>('builder');
   const [chatInput, setChatInput] = useState('');
   const [sidekickInput, setSidekickInput] = useState('');
+  const [librarySearch, setLibrarySearch] = useState('');
+  const [libraryFilter, setLibraryFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -23,6 +25,9 @@ const CareerAdmin: React.FC = () => {
   ]);
 
   const [results, setResults] = useState<any[]>([]);
+  const [pitchReasoning, setPitchReasoning] = useState<string>('');
+  const [pitchGaps, setPitchGaps] = useState<string[]>([]);
+
   const [publishedResumes, setPublishedResumes] = useState<any[]>([]);
   const [pitchPreview, setPitchPreview] = useState<{
     assets: any[],
@@ -40,9 +45,9 @@ const CareerAdmin: React.FC = () => {
   // Filtering logic for the Content Vault
   const filteredResults = results.filter(asset => {
     const matchesSearch = 
-      asset.title?.toLowerCase().includes(librarySearch.toLowerCase()) ||
-      asset.company?.toLowerCase().includes(librarySearch.toLowerCase()) ||
-      asset.description?.some((d: string) => d.toLowerCase().includes(librarySearch.toLowerCase()));
+      (asset.title?.toLowerCase() || '').includes(librarySearch.toLowerCase()) ||
+      (asset.company?.toLowerCase() || '').includes(librarySearch.toLowerCase()) ||
+      (Array.isArray(asset.description) && asset.description.some((d: string) => d.toLowerCase().includes(librarySearch.toLowerCase())));
     
     const matchesFilter = libraryFilter === 'all' || asset.type === libraryFilter;
     
@@ -287,6 +292,8 @@ const CareerAdmin: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setPitchPreview(data.data);
+        setPitchReasoning(data.data.strategicReasoning || '');
+        setPitchGaps(data.data.gapAnalysis || []);
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analysis complete! I've selected the 24 assets that best prove your ROI for this role. You can review the page layout below." }]);
       } else {
         throw new Error(data.error);
