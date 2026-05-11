@@ -77,7 +77,14 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
           .filter((v, i, self) => v && self.indexOf(v) === i)
           .join(', ');
 
-        const prompt = CAREER_ASSET_EXTRACTION_PROMPT(rawData || sourceUrl, libraryContext, role, label, documentTypeHint, verifiedEmployers);
+        const prompt = CAREER_ASSET_EXTRACTION_PROMPT(
+          rawData || sourceUrl || 'No content provided', 
+          libraryContext, 
+          role, 
+          label, 
+          documentTypeHint, 
+          verifiedEmployers
+        );
 
           const structuredData = await generateContentWithFallback(prompt);
           

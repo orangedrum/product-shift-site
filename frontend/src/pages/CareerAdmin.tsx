@@ -266,12 +266,18 @@ const CareerAdmin: React.FC = () => {
   };
 
   const handleAddAssetToPitch = (asset: any) => {
-    if (!pitchPreview) return;
+    if (!pitchPreview) {
+      setPitchPreview({
+        assets: [asset],
+        strategicHook: "Manually curated resume draft.",
+        targetTitle: "Bespoke Role",
+        mappedTitle: "Product Strategist & Growth Lead",
+        coverLetter: "Bespoke cover letter draft."
+      });
+      return;
+    }
     if (pitchPreview.assets.some(a => a.id === asset.id)) return;
-    setPitchPreview({
-      ...pitchPreview,
-      assets: [asset, ...pitchPreview.assets]
-    });
+    setPitchPreview({ ...pitchPreview, assets: [asset, ...pitchPreview.assets] });
   };
 
   const handleSyncNarrative = async () => {
