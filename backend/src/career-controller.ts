@@ -164,13 +164,19 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         Metrics: ${a.roi_metrics?.join(', ')}`).join('\n')}
 
       TASK:
-      Select a maximum of 24 assets from the list above.
+      1. Select a maximum of 24 assets that best prove Jean's ROI for this specific role.
+      2. Provide a "strategicReasoning" summary (2-3 sentences) explaining your choices.
+      3. Identify any "gapAnalysis" points—skills or wins the JD asks for that are missing from her library.
+
+      Return a JSON object with: 
+      "selectedIds" (ARRAY of IDs), 
+      "mappedTitle" (STRING), 
+      "strategicReasoning" (STRING), 
+      "gapAnalysis" (ARRAY of strings).
       - CRITICAL: Do NOT hallucinate assets. If a type (like case_study) is not in the list, DO NOT include it.
       - DIVERSITY REQUIREMENT: You MUST select assets from every available category (work_history, skill, tooling, talk, recommendation) to ensure a complete resume. Do not leave sections empty if data exists.
       - Distribution Goal: 3 case_study, 5 work_history, 6 skill, 4 technical tooling, 2 talks, 2 writing_samples, 2 recommendations.
       - Omit all dates/years from titles/descriptions to prevent bias.
-
-      Return a JSON object with two keys: "selectedIds" (ARRAY of IDs) and "mappedTitle" (STRING for the resume headline).
     `;
 
     const aiResponse = await generateContentWithFallback(prompt);

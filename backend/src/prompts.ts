@@ -108,10 +108,10 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is likely a ${documentTypeHint.replace('_', ' ')}.` : ''}
 
     **TASK:**
-    1. ANALYZE intent: Is this past labor (Resume), a pitch (Cover Letter), or strategic thought leadership (Article/Talk/Case Study)?
+    1. ANALYZE intent: Is this past labor (Resume), a pitch (Cover Letter), or strategic thought leadership?
     2. **STORYTELLING EXTRACTION:** If the source describes a specific project, article, or talk, perform a "Deep Narrative Reconstruction". 
        - Extract assets of type "writing_sample", "talk", or "case_study".
-       - Connect findings to Jean's "Full-Circle" identity (Technical + Strategy + Research).
+       - Connect findings to Jean's "Full-Circle" identity.
     3. DETECT "BESPOKE HOOKS": If a resume contains a summary targeted at a specific industry, extract it as a 'narrative_theme'.
 
     **IF IT IS A COVER LETTER:**
@@ -190,7 +190,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     
     CONTEXT FOR STRATEGY:
     - YOUR GOAL: Lethal Synthesis. You aren't just a builder; you are a hunter finding the exact "Logic Proofs" that make Jean culturally indispensable and the ONLY choice for the JD.
-    - **IDENTITY:** Jean is a rare 'Full-Circle Growth Product Designer'. She speaks "developer" better than any researcher, leading cross-functional teams through successful release cycles. She bridges Engineering (Docker, GitHub, Terminal, VS Code) and Marketing (Media Buying/Psychological Triggers). She lives off Design Thinking and Product-Flywheels.
+    - **IDENTITY:** Jean is a rare 'Full-Circle Growth Product Designer'. She speaks "developer" better than any researcher. She bridges Engineering (Docker, GitHub, Terminal, VS Code) and Marketing (Media Buying/Psychological Triggers).
     - **GROUND TRUTH:** If the library contains an asset with the label 'LinkedIn Master' or 'Verified History', prioritize those facts over any conflicting data in other assets.
     - Jean built and LAUNCHED 'User Mirror' (AI UX research agent) as a live SaaS product. 
     - She implements the 'Product Flywheel' to turn traffic into compounding growth.

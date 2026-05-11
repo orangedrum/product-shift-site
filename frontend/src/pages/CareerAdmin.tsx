@@ -4,7 +4,6 @@ import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
 import { supabase } from '../lib/supabase';
-import { AssetCard } from '../components/AssetCard';
 
 const CareerAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'pdf' | 'media' | 'library' | 'builder' | 'published'>('builder');
@@ -24,11 +23,6 @@ const CareerAdmin: React.FC = () => {
   ]);
 
   const [results, setResults] = useState<any[]>([]);
-  const [librarySearch, setLibrarySearch] = useState('');
-  const [libraryFilter, setLibraryFilter] = useState('all');
-  const [pitchReasoning, setPitchReasoning] = useState<string>('');
-  const [pitchGaps, setPitchGaps] = useState<string[]>([]);
-
   const [publishedResumes, setPublishedResumes] = useState<any[]>([]);
   const [pitchPreview, setPitchPreview] = useState<{
     assets: any[],
@@ -293,8 +287,6 @@ const CareerAdmin: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setPitchPreview(data.data);
-        setPitchReasoning(data.data.strategicReasoning || '');
-        setPitchGaps(data.data.gapAnalysis || []);
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analysis complete! I've selected the 24 assets that best prove your ROI for this role. You can review the page layout below." }]);
       } else {
         throw new Error(data.error);
@@ -874,72 +866,30 @@ const CareerAdmin: React.FC = () => {
 
             {activeTab === 'library' && (
               <div className="space-y-6">
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                       <h3 className="font-bold text-gray-900 mb-4">Registry Health</h3>
-                       <div className="space-y-3">
-                         <div className="flex justify-between text-sm"><span>Work History</span> <span className="font-bold">{results.filter(r => r.type === 'work_history').length}</span></div>
-                         <div className="flex justify-between text-sm"><span>Case Studies</span> <span className="font-bold">{results.filter(r => r.type === 'case_study').length}</span></div>
-                         <div className="flex justify-between text-sm"><span>Talks/Articles</span> <span className="font-bold">{results.filter(r => r.type === 'talk' || r.type === 'writing_sample').length}</span></div>
-                         <div className="flex justify-between text-sm"><span>Floating Wins</span> <span className="font-bold">{results.filter(r => r.type === 'win').length}</span></div>
-                       </div>
-                    </div>
-                    <div className="p-6 bg-indigo-50 border border-indigo-100 rounded-2xl flex flex-col justify-center">
-                       <h3 className="font-bold text-indigo-900 mb-2 text-xs uppercase tracking-widest flex items-center gap-1"><Sparkles size={14}/> Pro Tip</h3>
-                       <p className="text-xs text-indigo-700 leading-relaxed">
-                         Use the Sidekick chat to ask for specific subsets of your work history (e.g., "Show me my Disney ROI wins").
-                       </p>
-                    </div>
+                 <div className="flex gap-4">
+                    <input 
+                      type="text" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)}
+                      className="flex-1 p-4 bg-white border border-gray-200 rounded-2xl shadow-sm"
+                      placeholder="Search your career history..."
+                    />
+                    <select 
+                      value={libraryFilter} onChange={(e) => setLibraryFilter(e.target.value)}
+                      className="p-4 bg-white border border-gray-200 rounded-2xl shadow-sm font-bold text-sm"
+                    >
+                      <option value="all">All Assets</option>
+                      <option value="work_history">Experience</option>
+                      <option value="case_study">Case Studies</option>
+                      <option value="win">Logic Proofs</option>
+                      <option value="skill">Skills</option>
+                    </select>
                  </div>
 
-                 <div className="space-y-4">
-                    <h2 className="text-xl font-bold flex items-center gap-2">Extrapolated Results <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">{results.length} total</span></h2>
-                    {results.length === 0 && (
+                 <div className="grid md:grid-cols-2 gap-4">
+                    {filteredResults.length === 0 && (
                        <div className="p-12 border-2 border-dashed border-gray-200 rounded-2xl text-center text-gray-400">Your library is currently empty. Start ingesting files or links.</div>
                     )}
-                    {results.length > 1 && (
-                       <div className="flex justify-end">
-                          <button className="text-xs font-black text-indigo-600 uppercase flex items-center gap-1 hover:underline">
-                             <CheckCircle size={12} /> Auto-Deduplicate Library
-                          </button>
-                       </div>
-                    )}
-                    {results.map((asset, i) => (
-                       <div key={i} className="p-6 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-                          <div className="flex justify-between items-start">
-                             <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                   <span className="text-[10px] font-black uppercase bg-gray-100 text-gray-600 px-2 py-1 rounded-md">{asset.type}</span>
-                                   <span className="text-[10px] font-black uppercase bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md">{asset.role_tag}</span>
-                                </div>
-                                <h4 className="text-lg font-bold text-gray-900">{asset.title}</h4>
-                                <p className="text-sm text-gray-500 font-bold mb-4">{asset.company}</p>
-                                <ul className="space-y-2 mb-6">
-                                   {asset.description?.map((bullet: string, idx: number) => (
-                                      <li key={idx} className="text-sm text-gray-600 flex items-start gap-2"><CheckCircle size={14} className="text-green-500 mt-1 flex-shrink-0" /> {bullet}</li>
-                                   ))}
-                                </ul>
-                                {asset.source_url && asset.source_url !== 'direct_upload' && asset.source_url !== 'N/A' && (
-                                   <div className="mb-4">
-                                      <a href={asset.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline decoration-indigo-200 underline-offset-4">
-                                         <ExternalLink size={14} /> View Full Article
-                                      </a>
-                                   </div>
-                                )}
-                             </div>
-                             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 hover:bg-gray-50 rounded-lg" title="Edit coming soon"><Edit3 size={18} className="text-gray-400" /></button>
-                                <button onClick={() => deleteAsset(asset.id)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 size={18} className="text-red-400" /></button>
-                             </div>
-                          </div>
-                          {asset.roi_metrics?.length > 0 && (
-                             <div className="pt-4 border-t border-gray-100 flex gap-4">
-                                {asset.roi_metrics.map((metric: string, idx: number) => (
-                                   <div key={idx} className="flex items-center gap-1 text-xs font-black text-green-600 uppercase bg-green-50 px-3 py-1 rounded-full"><Trophy size={12}/> {metric}</div>
-                                ))}
-                             </div>
-                          )}
-                       </div>
+                    {filteredResults.map((asset) => (
+                       <AssetCard key={asset.id} asset={asset} mode="library" onAction={deleteAsset} />
                     ))}
                  </div>
               </div>
