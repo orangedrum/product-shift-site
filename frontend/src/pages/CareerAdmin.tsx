@@ -326,33 +326,6 @@ const CareerAdmin: React.FC = () => {
     }
   };
 
-  const handleSyncNarrative = async () => {
-    if (!pitchPreview) return;
-    setLoading(true);
-    setSidekickMessages(prev => [...prev, { sender: 'user', text: "Syncing narrative with my curated asset selection..." }]);
-    
-    try {
-      const res = await fetch('/api/admin/career/sidekick-chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
-        },
-        body: JSON.stringify({ 
-          message: "Please re-sculpt my professional summary and cover letter based only on the assets I have currently selected in my draft.",
-          currentResume: pitchPreview
-        })
-      });
-      const data = await res.json();
-      if (data.success && data.updatedResume) {
-        setPitchPreview(data.updatedResume);
-        setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Narrative synced! I've updated your summary and cover letter." }]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleGeneratePitch = async () => {
     setLoading(true);
     setSidekickMessages(prev => [...prev, { sender: 'user', text: `Building pitch for: ${jdLink}` }]);
