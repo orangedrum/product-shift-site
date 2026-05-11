@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   CheckCircle, History, FileText, Trophy, MessageSquare, 
-  Zap, Trash2, Plus, X, Check, ExternalLink, Sparkles, Layout, PenTool
+  Zap, Trash2, Plus, X, Check, ExternalLink, Sparkles, Layout, PenTool, AlertCircle
 } from 'lucide-react';
 
 interface AssetCardProps {
