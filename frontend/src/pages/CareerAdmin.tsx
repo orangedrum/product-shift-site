@@ -274,6 +274,33 @@ const CareerAdmin: React.FC = () => {
     });
   };
 
+  const handleSyncNarrative = async () => {
+    if (!pitchPreview) return;
+    setLoading(true);
+    setSidekickMessages(prev => [...prev, { sender: 'user', text: "Syncing narrative with my curated selection..." }]);
+    
+    try {
+      const res = await fetch('/api/admin/career/sidekick-chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+        },
+        body: JSON.stringify({ 
+          message: "Please re-sculpt my professional summary and cover letter based ONLY on the assets I have hand-picked for this draft.",
+          currentResume: pitchPreview
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.updatedResume) {
+        setPitchPreview(data.updatedResume);
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Narrative synced! I've updated your summary and cover letter to bridge your selected proof points." }]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleConsolidateWorkHistory = async () => {
     if (!window.confirm("This will combine all duplicate work history entries into single 'Master Cards' with unique bullet points. Continue?")) return;
     setLoading(true);
@@ -347,7 +374,7 @@ const CareerAdmin: React.FC = () => {
         setPitchPreview(data.data);
         setPitchReasoning(data.data.strategicReasoning || '');
         setPitchGaps(data.data.gapAnalysis || []);
-        setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analysis complete! I've selected the 24 assets that best prove your ROI for this role. You can review the page layout below." }]);
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Analysis complete! I've exhaustively mapped your assets to every requirement in the JD. Review your curated draft below." }]);
       } else {
         throw new Error(data.error);
       }

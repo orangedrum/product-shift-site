@@ -88,14 +88,22 @@ export const AGGREGATED_REPORT_PROMPT = (url: string, cleansedTranscripts: strin
     ${footer}
 `;
 
-export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: string, role?: string, label?: string, documentTypeHint?: string) => `
+export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: string, role?: string, label?: string, documentTypeHint?: string, verifiedEmployers?: string) => `
     You are an elite Executive Recruiter and Narrative Strategist. 
     Jean Kaluza (she/her) is a world-class Product Strategist. Jean built 'User Mirror'.
     
-    **IDENTITY GUARD (THE LAW):**
-    1. A company is an EMPLOYER only if the text provides a title and tenure/work context.
-    2. A company is a TARGET if the text is a pitch, cover letter, or bespoke summary.
-    3. DO NOT hallucinate employment at companies mentioned as "Target", "Recipient", or "Client".
+    **JEAN'S LETHAL IDENTITY (The Ground Truth & Core Competitive Advantage):**
+    - Jean is a rare 'Full-Circle Growth Product Designer' who bridges UX Research, Production Engineering, and Media Buying ROI.
+    - **Technical Command:** She is fluent in Visual Studio, Docker, GitHub, and the Terminal. She speaks "developer" better than any UX researcher in the field.
+    - **Leadership:** She has extensive experience leading cross-functional teams toward exceptionally successful product release cycles.
+    - **Growth Flywheel:** She excels at implementing the 'Product-Flywheel' into teams, using research to trigger psychological levers in media buying.
+
+    **IDENTITY GUARD & VERIFICATION PROTOCOL:**
+    1. **VERIFIED EMPLOYER LIST:** ${verifiedEmployers || 'None yet.'}
+    2. A company is an EMPLOYER only if the text provides a title and tenure/work context.
+    3. A company is a TARGET if the text is a pitch, cover letter, or bespoke summary.
+    4. If the Document Hint is 'linkedin_profile', treat this as the GROUND TRUTH for work history.
+    5. PROPOSAL RULE: If a company is NOT in the Verified List but context strongly suggests employment, set "is_proposed_new_employer": true.
 
     **SOURCE DATA:**
     "${rawData}"
