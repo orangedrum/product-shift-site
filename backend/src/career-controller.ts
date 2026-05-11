@@ -138,7 +138,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Library is empty. Please ingest assets first.' });
     }
 
-    // 3. AI Selection Logic (The Perfect 24)
+    // 3. AI Selection Logic (Exhaustive Correlation)
     const prompt = `
       You are a World-Class Executive Recruiter and Strategy Consultant. Jean Kaluza (she/her) is the candidate. 
       Jean is a 'Full-Circle Growth Product Designer'—a rare hybrid who bridges UX Research, High-Velocity Engineering, and Media Buying ROI.
@@ -164,7 +164,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         Metrics: ${a.roi_metrics?.join(', ')}`).join('\n')}
 
       TASK:
-      1. Select a maximum of 24 assets that best prove Jean's ROI for this specific role.
+      1. Select EVERY asset from the list that correlates to a requirement, skill, or responsibility found in the JD.
+      2. Do not limit the count to 24; include all assets that demonstrate she is the obvious choice for this specific stack.
       2. Provide a "strategicReasoning" summary (2-3 sentences) explaining your choices.
       3. Identify any "gapAnalysis" points—skills or wins the JD asks for that are missing from her library.
 
@@ -174,8 +175,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       "strategicReasoning" (STRING), 
       "gapAnalysis" (ARRAY of strings).
       - CRITICAL: Do NOT hallucinate assets. If a type (like case_study) is not in the list, DO NOT include it.
-      - DIVERSITY REQUIREMENT: You MUST select assets from every available category (work_history, skill, tooling, talk, recommendation) to ensure a complete resume. Do not leave sections empty if data exists.
-      - Distribution Goal: 3 case_study, 5 work_history, 6 skill, 4 technical tooling, 2 talks, 2 writing_samples, 2 recommendations.
+      - DIVERSITY REQUIREMENT: You MUST select assets from every available category that matches a JD ask.
       - Omit all dates/years from titles/descriptions to prevent bias.
     `;
 
@@ -347,5 +347,84 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
   } catch (e: any) {
     console.error('❌ [PUBLISH ERROR]:', e);
     res.status(500).json({ error: 'Publish failed', details: e.message });
+  }
+};
+
+export const consolidateWorkHistoryHandler = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
+  
+  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
+    return res.status(401).json({ error: 'Unauthorized: Admin access required' });
+  }
+
+  try {
+    // 1. Fetch all work history assets
+    const { data: assets, error: fetchError } = await supabase
+      .from('career_assets')
+      .select('*')
+      .eq('type', 'work_history');
+    
+    if (fetchError) throw fetchError;
+    if (!assets || assets.length === 0) return res.json({ success: true, message: 'No work history found.' });
+
+    // 2. Group by normalized Company + Title
+    const groups: Record<string, any[]> = {};
+    assets.forEach(a => {
+      const key = `${(a.company || 'Unknown').toLowerCase().trim()}|${(a.title || 'Unknown').toLowerCase().trim()}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(a);
+    });
+
+    let consolidatedCount = 0;
+    for (const key in groups) {
+      const group = groups[key];
+      if (group.length > 1) {
+        // Pick the first one as the Master Asset
+        const master = group[0];
+        const others = group.slice(1);
+
+        const allDescriptions = new Set<string>();
+        const allRoi = new Set<string>();
+        const allSkills = new Set<string>();
+
+        // Collect all data from the group
+        group.forEach(asset => {
+          (asset.description || []).forEach((d: string) => d && allDescriptions.add(d));
+          (asset.roi_metrics || []).forEach((r: string) => r && allRoi.add(r));
+          (asset.skills_demonstrated || []).forEach((s: string) => s && allSkills.add(s));
+        });
+
+        // Robust case-insensitive deduplication
+        const deduplicate = (set: Set<string>) => {
+           const unique: string[] = [];
+           const seen = new Set<string>();
+           set.forEach(val => {
+             const normalized = val.toLowerCase().trim();
+             if (normalized && !seen.has(normalized)) {
+               seen.add(normalized);
+               unique.push(val.trim());
+             }
+           });
+           return unique;
+        };
+
+        const updatePayload = {
+          description: deduplicate(allDescriptions),
+          roi_metrics: deduplicate(allRoi),
+          skills_demonstrated: deduplicate(allSkills)
+        };
+
+        // 3. Persist the giant representation and remove fragments
+        await supabase.from('career_assets').update(updatePayload).eq('id', master.id);
+        await supabase.from('career_assets').delete().in('id', others.map(o => o.id));
+        consolidatedCount += others.length;
+      }
+    }
+
+    res.json({ success: true, consolidatedCount });
+  } catch (e: any) {
+    console.error('❌ [CONSOLIDATE ERROR]:', e);
+    res.status(500).json({ error: 'Consolidation failed', details: e.message });
   }
 };

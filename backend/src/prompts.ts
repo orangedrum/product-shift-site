@@ -105,7 +105,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
 
     ${role ? `**PRIMARY FOCUS ROLE:** ${role}` : ''}
     ${label ? `**CONTENT LABEL:** ${label}` : ''}
-    ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is a ${documentTypeHint.replace('_', ' ')}.` : ''}
+    ${documentTypeHint ? `**DOCUMENT TYPE HINT:** This document is likely a ${documentTypeHint.replace('_', ' ')}.` : ''}
 
     **TASK:**
     1. ANALYZE intent: Is this past labor (Resume), a pitch (Cover Letter), or strategic thought leadership?
@@ -234,6 +234,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     -   Set the 'action' to 'chat'.
     -   In 'reply', explain the strategic reasoning for the adjustments.
     -   Provide the modified resume object in 'updatedResume'. Ensure it maintains the required distribution (approx 24 assets).
+    -   Provide the modified resume object in 'updatedResume'. Include all assets that correlate with the target JD to make Jean the obvious choice.
 
     **Return a JSON object:**
     {

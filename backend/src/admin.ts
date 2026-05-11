@@ -3,7 +3,7 @@ import { supabase, sendEmail, isTestEmail, emailFrom, getPublicUrl, delay } from
 import { generateStructuredData } from './analysis-controller';
 import { generateEnhancedContent, generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
-import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler } from './career-controller';
+import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler, consolidateWorkHistoryHandler } from './career-controller';
 
 const router = express.Router();
 
@@ -22,6 +22,7 @@ router.post('/career/ingest', requireAdminKey, careerIngestHandler);
 router.post('/career/generate-pitch', requireAdminKey, generatePitchHandler);
 router.post('/career/sidekick-chat', requireAdminKey, sidekickChatHandler);
 router.post('/career/publish-resume', requireAdminKey, publishResumeHandler);
+router.post('/career/consolidate-work-history', requireAdminKey, consolidateWorkHistoryHandler);
 router.delete('/career/assets/:id', requireAdminKey, deleteAssetHandler);
 
 // --- Admin Stats Endpoint ---

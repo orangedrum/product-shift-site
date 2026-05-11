@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle, ListChecks, RefreshCcw } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
@@ -272,6 +272,58 @@ const CareerAdmin: React.FC = () => {
       ...pitchPreview,
       assets: [asset, ...pitchPreview.assets]
     });
+  };
+
+  const handleConsolidateWorkHistory = async () => {
+    if (!window.confirm("This will combine all duplicate work history entries into single 'Master Cards' with unique bullet points. Continue?")) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/career/consolidate-work-history', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const { data: updatedAssets } = await supabase.from('career_assets').select('*').order('created_at', { ascending: false });
+        if (updatedAssets) setResults(updatedAssets);
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: `✨ Library Cleaned! Consolidated ${data.consolidatedCount} duplicate entries into giant work history Master Cards.` }]);
+      }
+    } catch (e: any) {
+      console.error(e);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Clean failed: ${e.message}` }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSyncNarrative = async () => {
+    if (!pitchPreview) return;
+    setLoading(true);
+    setSidekickMessages(prev => [...prev, { sender: 'user', text: "Syncing narrative with my curated asset selection..." }]);
+    
+    try {
+      const res = await fetch('/api/admin/career/sidekick-chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+        },
+        body: JSON.stringify({ 
+          message: "Please re-sculpt my professional summary and cover letter based only on the assets I have currently selected in my draft.",
+          currentResume: pitchPreview
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.updatedResume) {
+        setPitchPreview(data.updatedResume);
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Narrative synced! I've updated your summary and cover letter." }]);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGeneratePitch = async () => {
@@ -890,6 +942,15 @@ const CareerAdmin: React.FC = () => {
                       <option value="win">Logic Proofs</option>
                       <option value="skill">Skills</option>
                     </select>
+                    <NeoButton 
+                      onClick={handleConsolidateWorkHistory} 
+                      variant="secondary"
+                      className="h-14 px-6 border-indigo-100 text-indigo-600 font-black whitespace-nowrap"
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="animate-spin" /> : <RefreshCcw size={18} className="mr-2"/>}
+                      Clean Library
+                    </NeoButton>
                  </div>
 
                  <div className="grid md:grid-cols-2 gap-4">
