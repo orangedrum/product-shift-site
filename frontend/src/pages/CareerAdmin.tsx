@@ -45,10 +45,11 @@ const CareerAdmin: React.FC = () => {
 
   // Filtering logic for the Content Vault
   const filteredResults = results.filter(asset => {
+    const search = (librarySearch || '').toLowerCase();
     const matchesSearch = 
-      (asset.title?.toLowerCase() || '').includes(librarySearch.toLowerCase()) ||
-      (asset.company?.toLowerCase() || '').includes(librarySearch.toLowerCase()) ||
-      (Array.isArray(asset.description) && asset.description.some((d: string) => d.toLowerCase().includes(librarySearch.toLowerCase())));
+      (asset.title?.toLowerCase() || '').includes(search) ||
+      (asset.company?.toLowerCase() || '').includes(search) ||
+      (Array.isArray(asset.description) && asset.description.some((d: string) => (d || '').toLowerCase().includes(search)));
     
     const matchesFilter = libraryFilter === 'all' || asset.type === libraryFilter;
     
