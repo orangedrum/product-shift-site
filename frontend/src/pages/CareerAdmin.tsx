@@ -408,7 +408,7 @@ const CareerAdmin: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
+      <div className={`container mx-auto px-4 py-12 ${activeTab === 'builder' ? 'max-w-7xl' : 'max-w-5xl'}`}>
         <div className="flex items-center gap-4 mb-8">
           <div className="p-3 bg-marketing-gradient rounded-xl shadow-lg">
             <Database className="text-white" size={32} />

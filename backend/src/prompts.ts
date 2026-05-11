@@ -164,7 +164,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
           "title": "Clear high-authority title",
           "company": "Company/Client name",
           "type": "work_history" | "skill" | "win" | "tooling" | "talk" | "writing_sample" | "recommendation" | "case_study" | "narrative_theme",
-          "description": ["2-sentence summary maximum"],
+          "description": ["Exhaustive list of EVERY unique responsibility and achievement. Do not limit bullet count."],
           "roi_metrics": ["Specific quantifiable wins"],
           "recommender_name": "Name of the recommender (if type is recommendation)",
           "recommender_title": "Title of the recommender (if type is recommendation)",
@@ -213,10 +213,11 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     TASK:
     1.  **Neural Recursive Synthesis:** Connect her technical proficiency (Docker/GitHub) to her UX depth. Prove she "speaks developer."
     2.  **Market Alignment:** If she asks to update or retry a draft, optimize the content for both ATS algorithms (keywords) and human recruiters (ROI stories).
-    2.  **Determine Intent:**
+    3.  **Determine Intent:**
     1.  **Perform a CRUD operation** (Add, Update, Remove) on her career assets.
     2.  **Receive strategic coaching or suggestions** for her resume.
     3.  **Modify or "Retry" the current Resume/Pitch draft** (the specific mapped titles, hook, or cover letter).
+    4.  **Merging/Combining:** If Jean asks to "merge" or "combine" assets, identify the IDs of the duplicates. Return action: "update" for the primary record with ALL unique bullets combined, and action: "remove" (or clear instructions) for the duplicates.
 
     **STRATEGY GUIDELINES:**
     - **AGGRESSIVE PIVOTING:** If the JD is for a GM or Leader, re-frame User Mirror as "Founding and Scaling an AI Business."
@@ -227,7 +228,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
 
     **If a CRUD operation is detected:**
     -   Extract all necessary details (title, type, company, description, ROI, ID if updating/removing).
-    -   For 'add' or 'update', ensure the 'description' and 'roi_metrics' are concise arrays of strings.
+    -   For 'add' or 'update', ensure the 'description' and 'roi_metrics' are exhaustive arrays of strings including all unique points.
     -   For 'remove', prioritize 'id'. If 'id' is not provided, use 'title' and 'type'.
     -   Set the 'action' field in the JSON.
     -   Provide a brief, confirming 'reply'.
