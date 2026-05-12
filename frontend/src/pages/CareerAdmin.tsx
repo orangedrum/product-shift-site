@@ -507,6 +507,21 @@ const CareerAdmin: React.FC = () => {
                   <div className="space-y-6">
                      <div className="flex gap-4">
                         <input type="text" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)} className="flex-1 p-4 bg-white border border-gray-200 rounded-2xl shadow-sm" placeholder="Search history..." />
+                   <select 
+                      value={libraryFilter} 
+                      onChange={(e) => setLibraryFilter(e.target.value)}
+                      className="p-4 bg-white border border-gray-200 rounded-2xl shadow-sm font-bold text-sm outline-none focus:border-brand-pink"
+                   >
+                      <option value="all">All Assets</option>
+                      <option value="work_history">Experience</option>
+                      <option value="case_study">Case Studies</option>
+                      <option value="win">Logic Proofs</option>
+                      <option value="skill">Skills</option>
+                      <option value="talk">Talks</option>
+                      <option value="writing_sample">Writing</option>
+                      <option value="recommendation">Recommendations</option>
+                      <option value="narrative_theme">Themes</option>
+                   </select>
                         <NeoButton onClick={handleConsolidateWorkHistory} variant="secondary" className="h-14 px-6 font-black" disabled={loading}>Clean Library</NeoButton>
                      </div>
                      <div className="grid md:grid-cols-2 gap-4">
