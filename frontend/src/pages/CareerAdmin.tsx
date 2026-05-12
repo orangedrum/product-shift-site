@@ -522,7 +522,9 @@ const CareerAdmin: React.FC = () => {
                       <option value="recommendation">Recommendations</option>
                       <option value="narrative_theme">Themes</option>
                    </select>
-                        <NeoButton onClick={handleConsolidateWorkHistory} variant="secondary" className="h-14 px-6 font-black" disabled={loading}>Clean Library</NeoButton>
+                        <NeoButton onClick={handleConsolidateWorkHistory} variant="secondary" className="h-14 px-6 font-black" disabled={loading}>
+                           {loading ? <Loader2 className="animate-spin" /> : 'Clean Library'}
+                        </NeoButton>
                      </div>
                      <div className="grid md:grid-cols-2 gap-4">
                         {filteredResults.map((asset) => <AssetCard key={asset.id} asset={asset} mode="library" onAction={(_, id) => id && deleteAsset(id)} />)}
@@ -539,7 +541,9 @@ const CareerAdmin: React.FC = () => {
                      <h2 className="text-2xl font-black mb-4 flex items-center gap-2 text-brand-pink"><Wand2 /> The Brag Engine</h2>
                      <div className="flex gap-3">
                         <input type="text" value={jdLink} onChange={(e) => setJdLink(e.target.value)} className="flex-1 p-4 bg-gray-900 border-2 border-gray-800 rounded-xl focus:border-brand-pink outline-none" placeholder="Paste JD URL..." />
-                        <NeoButton onClick={handleGeneratePitch} disabled={loading} className="bg-brand-pink text-black font-bold">Consult Sidekick</NeoButton>
+                        <NeoButton onClick={handleGeneratePitch} disabled={loading} className="bg-brand-pink text-black font-bold">
+                           {loading ? <Loader2 className="animate-spin" /> : 'Consult Sidekick'}
+                        </NeoButton>
                      </div>
                   </MarketingCard>
 
@@ -576,8 +580,12 @@ const CareerAdmin: React.FC = () => {
                             ))}
                          </div>
                          <div className="flex gap-2">
-                           <button onClick={handleSyncNarrative} className="p-3 bg-gray-50 text-gray-400 rounded-xl hover:text-indigo-600 transition-all"><RefreshCcw size={18} className={loading ? 'animate-spin' : ''} /></button>
-                           <NeoButton onClick={handlePublishResume} className="bg-marketing-gradient text-white text-xs px-6 font-bold">Publish Live</NeoButton>
+                           <button onClick={handleSyncNarrative} disabled={loading} className="p-3 bg-gray-50 text-gray-400 rounded-xl hover:text-indigo-600 transition-all">
+                              <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
+                           </button>
+                           <NeoButton onClick={handlePublishResume} disabled={loading} className="bg-marketing-gradient text-white text-xs px-6 font-bold">
+                              {loading ? <Loader2 className="animate-spin" /> : 'Publish Live'}
+                           </NeoButton>
                          </div>
                       </div>
                       <div className="space-y-4">

@@ -251,15 +251,26 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
     let reply = data.reply || "I'm not sure how to handle that request, but I'm always learning!";
     let suggestedAssets = data.suggestedAssets || [];
 
+    // CTO Helper: Normalize AI assets to ensure arrays are arrays
+    const normalizeAsset = (a: any) => ({
+      ...a,
+      description: Array.isArray(a.description) 
+        ? a.description 
+        : (typeof a.description === 'string' ? a.description.split('\n').map((s: string) => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean) : []),
+      roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
+      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : []
+    });
+
     // CTO FIX: Support for Batch Merging/Consolidation
     if (data.action === 'merge' && data.master_asset && data.remove_ids) {
       console.log(`🔄 [MERGE OPERATION] Keeping ${data.master_asset.id}, Removing: ${data.remove_ids.join(', ')}`);
-      
+      const normalizedMaster = normalizeAsset(data.master_asset);
+
       // 1. Update the Master
       const { data: updatedMaster, error: updateError } = await supabase
         .from('career_assets')
-        .update(data.master_asset)
-        .eq('id', data.master_asset.id)
+        .update(normalizedMaster)
+        .eq('id', normalizedMaster.id)
         .select()
         .single();
       
@@ -281,7 +292,8 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
       switch (data.action) {
         case 'add':
           if (data.asset) {
-            const { data: newAsset, error: addError } = await supabase.from('career_assets').insert([data.asset]).select().single();
+            const normalizedAsset = normalizeAsset(data.asset);
+            const { data: newAsset, error: addError } = await supabase.from('career_assets').insert([normalizedAsset]).select().single();
             if (addError) throw addError;
             reply = `Successfully added "${newAsset.title}" (${newAsset.type}) to your library.`;
             // Ensure the new asset includes the ID for potential immediate updates
@@ -293,7 +305,8 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
           break;
         case 'update':
           if (data.asset && data.asset.id) {
-            const { data: updatedAsset, error: updateError } = await supabase.from('career_assets').update(data.asset).eq('id', data.asset.id).select().single();
+            const normalizedAsset = normalizeAsset(data.asset);
+            const { data: updatedAsset, error: updateError } = await supabase.from('career_assets').update(normalizedAsset).eq('id', normalizedAsset.id).select().single();
             if (updateError) throw updateError;
             reply = `Successfully updated "${updatedAsset.title}" (${updatedAsset.type}) in your library.`;
             suggestedAssets = [updatedAsset];
