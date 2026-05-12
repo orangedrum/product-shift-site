@@ -236,9 +236,9 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
   try {
     console.log(`💬 [SIDEKICK CHAT] User message: ${message}`);
     // 1. Fetch library context
-    const { data: existingAssets } = await supabase.from('career_assets').select('title, company, type, description');
+    const { data: existingAssets } = await supabase.from('career_assets').select('id, title, company, type, description');
     const libraryContext = (existingAssets || [])
-      .map(a => `- ${a.type}: ${a.title} @ ${a.company}`)
+      .map(a => `- [ID: ${a.id}] ${a.type}: ${a.title} @ ${a.company}`)
       .join('\n');
 
     const aiResponse = await generateContentWithFallback(SIDEKICK_CHAT_PROMPT(message, libraryContext, currentResume));
@@ -250,6 +250,31 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
 
     let reply = data.reply || "I'm not sure how to handle that request, but I'm always learning!";
     let suggestedAssets = data.suggestedAssets || [];
+
+    // CTO FIX: Support for Batch Merging/Consolidation
+    if (data.action === 'merge' && data.master_asset && data.remove_ids) {
+      console.log(`🔄 [MERGE OPERATION] Keeping ${data.master_asset.id}, Removing: ${data.remove_ids.join(', ')}`);
+      
+      // 1. Update the Master
+      const { data: updatedMaster, error: updateError } = await supabase
+        .from('career_assets')
+        .update(data.master_asset)
+        .eq('id', data.master_asset.id)
+        .select()
+        .single();
+      
+      if (updateError) throw updateError;
+
+      // 2. Purge the Duplicates
+      const { error: removeError } = await supabase
+        .from('career_assets')
+        .delete()
+        .in('id', data.remove_ids);
+      
+      if (removeError) throw removeError;
+
+      return res.json({ success: true, reply: `Successfully merged assets into "${updatedMaster.title}".`, suggestedAssets: [updatedMaster] });
+    }
 
     // Handle CRUD operations
     if (data.action) {

@@ -154,7 +154,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     3. **WORK HISTORY EXTRACTION:** For each distinct work history entry:
        - **Title:** The specific job title held.
        - **Company:** The company name.
-       - **Description:** A list of 3-5 high-impact bullet points detailing responsibilities and achievements. Focus on quantifiable results and strategic contributions.
+       - **Description:** An exhaustive list of ALL unique responsibilities and high-impact achievements. Do not limit the bullet count; extract every relevant proof point found.
        - **No Dates:** DO NOT extract any dates or years associated with the work history.
 
     **RETURN JSON FORMAT:**
@@ -252,7 +252,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
 
     **Return a JSON object:**
     {
-      "action": "chat" | "add" | "update" | "remove",
+      "action": "chat" | "add" | "update" | "remove" | "merge",
       "reply": "Strategic coaching message or confirmation of action.",
       "updatedResume": { // MUST be provided if Jean asks to modify the current pitch/draft
         "assets": [ /* full array of selected asset objects */ ],
@@ -261,6 +261,8 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
         "mappedTitle": "The updated bespoke headline",
         "coverLetter": "The updated 4-5 paragraph strategic cover letter"
       },
+      "master_asset": { /* Use for 'merge' action: the combined asset data including ID */ },
+      "remove_ids": [ /* Use for 'merge' action: array of UUIDs to delete after merge */ ],
       "asset": { // Only for 'add' or 'update' actions
         "id": "UUID (if updating existing, otherwise omit)",
         "title": "Clear asset title",
