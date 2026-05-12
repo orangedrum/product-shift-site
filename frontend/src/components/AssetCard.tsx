@@ -47,7 +47,10 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, mode }) =
           </>
         )}
         {mode === 'vault' && (
-          <button onClick={() => onAction?.('add')} className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-1 text-[10px] font-bold uppercase">
+          <button 
+            onClick={(e) => { e.stopPropagation(); console.log('🖱️ Vault Button Clicked'); onAction?.('add'); }} 
+            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-1 text-[10px] font-bold uppercase z-20"
+          >
             <Plus size={14}/> Add to Draft
           </button>
         )}

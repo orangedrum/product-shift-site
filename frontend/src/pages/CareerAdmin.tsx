@@ -283,18 +283,26 @@ const CareerAdmin: React.FC = () => {
   };
 
   const handleAddAssetToPitch = (asset: any) => {
-    if (!pitchPreview) {
-      setPitchPreview({
-        assets: [asset],
-        strategicHook: "Manually curated resume draft.",
-        targetTitle: "Bespoke Role",
-        mappedTitle: "Product Strategist & Growth Lead",
-        coverLetter: "Bespoke cover letter draft."
-      });
-      return;
-    }
-    if (pitchPreview.assets.some(a => a.id === asset.id)) return;
-    setPitchPreview({ ...pitchPreview, assets: [asset, ...pitchPreview.assets] });
+    console.log('➕ [DRAFTING ROOM] "Add to Draft" triggered for:', asset.title);
+    
+    setPitchPreview(prev => {
+      if (!prev) {
+        console.log('🆕 Initializing new draft with first asset');
+        return {
+          assets: [asset],
+          strategicHook: "Manually curated resume draft.",
+          targetTitle: "Bespoke Role",
+          mappedTitle: "Product Strategist & Growth Lead",
+          coverLetter: "Bespoke cover letter draft."
+        };
+      }
+      if (prev.assets.some(a => a.id === asset.id)) {
+        console.warn('⚠️ Asset already exists in draft, skipping.');
+        return prev;
+      }
+      console.log('✅ Appending asset to existing draft. New count:', prev.assets.length + 1);
+      return { ...prev, assets: [asset, ...prev.assets] };
+    });
   };
 
   const handleSyncNarrative = async () => {
