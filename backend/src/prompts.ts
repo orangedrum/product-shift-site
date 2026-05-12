@@ -248,7 +248,6 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     -   Set the 'action' to 'chat'.
     -   In 'reply', explain the strategic reasoning for the adjustments.
     -   Provide the modified resume object in 'updatedResume'. Include all assets that correlate with the target JD to make Jean the obvious choice.
-    -   Provide the modified resume object in 'updatedResume'. Include all assets that correlate with the target JD to make Jean the obvious choice.
 
     **Return a JSON object:**
     {
