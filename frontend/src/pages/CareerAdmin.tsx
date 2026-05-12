@@ -43,6 +43,16 @@ const CareerAdmin: React.FC = () => {
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // CTO Diagnostic: Log state to help identify why layout might be missing
+  useEffect(() => {
+    if (activeTab === 'builder') {
+      console.log('🛠️ [DRAFTING ROOM] Rendered', { 
+        hasResults: results.length > 0, 
+        hasDraft: !!pitchPreview 
+      });
+    }
+  }, [activeTab, results.length, pitchPreview]);
+
   // Filtering logic for the Content Vault
   const filteredResults = (results || []).filter(asset => {
     if (!asset) return false;

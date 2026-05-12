@@ -63,7 +63,7 @@ export const scrapeUrl = async (url: string) => {
               alt: img.alt || img.title || 'Visual asset' 
             })).slice(0, 15);
         });
-        const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({ tag: h.tagName, text: h.innerText })));
+        const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map((h: any) => ({ tag: h.tagName, text: (h as any).innerText })));
         const screenshot = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false, encoding: 'base64' });
         return { data: { title, bodyText, headings, images, screenshot }, type: 'application/json' };
       };`,
