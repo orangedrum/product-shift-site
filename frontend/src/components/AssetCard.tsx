@@ -66,7 +66,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, mode }) =
       )}
 
       <div className="space-y-2 mb-4">
-        {asset.description?.slice(0, mode === 'vault' ? 1 : 3).map((bullet: string, idx: number) => (
+        {asset.description?.slice(0, mode === 'vault' ? 1 : asset.description.length).map((bullet: string, idx: number) => (
           <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
             <CheckCircle size={14} className="text-green-500 mt-0.5 flex-shrink-0" />
             <span className={mode === 'vault' ? 'truncate' : ''}>{bullet}</span>

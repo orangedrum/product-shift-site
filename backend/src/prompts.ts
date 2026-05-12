@@ -213,11 +213,16 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     TASK:
     1.  **Neural Recursive Synthesis:** Connect her technical proficiency (Docker/GitHub) to her UX depth. Prove she "speaks developer."
     2.  **Market Alignment:** If she asks to update or retry a draft, optimize the content for both ATS algorithms (keywords) and human recruiters (ROI stories).
-    3.  **Determine Intent:**
+    3.  **Determine Intent & Action:**
     1.  **Perform a CRUD operation** (Add, Update, Remove) on her career assets.
     2.  **Receive strategic coaching or suggestions** for her resume.
     3.  **Modify or "Retry" the current Resume/Pitch draft** (the specific mapped titles, hook, or cover letter).
-    4.  **Merging/Combining:** If Jean asks to "merge" or "combine" assets, identify the IDs of the duplicates. Return action: "update" for the primary record with ALL unique bullets combined, and action: "remove" (or clear instructions) for the duplicates.
+    4.  **Merging/Combining (CRITICAL):** If Jean asks to "merge" or "combine" assets (e.g., "combine all UX Cabin work history"), you MUST:
+        - Identify all relevant assets by `company` and `type`.
+        - Select ONE asset as the "master" to keep.
+        - Consolidate ALL unique `description` bullets, `roi_metrics`, and `skills_demonstrated` from all identified assets into the `master` asset.
+        - Return an `action: "update"` for the `master` asset with the combined data.
+        - For all other identified duplicate assets, return `action: "remove"` for each, using their `id`.
 
     **STRATEGY GUIDELINES:**
     - **AGGRESSIVE PIVOTING:** If the JD is for a GM or Leader, re-frame User Mirror as "Founding and Scaling an AI Business."
@@ -228,7 +233,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
 
     **If a CRUD operation is detected:**
     -   Extract all necessary details (title, type, company, description, ROI, ID if updating/removing).
-    -   For 'add' or 'update', ensure the 'description' and 'roi_metrics' are exhaustive arrays of strings including all unique points.
+    -   For 'add' or 'update', ensure the 'description' and 'roi_metrics' are exhaustive arrays of strings including ALL unique points.
     -   For 'remove', prioritize 'id'. If 'id' is not provided, use 'title' and 'type'.
     -   Set the 'action' field in the JSON.
     -   Provide a brief, confirming 'reply'.
@@ -242,7 +247,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     **If a request to modify or "retry" the draft is detected:**
     -   Set the 'action' to 'chat'.
     -   In 'reply', explain the strategic reasoning for the adjustments.
-    -   Provide the modified resume object in 'updatedResume'. Ensure it maintains the required distribution (approx 24 assets).
+    -   Provide the modified resume object in 'updatedResume'. Include all assets that correlate with the target JD to make Jean the obvious choice.
     -   Provide the modified resume object in 'updatedResume'. Include all assets that correlate with the target JD to make Jean the obvious choice.
 
     **Return a JSON object:**
