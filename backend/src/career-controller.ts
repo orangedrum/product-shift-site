@@ -100,7 +100,7 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
           // Data Normalization
           const normalizedAssets = (assets || []).map((a: any) => ({
             ...a,
-            description: (Array.isArray(a.description) ? a.description : [a.description]).filter((d: string) => typeof d === 'string' && d.length > 0),
+            description: (Array.isArray(a.description) ? a.description : [a.description]).filter((d: any) => typeof d === 'string' && d.length > 0),
             roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
             skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
             story: a.type === 'case_study' || a.type === 'talk' || a.type === 'writing_sample' ? a.story : null, // Only store story for specific types

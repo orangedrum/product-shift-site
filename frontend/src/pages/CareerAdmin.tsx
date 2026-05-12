@@ -44,12 +44,17 @@ const CareerAdmin: React.FC = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Filtering logic for the Content Vault
-  const filteredResults = results.filter(asset => {
+  const filteredResults = (results || []).filter(asset => {
+    if (!asset) return false;
     const searchLower = (librarySearch || '').toLowerCase();
-    const matchesSearch = 
-      (asset.title?.toLowerCase() || '').includes(searchLower) ||
-      (asset.company?.toLowerCase() || '').includes(searchLower) ||
-      (Array.isArray(asset.description) && asset.description.some((d: any) => typeof d === 'string' && d.toLowerCase().includes(searchLower)));
+    
+    const titleMatch = (asset.title || '').toLowerCase().includes(searchLower);
+    const companyMatch = (asset.company || '').toLowerCase().includes(searchLower);
+    const descriptionMatch = Array.isArray(asset.description) && asset.description.some((d: any) => 
+      typeof d === 'string' && d.toLowerCase().includes(searchLower)
+    );
+
+    const matchesSearch = titleMatch || companyMatch || descriptionMatch;
     
     const matchesFilter = libraryFilter === 'all' || asset.type === libraryFilter;
     
