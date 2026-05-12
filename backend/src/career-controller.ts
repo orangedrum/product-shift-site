@@ -251,7 +251,7 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
     let reply = data.reply || "I'm not sure how to handle that request, but I'm always learning!";
     let suggestedAssets = data.suggestedAssets || [];
 
-    // CTO Helper: Normalize AI assets to ensure arrays are arrays
+    // CTO Helper: Ensure AI output matches our DB schema (Arrays must be Arrays)
     const normalizeAsset = (a: any) => ({
       ...a,
       description: Array.isArray(a.description) 

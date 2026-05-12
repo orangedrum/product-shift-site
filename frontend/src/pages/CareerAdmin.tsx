@@ -60,9 +60,9 @@ const CareerAdmin: React.FC = () => {
     
     const titleMatch = (asset.title || '').toLowerCase().includes(searchLower);
     const companyMatch = (asset.company || '').toLowerCase().includes(searchLower);
-    const descriptionMatch = Array.isArray(asset.description) && asset.description.some((d: any) => 
-      typeof d === 'string' && d.toLowerCase().includes(searchLower)
-    );
+    const descriptionMatch = Array.isArray(asset.description) 
+      ? asset.description.some((d: any) => typeof d === 'string' && d.toLowerCase().includes(searchLower))
+      : (typeof asset.description === 'string' && asset.description.toLowerCase().includes(searchLower));
 
     const matchesSearch = titleMatch || companyMatch || descriptionMatch;
     
@@ -110,6 +110,7 @@ const CareerAdmin: React.FC = () => {
         .order('created_at', { ascending: false });
       
       if (!error && data) {
+        console.log('📚 [LIBRARY DATA]', data.map(a => ({ title: a.title, descType: typeof a.description, isArray: Array.isArray(a.description) })));
         setResults(data);
       }
     };
@@ -646,7 +647,9 @@ const SidekickComponent: React.FC<any> = ({ sidekickInput, setSidekickInput, sid
     <div className="p-4 bg-white border-t border-gray-100">
       <form onSubmit={handleSidekickSend} className="relative">
         <input value={sidekickInput} onChange={(e) => setSidekickInput(e.target.value)} className="w-full p-4 pr-12 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-brand-pink" placeholder="Ask Sidekick..." />
-        <button type="submit" className="absolute right-2 top-2 p-2 bg-gray-900 text-white rounded-lg transition-colors"><Send size={16} /></button>
+        <button type="submit" disabled={loading} className="absolute right-2 top-2 p-2 bg-gray-900 text-white rounded-lg transition-colors disabled:opacity-50">
+           {loading ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+        </button>
       </form>
     </div>
   </>
