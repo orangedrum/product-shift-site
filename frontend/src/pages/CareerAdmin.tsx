@@ -588,6 +588,7 @@ const CareerAdmin: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
 
           {/* Right Column: Global Sidekick (Hidden in Builder mode as it moves into the internal split) */}
           {activeTab !== 'builder' && (
