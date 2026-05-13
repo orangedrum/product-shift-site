@@ -89,7 +89,7 @@ const PublicResume: React.FC = () => {
     "hasOccupation": assets.filter((a: any) => a.type === 'work_history').map((j: any) => ({
       "@type": "Occupation",
       "name": j.title,
-      "description": j.description?.join(' '),
+      "description": Array.isArray(j.description) ? j.description.join(' ') : (j.description || ''),
       "hiringOrganization": { "@type": "Organization", "name": j.company }
     })),
     "sameAs": assets.filter((a: any) => a.type === 'writing_sample' || a.type === 'talk')
@@ -131,7 +131,7 @@ const PublicResume: React.FC = () => {
                   <span className="font-black text-[10px] uppercase text-indigo-700">{job.company}</span>
                 </div>
                 <ul className="list-disc pl-5 text-[10px] space-y-1 font-medium text-gray-800">
-                  {job.description?.map((bullet: string, bi: number) => (
+                  {(Array.isArray(job.description) ? job.description : (typeof job.description === 'string' ? [job.description] : [])).map((bullet: string, bi: number) => (
                     <li key={bi}>{bullet}</li>
                   ))}
                 </ul>
@@ -244,7 +244,7 @@ const PublicResume: React.FC = () => {
                         <span className="text-sm font-black uppercase tracking-widest text-indigo-600">{job.company}</span>
                       </div>
                       <ul className="space-y-4">
-                        {job.description?.map((bullet: string, bIdx: number) => (
+                        {(Array.isArray(job.description) ? job.description : (typeof job.description === 'string' ? [job.description] : [])).map((bullet: string, bIdx: number) => (
                           <li key={bIdx} className="text-gray-600 text-lg leading-snug font-medium flex items-start gap-4">
                             <CheckCircle className="mt-1 text-green-500 shrink-0" size={20} />
                             {bullet}
