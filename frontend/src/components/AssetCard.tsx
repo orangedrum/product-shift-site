@@ -7,10 +7,11 @@ import {
 interface AssetCardProps {
   asset: any;
   onAction?: (action: 'approve' | 'discard' | 'delete' | 'add' | 'remove', id?: string) => void;
+  onUpdate?: (id: string, field: string, value: any) => void;
   mode: 'review' | 'library' | 'draft' | 'vault';
 }
 
-export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, mode }) => {
+export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate, mode }) => {
   const getTypeStyles = (type: string) => {
     const styles: Record<string, { bg: string, text: string, icon: any }> = {
       work_history: { bg: 'bg-indigo-50', text: 'text-indigo-600', icon: History },
@@ -71,18 +72,63 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, mode }) =
         )}
       </div>
 
-      <h4 className="text-base font-bold text-gray-900 leading-tight mb-1">{asset.title}</h4>
-      {asset.company && (
+      {mode === 'draft' ? (
+        <input 
+          className="w-full text-base font-bold text-gray-900 leading-tight mb-1 bg-transparent border-none focus:ring-0 p-0 outline-none"
+          value={asset.title}
+          onChange={(e) => onUpdate?.(asset.id, 'title', e.target.value)}
+        />
+      ) : (
+        <h4 className="text-base font-bold text-gray-900 leading-tight mb-1">{asset.title}</h4>
+      )}
+
+      {asset.company && mode !== 'draft' && (
         <p className="text-xs font-bold text-indigo-600/70 mb-3">{asset.company}</p>
       )}
 
+      {mode === 'draft' && (asset.company !== undefined || asset.type === 'work_history') && (
+        <input 
+          className="w-full text-xs font-bold text-indigo-600/70 mb-3 bg-transparent border-none focus:ring-0 p-0 outline-none uppercase"
+          value={asset.company || ''}
+          placeholder="Company Name"
+          onChange={(e) => onUpdate?.(asset.id, 'company', e.target.value)}
+        />
+      )}
+
+      {asset.type === 'recommendation' && mode === 'draft' && (
+        <div className="mb-3 space-y-1">
+          <input 
+            className="w-full text-xs font-bold text-indigo-900 bg-transparent border-none focus:ring-0 p-0 outline-none"
+            value={asset.recommender_name || ''}
+            placeholder="Recommender Name"
+            onChange={(e) => onUpdate?.(asset.id, 'recommender_name', e.target.value)}
+          />
+          <input 
+            className="w-full text-[10px] font-bold text-gray-400 bg-transparent border-none focus:ring-0 p-0 outline-none uppercase"
+            value={asset.recommender_title || ''}
+            placeholder="Recommender Title"
+            onChange={(e) => onUpdate?.(asset.id, 'recommender_title', e.target.value)}
+          />
+        </div>
+      )}
+
       <div className="space-y-2 mb-4">
-        {bullets.slice(0, mode === 'vault' ? 1 : bullets.length).map((bullet: string, idx: number) => (
-          <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-            <CheckCircle size={14} className="text-green-500 mt-0.5 flex-shrink-0" />
-            <span className={mode === 'vault' ? 'truncate' : ''}>{bullet}</span>
-          </div>
-        ))}
+        {mode === 'draft' ? (
+          <textarea 
+            className="w-full text-sm text-gray-600 bg-transparent border-none focus:ring-0 p-0 outline-none resize-none italic"
+            rows={bullets.length || 2}
+            value={bullets.join('\n')}
+            onChange={(e) => onUpdate?.(asset.id, 'description', e.target.value.split('\n'))}
+            placeholder="Description (One bullet per line)"
+          />
+        ) : (
+          bullets.slice(0, mode === 'vault' ? 1 : bullets.length).map((bullet: string, idx: number) => (
+            <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
+              <CheckCircle size={14} className="text-green-500 mt-0.5 flex-shrink-0" />
+              <span className={mode === 'vault' ? 'truncate' : ''}>{bullet}</span>
+            </div>
+          ))
+        )}
         {mode === 'vault' && bullets.length > 1 && (
           <p className="text-[10px] text-gray-400 font-bold italic">+{bullets.length - 1} more details...</p>
         )}

@@ -56,6 +56,10 @@ const CareerAdmin: React.FC = () => {
   // Filtering logic for the Content Vault
   const filteredResults = (results || []).filter(asset => {
     if (!asset) return false;
+
+    // LEAD ENGINEER UX FIX: Exclude if already present in the active draft
+    if (pitchPreview?.assets.some(a => a.id === asset.id)) return false;
+
     const searchLower = (librarySearch || '').toLowerCase();
     
     const titleMatch = (asset.title || '').toLowerCase().includes(searchLower);
@@ -597,13 +601,79 @@ const CareerAdmin: React.FC = () => {
                            </NeoButton>
                          </div>
                       </div>
-                      <div className="space-y-4">
-                        {pitchPreview.assets.map((asset) => (
-                          <AssetCard key={asset.id} asset={asset} mode="draft" onAction={() => {
-                            setPitchPreview({...pitchPreview, assets: pitchPreview.assets.filter(a => a.id !== asset.id)});
-                          }} />
-                        ))}
-                      </div>
+
+                      {previewMode === 'resume' ? (
+                        <div className="space-y-8 animate-fade-in">
+                          {/* Bespoke Header */}
+                          <div className="mb-8">
+                             <h2 className="text-3xl font-black text-gray-900 mb-2">Jean Kaluza</h2>
+                             <input 
+                               type="text"
+                               className="w-full text-lg text-indigo-600 font-bold mb-4 bg-indigo-50 border-2 border-transparent focus:border-indigo-200 rounded-lg p-2 outline-none"
+                               value={pitchPreview.mappedTitle}
+                               onChange={(e) => setPitchPreview(prev => prev ? ({...prev, mappedTitle: e.target.value}) : null)}
+                               placeholder="Mapped Role Title..."
+                             />
+                             <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 focus-within:border-indigo-200 transition-all">
+                                <p className="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-[0.2em] flex items-center gap-2">
+                                   <PenTool size={12} className="text-indigo-400" /> Professional Summary (Editable)
+                                </p>
+                                <textarea 
+                                  className="w-full text-xl font-bold text-gray-900 leading-tight italic bg-transparent border-none focus:ring-0 resize-none p-0"
+                                  value={pitchPreview.strategicHook}
+                                  onChange={(e) => setPitchPreview(prev => prev ? ({...prev, strategicHook: e.target.value}) : null)}
+                                  rows={2}
+                                />
+                             </div>
+                          </div>
+
+                          {/* Grouped Draft Sections */}
+                          {[
+                            { type: 'work_history', label: 'Professional Experience' },
+                            { type: 'case_study', label: 'Logic Proofs: Case Studies' },
+                            { type: 'win', label: 'ROI & Major Wins' },
+                            { type: 'recommendation', label: 'Validation / Testimonials' },
+                            { type: 'skill', label: 'Expertise Pillars' },
+                            { type: 'tooling', label: 'Technical Stack' }
+                          ].map(section => {
+                            const sectionAssets = pitchPreview.assets.filter(a => a.type === section.type);
+                            if (sectionAssets.length === 0) return null;
+                            
+                            return (
+                              <div key={section.type} className="space-y-4">
+                                <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] border-b border-gray-100 pb-2 flex items-center gap-2">
+                                  {section.label} <span className="bg-gray-100 text-gray-500 px-1.5 rounded-md">{sectionAssets.length}</span>
+                                </h3>
+                                <div className="space-y-3">
+                                  {sectionAssets.map(asset => (
+                                    <AssetCard 
+                                      key={asset.id} 
+                                      asset={asset} 
+                                      mode="draft" 
+                                      onUpdate={updatePitchAsset}
+                                      onAction={() => setPitchPreview(prev => prev ? ({...prev, assets: prev.assets.filter(a => a.id !== asset.id)}) : null)} 
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="space-y-4 animate-fade-in">
+                          <div className="bg-indigo-50/50 p-6 rounded-2xl border-2 border-dashed border-indigo-100">
+                            <p className="text-[10px] font-black uppercase text-indigo-400 mb-4 tracking-[0.2em] flex items-center gap-2">
+                               <FileText size={12} className="text-indigo-400" /> ROI Cover Letter (Editable)
+                            </p>
+                            <textarea
+                              className="w-full min-h-[600px] bg-transparent font-medium text-gray-700 leading-relaxed outline-none resize-none"
+                              value={pitchPreview.coverLetter || ''}
+                              onChange={(e) => setPitchPreview(prev => prev ? ({ ...prev, coverLetter: e.target.value }) : null)}
+                              placeholder="Sidekick is generating your cover letter strategy..."
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
