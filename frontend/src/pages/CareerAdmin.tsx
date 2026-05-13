@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle, ListChecks, RefreshCcw } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle, ListChecks, RefreshCcw, X } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
@@ -41,6 +41,7 @@ const CareerAdmin: React.FC = () => {
   const [documentTypeHint, setDocumentTypeHint] = useState<'auto' | 'resume' | 'cover_letter' | 'linkedin_profile'>('auto'); // New state for document type hint
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
+  const [duplicateGroups, setDuplicateGroups] = useState<any[][]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // CTO Diagnostic: Log state to help identify why layout might be missing
@@ -336,6 +337,98 @@ const CareerAdmin: React.FC = () => {
     }
   };
 
+  const findDuplicates = async () => {
+    setLoading(true);
+    try {
+      const { data: assets, error } = await supabase
+        .from('career_assets')
+        .select('*')
+        .eq('type', 'work_history');
+      
+      if (error || !assets) return;
+
+      // Group by normalized Company + Title
+      const groups: Record<string, any[]> = {};
+      assets.forEach(a => {
+        const key = `${(a.company || 'Unknown').toLowerCase().trim()}|${(a.title || 'Unknown').toLowerCase().trim()}`;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(a);
+      });
+
+      // Filter to only groups with duplicates
+      const dupGroups = Object.values(groups).filter(g => g.length > 1);
+      setDuplicateGroups(dupGroups);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `🔍 Found ${dupGroups.length} duplicate groups in your library. Review them below.` }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const consolidateGroup = async (groupIndex: number) => {
+    const group = duplicateGroups[groupIndex];
+    if (!group || group.length < 2) return;
+
+    setLoading(true);
+    try {
+      // Pick the first one as the Master Asset
+      const master = group[0];
+      const others = group.slice(1);
+
+      const allDescriptions = new Set<string>();
+      const allRoi = new Set<string>();
+      const allSkills = new Set<string>();
+
+      // Collect all data from the group
+      group.forEach(asset => {
+        (asset.description || []).forEach((d: string) => d && allDescriptions.add(d));
+        (asset.roi_metrics || []).forEach((r: string) => r && allRoi.add(r));
+        (asset.skills_demonstrated || []).forEach((s: string) => s && allSkills.add(s));
+      });
+
+      // Deduplicate (case-insensitive)
+      const deduplicate = (set: Set<string>) => {
+        const unique: string[] = [];
+        const seen = new Set<string>();
+        set.forEach(val => {
+          const normalized = val.toLowerCase().trim();
+          if (normalized && !seen.has(normalized)) {
+            seen.add(normalized);
+            unique.push(val.trim());
+          }
+        });
+        return unique;
+      };
+
+      const updatePayload = {
+        description: deduplicate(allDescriptions),
+        roi_metrics: deduplicate(allRoi),
+        skills_demonstrated: deduplicate(allSkills)
+      };
+
+      // Update the Master
+      const { error: updateError } = await supabase.from('career_assets').update(updatePayload).eq('id', master.id);
+      if (updateError) throw updateError;
+
+      // Delete the duplicates
+      const { error: removeError } = await supabase.from('career_assets').delete().in('id', others.map(o => o.id));
+      if (removeError) throw removeError;
+
+      // Remove from duplicate groups
+      setDuplicateGroups(prev => prev.filter((_, i) => i !== groupIndex));
+      
+      // Refresh library
+      const { data: updatedAssets } = await supabase.from('career_assets').select('*').order('created_at', { ascending: false });
+      if (updatedAssets) setResults(updatedAssets);
+
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `✅ Consolidated ${others.length} duplicates into "${master.title}" at ${master.company}.` }]);
+    } catch (e: any) {
+      console.error(e);
+      setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ Consolidation failed: ${e.message}` }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleConsolidateWorkHistory = async () => {
     if (!window.confirm("This will combine all duplicate work history entries into single 'Master Cards' with unique bullet points. Continue?")) return;
     setLoading(true);
@@ -351,6 +444,7 @@ const CareerAdmin: React.FC = () => {
       if (data.success) {
         const { data: updatedAssets } = await supabase.from('career_assets').select('*').order('created_at', { ascending: false });
         if (updatedAssets) setResults(updatedAssets);
+        setDuplicateGroups([]);
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: `✨ Library Cleaned! Consolidated ${data.consolidatedCount} duplicate entries into giant work history Master Cards.` }]);
       }
     } catch (e: any) {
@@ -581,15 +675,56 @@ const CareerAdmin: React.FC = () => {
                       <option value="recommendation">Recommendations</option>
                       <option value="narrative_theme">Themes</option>
                    </select>
-                        <NeoButton onClick={handleConsolidateWorkHistory} variant="secondary" className="h-14 px-6 font-black" disabled={loading}>
-                           {loading ? <Loader2 className="animate-spin" /> : 'Clean Library'}
+                        <NeoButton onClick={findDuplicates} variant="secondary" className="h-14 px-6 font-black" disabled={loading}>
+                           {loading ? <Loader2 className="animate-spin" /> : 'Find Duplicates'}
                         </NeoButton>
+                        {duplicateGroups.length > 0 && (
+                          <NeoButton onClick={handleConsolidateWorkHistory} variant="danger" className="h-14 px-6 font-black">
+                            Consolidate All ({duplicateGroups.length} groups)
+                          </NeoButton>
+                        )}
                      </div>
-                     <div className="grid md:grid-cols-2 gap-4">
-                        {filteredResults.map((asset) => <AssetCard key={asset.id} asset={asset} mode="library" onAction={(_, id) => id && deleteAsset(id)} />)}
-                     </div>
-                  </div>
-                )}
+
+                     {/* Duplicate Groups Display */}
+                     {duplicateGroups.length > 0 && (
+                       <div className="space-y-6">
+                         <h3 className="text-xl font-bold text-red-600 flex items-center gap-2">
+                           <AlertCircle className="text-red-600" />
+                           Duplicate Groups Found ({duplicateGroups.length})
+                         </h3>
+                         {duplicateGroups.map((group, groupIdx) => (
+                           <div key={groupIdx} className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6">
+                             <div className="flex items-center justify-between mb-4">
+                               <h4 className="font-bold text-lg">
+                                 {group[0].company} — {group[0].title}
+                               </h4>
+                               <div className="flex gap-2">
+                                 <NeoButton onClick={() => consolidateGroup(groupIdx)} variant="primary" className="h-10 px-4 text-sm">
+                                   Combine ({group.length})
+                                 </NeoButton>
+                                 <button onClick={() => setDuplicateGroups(prev => prev.filter((_, i) => i !== groupIdx))} className="p-2 text-gray-400 hover:text-gray-600">
+                                   <X size={18} />
+                                 </button>
+                               </div>
+                             </div>
+                             <div className="grid md:grid-cols-2 gap-4">
+                               {group.map((asset, idx) => (
+                                 <div key={asset.id} className={`p-4 rounded-xl border-2 ${idx === 0 ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200 opacity-70'}`}>
+                                   {idx === 0 && <span className="text-xs font-bold text-green-600 uppercase tracking-wider">Master</span>}
+                                   <p className="text-sm text-gray-600 mt-1">{asset.description?.length || 0} bullet points, {asset.roi_metrics?.length || 0} metrics</p>
+                                 </div>
+                               ))}
+                             </div>
+                           </div>
+                         ))}
+                       </div>
+                     )}
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                         {filteredResults.map((asset) => <AssetCard key={asset.id} asset={asset} mode="library" onAction={(_, id) => id && deleteAsset(id)} />)}
+                      </div>
+                   </div>
+                 )}
               </div>
             )}
 
