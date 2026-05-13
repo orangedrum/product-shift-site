@@ -118,8 +118,8 @@ const PublicResume: React.FC = () => {
               </div>
             </div>
             <section className="mb-8">
-              <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Strategic Proposal</h2>
-              <p className="text-[12px] leading-relaxed font-medium whitespace-pre-wrap">{resume.cover_letter}</p>
+          <p className="text-[12px] leading-relaxed font-bold mb-4">Dear Hiring Manager,</p>
+          <p className="text-[12px] leading-relaxed font-medium whitespace-pre-wrap">{resume.cover_letter}</p>
             </section>
             <div className="mt-12 text-[10px] font-bold">
               — Jean Kaluza
@@ -200,53 +200,59 @@ const PublicResume: React.FC = () => {
 
         <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
           {/* Header & Reel */}
-          <header className="mb-20">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 text-[10px] font-black text-indigo-600 uppercase tracking-widest shadow-sm">
+          <header className="relative w-full min-h-[60vh] md:min-h-[70vh] flex items-center mb-20 -mt-12 md:-mt-20 -mx-4 px-4 overflow-hidden rounded-[2.5rem] group border-2 border-black shadow-[8px_8px_0px_0px_#000]">
+            {/* Background Image & Gradient treatment for legibility */}
+            <div className="absolute inset-0 z-0">
+              <img 
+                src="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" 
+                className="w-full h-full object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[5000ms] ease-out" 
+                alt="Jean Kaluza Background" 
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent"></div>
+            </div>
+
+            <div className="relative z-10 py-20 px-8 md:px-16 max-w-4xl">
+              <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-[10px] font-black text-white uppercase tracking-widest mb-8">
                 Bespoke Strategy: {resume.target_role}
               </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <div className="max-w-[480px]">
-                  <div className="relative animate-float">
-                    <VideoThumbnail 
-                      imageSrc="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png"
-                      alt="Jean Kaluza Authority"
-                      onPlay={() => setIsVideoOpen(true)}
-                      label="Authority Reel"
-                    />
-                    <div className="absolute -top-4 -right-4 w-24 h-24 bg-marketing-gradient rounded-full opacity-20 blur-xl"></div>
-                  </div>
-                </div>
-                <div>
-                  <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 leading-none text-gray-900">
-                    Jean Kaluza
-                  </h1>
-                  <p className="text-2xl md:text-3xl font-extrabold text-indigo-600 tracking-tight italic">
-                    {resume.mapped_title}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white p-10 rounded-3xl border border-gray-100 relative shadow-xl overflow-hidden">
-                <Sparkles className="absolute -top-4 -left-4 text-brand-pink" size={40} />
-                <p className="text-[10px] font-black uppercase text-gray-400 mb-6 tracking-[0.3em] border-b border-gray-50 pb-2">Executive Summary</p>
-                <p className="text-[1em] text-gray-600 leading-normal font-medium">
-                  {resume.professional_summary}
+              
+              <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-4 leading-none text-white drop-shadow-2xl">
+                Jean Kaluza
+              </h1>
+              
+              <p className="text-2xl md:text-4xl font-extrabold text-[#00bfff] tracking-tight italic mb-8 drop-shadow-lg">
+                {resume.mapped_title}
+              </p>
+
+              <div className="space-y-6 mb-12 max-w-2xl">
+                <p className="text-xl md:text-2xl font-bold leading-snug text-white drop-shadow-md italic">
+                  "{resume.professional_summary}"
                 </p>
-                <div className="mt-10 flex flex-wrap items-center gap-4">
-                  <NeoButton variant="primary" onClick={() => window.print()} className="px-8 h-12 flex items-center gap-2 bg-black hover:bg-gray-900 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 border-none">
-                    <Download size={18} /> Print Resume
-                  </NeoButton>
-                  {resume.cover_letter && (
-                    <NeoButton variant="secondary" onClick={() => setIsCoverLetterOpen(true)} className="px-8 h-12 flex items-center gap-2 hover:bg-gray-50 shadow-md hover:shadow-lg transition-all hover:-translate-y-1">
-                      <FileText size={18} /> ROI Cover Letter
-                    </NeoButton>
-                  )}
-                  <NeoButton variant="secondary" onClick={() => setIsProcessModalOpen(true)} className="px-8 h-12 flex items-center gap-2 group hover:bg-gray-50 shadow-md hover:shadow-lg transition-all hover:-translate-y-1">
-                    Strategic Process <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </NeoButton>
-                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6">
+                <NeoButton 
+                  variant="primary" 
+                  onClick={() => window.print()} 
+                  className="px-10 h-14 text-lg bg-[#39ff14] text-black border-none shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000]"
+                >
+                  <Download size={20} className="mr-2" /> Print Resume
+                </NeoButton>
+                
+                <NeoButton 
+                  variant="secondary" 
+                  onClick={() => setIsProcessModalOpen(true)} 
+                  className="px-10 h-14 text-lg text-white border-2 border-white bg-transparent hover:bg-white/10 group shadow-lg"
+                >
+                  Strategic Process <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </NeoButton>
+
+                <button 
+                  onClick={() => setIsVideoOpen(true)}
+                  className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/70 hover:text-white transition-colors ml-4 sm:ml-0"
+                >
+                  <Sparkles size={16} className="text-brand-pink" /> Watch Authority Reel
+                </button>
               </div>
             </div>
           </header>
