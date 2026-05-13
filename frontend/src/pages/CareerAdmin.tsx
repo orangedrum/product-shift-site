@@ -767,6 +767,58 @@ const CareerAdmin: React.FC = () => {
                       </div>
                    </div>
                  )}
+
+                {activeTab === 'published' && (
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-black mb-6 flex items-center gap-2"><Globe className="text-indigo-600" /> Published Resumes</h2>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {publishedResumes.map((resume) => (
+                        <div key={resume.id} className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900 line-clamp-1">{resume.target_role}</h3>
+                              <p className="text-sm text-indigo-600 font-bold uppercase tracking-wider">{resume.mapped_title}</p>
+                            </div>
+                            <button onClick={() => deleteResume(resume.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                          <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-50">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                              Created: {new Date(resume.created_at).toLocaleDateString()}
+                            </span>
+                            <div className="flex gap-3">
+                               <button 
+                                 onClick={() => {
+                                   navigator.clipboard.writeText(`${window.location.origin}/resume/${resume.slug}`);
+                                   alert('Link copied to clipboard!');
+                                 }} 
+                                 className="text-gray-400 hover:text-indigo-600 transition-colors"
+                                 title="Copy Link"
+                               >
+                                 <Copy size={18} />
+                               </button>
+                               <a 
+                                 href={`/resume/${resume.slug}`} 
+                                 target="_blank" 
+                                 rel="noopener noreferrer" 
+                                 className="text-gray-400 hover:text-indigo-600 transition-colors"
+                                 title="View Live"
+                               >
+                                 <ExternalLink size={18} />
+                               </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {publishedResumes.length === 0 && (
+                        <div className="col-span-2 py-20 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                          <p className="text-gray-400 font-bold italic">No published resumes yet. Build one in the Brag Engine!</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
