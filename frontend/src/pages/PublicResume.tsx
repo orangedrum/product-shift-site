@@ -98,7 +98,7 @@ const PublicResume: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 pb-24 selection:bg-indigo-100">
+    <div className="min-h-screen bg-white font-sans text-gray-900 selection:bg-indigo-100">
       <SEOMetadata 
         title={`Jean Kaluza - ${resume.mapped_title || 'Executive Strategist'}`}
         description={resume.professional_summary}
@@ -116,10 +116,28 @@ const PublicResume: React.FC = () => {
           </div>
         </div>
 
+        <section className="mb-8 break-inside-avoid mt-[1em]">
+          <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Key Accomplishments</h2>
+          <ul className="list-disc pl-5 text-[11px] space-y-1">
+            {assets.filter((a: any) => a.type === 'win').map((win: any, i: number) => (
+              <li key={i}>
+                <strong>{win.title}:</strong> {win.roi_metrics?.[0] || (Array.isArray(win.description) ? win.description[0] : win.description)}
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <section className="mb-8">
           <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Executive Summary</h2>
           <p className="text-[11px] leading-relaxed italic font-medium">"{resume.professional_summary}"</p>
         </section>
+
+        {resume.cover_letter && (
+          <section className="mt-8 pt-8 border-t-2 border-black page-break-before">
+            <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Strategic Proposal</h2>
+            <p className="text-[11px] leading-relaxed font-medium whitespace-pre-wrap">{resume.cover_letter}</p>
+          </section>
+        )}
 
         <section className="mb-8">
           <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Professional Experience</h2>
@@ -131,7 +149,12 @@ const PublicResume: React.FC = () => {
                   <span className="font-black text-[10px] uppercase text-indigo-700">{job.company}</span>
                 </div>
                 <ul className="list-disc pl-5 text-[10px] space-y-1 font-medium text-gray-800">
-                  {(Array.isArray(job.description) ? job.description : (typeof job.description === 'string' ? [job.description] : [])).map((bullet: string, bi: number) => (
+                  {(Array.isArray(job.description) 
+                    ? job.description 
+                    : (typeof job.description === 'string' 
+                        ? job.description.split('\n').map((s: string) => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean) 
+                        : [])
+                  ).map((bullet: string, bi: number) => (
                     <li key={bi}>{bullet}</li>
                   ))}
                 </ul>
@@ -241,7 +264,12 @@ const PublicResume: React.FC = () => {
                         <span className="text-sm font-black uppercase tracking-widest text-indigo-600">{job.company}</span>
                       </div>
                       <ul className="space-y-4">
-                        {(Array.isArray(job.description) ? job.description : (typeof job.description === 'string' ? [job.description] : [])).map((bullet: string, bIdx: number) => (
+                        {(Array.isArray(job.description) 
+                          ? job.description 
+                          : (typeof job.description === 'string' 
+                              ? job.description.split('\n').map((s: string) => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean) 
+                              : [])
+                        ).map((bullet: string, bIdx: number) => (
                           <li key={bIdx} className="text-gray-600 text-lg leading-snug font-medium flex items-start gap-4">
                             <CheckCircle className="mt-1 text-green-500 shrink-0" size={20} />
                             {bullet}
@@ -505,19 +533,21 @@ const PublicResume: React.FC = () => {
               )}
 
               {/* Conversion CTA */}
-                <div className="sticky top-28 m-[30px] space-y-8">
+                <div className="sticky top-28 space-y-8">
                   <div className="rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-xl bg-white">
-                  <SpeechBubble 
-                    imageSrc="/jeankaluza.png"
-                    name="Jean Kaluza"
-                    role={resume.mapped_title}
-                    quote={`Seen enough proof? Let's talk ROI for ${resume.target_role}.`}
-                    mood="positive"
-                  />
+                  <div className="p-[0.75em]">
+                    <SpeechBubble 
+                      imageSrc="/jeankaluza.png"
+                      name="Jean Kaluza"
+                      role={resume.mapped_title}
+                      quote={`Seen enough proof? Let's talk ROI for ${resume.target_role}.`}
+                      mood="positive"
+                    />
+                  </div>
                   <div className="p-6 pt-0 space-y-4">
                     <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer" className="block">
                       <NeoButton className="w-full bg-marketing-gradient text-white py-5 font-black text-lg h-auto rounded-[1.25rem] border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                        Schedule ROI Interview
+                        Schedule Interview
                       </NeoButton>
                     </a>
                     <NeoButton 
