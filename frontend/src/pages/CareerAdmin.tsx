@@ -378,9 +378,20 @@ const CareerAdmin: React.FC = () => {
       const allRoi = new Set<string>();
       const allSkills = new Set<string>();
 
+      // Helper to normalize description to array
+      const normalizeDescription = (desc: any): string[] => {
+        if (Array.isArray(desc)) return desc.filter(d => d);
+        if (typeof desc === 'string') {
+          return desc.split('\n')
+            .map(s => s.trim().replace(/^[•\-\*]\s*/, ''))
+            .filter(Boolean);
+        }
+        return [];
+      };
+
       // Collect all data from the group
       group.forEach(asset => {
-        (asset.description || []).forEach((d: string) => d && allDescriptions.add(d));
+        normalizeDescription(asset.description).forEach((d: string) => d && allDescriptions.add(d));
         (asset.roi_metrics || []).forEach((r: string) => r && allRoi.add(r));
         (asset.skills_demonstrated || []).forEach((s: string) => s && allSkills.add(s));
       });
