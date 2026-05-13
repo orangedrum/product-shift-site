@@ -168,13 +168,15 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         Type: ${a.type} 
         Title: ${a.title} 
         Company: ${a.company} 
-        Metrics: ${a.roi_metrics?.join(', ')}`).join('\n')}
+        Metrics: ${a.roi_metrics?.join(', ')}
+        Description: ${Array.isArray(a.description) ? a.description.join(' ') : (a.description || '')}`).join('\n')}
 
       TASK:
-      1. Select EVERY asset from the list that correlates to a requirement, skill, or responsibility found in the JD.
-      2. Do not limit the count to 24; include all assets that demonstrate she is the obvious choice for this specific stack.
-      2. Provide a "strategicReasoning" summary (2-3 sentences) explaining your choices.
-      3. Identify any "gapAnalysis" points—skills or wins the JD asks for that are missing from her library.
+      1. EXHAUSTIVE MAPPING: Select EVERY asset from the library that correlates to a requirement, skill, or responsibility in the JD.
+      2. PROOF OF AUTHORITY: You MUST select the most powerful 'win' (Key Accomplishments), 'recommendation' (Validation), and 'writing_sample'/'talk' (Thought Leadership) assets from the library to serve as supporting evidence, even if they don't map to a specific JD line item.
+      3. NO LIMITS: Include ALL relevant assets that make Jean the obvious choice. Do not truncate or limit the selection to a specific count.
+      4. STRATEGIC REASONING: Explain how these specific proof points (especially the ROI wins and articles) bridge her experience to the JD's core business threats.
+      5. GAP ANALYSIS: Explicitly list any JD requirements that have NO matching assets in the current library.
 
       Return a JSON object with: 
       "selectedIds" (ARRAY of IDs), 
@@ -182,7 +184,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       "strategicReasoning" (STRING), 
       "gapAnalysis" (ARRAY of strings).
       - CRITICAL: Do NOT hallucinate assets. If a type (like case_study) is not in the list, DO NOT include it.
-      - DIVERSITY REQUIREMENT: You MUST select assets from every available category that matches a JD ask.
+      - DIVERSITY REQUIREMENT: You MUST select assets from every available category (work_history, win, recommendation, writing_sample, talk, skill, tooling) to ensure a high-authority narrative.
+      - EVIDENCE FIRST: Prioritize assets with hard metrics (ROI) or recognizable industry brands (Disney, Pluralsight, StackPath, UX Cabin).
       - Omit all dates/years from titles/descriptions to prevent bias.
     `;
 

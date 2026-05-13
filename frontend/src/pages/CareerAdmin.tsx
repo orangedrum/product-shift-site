@@ -846,6 +846,8 @@ const CareerAdmin: React.FC = () => {
                             { type: 'case_study', label: 'Logic Proofs: Case Studies' },
                             { type: 'win', label: 'ROI & Major Wins' },
                             { type: 'recommendation', label: 'Validation / Testimonials' },
+                            { type: 'writing_sample', label: 'Thought Leadership: Articles' },
+                            { type: 'talk', label: 'Thought Leadership: Talks' },
                             { type: 'skill', label: 'Expertise Pillars' },
                             { type: 'tooling', label: 'Technical Stack' }
                           ].map(section => {
