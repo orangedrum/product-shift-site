@@ -160,8 +160,10 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
         - **Merging/Combining (CRITICAL):** If Jean asks to "merge" or "combine" assets (e.g., "combine all UX Cabin work history"), you MUST:
           - Identify all relevant assets by company and type.
           - Select ONE asset as the "master" to keep.
-          - Consolidate ALL unique description bullets, roi_metrics, and skills_demonstrated.
+          - Consolidate ALL unique description bullets (limit to top 6 most relevant for current target).
           - Return an action: "merge" with master_asset and remove_ids.
+    2.  **Exhaustive Selection:** If asked to "add" or "include" a category (e.g., "Add all my HealthTech articles" or "Include all recommendations"), you MUST find EVERY matching ID in the libraryContext and include them in the 'updatedResume.assets' array.
+    3.  **Trimming Rule:** For ANY modification to work history, always trim the description to the 5-6 most high-impact bullets.
 
     **STRATEGY GUIDELINES:**
     - **TECHNICAL ANCHORING:** Highlight VS Code, Docker, and the Terminal to distinguish her from standard "Designers."
@@ -173,6 +175,7 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     **If a request to modify or "retry" the draft is detected:**
     - Set the 'action' to 'chat'.
     - In 'reply', explain the strategic reasoning.
+    - CRITICAL: The "updatedResume" object MUST contain the full "assets" array. Do not omit it.
     - Provide the modified resume object in 'updatedResume'.
 
     **Return a JSON object:**

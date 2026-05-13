@@ -60,7 +60,7 @@ const CareerAdmin: React.FC = () => {
     if (!asset) return false;
 
     // LEAD ENGINEER UX FIX: Exclude if already present in the active draft
-    if (pitchPreview?.assets.some(a => a.id === asset.id)) return false;
+    if (pitchPreview?.assets?.some((a: any) => a?.id === asset.id)) return false;
 
     const searchLower = (librarySearch || '').toLowerCase();
     
@@ -69,8 +69,11 @@ const CareerAdmin: React.FC = () => {
     const descriptionMatch = Array.isArray(asset.description) 
       ? asset.description.some((d: any) => typeof d === 'string' && d.toLowerCase().includes(searchLower))
       : (typeof asset.description === 'string' && asset.description.toLowerCase().includes(searchLower));
+    const skillMatch = (asset.skills_demonstrated || []).some((s: any) => typeof s === 'string' && s.toLowerCase().includes(searchLower));
+    const metricMatch = (asset.roi_metrics || []).some((m: any) => typeof m === 'string' && m.toLowerCase().includes(searchLower));
+    const storyMatch = asset.story ? JSON.stringify(asset.story).toLowerCase().includes(searchLower) : false;
 
-    const matchesSearch = titleMatch || companyMatch || descriptionMatch;
+    const matchesSearch = titleMatch || companyMatch || descriptionMatch || skillMatch || metricMatch || storyMatch;
     
     const matchesFilter = libraryFilter === 'all' || asset.type === libraryFilter;
     
@@ -522,12 +525,19 @@ const CareerAdmin: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setSidekickMessages(prev => [...prev, { sender: 'bot', text: data.reply }]);
+        // CTO FIX: Defensive structure check to prevent state corruption and work loss
+        if (data.updatedResume && !Array.isArray(data.updatedResume.assets)) {
+          console.warn('AI returned updatedResume without assets array. Protecting state.', data.updatedResume);
+          setSidekickMessages(prev => [...prev, { sender: 'bot', text: "⚠️ I tried to update your draft, but I encountered a structure error. I've kept your current work safe." }]);
+        } else {
+          setSidekickMessages(prev => [...prev, { sender: 'bot', text: data.reply }]);
+        }
+
         if (data.suggestedAssets && data.suggestedAssets.length > 0) {
            setReviewQueue(prev => [...data.suggestedAssets, ...prev]);
            setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted new strategic points based on User Mirror to fill your gaps. Check the Review Queue!` }]);
         }
-        if (data.updatedResume) {
+        if (data.updatedResume && Array.isArray(data.updatedResume.assets)) {
           setPitchPreview(data.updatedResume);
           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `✨ I've recalibrated your resume and cover letter drafts to reflect the '${userMsg}' direction. You can see the live changes in the Brag Engine preview.` }]);
         }
@@ -851,7 +861,7 @@ const CareerAdmin: React.FC = () => {
                             { type: 'skill', label: 'Expertise Pillars' },
                             { type: 'tooling', label: 'Technical Stack' }
                           ].map(section => {
-                            const sectionAssets = pitchPreview.assets.filter(a => a.type === section.type);
+                            const sectionAssets = (pitchPreview.assets || []).filter(a => a?.type === section.type);
                             if (sectionAssets.length === 0) return null;
                             
                             return (
@@ -896,7 +906,23 @@ const CareerAdmin: React.FC = () => {
                 <div className="lg:col-span-5 space-y-6 sticky top-8">
                   <div className="p-6 bg-gray-900 rounded-3xl shadow-xl h-[800px] flex flex-col">
                     <h3 className="text-white font-black uppercase text-xs mb-4 flex items-center gap-2"><Database size={14} className="text-brand-pink" /> Content Vault</h3>
-                    <input type="text" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)} className="w-full p-3 bg-gray-800 border-none rounded-xl text-white text-sm mb-4" placeholder="Search Vault..." />
+                    <div className="space-y-2 mb-4">
+                      <input type="text" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)} className="w-full p-3 bg-gray-800 border-none rounded-xl text-white text-sm focus:ring-1 focus:ring-brand-pink outline-none" placeholder="Search by title, skill, or metric..." />
+                      <select 
+                        value={libraryFilter} 
+                        onChange={(e) => setLibraryFilter(e.target.value)}
+                        className="w-full p-3 bg-gray-800 border-none rounded-xl text-gray-400 text-xs font-bold outline-none cursor-pointer"
+                      >
+                        <option value="all">All Proofs</option>
+                        <option value="work_history">Experience</option>
+                        <option value="case_study">Case Studies</option>
+                        <option value="win">ROI Wins</option>
+                        <option value="recommendation">Recommendations</option>
+                        <option value="skill">Expertise</option>
+                        <option value="talk">Talks</option>
+                        <option value="writing_sample">Articles</option>
+                      </select>
+                    </div>
                     <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                       {filteredResults.map((asset) => <AssetCard key={asset.id} asset={asset} mode="vault" onAction={() => handleAddAssetToPitch(asset)} />)}
                     </div>

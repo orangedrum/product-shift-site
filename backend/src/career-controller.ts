@@ -173,13 +173,16 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
       TASK:
       1. EXHAUSTIVE MAPPING: Select EVERY asset from the library that correlates to a requirement, skill, or responsibility in the JD.
-      2. PROOF OF AUTHORITY: You MUST select the most powerful 'win' (Key Accomplishments), 'recommendation' (Validation), and 'writing_sample'/'talk' (Thought Leadership) assets from the library to serve as supporting evidence, even if they don't map to a specific JD line item.
-      3. NO LIMITS: Include ALL relevant assets that make Jean the obvious choice. Do not truncate or limit the selection to a specific count.
-      4. STRATEGIC REASONING: Explain how these specific proof points (especially the ROI wins and articles) bridge her experience to the JD's core business threats.
-      5. GAP ANALYSIS: Explicitly list any JD requirements that have NO matching assets in the current library.
+      2. MANDATORY MIX: A high-authority resume MUST include more than just jobs. You MUST select at least 5 Skills, 3 Recommendations, 2 ROI Wins, and any relevant Articles/Talks found in the library.
+      3. PROOF OF AUTHORITY: Prioritize assets from Tier-1 brands (Disney, Pluralsight) and those with quantifiable percentages (ROI), even if they are supportive evidence rather than direct JD matches.
+      4. NO LIMITS: Do not summarize or truncate the asset count. If Jean has 40 relevant proofs, include all 40. Obviousness is built through volume of evidence.
+      5. STRATEGIC REASONING: Explain how this exhaustive evidence set solves the specific business threats implied by the JD.
+      6. GAP ANALYSIS: List JD requirements that Jean has NO library assets to prove.
+      7. BULLET TRIMMING: For 'work_history' only, select the 5-6 most relevant bullets per job.
 
       Return a JSON object with: 
       "selectedIds" (ARRAY of IDs), 
+      "trimmedDescriptions" (OBJECT mapping ID to a trimmed ARRAY of relevant description strings),
       "mappedTitle" (STRING), 
       "strategicReasoning" (STRING), 
       "gapAnalysis" (ARRAY of strings).
@@ -193,10 +196,15 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const { selectedIds, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
+    const { selectedIds, trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
     
-    // Filter full asset data for the frontend
-    const curatedPitch = assets.filter(a => selectedIds.includes(a.id));
+    // Filter and merge AI-trimmed descriptions
+    const curatedPitch = assets
+      .filter(a => selectedIds.includes(a.id))
+      .map(a => ({
+        ...a,
+        description: trimmedDescriptions?.[a.id] || a.description
+      }));
 
     // 4. Generate AI Professional Summary
     const summaryPrompt = `Based on this JD and these selected assets, write a single high-impact, 1-sentence Professional Summary for Jean Kaluza (she/her). 
