@@ -11,7 +11,7 @@ const AdminHeader = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('productShiftAdminKey'); // Clear the Admin PIN
-    navigate('/login');
+    navigate('/admin-dashboard'); // Redirect to admin login page
   };
 
   const navItems = [
