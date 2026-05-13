@@ -72,9 +72,10 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
         )}
       </div>
 
-      {mode === 'draft' ? (
+      {/* Title - Editable in draft and review modes */}
+      {(mode === 'draft' || mode === 'review') && onUpdate ? (
         <input 
-          className="w-full text-base font-bold text-gray-900 leading-tight mb-1 bg-transparent border-none focus:ring-0 p-0 outline-none"
+          className="w-full text-base font-bold text-gray-900 leading-tight mb-1 bg-transparent border-b-2 border-indigo-100 focus:border-indigo-400 focus:ring-0 p-0 outline-none"
           value={asset.title}
           onChange={(e) => onUpdate?.(asset.id, 'title', e.target.value)}
         />
@@ -82,17 +83,18 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
         <h4 className="text-base font-bold text-gray-900 leading-tight mb-1">{asset.title}</h4>
       )}
 
-      {asset.company && mode !== 'draft' && (
-        <p className="text-xs font-bold text-indigo-600/70 mb-3">{asset.company}</p>
-      )}
-
-      {mode === 'draft' && (asset.company !== undefined || asset.type === 'work_history') && (
+      {/* Company - Editable in draft and review modes */}
+      {(mode === 'draft' || mode === 'review') && onUpdate ? (
         <input 
-          className="w-full text-xs font-bold text-indigo-600/70 mb-3 bg-transparent border-none focus:ring-0 p-0 outline-none uppercase"
+          className="w-full text-xs font-bold text-indigo-600/70 mb-3 bg-transparent border-b border-indigo-50 focus:border-indigo-200 focus:ring-0 p-0 outline-none uppercase"
           value={asset.company || ''}
           placeholder="Company Name"
           onChange={(e) => onUpdate?.(asset.id, 'company', e.target.value)}
         />
+      ) : (
+        asset.company && mode !== 'draft' && (
+          <p className="text-xs font-bold text-indigo-600/70 mb-3">{asset.company}</p>
+        )
       )}
 
       {asset.type === 'recommendation' && mode === 'draft' && (
@@ -113,24 +115,26 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
       )}
 
       <div className="space-y-2 mb-4">
-        {mode === 'draft' ? (
+        {(mode === 'draft' || mode === 'review') && onUpdate ? (
           <textarea 
-            className="w-full text-sm text-gray-600 bg-transparent border-none focus:ring-0 p-0 outline-none resize-none italic"
-            rows={bullets.length || 2}
+            className="w-full text-sm text-gray-600 bg-gray-50 border border-gray-100 rounded-lg p-3 focus:ring-0 focus:border-indigo-200 outline-none resize-none italic"
+            rows={Math.max(bullets.length, 2)}
             value={bullets.join('\n')}
             onChange={(e) => onUpdate?.(asset.id, 'description', e.target.value.split('\n'))}
             placeholder="Description (One bullet per line)"
           />
         ) : (
-          bullets.slice(0, mode === 'vault' ? 1 : bullets.length).map((bullet: string, idx: number) => (
-            <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-              <CheckCircle size={14} className="text-green-500 mt-0.5 flex-shrink-0" />
-              <span className={mode === 'vault' ? 'truncate' : ''}>{bullet}</span>
-            </div>
-          ))
-        )}
-        {mode === 'vault' && bullets.length > 1 && (
-          <p className="text-[10px] text-gray-400 font-bold italic">+{bullets.length - 1} more details...</p>
+          <>
+            {bullets.slice(0, mode === 'vault' ? 1 : bullets.length).map((bullet: string, idx: number) => (
+              <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
+                <CheckCircle size={14} className="text-green-500 mt-0.5 flex-shrink-0" />
+                <span className={mode === 'vault' ? 'truncate' : ''}>{bullet}</span>
+              </div>
+            ))}
+            {mode === 'vault' && bullets.length > 1 && (
+              <p className="text-[10px] text-gray-400 font-bold italic">+{bullets.length - 1} more details...</p>
+            )}
+          </>
         )}
       </div>
 
@@ -141,6 +145,27 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
               <Trophy size={10}/> {metric}
             </span>
           ))}
+        </div>
+      )}
+
+      {/* Asset Type Selector - Only in review mode with onUpdate */}
+      {mode === 'review' && onUpdate && (
+        <div className="mt-4 pt-3 border-t border-gray-100">
+          <label className="block text-[10px] font-black uppercase text-gray-400 mb-1">Asset Type</label>
+          <select 
+            className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold"
+            value={asset.type || ''}
+            onChange={(e) => onUpdate?.(asset.id, 'type', e.target.value)}
+          >
+            <option value="work_history">Work History</option>
+            <option value="case_study">Case Study</option>
+            <option value="win">Win / ROI</option>
+            <option value="skill">Skill</option>
+            <option value="talk">Talk</option>
+            <option value="writing_sample">Writing Sample</option>
+            <option value="recommendation">Recommendation</option>
+            <option value="narrative_theme">Narrative Theme</option>
+          </select>
         </div>
       )}
 

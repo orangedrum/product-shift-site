@@ -472,48 +472,94 @@ const CareerAdmin: React.FC = () => {
             {(activeTab === 'pdf' || activeTab === 'media' || activeTab === 'library' || activeTab === 'published') && (
               <div className="space-y-6">
                 {activeTab === 'pdf' && (
-                  <MarketingCard className="p-8 border-dashed border-4 border-gray-200 bg-gray-50/30 flex flex-col items-center justify-center text-center">
-                     <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf,.txt,.md" multiple />
-                     <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-4 text-gray-400 cursor-pointer hover:scale-105 transition-transform" onClick={() => fileInputRef.current?.click()}>
-                        <Upload size={32} />
-                     </div>
-                     <h2 className="text-xl font-bold mb-2">Bulk Document Ingestion</h2>
-                     <p className="text-gray-500 max-w-sm mb-6 text-sm">Upload your resumes and cover letters. I'll extract strategic points.</p>
-                     <div className="w-full space-y-4">
-                        {selectedFiles.length > 0 && (
-                          <div className="mb-4 text-left">
-                            <p className="text-sm font-bold text-gray-700 mb-2">Selected Files:</p>
-                            <ul className="list-disc list-inside text-sm text-gray-600">
-                              {selectedFiles.map((file, index) => <li key={index}>{file.name}</li>)}
-                            </ul>
+                  <>
+                    <MarketingCard className="p-8 border-dashed border-4 border-gray-200 bg-gray-50/30 flex flex-col items-center justify-center text-center">
+                       <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".pdf,.txt,.md" multiple />
+                       <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-4 text-gray-400 cursor-pointer hover:scale-105 transition-transform" onClick={() => fileInputRef.current?.click()}>
+                          <Upload size={32} />
+                       </div>
+                       <h2 className="text-xl font-bold mb-2">Bulk Document Ingestion</h2>
+                       <p className="text-gray-500 max-w-sm mb-6 text-sm">Upload your resumes and cover letters. I'll extract strategic points.</p>
+                       <div className="w-full space-y-4">
+                          {selectedFiles.length > 0 && (
+                            <div className="mb-4 text-left">
+                              <p className="text-sm font-bold text-gray-700 mb-2">Selected Files:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600">
+                                {selectedFiles.map((file, index) => <li key={index}>{file.name}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                          <textarea className="w-full h-24 p-4 bg-white border border-gray-200 rounded-xl text-sm" placeholder="Or paste resume text here..." value={chatInput} onChange={(e) => setChatInput(e.target.value)} />
+                          <div>
+                             <label className="block text-xs font-black uppercase text-gray-400 mb-1">Document Type Hint</label>
+                             <select className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" value={documentTypeHint} onChange={(e) => setDocumentTypeHint(e.target.value as any)}>
+                                <option value="auto">Auto-detect</option>
+                                <option value="linkedin_profile">LinkedIn Profile (Ground Truth)</option>
+                                <option value="resume">Resume</option>
+                                <option value="cover_letter">Cover Letter</option>
+                             </select>
                           </div>
-                        )}
-                        <textarea className="w-full h-24 p-4 bg-white border border-gray-200 rounded-xl text-sm" placeholder="Or paste resume text here..." value={chatInput} onChange={(e) => setChatInput(e.target.value)} />
-                        <div>
-                           <label className="block text-xs font-black uppercase text-gray-400 mb-1">Document Type Hint</label>
-                           <select className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" value={documentTypeHint} onChange={(e) => setDocumentTypeHint(e.target.value as any)}>
-                              <option value="auto">Auto-detect</option>
-                              <option value="linkedin_profile">LinkedIn Profile (Ground Truth)</option>
-                              <option value="resume">Resume</option>
-                              <option value="cover_letter">Cover Letter</option>
-                           </select>
+                          <NeoButton onClick={handleBulkIngest} disabled={loading} className="bg-marketing-gradient text-white px-12">Extract Strategic Assets</NeoButton>
                         </div>
-                        <NeoButton onClick={handleBulkIngest} disabled={loading} className="bg-marketing-gradient text-white px-12">Extract Strategic Assets</NeoButton>
+                    </MarketingCard>
+
+                    {/* Review Queue - Display extracted assets with editing */}
+                    {reviewQueue.length > 0 && (
+                      <div className="mt-8">
+                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                          <FileText className="text-indigo-600" />
+                          Review Queue ({reviewQueue.length} assets) - Edit before approving
+                        </h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {reviewQueue.map((asset, index) => (
+                            <AssetCard 
+                              key={index} 
+                              asset={asset} 
+                              mode="review" 
+                              onUpdate={(id, field, value) => updateReviewAsset(index, field, value)}
+                              onAction={(action) => action === 'approve' ? approveAsset(index) : discardAsset(index)} 
+                            />
+                          ))}
+                        </div>
                       </div>
-                  </MarketingCard>
+                    )}
+                  </>
                 )}
 
                 {activeTab === 'media' && (
-                  <MarketingCard className="p-8">
-                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><LinkIcon className="text-indigo-600" /> Strategic Media Ingestion</h2>
-                    <div className="space-y-4">
-                      <div>
-                         <label className="block text-xs font-black uppercase text-gray-400 mb-1">Source URL</label>
-                         <input type="text" className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" placeholder="https://dovetailapp.com/blog/..." value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />
+                  <>
+                    <MarketingCard className="p-8">
+                      <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><LinkIcon className="text-indigo-600" /> Strategic Media Ingestion</h2>
+                      <div className="space-y-4">
+                        <div>
+                           <label className="block text-xs font-black uppercase text-gray-400 mb-1">Source URL</label>
+                           <input type="text" className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" placeholder="https://dovetailapp.com/blog/..." value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />
+                        </div>
+                        <NeoButton onClick={handleBulkIngest} disabled={loading} className="w-full bg-black text-white py-4 mt-4">Extract Strategic Value</NeoButton>
                       </div>
-                      <NeoButton onClick={handleBulkIngest} disabled={loading} className="w-full bg-black text-white py-4 mt-4">Extract Strategic Value</NeoButton>
-                    </div>
-                  </MarketingCard>
+                    </MarketingCard>
+
+                    {/* Review Queue - Display extracted assets with editing */}
+                    {reviewQueue.length > 0 && (
+                      <div className="mt-8">
+                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                          <FileText className="text-indigo-600" />
+                          Review Queue ({reviewQueue.length} assets) - Edit before approving
+                        </h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {reviewQueue.map((asset, index) => (
+                            <AssetCard 
+                              key={index} 
+                              asset={asset} 
+                              mode="review" 
+                              onUpdate={(id, field, value) => updateReviewAsset(index, field, value)}
+                              onAction={(action) => action === 'approve' ? approveAsset(index) : discardAsset(index)} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {activeTab === 'library' && (
