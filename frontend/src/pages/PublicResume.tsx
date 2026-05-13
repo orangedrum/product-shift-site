@@ -198,67 +198,75 @@ const PublicResume: React.FC = () => {
           </div>
         </nav>
 
-        <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
-          {/* Header & Reel */}
-          <header className="relative w-full min-h-[70vh] flex items-center mb-20 -mt-12 md:-mt-20 -mx-4 overflow-hidden group">
-            {/* Background Image & Gradient treatment for legibility */}
-            <div className="absolute inset-0 z-0">
-              <img 
-                src="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" 
-                className="w-full h-full object-cover object-center opacity-80 group-hover:scale-105 transition-all duration-[5000ms] ease-out" 
-                alt="Jean Kaluza Background" 
-              />
-              {/* Adjusted gradient for better focus on center and text legibility */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
-              <div className="absolute inset-0 bg-marketing-gradient opacity-10 mix-blend-overlay"></div>
-            </div>
+        {/* Header & Reel - Full width hero */}
+        <header className="relative w-full min-h-[70vh] flex items-center mb-20 -mt-12 md:-mt-20 overflow-hidden group">
+          {/* Background Image & Gradient treatment for legibility */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" 
+              className="w-full h-full object-cover object-center opacity-80 group-hover:scale-105 transition-all duration-[5000ms] ease-out" 
+              alt="Jean Kaluza Background" 
+            />
+            {/* Adjusted gradient for better focus on center and text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
+            <div className="absolute inset-0 bg-marketing-gradient opacity-10 mix-blend-overlay"></div>
+          </div>
 
-            <div className="relative z-10 py-20 px-4 md:px-8 max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-[10px] font-black text-white uppercase tracking-widest mb-8">
-                Bespoke Strategy: {resume.target_role}
-              </div>
-              
-              <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-4 leading-none text-white drop-shadow-2xl">
-                Jean Kaluza
-              </h1>
-              
-              <p className="text-2xl md:text-4xl font-extrabold text-[#00bfff] tracking-tight italic mb-8 drop-shadow-lg leading-tight">
-                {resume.mapped_title}
+          <div className="relative z-10 py-20 px-4 md:px-8 max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-[7px] font-black text-white uppercase tracking-widest mb-6">
+              Bespoke Strategy: {resume.target_role}
+            </div>
+            
+            <h1 className="text-[2.5rem] md:text-[3.5rem] font-black tracking-tighter mb-3 leading-none text-white drop-shadow-2xl">
+              Jean Kaluza
+            </h1>
+            
+            <p className="text-base md:text-xl font-extrabold text-[#00bfff] tracking-tight italic mb-6 drop-shadow-lg leading-tight">
+              {resume.mapped_title}
+            </p>
+
+            <div className="space-y-6 mb-10 max-w-2xl">
+              <p className="text-sm md:text-base font-bold leading-snug text-white drop-shadow-md italic">
+                "{resume.professional_summary}"
               </p>
-
-              <div className="space-y-6 mb-12 max-w-2xl">
-                <p className="text-xl md:text-2xl font-bold leading-snug text-white drop-shadow-md italic">
-                  "{resume.professional_summary}"
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-6">
-                <NeoButton 
-                  variant="primary" 
-                  onClick={() => window.print()} 
-                  className="px-10 h-14 text-lg bg-marketing-gradient text-white border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
-                >
-                  <Download size={20} className="mr-2" /> Print Resume
-                </NeoButton>
-                
-                <NeoButton 
-                  variant="secondary" 
-                  onClick={() => setIsProcessModalOpen(true)} 
-                  className="px-10 h-14 text-lg text-white border-2 border-white bg-transparent hover:bg-white/10 group shadow-md transition-all hover:-translate-y-1"
-                >
-                  Strategic Process <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </NeoButton>
-
-                <button 
-                  onClick={() => setIsVideoOpen(true)}
-                  className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/70 hover:text-white transition-colors ml-4 sm:ml-0"
-                >
-                  <Sparkles size={16} className="text-brand-pink" /> Watch Authority Reel
-                </button>
-              </div>
             </div>
-          </header>
 
+            <div className="flex flex-wrap items-center gap-4">
+              <NeoButton 
+                variant="primary" 
+                onClick={() => window.print()} 
+                className="px-6 h-10 text-sm bg-marketing-gradient text-white border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+              >
+                <Download size={14} className="mr-2" /> Print Resume
+              </NeoButton>
+              
+              <NeoButton 
+                variant="primary" 
+                onClick={() => setIsProcessModalOpen(true)} 
+                className="px-6 h-10 text-sm bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+              >
+                Strategic Process <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </NeoButton>
+
+              <button 
+                onClick={() => setIsVideoOpen(true)}
+                className="flex items-center gap-2 text-[7px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-colors ml-2 sm:ml-0"
+              >
+                <Sparkles size={12} className="text-brand-pink" /> Watch Authority Reel
+              </button>
+            </div>
+          </div>
+
+          {/* Animated Scroll Down Arrow */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+            <ChevronUp size={20} className="text-white rotate-180" />
+          </div>
+
+          {/* 2px Gradient Bottom Border */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-marketing-gradient z-10"></div>
+        </header>
+
+        <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
           <div className="mb-20 border-t border-gray-100 pt-12">
             <AgencyPartner />
           </div>
@@ -561,7 +569,7 @@ const PublicResume: React.FC = () => {
                       imageSrc="/jeankaluza.png"
                       name="Jean Kaluza"
                       role={resume.mapped_title}
-                      quote={`Seen enough proof? Let's talk ROI for ${resume.target_role}.`}
+                      quote={`Can I help your team next? Let's continue the conversation about the ${resume.target_role}.`}
                       mood="positive"
                     />
                   </div>
