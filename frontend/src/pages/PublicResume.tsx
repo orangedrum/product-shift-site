@@ -200,15 +200,16 @@ const PublicResume: React.FC = () => {
 
         <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
           {/* Header & Reel */}
-          <header className="relative w-full min-h-[60vh] md:min-h-[70vh] flex items-center mb-20 -mt-12 md:-mt-20 -mx-4 px-4 overflow-hidden rounded-[2.5rem] group border-2 border-black shadow-[8px_8px_0px_0px_#000]">
+          <header className="relative w-full min-h-[70vh] flex items-center mb-20 -mt-12 md:-mt-20 -mx-4 px-6 md:px-12 overflow-hidden rounded-[3rem] group">
             {/* Background Image & Gradient treatment for legibility */}
             <div className="absolute inset-0 z-0">
               <img 
                 src="/66a8f3cd-cec2-47f4-a67e-1ead53ccdc28.png" 
-                className="w-full h-full object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[5000ms] ease-out" 
+                className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-all duration-[5000ms] ease-out" 
                 alt="Jean Kaluza Background" 
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-marketing-gradient opacity-10 mix-blend-overlay"></div>
             </div>
 
             <div className="relative z-10 py-20 px-8 md:px-16 max-w-4xl">
@@ -234,7 +235,7 @@ const PublicResume: React.FC = () => {
                 <NeoButton 
                   variant="primary" 
                   onClick={() => window.print()} 
-                  className="px-10 h-14 text-lg bg-[#39ff14] text-black border-none shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000]"
+                  className="px-10 h-14 text-lg bg-marketing-gradient text-white border-none shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1"
                 >
                   <Download size={20} className="mr-2" /> Print Resume
                 </NeoButton>
@@ -242,7 +243,7 @@ const PublicResume: React.FC = () => {
                 <NeoButton 
                   variant="secondary" 
                   onClick={() => setIsProcessModalOpen(true)} 
-                  className="px-10 h-14 text-lg text-white border-2 border-white bg-transparent hover:bg-white/10 group shadow-lg"
+                  className="px-10 h-14 text-lg text-white border-2 border-white bg-transparent hover:bg-white/10 group shadow-lg transition-all hover:-translate-y-1"
                 >
                   Strategic Process <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </NeoButton>
