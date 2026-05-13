@@ -22,6 +22,7 @@ const PublicResume: React.FC = () => {
   const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [expandedStudies, setExpandedStudies] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
@@ -320,8 +321,8 @@ const PublicResume: React.FC = () => {
                     {assets.filter((a: any) => a.type === 'case_study').map((cs: any, idx: number, filteredArr: any[]) => (
                       <div key={idx} id={`case-study-${idx}`} className="w-[320px] md:w-[450px] flex-shrink-0 snap-start group rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-500 relative">
                         {/* Card Hook (Always Visible) */}
-                        <div className="relative min-h-[350px] flex flex-col">
-                          <div className="absolute inset-0 z-0 bg-black">
+                        <div className="relative flex flex-col h-full">
+                          <div className="absolute inset-0 z-0 bg-black rounded-3xl">
                             {((cs.story?.visuals?.find((v: any) => v.is_hero) || cs.story?.visuals?.[0])?.url) && (
                                <>
                                  <img 
@@ -333,10 +334,10 @@ const PublicResume: React.FC = () => {
                                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                                </>
                             )}
-                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-marketing-gradient" />
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-marketing-gradient rounded-t-3xl" />
                           </div>
 
-                          <div className="relative z-10 p-10 flex-1 flex flex-col justify-between text-white">
+                          <div className="relative z-10 p-10 flex flex-col justify-between text-white" style={{minHeight: '350px'}}>
                             <div>
                               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-300 mb-3 block">{cs.company}</span>
                               <h4 className="text-2xl font-black leading-tight mb-4 tracking-tighter">{cs.title}</h4>
@@ -425,7 +426,43 @@ const PublicResume: React.FC = () => {
               )}
 
               <section id="saas-lab" className="pt-12 scroll-mt-24">
-                <ProductLab />
+                {/* Resume-specific ProductLab with first person narrative */}
+                <div 
+                  id="products"
+                  className="py-12 border-y-4 border-black relative overflow-hidden bg-white"
+                >
+                  <div className="container mx-auto max-w-6xl px-4">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                      {/* Left: Content Card */}
+                      <div className="bg-white/95 backdrop-blur-sm text-left p-8 rounded-2xl border-2 border-gray-100 shadow-xl">
+                        <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl mb-2">
+                          I Also Build My Services into SaaS Products
+                        </h2>
+                        <h3 className="text-xl font-bold text-black mb-6">I'm so excited about the launch of my latest tool!</h3>
+                        <p className="text-lg text-gray-700 mb-8">
+                          See demo of my tool I took from concept to ICL to launch. I productized my proven methodologies and learned all about marketing while launching my research tool for all.
+                        </p>
+                        <button 
+                          onClick={() => setIsDemoModalOpen(true)}
+                          className="inline-flex items-center justify-center h-14 px-8 text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-lg transition-all hover:-translate-y-1"
+                        >
+                          See the demo
+                        </button>
+                      </div>
+
+                      {/* Right: User Bubble */}
+                      <div className="flex justify-center lg:justify-start">
+                        <SpeechBubble 
+                          imageSrc="https://api.dicebear.com/7.x/notionists/svg?seed=Sarah"
+                          name="Sarah"
+                          role="Freelancer"
+                          quote="Our budget rarely afforded testing with real humans. Now we can use synthesized tests whenever we need them. Instantly!"
+                          mood="positive"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </section>
 
               {/* Publications & Talks */}
@@ -667,6 +704,41 @@ const PublicResume: React.FC = () => {
             </button>
             <div className="aspect-video bg-black flex items-center justify-center">
                <iframe className="w-full h-full" src="https://player.vimeo.com/video/203961200?autoplay=1" title="Jean Kaluza Authority" allow="autoplay; encrypted-media" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Demo Modal */}
+      {isDemoModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in no-print" onClick={() => setIsDemoModalOpen(false)}>
+          <div className="relative w-full max-w-5xl bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setIsDemoModalOpen(false)} className="absolute top-6 right-6 text-gray-400 hover:text-black z-50 p-2 bg-white/80 rounded-full border border-gray-200 transition-colors">
+              <X size={28} />
+            </button>
+            <div className="p-8 md:p-12">
+              <div className="mb-8 text-center">
+                <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter">UserMirror Demo</h2>
+                <p className="text-indigo-600 font-bold">Experience the tool I built from concept to launch</p>
+              </div>
+              <div className="aspect-video bg-gray-100 rounded-2xl overflow-hidden border-2 border-gray-200">
+                <iframe 
+                  className="w-full h-full" 
+                  src="https://player.vimeo.com/video/203961200?autoplay=1" 
+                  title="UserMirror Demo" 
+                  allow="autoplay; encrypted-media"
+                />
+              </div>
+              <div className="mt-8 text-center">
+                <a 
+                  href="/agency-user-testing" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-800 transition-colors"
+                >
+                  Try the full demo yourself <ExternalLink size={18} />
+                </a>
+              </div>
             </div>
           </div>
         </div>
