@@ -150,20 +150,17 @@ const PublicResume: React.FC = () => {
 
       {/* --- INTERACTIVE EXPERIENCE LAYER --- */}
       <div className="print:hidden">
-        {/* Million Dollar Win Ticker */}
-        <div className="w-full bg-black py-3 overflow-hidden border-b border-white/10 sticky top-0 z-50">
-          <div className="flex whitespace-nowrap animate-marquee">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center gap-12 px-4">
-                {assets.filter((a: any) => a.type === 'win').map((win: any, idx: number) => (
-                  <span key={idx} className="text-[#39ff14] font-black text-xs uppercase tracking-widest flex items-center gap-2">
-                    <Trophy size={14} /> {win.roi_metrics?.[0] || win.title}
-                  </span>
-                ))}
-              </div>
-            ))}
+        {/* Sticky Header Navigation */}
+        <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 py-4 shadow-sm">
+          <div className="container mx-auto px-4 max-w-6xl flex justify-center">
+            <div className="flex gap-6 md:gap-12">
+              <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Top</button>
+              <button onClick={() => document.getElementById('experience')?.scrollIntoView({behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Experience</button>
+              <button onClick={() => document.getElementById('case-studies')?.scrollIntoView({behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Case Studies</button>
+              <button onClick={() => document.getElementById('saas-lab')?.scrollIntoView({behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Extra Credit</button>
+            </div>
           </div>
-        </div>
+        </nav>
 
         <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
           {/* Header & Reel */}
@@ -231,7 +228,7 @@ const PublicResume: React.FC = () => {
             <div className="lg:col-span-8 space-y-24">
               
               {/* Work History */}
-              <section>
+              <section id="experience" className="scroll-mt-24">
                 <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em] mb-12 flex items-center gap-4">
                   <Briefcase size={20} className="text-black" /> Professional Experience
                 </h3>
@@ -258,7 +255,7 @@ const PublicResume: React.FC = () => {
 
               {/* Case Study Adventures */}
               {assets.some((a: any) => a.type === 'case_study') && (
-                <section>
+                <section id="case-studies" className="scroll-mt-24">
                   <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em] mb-8 flex items-center gap-4">
                     <Zap size={20} className="text-brand-pink" /> Strategic Case Studies
                   </h3>
@@ -366,7 +363,7 @@ const PublicResume: React.FC = () => {
                 </section>
               )}
 
-              <section className="pt-12">
+              <section id="saas-lab" className="pt-12 scroll-mt-24">
                 <ProductLab />
               </section>
 
@@ -612,11 +609,19 @@ const PublicResume: React.FC = () => {
         </div>
       )}
 
-      {/* Mobile Sticky Ticker */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 no-print block md:hidden z-50 shadow-2xl">
-         <NeoButton onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} variant="primary" className="w-full bg-marketing-gradient border-none">
-           Back to Top
-         </NeoButton>
+      {/* Bottom Million Dollar Win Ticker */}
+      <div className="w-full bg-black py-3 overflow-hidden border-t border-white/10 sticky bottom-0 z-50 no-print">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center gap-12 px-4">
+              {assets.filter((a: any) => a.type === 'win').map((win: any, idx: number) => (
+                <span key={idx} className="text-[#39ff14] font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                  <Trophy size={14} /> {win.roi_metrics?.[0] || win.title}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       <style>{`
