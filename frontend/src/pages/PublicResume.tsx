@@ -108,6 +108,26 @@ const PublicResume: React.FC = () => {
 
       {/* --- ATS-OPTIMIZED PRINT LAYER --- */}
       <div className="hidden print:block font-sans text-black leading-tight">
+        {/* PAGE 1: ROI COVER LETTER */}
+        {resume.cover_letter && (
+          <div className="break-after-page mb-12">
+            <div className="border-b-4 border-black pb-4 mb-10 text-center">
+              <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
+              <div className="text-[10px] mt-2 font-sans uppercase tracking-widest font-bold">
+                jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza
+              </div>
+            </div>
+            <section className="mb-8">
+              <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Strategic Proposal</h2>
+              <p className="text-[12px] leading-relaxed font-medium whitespace-pre-wrap">{resume.cover_letter}</p>
+            </section>
+            <div className="mt-12 text-[10px] font-bold">
+              — Jean Kaluza
+            </div>
+          </div>
+        )}
+
+        {/* PAGE 2+: RESUME HEADER */}
         <div className="border-b-4 border-black pb-4 mb-6 text-center">
           <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
           <p className="text-xl font-bold text-gray-800">{resume.mapped_title}</p>
@@ -131,13 +151,6 @@ const PublicResume: React.FC = () => {
           <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Executive Summary</h2>
           <p className="text-[11px] leading-relaxed italic font-medium">"{resume.professional_summary}"</p>
         </section>
-
-        {resume.cover_letter && (
-          <section className="mt-8 pt-8 border-t-2 border-black page-break-before">
-            <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Strategic Proposal</h2>
-            <p className="text-[11px] leading-relaxed font-medium whitespace-pre-wrap">{resume.cover_letter}</p>
-          </section>
-        )}
 
         <section className="mb-8">
           <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Professional Experience</h2>
