@@ -8,11 +8,11 @@ import {
 } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import AgencyPartner from '../components/AgencyPartner';
-import ProductLab from '../components/ProductLab';
 import StatsSection from '../components/StatsSection';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { VideoThumbnail } from '../components/VideoThumbnail';
 import { SpeechBubble } from '../components/SpeechBubble';
+import { DemoSection } from '../components/DemoSection';
 
 const PublicResume: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -24,6 +24,8 @@ const PublicResume: React.FC = () => {
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [expandedStudies, setExpandedStudies] = useState<Record<number, boolean>>({});
+  const productLabRef = React.useRef<HTMLDivElement>(null);
+  const [hasFiredConfetti, setHasFiredConfetti] = React.useState(false);
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -47,6 +49,80 @@ const PublicResume: React.FC = () => {
   const toggleStudy = (idx: number) => {
     setExpandedStudies(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
+
+  // Lavalamp Orbs Effect for ProductLab
+  React.useEffect(() => {
+    const container = productLabRef.current;
+    if (!container) return;
+
+    const updateOrbs = () => {
+      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+      for (let i = 1; i <= 6; i++) {
+        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
+        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
+      }
+    };
+
+    updateOrbs();
+    const interval = setInterval(updateOrbs, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Confetti Effect for ProductLab
+  const fireConfetti = () => {
+    if (hasFiredConfetti) return;
+    setHasFiredConfetti(true);
+
+    const colors = ['#ff1493', '#ff8c00', '#00bfff'];
+    const particleCount = 200;
+    
+    for (let i = 0; i < particleCount; i++) {
+      const el = document.createElement('div');
+      el.style.position = 'absolute';
+      el.style.left = '50%';
+      el.style.top = '80%';
+      const size = Math.floor(Math.random() * 10) + 10;
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
+      el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      el.style.borderRadius = '50%';
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '50';
+      
+      if (productLabRef.current) productLabRef.current.appendChild(el);
+
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 20 + Math.random() * 20;
+      const tx = Math.cos(angle) * velocity * 30;
+      const ty = Math.sin(angle) * velocity * 30;
+
+      el.animate([
+        { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 1, offset: 0 },
+        { transform: `translate(calc(-50% + ${tx * 0.5}px), calc(-50% + ${ty * 0.5}px)) scale(1.2)`, opacity: 1, offset: 0.1 },
+        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty - 150}px)) scale(0.5)`, opacity: 0, offset: 1 }
+      ], {
+        duration: 2000 + Math.random() * 1000,
+        easing: 'linear',
+      }).onfinish = () => el.remove();
+    }
+  };
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fireConfetti();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (productLabRef.current) {
+      observer.observe(productLabRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasFiredConfetti]);
 
   // CTO FIX: Defensive Resolver to handle "Terminology Drift" from the AI
   const resolveStoryContent = (story: any, key: string) => {
@@ -426,12 +502,30 @@ const PublicResume: React.FC = () => {
               )}
 
               <section id="saas-lab" className="pt-12 scroll-mt-24">
-                {/* Resume-specific ProductLab with first person narrative */}
+                {/* Resume-specific ProductLab with first person narrative and lavalamp effect */}
                 <div 
+                  ref={productLabRef}
                   id="products"
                   className="py-12 border-y-4 border-black relative overflow-hidden bg-white"
                 >
-                  <div className="container mx-auto max-w-6xl px-4">
+                  {/* Animated Orbs Background (Lavalamp Effect) */}
+                  <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                    {[...Array(6)].map((_, i) => (
+                      <div 
+                        key={i}
+                        className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
+                        style={{
+                          left: `var(--orb-${i+1}-x, 50%)`,
+                          top: `var(--orb-${i+1}-y, 50%)`,
+                          width: `${300 + (i * 20)}px`,
+                          height: `${300 + (i * 20)}px`,
+                          backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="container mx-auto max-w-6xl px-4 relative z-10">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                       {/* Left: Content Card */}
                       <div className="bg-white/95 backdrop-blur-sm text-left p-8 rounded-2xl border-2 border-gray-100 shadow-xl">
@@ -709,35 +803,21 @@ const PublicResume: React.FC = () => {
         </div>
       )}
 
-      {/* Demo Modal */}
+      {/* Demo Modal - Shows the actual interactive demo */}
       {isDemoModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-sm animate-fade-in no-print" onClick={() => setIsDemoModalOpen(false)}>
-          <div className="relative w-full max-w-5xl bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-6xl bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
             <button onClick={() => setIsDemoModalOpen(false)} className="absolute top-6 right-6 text-gray-400 hover:text-black z-50 p-2 bg-white/80 rounded-full border border-gray-200 transition-colors">
               <X size={28} />
             </button>
-            <div className="p-8 md:p-12">
+            <div className="overflow-y-auto p-8 md:p-12">
               <div className="mb-8 text-center">
-                <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter">UserMirror Demo</h2>
-                <p className="text-indigo-600 font-bold">Experience the tool I built from concept to launch</p>
+                <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter">Try It Now: Free Demo Audit</h2>
+                <p className="text-lg text-gray-600">See exactly what your users see. Run a live test on any URL right now.</p>
               </div>
-              <div className="aspect-video bg-gray-100 rounded-2xl overflow-hidden border-2 border-gray-200">
-                <iframe 
-                  className="w-full h-full" 
-                  src="https://player.vimeo.com/video/203961200?autoplay=1" 
-                  title="UserMirror Demo" 
-                  allow="autoplay; encrypted-media"
-                />
-              </div>
-              <div className="mt-8 text-center">
-                <a 
-                  href="/agency-user-testing" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-800 transition-colors"
-                >
-                  Try the full demo yourself <ExternalLink size={18} />
-                </a>
+              {/* Embedded DemoSection Component */}
+              <div className="bg-gray-900 rounded-2xl overflow-hidden">
+                <DemoSection />
               </div>
             </div>
           </div>
