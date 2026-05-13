@@ -38,7 +38,8 @@ const CareerAdmin: React.FC = () => {
     coverLetter?: string
   } | null>(null);
   const [previewMode, setPreviewMode] = useState<'resume' | 'cover'>('resume');
-  const [documentTypeHint, setDocumentTypeHint] = useState<'auto' | 'resume' | 'cover_letter' | 'linkedin_profile'>('auto'); // New state for document type hint
+  const [documentTypeHint, setDocumentTypeHint] = useState<'auto' | 'resume' | 'cover_letter' | 'linkedin_profile'>('auto'); // For PDF tab
+  const [mediaAssetType, setMediaAssetType] = useState<'auto' | 'work_history' | 'case_study' | 'win' | 'skill' | 'talk' | 'writing_sample' | 'recommendation'>('auto'); // For Media tab
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const [duplicateGroups, setDuplicateGroups] = useState<any[][]>([]);
@@ -164,7 +165,7 @@ const CareerAdmin: React.FC = () => {
       ingestionItems.push({ rawData: chatInput, documentTypeHint: documentTypeHint, label: 'Pasted Text' });
     }
     if (mediaUrl.trim()) {
-      ingestionItems.push({ sourceUrl: mediaUrl, documentTypeHint: 'auto', label: mediaLabel });
+      ingestionItems.push({ sourceUrl: mediaUrl, documentTypeHint: mediaAssetType === 'auto' ? 'auto' : 'auto', label: mediaLabel, assetType: mediaAssetType });
     }
 
     if (ingestionItems.length === 0) {
@@ -635,10 +636,30 @@ const CareerAdmin: React.FC = () => {
                   <>
                     <MarketingCard className="p-8">
                       <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><LinkIcon className="text-indigo-600" /> Strategic Media Ingestion</h2>
+                      <p className="text-gray-500 text-sm mb-6">Ingest content from URLs like LinkedIn services pages, articles, talks, or project portfolios. Specify the asset type to help categorize correctly.</p>
                       <div className="space-y-4">
                         <div>
                            <label className="block text-xs font-black uppercase text-gray-400 mb-1">Source URL</label>
-                           <input type="text" className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" placeholder="https://dovetailapp.com/blog/..." value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />
+                           <input type="text" className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" placeholder="https://www.linkedin.com/services/page/..." value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                             <label className="block text-xs font-black uppercase text-gray-400 mb-1">Asset Label</label>
+                             <input type="text" className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" placeholder="e.g., Appic - Marketing Strategy" value={mediaLabel} onChange={(e) => setMediaLabel(e.target.value)} />
+                          </div>
+                          <div>
+                             <label className="block text-xs font-black uppercase text-gray-400 mb-1">Asset Type</label>
+                             <select className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl" value={mediaAssetType} onChange={(e) => setMediaAssetType(e.target.value as any)}>
+                                <option value="auto">Auto-detect</option>
+                                <option value="work_history">Work Experience</option>
+                                <option value="case_study">Case Study</option>
+                                <option value="win">Win / ROI</option>
+                                <option value="skill">Skill</option>
+                                <option value="talk">Talk / Presentation</option>
+                                <option value="writing_sample">Writing Sample</option>
+                                <option value="recommendation">Recommendation</option>
+                             </select>
+                          </div>
                         </div>
                         <NeoButton onClick={handleBulkIngest} disabled={loading} className="w-full bg-black text-white py-4 mt-4">Extract Strategic Value</NeoButton>
                       </div>

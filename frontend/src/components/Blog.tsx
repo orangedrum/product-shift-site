@@ -21,12 +21,22 @@ const Blog = () => {
 
   const fallbackArticles = [
     {
+      title: "HealthTech UX: Why Patient-Centric Design is the Vital Sign of Success",
+      excerpt: "How data-driven usability research is transforming digital health outcomes and driving clinical validation for neuro-tech startups.",
+      category: "Health Tech",
+      date: "2024-02-10",
+      icon: Activity,
+      featured: true,
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80",
+      link: "#"
+    },
+    {
       title: "Is Your Website Silently Losing You Money?",
       excerpt: "Why every small business needs a usability audit to fix hidden friction points and increase conversions.",
       category: "Website Optimization",
       date: "2024-01-25",
       icon: Search,
-      featured: true,
+      featured: false,
       image: "https://images.unsplash.com/photo-1518183214770-9cffbec72538?auto=format&fit=crop&w=800&q=80",
       link: "/blog/why-small-businesses-need-website-audit"
     },

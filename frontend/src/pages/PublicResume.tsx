@@ -500,7 +500,9 @@ const PublicResume: React.FC = () => {
                                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-300 mb-3 block">{item.company} • {item.type.replace('_', ' ')}</span>
                                 <h4 className="text-4xl md:text-5xl font-black leading-[1] mb-6 max-w-2xl tracking-tighter">{item.title}</h4>
                                 <p className="text-xl font-medium italic text-gray-200 border-l-4 border-brand-pink pl-6 leading-relaxed line-clamp-2">
-                                  {item.description?.[0]}
+                                  {Array.isArray(item.description) 
+                                    ? item.description[0] 
+                                    : (typeof item.description === 'string' ? item.description : 'Explore the full strategic piece.')}
                                 </p>
                               </div>
 
