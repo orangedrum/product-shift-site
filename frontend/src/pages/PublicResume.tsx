@@ -13,6 +13,7 @@ import { SEOMetadata } from '../components/SEOMetadata';
 import { VideoThumbnail } from '../components/VideoThumbnail';
 import { SpeechBubble } from '../components/SpeechBubble';
 import { DemoSection } from '../components/DemoSection';
+import { LavalampBackground } from '../components/LavalampBackground';
 
 const PublicResume: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -24,8 +25,6 @@ const PublicResume: React.FC = () => {
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [expandedStudies, setExpandedStudies] = useState<Record<number, boolean>>({});
-  const productLabRef = React.useRef<HTMLDivElement>(null);
-  const [hasFiredConfetti, setHasFiredConfetti] = React.useState(false);
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -49,80 +48,6 @@ const PublicResume: React.FC = () => {
   const toggleStudy = (idx: number) => {
     setExpandedStudies(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
-
-  // Lavalamp Orbs Effect for ProductLab
-  React.useEffect(() => {
-    const container = productLabRef.current;
-    if (!container) return;
-
-    const updateOrbs = () => {
-      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-      for (let i = 1; i <= 6; i++) {
-        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
-        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
-      }
-    };
-
-    updateOrbs();
-    const interval = setInterval(updateOrbs, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Confetti Effect for ProductLab
-  const fireConfetti = () => {
-    if (hasFiredConfetti) return;
-    setHasFiredConfetti(true);
-
-    const colors = ['#ff1493', '#ff8c00', '#00bfff'];
-    const particleCount = 200;
-    
-    for (let i = 0; i < particleCount; i++) {
-      const el = document.createElement('div');
-      el.style.position = 'absolute';
-      el.style.left = '50%';
-      el.style.top = '80%';
-      const size = Math.floor(Math.random() * 10) + 10;
-      el.style.width = `${size}px`;
-      el.style.height = `${size}px`;
-      el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      el.style.borderRadius = '50%';
-      el.style.pointerEvents = 'none';
-      el.style.zIndex = '50';
-      
-      if (productLabRef.current) productLabRef.current.appendChild(el);
-
-      const angle = Math.random() * Math.PI * 2;
-      const velocity = 20 + Math.random() * 20;
-      const tx = Math.cos(angle) * velocity * 30;
-      const ty = Math.sin(angle) * velocity * 30;
-
-      el.animate([
-        { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 1, offset: 0 },
-        { transform: `translate(calc(-50% + ${tx * 0.5}px), calc(-50% + ${ty * 0.5}px)) scale(1.2)`, opacity: 1, offset: 0.1 },
-        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty - 150}px)) scale(0.5)`, opacity: 0, offset: 1 }
-      ], {
-        duration: 2000 + Math.random() * 1000,
-        easing: 'linear',
-      }).onfinish = () => el.remove();
-    }
-  };
-
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          fireConfetti();
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (productLabRef.current) {
-      observer.observe(productLabRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasFiredConfetti]);
 
   // CTO FIX: Defensive Resolver to handle "Terminology Drift" from the AI
   const resolveStoryContent = (story: any, key: string) => {
@@ -502,30 +427,9 @@ const PublicResume: React.FC = () => {
               )}
 
               <section id="saas-lab" className="pt-12 scroll-mt-24">
-                {/* Resume-specific ProductLab with first person narrative and lavalamp effect */}
-                <div 
-                  ref={productLabRef}
-                  id="products"
-                  className="py-12 border-y-4 border-black relative overflow-hidden bg-white"
-                >
-                  {/* Animated Orbs Background (Lavalamp Effect) */}
-                  <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                    {[...Array(6)].map((_, i) => (
-                      <div 
-                        key={i}
-                        className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
-                        style={{
-                          left: `var(--orb-${i+1}-x, 50%)`,
-                          top: `var(--orb-${i+1}-y, 50%)`,
-                          width: `${300 + (i * 20)}px`,
-                          height: `${300 + (i * 20)}px`,
-                          backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="container mx-auto max-w-6xl px-4 relative z-10">
+                {/* Resume-specific ProductLab with first person narrative using shared LavalampBackground */}
+                <LavalampBackground className="py-12 border-y-4 border-black">
+                  <div className="container mx-auto max-w-6xl px-4">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                       {/* Left: Content Card */}
                       <div className="bg-white/95 backdrop-blur-sm text-left p-8 rounded-2xl border-2 border-gray-100 shadow-xl">
@@ -556,7 +460,7 @@ const PublicResume: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </LavalampBackground>
               </section>
 
               {/* Publications & Talks */}

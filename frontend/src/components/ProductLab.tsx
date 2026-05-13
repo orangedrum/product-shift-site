@@ -1,112 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { NeoCard } from './NeoCard';
 import { NeoButton } from './NeoButton';
 import { useNavigate } from 'react-router-dom';
 import { SpeechBubble } from './SpeechBubble';
+import { LavalampBackground } from './LavalampBackground';
 
 const ProductLab = () => {
   const navigate = useNavigate();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hasFiredConfetti, setHasFiredConfetti] = React.useState(false);
-
-  // Simple Confetti Implementation
-  const fireConfetti = () => {
-    if (hasFiredConfetti) return;
-    setHasFiredConfetti(true);
-
-    const colors = ['#ff1493', '#ff8c00', '#00bfff'];
-    const particleCount = 200; // More confetti
-    
-    for (let i = 0; i < particleCount; i++) {
-      const el = document.createElement('div');
-      // Attach to container instead of body for better positioning control
-      el.style.position = 'absolute';
-      el.style.left = '50%';
-      el.style.top = '80%'; // Start from bottom
-      const size = Math.floor(Math.random() * 10) + 10; // Bigger: 10px to 20px
-      el.style.width = `${size}px`;
-      el.style.height = `${size}px`;
-      el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      el.style.borderRadius = '50%';
-      el.style.pointerEvents = 'none';
-      el.style.zIndex = '50'; // Above content
-      
-      if (containerRef.current) containerRef.current.appendChild(el);
-
-      const angle = Math.random() * Math.PI * 2;
-      const velocity = 20 + Math.random() * 20; // High initial velocity
-      const tx = Math.cos(angle) * velocity * 30;
-      const ty = Math.sin(angle) * velocity * 30;
-
-      el.animate([
-        { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 1, offset: 0 },
-        { transform: `translate(calc(-50% + ${tx * 0.5}px), calc(-50% + ${ty * 0.5}px)) scale(1.2)`, opacity: 1, offset: 0.1 }, // Fast Burst (10%)
-        { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty - 150}px)) scale(0.5)`, opacity: 0, offset: 1 } // Slow Disintegration
-      ], {
-        duration: 2000 + Math.random() * 1000, // Longer duration for the float
-        easing: 'linear', // Keyframes handle the pacing
-      }).onfinish = () => el.remove();
-    }
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          fireConfetti();
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasFiredConfetti]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const updateOrbs = () => {
-      const r = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-      for (let i = 1; i <= 6; i++) {
-        container.style.setProperty(`--orb-${i}-x`, `${r(-20, 120)}%`);
-        container.style.setProperty(`--orb-${i}-y`, `${r(-20, 120)}%`);
-      }
-    };
-
-    updateOrbs();
-    const interval = setInterval(updateOrbs, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
-    <section 
-      id="products"
-      ref={containerRef}
-      className="py-12 border-y-4 border-black relative overflow-hidden bg-white"
-    >
-      {/* Animated Orbs Background */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        {[...Array(6)].map((_, i) => (
-          <div 
-            key={i}
-            className="absolute rounded-full mix-blend-multiply filter blur-3xl opacity-30 transition-all duration-[4000ms] ease-in-out"
-            style={{
-              left: `var(--orb-${i+1}-x, 50%)`,
-              top: `var(--orb-${i+1}-y, 50%)`,
-              width: `${300 + (i * 20)}px`,
-              height: `${300 + (i * 20)}px`,
-              backgroundColor: ['#ff1493', '#ff0000', '#ff8c00'][i % 3]
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="container mx-auto max-w-6xl px-4 relative z-10">
+    <div id="products">
+      <LavalampBackground className="py-12 border-y-4 border-black">
+      <div className="container mx-auto max-w-6xl px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content Card */}
           <NeoCard className="bg-white/95 backdrop-blur-sm text-left">
@@ -138,7 +43,8 @@ const ProductLab = () => {
           </div>
         </div>
       </div>
-    </section>
+    </LavalampBackground>
+    </div>
   );
 };
 
