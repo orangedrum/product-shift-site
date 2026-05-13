@@ -199,7 +199,7 @@ const PublicResume: React.FC = () => {
         </nav>
 
         {/* Header & Reel - Full width hero */}
-        <header className="relative w-full min-h-[70vh] flex items-center mb-20 -mt-12 md:-mt-20 overflow-hidden group">
+        <header className="relative w-full min-h-[70vh] flex items-center -mt-12 md:-mt-20 overflow-hidden group">
           {/* Background Image & Gradient treatment for legibility */}
           <div className="absolute inset-0 z-0">
             <img 
@@ -266,12 +266,12 @@ const PublicResume: React.FC = () => {
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-marketing-gradient z-10"></div>
         </header>
 
-        <div className="container mx-auto px-4 max-w-6xl py-12 md:py-20">
-          <div className="mb-20 border-t border-gray-100 pt-12">
+        <div className="container mx-auto px-4 max-w-6xl py-8 md:py-12">
+          <div className="mb-12 border-t border-gray-100 pt-8">
             <AgencyPartner />
           </div>
 
-          <div className="mb-24">
+          <div className="mb-16">
             <StatsSection />
           </div>
 
@@ -348,22 +348,26 @@ const PublicResume: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-8 pt-8 mt-auto">
-                              {/* Scanable ROI Phrase Wins */}
-                              <div className="flex flex-wrap gap-2">
-                                 {resolveStoryContent(cs.story, 'results').slice(0, 2).map((m: any, mIdx: number) => (
-                                   <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg">
-                                     {typeof m === 'object' ? (m.content || m.text) : m}
-                                   </div>
-                                 ))}
-                              </div>
+              {/* Scanable ROI Phrase Wins */}
+              <div className="flex flex-wrap gap-2">
+                 {resolveStoryContent(cs.story, 'results').slice(0, 2).map((m: any, mIdx: number) => {
+                   const text = typeof m === 'object' ? (m.content || m.text) : m;
+                   const shortText = text && text.length > 50 ? text.substring(0, 47) + '...' : text;
+                   return (
+                     <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[9px] font-bold tracking-tight shadow-lg">
+                       {shortText}
+                     </div>
+                   );
+                 })}
+              </div>
 
-                              <NeoButton 
-                                onClick={() => toggleStudy(idx)}
-                                variant={expandedStudies[idx] ? "secondary" : "primary"}
-                                className="h-12 px-8 rounded-full text-xs font-black"
-                              >
-                                 {expandedStudies[idx] ? <><ChevronUp size={18} className="mr-2"/> Hide Case Study</> : <><Search size={18} className="mr-2"/> Explore Case Study</>}
-                              </NeoButton>
+              <NeoButton 
+                onClick={() => toggleStudy(idx)}
+                variant="primary"
+                className="h-10 px-6 rounded-full text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg"
+              >
+                 {expandedStudies[idx] ? <><ChevronUp size={16} className="mr-2"/> Hide</> : <><Search size={16} className="mr-2"/> Explore</>}
+              </NeoButton>
                             </div>
                           </div>
                         </div>
