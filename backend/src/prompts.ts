@@ -163,7 +163,8 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
           - Consolidate ALL unique description bullets (limit to top 6 most relevant for current target).
           - Return an action: "merge" with master_asset and remove_ids.
     2.  **Exhaustive Selection:** If asked to "add" or "include" a category (e.g., "Add all my HealthTech articles" or "Include all recommendations"), you MUST find EVERY matching ID in the libraryContext and include them in the 'updatedResume.assets' array.
-    3.  **Trimming Rule:** For ANY modification to work history, always trim the description to the 5-6 most high-impact bullets.
+    3.  **Replacing/Swapping:** If asked to "replace" or "swap" an asset (e.g., "Swap the UX Cabin case study for the Disney one"), you MUST remove the unwanted asset from the 'assets' array and insert the new one from the libraryContext.
+    4.  **Trimming Rule:** For ANY modification to work history, always trim the description to the 5-6 most high-impact bullets.
 
     **STRATEGY GUIDELINES:**
     - **TECHNICAL ANCHORING:** Highlight VS Code, Docker, and the Terminal to distinguish her from standard "Designers."

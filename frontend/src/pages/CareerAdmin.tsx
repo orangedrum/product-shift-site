@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle, ListChecks, RefreshCcw, X } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle, ListChecks, RefreshCcw, X, Edit } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
@@ -31,6 +31,7 @@ const CareerAdmin: React.FC = () => {
 
   const [publishedResumes, setPublishedResumes] = useState<any[]>([]);
   const [pitchPreview, setPitchPreview] = useState<{
+    id?: string,
     assets: any[],
     strategicHook: string,
     targetTitle: string,
@@ -268,7 +269,12 @@ const CareerAdmin: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setPublishedResumes(prev => [data.data, ...prev]);
+        if (pitchPreview.id) {
+          // Update existing entry in the list
+          setPublishedResumes(prev => prev.map(r => r.id === pitchPreview.id ? data.data : r));
+        } else {
+          setPublishedResumes(prev => [data.data, ...prev]);
+        }
         setActiveTab('published'); // Provide immediate feedback by switching tabs
         setSidekickMessages(prev => [...prev, { sender: 'bot', text: `🚀 RESUME LIVE! Link: ${window.location.origin}${data.url}` }]);
         window.open(data.url, '_blank');
@@ -289,6 +295,19 @@ const CareerAdmin: React.FC = () => {
       setPublishedResumes(prev => prev.filter(r => r.id !== id));
       setSidekickMessages(prev => [...prev, { sender: 'bot', text: "Bespoke resume removed from live status." }]);
     }
+  };
+
+  const handleEditPublishedResume = (resume: any) => {
+    setPitchPreview({
+      id: resume.id,
+      assets: resume.selected_assets,
+      strategicHook: resume.professional_summary,
+      targetTitle: resume.target_role,
+      mappedTitle: resume.mapped_title,
+      coverLetter: resume.cover_letter
+    });
+    setActiveTab('builder');
+    setSidekickMessages(prev => [...prev, { sender: 'bot', text: `I've loaded your published resume for "${resume.target_role}". What tweaks should we make?` }]);
   };
 
   const handleAddAssetToPitch = (asset: any) => {
@@ -538,7 +557,7 @@ const CareerAdmin: React.FC = () => {
            setSidekickMessages(prev => [...prev, { sender: 'bot', text: `💡 I've sculpted new strategic points based on User Mirror to fill your gaps. Check the Review Queue!` }]);
         }
         if (data.updatedResume && Array.isArray(data.updatedResume.assets)) {
-          setPitchPreview(data.updatedResume);
+          setPitchPreview(prev => ({ ...data.updatedResume, id: prev?.id }));
           setSidekickMessages(prev => [...prev, { sender: 'bot', text: `✨ I've recalibrated your resume and cover letter drafts to reflect the '${userMsg}' direction. You can see the live changes in the Brag Engine preview.` }]);
         }
       }
@@ -788,6 +807,13 @@ const CareerAdmin: React.FC = () => {
                               Created: {new Date(resume.created_at).toLocaleDateString()}
                             </span>
                             <div className="flex gap-3">
+                               <button 
+                                 onClick={() => handleEditPublishedResume(resume)}
+                                 className="text-gray-400 hover:text-brand-pink transition-colors"
+                                 title="Edit in Builder"
+                               >
+                                 <Edit size={18} />
+                               </button>
                                <button 
                                  onClick={() => {
                                    navigator.clipboard.writeText(`${window.location.origin}/resume/${resume.slug}`);

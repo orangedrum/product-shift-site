@@ -383,17 +383,35 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
   if (!resumeData) return res.status(400).json({ error: 'Resume data required' });
 
   try {
-    // CTO Fix: Robust slug generation to prevent 500 errors on empty titles
-    const safeTitle = (resumeData.targetTitle || 'bespoke-resume').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    const slug = `${safeTitle}-${Date.now().toString().slice(-4)}`;
-    
-    const { data, error } = await supabase.from('career_resumes').insert({
-      slug,
+    const payload = {
       target_role: resumeData.targetTitle,
       mapped_title: resumeData.mappedTitle,
       professional_summary: resumeData.strategicHook,
       cover_letter: resumeData.coverLetter,
       selected_assets: resumeData.assets, // Store IDs or objects
+      is_live: true
+    };
+
+    // CTO FIX: Support for editing already published resumes
+    if (resumeData.id) {
+      console.log(`♻️ [PUBLISH] Updating existing resume ID: ${resumeData.id}`);
+      const { data, error } = await supabase
+        .from('career_resumes')
+        .update(payload)
+        .eq('id', resumeData.id)
+        .select()
+        .single();
+      if (error) throw error;
+      return res.json({ success: true, url: `/resume/${data.slug}`, data });
+    }
+
+    // Otherwise, create a new one
+    const safeTitle = (resumeData.targetTitle || 'bespoke-resume').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const slug = `${safeTitle}-${Date.now().toString().slice(-4)}`;
+    
+    const { data, error } = await supabase.from('career_resumes').insert({
+      ...payload,
+      slug,
       is_live: true
     }).select().single();
 
