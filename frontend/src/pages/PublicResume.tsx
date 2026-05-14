@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { 
   Trophy, CheckCircle, ExternalLink, Globe, Briefcase, Sparkles, Loader2, X, 
   ArrowRight, Search, Target, TrendingUp, Download, FileText, ChevronUp, 
-  Zap, AlertCircle, Info, Globe as GlobeIcon 
+  Zap, AlertCircle, Info, Globe as GlobeIcon, Mail
 } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import AgencyPartner from '../components/AgencyPartner';
@@ -189,13 +189,32 @@ const PublicResume: React.FC = () => {
       {/* --- INTERACTIVE EXPERIENCE LAYER --- */}
       <div className="print:hidden">
         {/* Sticky Header Navigation */}
-        <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 py-4 shadow-sm">
-          <div className="container mx-auto px-4 max-w-6xl flex justify-center">
-            <div className="flex gap-6 md:gap-12">
+        <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 shadow-sm">
+          <div className="container mx-auto px-4 max-w-6xl flex justify-between items-center">
+            <div className="flex gap-6 md:gap-10">
               <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Top</button>
               <button onClick={() => document.getElementById('experience')?.scrollIntoView({behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Experience</button>
               <button onClick={() => document.getElementById('case-studies')?.scrollIntoView({behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Case Studies</button>
               <button onClick={() => document.getElementById('saas-lab')?.scrollIntoView({behavior: 'smooth'})} className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-indigo-600 transition-colors">Extra Credit</button>
+            </div>
+
+            <div className="flex gap-3 items-center">
+              <NeoButton 
+                variant="primary" 
+                onClick={() => window.print()} 
+                className="h-9 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest bg-marketing-gradient text-white border-none shadow-md hover:shadow-xl transition-all"
+              >
+                <Download size={14} className="sm:mr-2" /> <span className="hidden sm:inline">Download Resume</span>
+              </NeoButton>
+              
+              <a href="https://calendly.com/jean-kaluza/meeting" target="_blank" rel="noreferrer">
+                <NeoButton 
+                  variant="secondary"
+                  className="h-9 px-4 sm:px-6 text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-900 shadow-sm hover:bg-gray-50 transition-all"
+                >
+                  <Mail size={14} className="sm:mr-2" /> <span className="hidden sm:inline">Schedule Interview</span>
+                </NeoButton>
+              </a>
             </div>
           </div>
         </nav>

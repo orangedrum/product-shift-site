@@ -172,13 +172,13 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         Description: ${Array.isArray(a.description) ? a.description.join(' ') : (a.description || '')}`).join('\n')}
 
       TASK:
-      1. EXHAUSTIVE MAPPING: Select EVERY asset from the library that correlates to a requirement, skill, or responsibility in the JD.
-      2. MANDATORY MIX: You MUST select at least 5 Skills, 3 Recommendations, 2 ROI Wins, and any relevant Articles/Talks.
-      3. PROOF OF AUTHORITY: Prioritize assets from Tier-1 brands (Disney, Pluralsight) and those with quantifiable percentages (ROI), even if they are supportive evidence rather than direct JD matches.
-      4. NO LIMITS: Do not summarize or truncate the asset count. If Jean has 40 relevant proofs, include all 40. Obviousness is built through volume of evidence.
-      5. STRATEGIC REASONING: Explain how this evidence set (especially the Logic Architecture and AI Prototyping) solves the specific business threats implied by the JD.
+      1. DEEP DIVE MAPPING: Select EVERY asset from the library that correlates to a direct requirement, an implied expectation, or a specific technical skill in the JD.
+      2. AGGRESSIVE MINIMUM MIX: A high-authority resume MUST be dense with proof. You MUST select at least 8 Skills, 4 Recommendations, 4 ROI Wins (Wins), and EVERY relevant Article/Talk/Case Study.
+      3. PROOF OF AUTHORITY: Prioritize assets with hard metrics (percentages, dollar amounts) and recognizable industry brands.
+      4. NO LIMITS: Do not play it safe. Include ALL evidence that makes Jean the only logical choice for this specific stack and seniority level.
+      5. STRATEGIC REASONING: Explain how the selected Proof of Authority (ROI) and Logic Architecture (Case Studies) bridge her specific experience to the JD's core business threats.
       6. GAP ANALYSIS: List JD requirements that Jean has NO library assets to prove.
-      7. BULLET TRIMMING & ENHANCEMENT: For 'work_history' only, select the 5-6 most relevant bullets per job. Inject the "clean prototype handoff" narrative into entries for Disney and ViewPost if applicable.
+      7. BULLET RETENTION: For 'work_history', provide up to 8-10 high-impact bullets per job. Do not over-prune; the user will trim the final version. Inject the "clean prototype handoff" and "Logic Architect" narrative where supported by the evidence.
 
       Return a JSON object with: 
       "selectedIds" (ARRAY of IDs), 
@@ -198,7 +198,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     
     const { selectedIds, trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
     
-    // Filter and merge AI-trimmed descriptions
+    // Filter and merge AI-selected and enhanced data
     const curatedPitch = assets
       .filter(a => selectedIds.includes(a.id))
       .map(a => ({
@@ -206,14 +206,36 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         description: trimmedDescriptions?.[a.id] || a.description
       }));
 
+    // Generate strings of the actual data to ground the summary and cover letter
+    const curatedAssetContext = curatedPitch
+      .map(a => `[${a.type.toUpperCase()}] ${a.title} @ ${a.company}: ${Array.isArray(a.description) ? a.description.join(' ') : (a.description || '')} (Metrics: ${a.roi_metrics?.join(', ') || 'N/A'})`)
+      .join('\n');
+
     // 4. Generate AI Professional Summary
-    const summaryPrompt = `Based on this JD and these selected assets, write a single high-impact, 1-sentence Professional Summary for Jean Kaluza (she/her). 
-    STRICT OUTPUT: Return ONLY the text. Maximum 30 words. Focus on ROI and strategic delivery. No labels, no quotes.`;
+    const summaryPrompt = `
+      USER IDENTITY: Jean Kaluza (she/her)
+      TARGET JD: ${jdText}
+      SPECIFIC SELECTED PROOFS:
+      ${curatedAssetContext}
+
+      Based on the JD and these SPECIFIC proofs, write a high-impact, 2-sentence Professional Summary. 
+      Sentence 1: Anchor her identity as an Applied AI Strategist/Logic Architect.
+      Sentence 2: Cite the single most impressive ROI metric from the proofs that solves the JD's biggest threat.
+      STRICT OUTPUT: Return ONLY the text. Maximum 50 words. No labels, no quotes.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
     // 5. Generate AI Cover Letter
-    const clPrompt = `Write a high-stakes, authoritative strategic cover letter for Jean Kaluza (she/her). 
-    Focus on ROI and how her background building 'User Mirror' solves the specific business threats in this JD. Length: 4-5 substantial paragraphs. Be direct and executive-level. No address blocks or sign-offs.`;
+    const clPrompt = `
+      USER IDENTITY: Jean Kaluza (she/her)
+      TARGET JD: ${jdText}
+      SPECIFIC SELECTED PROOFS:
+      ${curatedAssetContext}
+
+      Write a high-stakes, authoritative strategic cover letter. 
+      - Reference her background building 'User Mirror' as a "Functional Test-Mule" for productized research.
+      - Use at least 3 specific ROI metrics and 2 specific skills from the SELECTED PROOFS provided above.
+      - Explain why her "Logic Architect" approach is the specific antidote to the business friction mentioned in the JD.
+      - Length: 5-6 substantial, dense paragraphs. Be direct, aggressive, and executive-level. No address blocks or sign-offs.`;
     const coverLetter = await generateContentWithFallback(clPrompt);
 
     res.json({ 

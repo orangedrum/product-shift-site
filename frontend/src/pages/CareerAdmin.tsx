@@ -795,8 +795,9 @@ const CareerAdmin: React.FC = () => {
                         <div key={resume.id} className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
                           <div className="flex justify-between items-start mb-4">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900 line-clamp-1">{resume.target_role}</h3>
-                              <p className="text-sm text-indigo-600 font-bold uppercase tracking-wider">{resume.mapped_title}</p>
+                              <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Tailored For</p>
+                              <h3 className="font-bold text-xl text-gray-900 line-clamp-1 mb-1">{resume.target_role}</h3>
+                              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{resume.mapped_title}</p>
                             </div>
                             <button onClick={() => deleteResume(resume.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors">
                               <Trash2 size={18} />
@@ -908,13 +909,28 @@ const CareerAdmin: React.FC = () => {
                           {/* Bespoke Header */}
                           <div className="mb-8">
                              <h2 className="text-3xl font-black text-gray-900 mb-2">Jean Kaluza</h2>
-                             <input 
-                               type="text"
-                               className="w-full text-lg text-indigo-600 font-bold mb-4 bg-indigo-50 border-2 border-transparent focus:border-indigo-200 rounded-lg p-2 outline-none"
-                               value={pitchPreview.mappedTitle}
-                               onChange={(e) => setPitchPreview(prev => prev ? ({...prev, mappedTitle: e.target.value}) : null)}
-                               placeholder="Mapped Role Title..."
-                             />
+                             <div className="flex gap-4 mb-4">
+                               <div className="flex-1">
+                                 <p className="text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Tailored For (Company Name)</p>
+                                 <input 
+                                   type="text"
+                                   className="w-full text-lg font-bold bg-white border-2 border-gray-100 focus:border-indigo-200 rounded-xl p-3 outline-none"
+                                   value={pitchPreview.targetTitle}
+                                   onChange={(e) => setPitchPreview(prev => prev ? ({...prev, targetTitle: e.target.value}) : null)}
+                                   placeholder="e.g. Marriott, LunaJoy..."
+                                 />
+                               </div>
+                               <div className="flex-1">
+                                 <p className="text-[10px] font-black uppercase text-gray-400 mb-1 tracking-widest">Bespoke Professional Title</p>
+                                 <input 
+                                   type="text"
+                                   className="w-full text-lg text-indigo-600 font-bold bg-indigo-50 border-2 border-transparent focus:border-indigo-200 rounded-xl p-3 outline-none"
+                                   value={pitchPreview.mappedTitle}
+                                   onChange={(e) => setPitchPreview(prev => prev ? ({...prev, mappedTitle: e.target.value}) : null)}
+                                   placeholder="Mapped Role Title..."
+                                 />
+                               </div>
+                             </div>
                              <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 focus-within:border-indigo-200 transition-all">
                                 <p className="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-[0.2em] flex items-center gap-2">
                                    <PenTool size={12} className="text-indigo-400" /> Professional Summary (Editable)
