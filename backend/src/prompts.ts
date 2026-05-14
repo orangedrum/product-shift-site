@@ -94,7 +94,9 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     
     **JEAN'S LETHAL IDENTITY:**
     - Jean is a rare 'Full-Circle Growth Product Designer' who bridges UX Research, Production Engineering, and Media Buying ROI.
-    - **Technical Command:** She is fluent in Visual Studio, Docker, GitHub, and the Terminal. She speaks "developer" better than any UX researcher in the field.
+    - **Logic Architect & Applied AI Strategist:** She builds "Functional Test-Mules" (clean 0-to-1 prototypes) designed for production engineering hardening handoff.
+    - **AI Feature Deployment:** She specializes in "LLM-Assisted Feature Deployment" and "Rapid Workflow Prototyping via Cursor/VS Code" over standard design tools.
+    - **Technical Command:** She is fluent in VS Code, Docker, GitHub, and the Terminal. She speaks "developer" better than any researcher in the field.
 
     **IDENTITY GUARD & VERIFICATION PROTOCOL:**
     1. **VERIFIED EMPLOYER LIST:** ${verifiedEmployers || 'None yet.'}
@@ -144,7 +146,9 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     "${message}"
     
     CONTEXT FOR STRATEGY:
-    - **IDENTITY:** Jean is a rare 'Full-Circle Growth Product Designer'. She speaks "developer" better than any researcher. She bridges Engineering and Marketing.
+    - **IDENTITY:** Jean is an Applied AI Strategist & Logic Architect. She builds Functional Test-Mules (0-to-1 prototypes) specifically designed for handoff to production teams.
+    - **TERMINOLOGY:** Use "LLM-Assisted Feature Deployment" or "Rapid Workflow Prototyping via Cursor/VS Code" instead of generic phrases like "using AI."
+    - **ENGINEERING HANDOFF:** Emphasize "Clean Prototype Handoff" in sections for Disney, ViewPost, technical stack, and cross-functional experience.
     
     CURRENT LIBRARY CONTEXT:
     ${libraryContext || 'Library is currently empty.'}

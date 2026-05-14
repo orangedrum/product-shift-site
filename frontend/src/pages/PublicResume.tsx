@@ -467,9 +467,9 @@ const PublicResume: React.FC = () => {
                         <h2 className="text-3xl font-black tracking-tight text-black sm:text-4xl mb-2">
                           I Also Build My Services into SaaS Products
                         </h2>
-                        <h3 className="text-xl font-bold text-black mb-6">I'm so excited about the launch of my latest tool!</h3>
+                        <h3 className="text-xl font-bold text-black mb-6">I built the Functional Test-Mule (0-to-1 Prototype) for User Mirror.</h3>
                         <p className="text-lg text-gray-700 mb-8">
-                          See demo of my tool I took from concept to ICL to launch. I productized my proven methodologies and learned all about marketing while launching my research tool for all.
+                          See the demo of a tool I took from concept to launched product. I productized my proven methodologies by building clean, LLM-assisted prototypes designed for production engineering handoff.
                         </p>
                         <button 
                           onClick={() => setIsDemoModalOpen(true)}
@@ -673,29 +673,29 @@ const PublicResume: React.FC = () => {
             <button onClick={() => setIsProcessModalOpen(false)} className="absolute top-8 right-8 p-3 text-gray-400 hover:text-black transition-colors z-10">
               <X size={32} />
             </button>
-            <div className="p-10 md:p-16 overflow-y-auto">
-              <div className="mb-16">
-                <h2 className="text-5xl font-black text-gray-900 mb-4 tracking-tighter">This is How We Work</h2>
-                <p className="text-indigo-600 font-black uppercase text-xs tracking-[0.3em]">End-to-End Strategic Delivery</p>
+            <div className="p-8 md:p-10 overflow-y-auto">
+              <div className="mb-10">
+                <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter">This is How We Work</h2>
+                <p className="text-indigo-600 font-black uppercase text-[10px] tracking-[0.3em]">End-to-End Strategic Delivery</p>
               </div>
-              <div className="grid md:grid-cols-2 gap-x-16 gap-y-16">
+              <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
                 {[
-                  { title: "1. Discovery", icon: <Search size={28}/>, color: "bg-indigo-100 text-indigo-600", text: "Deep dives into user behavior data and competitive analysis to find the logical 'leak' in your funnel." },
-                  { title: "2. Strategy", icon: <Target size={28}/>, color: "bg-pink-100 text-brand-pink", text: "Defining functional requirements and strategic hooks that align product vision with immediate user needs." },
-                  { title: "3. Execution", icon: <Zap size={28}/>, color: "bg-amber-100 text-amber-600", text: "High-velocity prototyping and Vibe-Coding to test functional proofs in the real world before scale." },
-                  { title: "4. Growth", icon: <TrendingUp size={28}/>, color: "bg-green-100 text-green-600", text: "ROI tracking and conversion optimization loops to refine metrics and ensure long-term success." }
+                  { title: "1. Discovery", icon: <Search size={24}/>, color: "bg-indigo-100 text-indigo-600", text: "Deep dives into user behavior data and competitive analysis to find the logical 'leak' in your funnel." },
+                  { title: "2. Strategy", icon: <Target size={24}/>, color: "bg-pink-100 text-brand-pink", text: "Defining functional requirements and strategic hooks that align product vision with immediate user needs." },
+                  { title: "3. Execution", icon: <Zap size={24}/>, color: "bg-amber-100 text-amber-600", text: "High-velocity prototyping and Vibe-Coding to test functional proofs in the real world before scale." },
+                  { title: "4. Growth", icon: <TrendingUp size={24}/>, color: "bg-green-100 text-green-600", text: "ROI tracking and conversion optimization loops to refine metrics and ensure long-term success." }
                 ].map((step, i) => (
                   <div key={i} className="space-y-5">
-                    <div className={`w-14 h-14 ${step.color} rounded-2xl flex items-center justify-center shadow-md`}>
+                    <div className={`w-12 h-12 ${step.color} rounded-2xl flex items-center justify-center shadow-md`}>
                       {step.icon}
                     </div>
-                    <h4 className="text-2xl font-black text-gray-900 tracking-tight">{step.title}</h4>
-                    <p className="text-gray-600 leading-relaxed italic font-medium">{step.text}</p>
+                    <h4 className="text-xl font-black text-gray-900 tracking-tight">{step.title}</h4>
+                    <p className="text-gray-600 text-sm leading-relaxed italic font-medium">{step.text}</p>
                   </div>
                 ))}
               </div>
-              <div className="mt-20 pt-10 border-t border-gray-100 flex justify-center">
-                <NeoButton onClick={() => setIsProcessModalOpen(false)} variant="primary" className="px-16 h-14 rounded-full text-lg">
+              <div className="mt-12 pt-8 border-t border-gray-100 flex justify-center">
+                <NeoButton onClick={() => setIsProcessModalOpen(false)} variant="primary" className="px-12 h-12 rounded-full text-base">
                   Got it, Let's Build
                 </NeoButton>
               </div>

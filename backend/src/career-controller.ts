@@ -173,16 +173,16 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
       TASK:
       1. EXHAUSTIVE MAPPING: Select EVERY asset from the library that correlates to a requirement, skill, or responsibility in the JD.
-      2. MANDATORY MIX: A high-authority resume MUST include more than just jobs. You MUST select at least 5 Skills, 3 Recommendations, 2 ROI Wins, and any relevant Articles/Talks found in the library.
+      2. MANDATORY MIX: You MUST select at least 5 Skills, 3 Recommendations, 2 ROI Wins, and any relevant Articles/Talks.
       3. PROOF OF AUTHORITY: Prioritize assets from Tier-1 brands (Disney, Pluralsight) and those with quantifiable percentages (ROI), even if they are supportive evidence rather than direct JD matches.
       4. NO LIMITS: Do not summarize or truncate the asset count. If Jean has 40 relevant proofs, include all 40. Obviousness is built through volume of evidence.
-      5. STRATEGIC REASONING: Explain how this exhaustive evidence set solves the specific business threats implied by the JD.
+      5. STRATEGIC REASONING: Explain how this evidence set (especially the Logic Architecture and AI Prototyping) solves the specific business threats implied by the JD.
       6. GAP ANALYSIS: List JD requirements that Jean has NO library assets to prove.
-      7. BULLET TRIMMING: For 'work_history' only, select the 5-6 most relevant bullets per job.
+      7. BULLET TRIMMING & ENHANCEMENT: For 'work_history' only, select the 5-6 most relevant bullets per job. Inject the "clean prototype handoff" narrative into entries for Disney and ViewPost if applicable.
 
       Return a JSON object with: 
       "selectedIds" (ARRAY of IDs), 
-      "trimmedDescriptions" (OBJECT mapping ID to a trimmed ARRAY of relevant description strings),
+      "trimmedDescriptions" (OBJECT mapping ID to a trimmed/enhanced ARRAY of relevant description strings),
       "mappedTitle" (STRING), 
       "strategicReasoning" (STRING), 
       "gapAnalysis" (ARRAY of strings).
