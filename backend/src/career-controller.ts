@@ -173,15 +173,15 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 
       TASK:
       1. DEEP DIVE MAPPING: Select EVERY asset from the library that correlates to a direct requirement, an implied expectation, or a specific technical skill in the JD.
-      2. AGGRESSIVE MINIMUM MIX: A high-authority resume MUST be dense with proof. You MUST select at least 8 Skills, 4 Recommendations, 4 ROI Wins (Wins), and EVERY relevant Article/Talk/Case Study.
+      2. AGGRESSIVE SELECTION: A high-authority resume MUST be dense. You MUST select at least 10 Skills, 5 Recommendations, 5 ROI Wins, and EVERY relevant Article/Talk/Case Study.
       3. PROOF OF AUTHORITY: Prioritize assets with hard metrics (percentages, dollar amounts) and recognizable industry brands.
-      4. NO LIMITS: Do not play it safe. Include ALL evidence that makes Jean the only logical choice for this specific stack and seniority level.
-      5. STRATEGIC REASONING: Explain how the selected Proof of Authority (ROI) and Logic Architecture (Case Studies) bridge her specific experience to the JD's core business threats.
+      4. NO LIMITS: Include ALL evidence. If there are 30 relevant proofs, include all 30.
+      5. STRATEGIC REASONING: Provide a 3-sentence justification of how Jean's specific Logic Architecture solves the core threats of this JD.
       6. GAP ANALYSIS: List JD requirements that Jean has NO library assets to prove.
-      7. BULLET RETENTION: For 'work_history', provide up to 8-10 high-impact bullets per job. Do not over-prune; the user will trim the final version. Inject the "clean prototype handoff" and "Logic Architect" narrative where supported by the evidence.
+      7. BULLET ENHANCEMENT: For 'work_history', provide 8-10 bullets per job. Inject phrases like "LLM-Assisted Feature Deployment" and "Production-ready handoff" into entries for Disney and ViewPost.
 
       Return a JSON object with: 
-      "selectedIds" (ARRAY of IDs), 
+      "selectedIds": [], 
       "trimmedDescriptions" (OBJECT mapping ID to a trimmed/enhanced ARRAY of relevant description strings),
       "mappedTitle" (STRING), 
       "strategicReasoning" (STRING), 
@@ -218,10 +218,12 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       SPECIFIC SELECTED PROOFS:
       ${curatedAssetContext}
 
-      Based on the JD and these SPECIFIC proofs, write a high-impact, 2-sentence Professional Summary. 
-      Sentence 1: Anchor her identity as an Applied AI Strategist/Logic Architect.
-      Sentence 2: Cite the single most impressive ROI metric from the proofs that solves the JD's biggest threat.
-      STRICT OUTPUT: Return ONLY the text. Maximum 50 words. No labels, no quotes.`;
+      Write a high-authority, dense 3-4 sentence Professional Summary.
+      - **Identity Anchor:** Lead with "Applied AI Strategist & Logic Architect" or "Staff Product Strategist."
+      - **The Hook:** Explicitly mention her specialty in building "Functional Test-Mules" for rapid engineering handoff.
+      - **The Evidence:** Pivot immediately to her most impressive ROI metrics (e.g., the $1M win at ViewPost or Disney-scale deployments).
+      - **Handoff Logic:** Close by stating her fluency in VS Code/Cursor and her ability to bridge the gap between user intent and production hardening.
+      STRICT OUTPUT: Return ONLY the text. Maximum 100 words. No labels, no quotes.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 
     // 5. Generate AI Cover Letter
