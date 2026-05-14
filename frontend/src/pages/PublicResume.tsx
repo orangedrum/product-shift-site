@@ -377,47 +377,78 @@ const PublicResume: React.FC = () => {
                         {/* Expanded Adventure Content */}
                         {expandedStudies[idx] && (
                           <div className="animate-slide-down border-t border-gray-100 bg-white">
-                             <div className="p-8 space-y-6">
-                                {/* dashboard quick-scan view */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                   <div className="space-y-2">
-                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2"><AlertCircle size={12} className="text-red-500"/> Problem</h5>
-                                      <p className="text-gray-900 text-xs font-semibold leading-snug line-clamp-2">
-                                         {resolveStoryContent(cs.story, 'problem')[0]?.content || resolveStoryContent(cs.story, 'problem')[0]}
+                            <div className="p-8 space-y-6">
+                              {/* dashboard quick-scan view - Only show if we have actual story metrics */}
+                              {(resolveStoryContent(cs.story, 'problem').length > 0 || resolveStoryContent(cs.story, 'methodology').length > 0) ? (
+                                <>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="space-y-2">
+                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2">
+                                        <AlertCircle size={12} className="text-red-500" /> Problem
+                                      </h5>
+                                      <p className="text-gray-900 text-xs font-semibold leading-snug">
+                                        {resolveStoryContent(cs.story, 'problem')[0]?.content || resolveStoryContent(cs.story, 'problem')[0] || "Enterprise friction & complex UX debt."}
                                       </p>
-                                   </div>
-                                   <div className="space-y-2">
-                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2"><Target size={12} className="text-indigo-600"/> Method</h5>
-                                      <p className="text-gray-600 text-xs font-medium italic leading-snug line-clamp-2">
-                                         {resolveStoryContent(cs.story, 'methodology')[0]?.content || resolveStoryContent(cs.story, 'methodology')[0]}
+                                    </div>
+                                    <div className="space-y-2">
+                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2">
+                                        <Target size={12} className="text-indigo-600" /> Method
+                                      </h5>
+                                      <p className="text-gray-600 text-xs font-medium italic leading-snug">
+                                        {resolveStoryContent(cs.story, 'methodology')[0]?.content || resolveStoryContent(cs.story, 'methodology')[0] || "Data-driven research & prototype validation."}
                                       </p>
-                                   </div>
-                                   <div className="space-y-2">
-                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2"><Zap size={12} className="text-pink-500"/> Process</h5>
-                                      <p className="text-gray-700 text-xs font-medium leading-snug line-clamp-2">
-                                         {resolveStoryContent(cs.story, 'process')[0]?.content || resolveStoryContent(cs.story, 'process')[0] || "Rapid prototyping & visual validation."}
+                                    </div>
+                                    <div className="space-y-2">
+                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2">
+                                        <Zap size={12} className="text-pink-500" /> Process
+                                      </h5>
+                                      <p className="text-gray-700 text-xs font-medium leading-snug">
+                                        {resolveStoryContent(cs.story, 'process')[0]?.content || resolveStoryContent(cs.story, 'process')[0] || "Rapid engineering-aligned execution."}
                                       </p>
-                                   </div>
-                                </div>
+                                    </div>
+                                  </div>
 
-                                <div className="pt-6 border-t border-gray-50">
-                                   <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2 mb-2"><Search size={12} className="text-amber-500"/> Standout Discovery</h5>
-                                   <div className="text-gray-900 bg-indigo-50/30 p-4 rounded-xl border-l-2 border-indigo-600 text-xs font-bold">
-                                      "{resolveStoryContent(cs.story, 'findings')[0]?.content || resolveStoryContent(cs.story, 'findings')[0]}"
-                                   </div>
+                                  {resolveStoryContent(cs.story, 'findings').length > 0 && (
+                                    <div className="pt-6 border-t border-gray-50">
+                                      <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2 mb-2">
+                                        <Search size={12} className="text-amber-500" /> Standout Discovery
+                                      </h5>
+                                      <div className="text-gray-900 bg-indigo-50/30 p-4 rounded-xl border-l-2 border-indigo-600 text-xs font-bold">
+                                        "{resolveStoryContent(cs.story, 'findings')[0]?.content || resolveStoryContent(cs.story, 'findings')[0]}"
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                /* Fallback to standard description if story keys are missing */
+                                <div className="space-y-4">
+                                  <h5 className="font-black text-[9px] uppercase text-gray-400 tracking-widest flex items-center gap-2">
+                                    <FileText size={12} className="text-indigo-600" /> Executive Highlights
+                                  </h5>
+                                  <ul className="space-y-2">
+                                    {(Array.isArray(cs.description) ? cs.description : []).map((bullet: string, bIdx: number) => (
+                                      <li key={bIdx} className="text-gray-700 text-xs font-medium leading-snug flex items-start gap-3">
+                                        <div className="w-1 h-1 bg-indigo-400 rounded-full mt-1.5 shrink-0" />
+                                        {bullet}
+                                      </li>
+                                    ))}
+                                  </ul>
                                 </div>
+                              )}
 
-                                {cs.source_url && (
-                                  <a 
-                                    href={cs.source_url} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    className="inline-flex items-center gap-2 text-[9px] font-black uppercase text-indigo-600 hover:text-indigo-800 transition-colors pt-2"
+                              {cs.source_url && (
+                                <div className="pt-4 border-t border-gray-50">
+                                  <a
+                                    href={cs.source_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-[10px] font-black uppercase text-indigo-600 hover:text-indigo-800 transition-colors"
                                   >
-                                    Drill into Technical Specs <ExternalLink size={10} />
+                                    View Original Source (PDF / External Proof) <ExternalLink size={12} />
                                   </a>
-                                )}
-                             </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
