@@ -727,10 +727,10 @@ const CareerAdmin: React.FC = () => {
                       className="p-4 bg-white border border-gray-200 rounded-2xl shadow-sm font-bold text-sm outline-none focus:border-brand-pink"
                    >
                       <option value="all">All Assets</option>
-                      <option value="work_history">Experience</option>
-                      <option value="case_study">Case Studies</option>
-                      <option value="win">Logic Proofs</option>
-                      <option value="skill">Skills</option>
+                      <option value="work_history">Professional Experience</option>
+                      <option value="case_study">Strategic Case Studies</option>
+                      <option value="win">ROI & Major Wins</option>
+                      <option value="skill">Expertise Pillars</option>
                       <option value="talk">Talks</option>
                       <option value="writing_sample">Writing</option>
                       <option value="recommendation">Recommendations</option>
@@ -947,7 +947,7 @@ const CareerAdmin: React.FC = () => {
                           {/* Grouped Draft Sections */}
                           {[
                             { type: 'work_history', label: 'Professional Experience' },
-                            { type: 'case_study', label: 'Logic Proofs: Case Studies' },
+                            { type: 'case_study', label: 'Strategic Case Studies' },
                             { type: 'win', label: 'ROI & Major Wins' },
                             { type: 'recommendation', label: 'Validation / Testimonials' },
                             { type: 'writing_sample', label: 'Thought Leadership: Articles' },
@@ -1008,11 +1008,11 @@ const CareerAdmin: React.FC = () => {
                         className="w-full p-3 bg-gray-800 border-none rounded-xl text-gray-400 text-xs font-bold outline-none cursor-pointer"
                       >
                         <option value="all">All Proofs</option>
-                        <option value="work_history">Experience</option>
-                        <option value="case_study">Case Studies</option>
-                        <option value="win">ROI Wins</option>
-                        <option value="recommendation">Recommendations</option>
-                        <option value="skill">Expertise</option>
+                      <option value="work_history">Professional Experience</option>
+                      <option value="case_study">Strategic Case Studies</option>
+                      <option value="win">ROI & Major Wins</option>
+                      <option value="recommendation">Validation</option>
+                      <option value="skill">Expertise Pillars</option>
                         <option value="talk">Talks</option>
                         <option value="writing_sample">Articles</option>
                       </select>

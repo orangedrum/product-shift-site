@@ -371,11 +371,14 @@ const PublicResume: React.FC = () => {
                             <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-8 pt-8 mt-auto">
               {/* Scanable ROI Phrase Wins */}
               <div className="flex flex-wrap gap-2">
-                 {resolveStoryContent(cs.story, 'results').slice(0, 2).map((m: any, mIdx: number) => {
+                 {(resolveStoryContent(cs.story, 'results').length > 0 
+                    ? resolveStoryContent(cs.story, 'results') 
+                    : (cs.roi_metrics || [])
+                 ).slice(0, 2).map((m: any, mIdx: number) => {
                    const text = typeof m === 'object' ? (m.content || m.text) : m;
                    const shortText = text && text.length > 50 ? text.substring(0, 47) + '...' : text;
                    return (
-                     <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[9px] font-bold tracking-tight shadow-lg">
+                     <div key={mIdx} className="bg-[#39ff14] text-black px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tight shadow-lg">
                        {shortText}
                      </div>
                    );
@@ -455,7 +458,7 @@ const PublicResume: React.FC = () => {
                                 </div>
                               )}
 
-                              {cs.source_url && (
+                              {cs.source_url && cs.source_url !== 'direct_upload' && (
                                 <div className="pt-4 border-t border-gray-50">
                                   <a
                                     href={cs.source_url}

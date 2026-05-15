@@ -99,11 +99,12 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     - **Technical Command:** She is fluent in VS Code, Docker, GitHub, and the Terminal. She speaks "developer" better than any researcher in the field.
 
     **IDENTITY GUARD & VERIFICATION PROTOCOL:**
-    1. **VERIFIED EMPLOYER LIST:** ${verifiedEmployers || 'None yet.'}
+    1. **VERIFIED EMPLOYER LIST (Professional Experience):** ${verifiedEmployers || 'None yet.'}
     2. A company is an EMPLOYER only if the text provides a title and tenure/work context.
     3. A company is a TARGET if the text is a pitch, cover letter, or bespoke summary.
     4. If the Document Hint is 'linkedin_profile', treat this as the GROUND TRUTH for work history.
     5. PROPOSAL RULE: If a company is NOT in the Verified List but context strongly suggests employment, set "is_proposed_new_employer": true.
+    6. SOURCE URL MANDATE: Extract the deep link or PDF URL as 'source_url'. This is CRITICAL for Case Study validation.
 
     **SOURCE DATA:**
     "${rawData}"
