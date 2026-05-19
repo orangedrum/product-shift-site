@@ -45,6 +45,17 @@ const PublicResume: React.FC = () => {
     fetchResume();
   }, [slug]);
 
+  // LEAD ENGINEER DIAGNOSTIC: Verify 2-Tier Data Structure
+  useEffect(() => {
+    if (resume) {
+      console.log('📄 [RESUME DATA AUDIT]', {
+        totalAssets: resume.selected_assets?.length,
+        strategic: resume.selected_assets?.filter((a: any) => a.type === 'work_history' && !a.is_foundational).map((a: any) => a.company),
+        foundational: resume.selected_assets?.filter((a: any) => a.type === 'work_history' && a.is_foundational).map((a: any) => a.company)
+      });
+    }
+  }, [resume]);
+
   const toggleStudy = (idx: number) => {
     setExpandedStudies(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
@@ -659,6 +670,12 @@ const PublicResume: React.FC = () => {
                   </div>
                 </section>
               )}
+
+              {/* Digital Education Footnote */}
+              <section className="pt-12 border-t border-gray-100">
+                <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em] mb-4">Education</h3>
+                <p className="text-sm font-bold text-gray-500">A.S., Graphics Communication</p>
+              </section>
             </div>
 
             {/* SIDEBAR */}
