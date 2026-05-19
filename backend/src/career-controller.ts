@@ -104,6 +104,7 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
             roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
             skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
             story: a.type === 'case_study' || a.type === 'talk' || a.type === 'writing_sample' ? a.story : null, // Only store story for specific types
+            is_foundational: !!a.is_foundational, // CTO FIX: Explicitly normalize foundational flag
             // Ensure visuals is always an array if it exists
             ...(a.story && { 
               story: { ...a.story, visuals: Array.isArray(a.story.visuals) ? a.story.visuals : [] } 
