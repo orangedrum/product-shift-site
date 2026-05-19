@@ -309,7 +309,10 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
         ? a.description 
         : (typeof a.description === 'string' ? a.description.split('\n').map((s: string) => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean) : []),
       roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
-      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : []
+      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : [],
+      is_foundational: !!a.is_foundational,
+      start_date: a.start_date || null,
+      end_date: a.end_date || null
     });
 
     // CTO FIX: Support for Batch Merging/Consolidation
@@ -482,10 +485,10 @@ export const consolidateWorkHistoryHandler = async (req: Request, res: Response)
     if (fetchError) throw fetchError;
     if (!assets || assets.length === 0) return res.json({ success: true, message: 'No work history found.' });
 
-    // 2. Group by normalized Company + Title
+    // 2. Group by normalized Company (Consolidate multiple roles into one card)
     const groups: Record<string, any[]> = {};
     assets.forEach(a => {
-      const key = `${(a.company || 'Unknown').toLowerCase().trim()}|${(a.title || 'Unknown').toLowerCase().trim()}`;
+      const key = (a.company || 'Unknown').toLowerCase().trim();
       if (!groups[key]) groups[key] = [];
       groups[key].push(a);
     });

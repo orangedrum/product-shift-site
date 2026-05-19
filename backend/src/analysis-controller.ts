@@ -29,14 +29,12 @@ export const personas: Record<string, Persona> = {
 
 export const normalizeUrl = (input: string) => {
   let url = input.trim();
-  // Fix double protocol (e.g. https://https://) caused by double-pasting into a pre-filled field
-  while (/^https?:\/\/https?:\/\//i.test(url)) {
-    url = url.replace(/^https?:\/\//i, '');
-  }
+  // CTO FIX: Aggressive protocol cleanup
+  url = url.replace(/^(https?:\/\/)+/i, ''); // Strip all leading protocols
+  
   // Default to https:// if no protocol is present
-  if (!/^https?:\/\//i.test(url)) {
-    url = `https://${url}`;
-  }
+  url = `https://${url}`;
+  
   return url;
 };
 

@@ -107,7 +107,7 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     6. SOURCE URL MANDATE: Extract the deep link or PDF URL as 'source_url'. This is CRITICAL for Case Study validation.
     7. HISTORICAL BASELINE (2012): Roles ending in 2012 or earlier (or at companies like Lockheed Martin, Crown Partners, Digitec) MUST be tagged with 'is_foundational': true.
     8. DATE EXTRACTION: For 'work_history' assets, extract the 'start_date' and 'end_date' as strings (e.g., 'Jan 2010'). These are for internal logic and MUST NOT appear in the final generated titles or descriptions.
-    9. SMART CONSOLIDATION: If the source contains multiple roles for the SAME company, return only ONE 'work_history' object for that company, merging all bullet points and ROI metrics into a single 'description' array.
+    9. AGGRESSIVE CONSOLIDATION: You MUST return exactly ONE 'work_history' asset per Company. If Jean had 3 titles at Disney, merge them into a single "Disney" asset, listing the titles in the description and combining all ROI wins into the unified bullets.
 
     **SOURCE DATA:**
     "${rawData}"

@@ -218,7 +218,9 @@ const CareerAdmin: React.FC = () => {
       skills_demonstrated: asset.skills_demonstrated,
       source_url: asset.source_url,
       story: asset.story || null,
-      is_foundational: !!asset.is_foundational
+      is_foundational: !!asset.is_foundational,
+      start_date: asset.start_date || null,
+      end_date: asset.end_date || null
     };
 
     const { data, error } = await supabase.from('career_assets').insert([payload]).select().single();
