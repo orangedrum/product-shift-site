@@ -223,6 +223,8 @@ const CareerAdmin: React.FC = () => {
       end_date: asset.end_date || null
     };
 
+    console.log('💾 [SUPABASE SAVE PAYLOAD]', payload); // CTO DIAGNOSTIC: Log the payload
+
     const { data, error } = await supabase.from('career_assets').insert([payload]).select().single();
     
     if (error) {
