@@ -104,9 +104,9 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
             roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
             skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
             story: a.type === 'case_study' || a.type === 'talk' || a.type === 'writing_sample' ? a.story : null, // Only store story for specific types
-            is_foundational: !!a.is_foundational,
-            start_date: a.start_date || null,
-            end_date: a.end_date || null,
+            is_foundational: !!a.is_foundational, // Ensure boolean conversion based on AI's date logic
+            start_date: a.start_date || null, // Capture for internal logic
+            end_date: a.end_date || null,     // Capture for internal logic
             // Ensure visuals is always an array if it exists
             ...(a.story && { 
               story: { ...a.story, visuals: Array.isArray(a.story.visuals) ? a.story.visuals : [] } 
@@ -171,31 +171,21 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         Type: ${a.type} 
         Title: ${a.title} 
         Company: ${a.company} 
-        Start Date: ${a.start_date || 'N/A'}
-        End Date: ${a.end_date || 'N/A'}
-        Foundational: ${!!a.is_foundational}
         Metrics: ${a.roi_metrics?.join(', ')}
         Description: ${Array.isArray(a.description) ? a.description.join(' ') : (a.description || '')}`).join('\n')}
 
       TASK:
       1. DEEP DIVE MAPPING: Select EVERY asset from the library that correlates to a direct requirement, an implied expectation, or a specific technical skill in the JD.
-      2. AGGRESSIVE SELECTION: A high-authority resume MUST be dense. You MUST select at least 10 Skills, 5 Recommendations, 5 ROI Wins, and EVERY relevant Case Study.
+      2. AGGRESSIVE SELECTION: A high-authority resume MUST be dense. You MUST select at least 10 Skills, 5 Recommendations, 5 ROI Wins, and EVERY relevant Article/Talk/Case Study.
       3. PROOF OF AUTHORITY: Prioritize assets with hard metrics (percentages, dollar amounts) and recognizable industry brands.
-      4. TWO-TIERED ARCHITECTURE (MANDATORY SEPARATION): 
-         - TIER 1 (STRATEGIC): Select ALL work_history assets where "Foundational: false". These MUST go into "strategicIds".
-         - TIER 2 (FOUNDATIONAL): Select ALL work_history assets where "Foundational: true". These MUST go into "foundationalIds".
-         - CRITICAL: Ensure every relevant work_history asset is in *exactly one* of these two arrays.
-         - DO NOT include non-work_history assets (skills, wins, etc.) in these two arrays.
-      5. TOOLING ORIENTATION: Select individual tools (Cursor, Docker, Figma, Make.com) based on whether the JD leans TECHNICAL, DESIGN, or RESEARCH oriented.
-      6. NO LIMITS: Include ALL evidence. If there are 30 relevant proofs, include all 30.
-      7. STRATEGIC REASONING: Provide a 3-sentence justification of how Jean's specific Logic Architecture (including the 20-year foundational baseline) solves the core threats of this JD.
+      4. NO LIMITS: Include ALL evidence. If there are 30 relevant proofs, include all 30.
+      5. STRATEGIC REASONING: Provide a 3-sentence justification of how Jean's specific Logic Architecture solves the core threats of this JD.
       6. GAP ANALYSIS: List JD requirements that Jean has NO library assets to prove.
-      8. BULLET ENHANCEMENT: For TIER 1 work_history assets, provide 8-10 high-impact bullets. For TIER 2 work_history assets, provide an empty array [].
-      9. DATE PURGE: Strictly exclude years/dates from all generated text.
+      7. BULLET ENHANCEMENT: For 'work_history', provide 8-10 bullets per job. Inject phrases like "LLM-Assisted Feature Deployment" and "Production-ready handoff" into entries for Disney and ViewPost.
 
-      Return a JSON object with: 
-      "strategicIds": [ARRAY of UUIDs], 
-      "foundationalIds": [ARRAY of UUIDs],
+      Return a JSON object with:
+      "strategicIds": [ARRAY of Tier 1 IDs], 
+      "foundationalIds": [ARRAY of Tier 2 IDs],
       "trimmedDescriptions" (OBJECT mapping ID to a trimmed/enhanced ARRAY of relevant description strings),
       "mappedTitle" (STRING), 
       "strategicReasoning" (STRING), 
@@ -290,9 +280,9 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
   try {
     console.log(`💬 [SIDEKICK CHAT] User message: ${message}`);
     // 1. Fetch library context
-    const { data: existingAssets } = await supabase.from('career_assets').select('id, title, company, type, description, is_foundational');
+    const { data: existingAssets } = await supabase.from('career_assets').select('id, title, company, type, description');
     const libraryContext = (existingAssets || [])
-      .map(a => `- [ID: ${a.id}] ${a.type}: ${a.title} @ ${a.company} ${a.is_foundational ? '(FOUNDATIONAL)' : ''}`)
+      .map(a => `- [ID: ${a.id}] ${a.type}: ${a.title} @ ${a.company}`)
       .join('\n');
 
     const aiResponse = await generateContentWithFallback(SIDEKICK_CHAT_PROMPT(message, libraryContext, currentResume));

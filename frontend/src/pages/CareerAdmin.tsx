@@ -218,6 +218,8 @@ const CareerAdmin: React.FC = () => {
       skills_demonstrated: asset.skills_demonstrated,
       source_url: asset.source_url,
       story: asset.story || null,
+      is_foundational: !!asset.is_foundational // CTO FIX: Persist foundational flag to database
+    };
 
     const { data, error } = await supabase.from('career_assets').insert([payload]).select().single();
     
