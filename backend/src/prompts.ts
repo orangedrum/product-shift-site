@@ -105,8 +105,9 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     4. If the Document Hint is 'linkedin_profile', treat this as the GROUND TRUTH for work history.
     5. PROPOSAL RULE: If a company is NOT in the Verified List but context strongly suggests employment, set "is_proposed_new_employer": true.
     6. SOURCE URL MANDATE: Extract the deep link or PDF URL as 'source_url'. This is CRITICAL for Case Study validation.
-    7. HISTORICAL BASELINE: Any role at Crown Partners, Newsome Melton, Timber Creative, DiSTI, Lockheed Martin, Digitec, Fasen Arts, Firevine, Sunny Design, or Sign Depot MUST be tagged with "is_foundational": true.
-    8. DATE PURGE: Do NOT extract dates or years. Use the tenure duration (e.g., "2 years") if needed for context, but exclude them from the final JSON titles and descriptions.
+    7. HISTORICAL BASELINE (2012): Roles ending in 2012 or earlier (or at companies like Crown Partners, Newsome Melton, Lockheed Martin, etc.) MUST be tagged with "is_foundational": true.
+    8. DATE EXTRACTION FOR INTERNAL LOGIC: For work_history assets, extract `start_date` and `end_date`. These are CRITICAL for determining `is_foundational`. These dates will be used internally and then **PURGED from the final generated descriptions**.
+    9. WORK HISTORY CONSOLIDATION: For the same company, consolidate all roles into a single `work_history` asset, merging all unique descriptions and ROI metrics.
 
     **SOURCE DATA:**
     "${rawData}"
@@ -135,6 +136,8 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
           "roi_metrics": ["Specific quantifiable wins"],
           "is_proposed_new_employer": boolean,
           "is_foundational": boolean,
+          "start_date": "Month Year" | null,
+          "end_date": "Month Year" | null,
           "story": { 
             "problem": [], "methodology": [], "process": [], "findings": [], "results": [], "teaser": "", "visuals": []
           }

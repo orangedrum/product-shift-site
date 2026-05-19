@@ -104,7 +104,9 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
             roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
             skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
             story: a.type === 'case_study' || a.type === 'talk' || a.type === 'writing_sample' ? a.story : null, // Only store story for specific types
-            is_foundational: !!a.is_foundational, // CTO FIX: Explicitly normalize foundational flag
+            is_foundational: !!a.is_foundational,
+            start_date: a.start_date || null,
+            end_date: a.end_date || null,
             // Ensure visuals is always an array if it exists
             ...(a.story && { 
               story: { ...a.story, visuals: Array.isArray(a.story.visuals) ? a.story.visuals : [] } 
@@ -169,6 +171,8 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
         Type: ${a.type} 
         Title: ${a.title} 
         Company: ${a.company} 
+        Start Date: ${a.start_date || 'N/A'}
+        End Date: ${a.end_date || 'N/A'}
         Foundational: ${!!a.is_foundational}
         Metrics: ${a.roi_metrics?.join(', ')}
         Description: ${Array.isArray(a.description) ? a.description.join(' ') : (a.description || '')}`).join('\n')}
@@ -177,16 +181,17 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       1. DEEP DIVE MAPPING: Select EVERY asset from the library that correlates to a direct requirement, an implied expectation, or a specific technical skill in the JD.
       2. AGGRESSIVE SELECTION: A high-authority resume MUST be dense. You MUST select at least 10 Skills, 5 Recommendations, 5 ROI Wins, and EVERY relevant Case Study.
       3. PROOF OF AUTHORITY: Prioritize assets with hard metrics (percentages, dollar amounts) and recognizable industry brands.
-      4. TWO-TIERED ARCHITECTURE (STRICT SEPARATION): 
-         - TIER 1 (STRATEGIC): Select senior roles (post-2012). These MUST go into "strategicIds".
-         - TIER 2 (FOUNDATIONAL): Select ALL roles where "Foundational: true" or from the 2004-2012 era to anchor the baseline. These MUST go into "foundationalIds".
-         - DO NOT overlap IDs between these two arrays.
+      4. TWO-TIERED ARCHITECTURE (MANDATORY SEPARATION): 
+         - TIER 1 (STRATEGIC): Select ALL work_history assets where "Foundational: false". These MUST go into "strategicIds".
+         - TIER 2 (FOUNDATIONAL): Select ALL work_history assets where "Foundational: true". These MUST go into "foundationalIds".
+         - CRITICAL: Ensure every relevant work_history asset is in *exactly one* of these two arrays.
+         - DO NOT include non-work_history assets (skills, wins, etc.) in these two arrays.
       5. TOOLING ORIENTATION: Select individual tools (Cursor, Docker, Figma, Make.com) based on whether the JD leans TECHNICAL, DESIGN, or RESEARCH oriented.
       6. NO LIMITS: Include ALL evidence. If there are 30 relevant proofs, include all 30.
-      7. STRATEGIC REASONING: Provide a 3-sentence justification of how Jean's specific Logic Architecture (including foundational baseline) solves the core threats of this JD.
+      7. STRATEGIC REASONING: Provide a 3-sentence justification of how Jean's specific Logic Architecture (including the 20-year foundational baseline) solves the core threats of this JD.
       6. GAP ANALYSIS: List JD requirements that Jean has NO library assets to prove.
-      8. BULLET ENHANCEMENT: For TIER 1, provide 8-10 high-impact bullets. For TIER 2, provide an empty array [].
-      9. DATE PURGE: Strictly exclude years/dates from all generated text to focus on velocity and seniority.
+      8. BULLET ENHANCEMENT: For TIER 1 work_history assets, provide 8-10 high-impact bullets. For TIER 2 work_history assets, provide an empty array [].
+      9. DATE PURGE: Strictly exclude years/dates from all generated text.
 
       Return a JSON object with: 
       "strategicIds": [ARRAY of UUIDs], 
@@ -205,16 +210,15 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    // CTO FIX: Handle potential AI "Laziness" where it might return selectedIds instead of tiered IDs
     const parsed = JSON.parse(jsonMatch[0]);
-    const sIds = parsed.strategicIds || parsed.selectedIds || [];
-    const fIds = parsed.foundationalIds || [];
+    const sIds = Array.isArray(parsed.strategicIds) ? parsed.strategicIds : (Array.isArray(parsed.selectedIds) ? parsed.selectedIds : []);
+    const fIds = Array.isArray(parsed.foundationalIds) ? parsed.foundationalIds : [];
     const { trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = parsed;
     
-    // CTO FIX: Use the DATABASE flag as the primary source of truth for "is_foundational"
-    // This prevents the AI from accidentally moving a 2004 role into the bulleted "Strategic" section.
+    // Filter and merge AI-selected and enhanced data
+    // CTO FIX: Use the DATABASE flag as the primary source of truth for rendering
     const curatedPitch = assets
-      .filter(a => sIds.includes(a.id) || fIds.includes(a.id))
+      .filter(a => sIds.includes(a.id) || fIds.includes(a.id) || (a.type !== 'work_history' && sIds.includes(a.id)))
       .map(a => ({
         ...a,
         is_foundational: !!a.is_foundational, 
@@ -308,7 +312,8 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
         ? a.description 
         : (typeof a.description === 'string' ? a.description.split('\n').map((s: string) => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean) : []),
       roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
-      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : []
+      skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : [],
+      is_foundational: !!a.is_foundational
     });
 
     // CTO FIX: Support for Batch Merging/Consolidation
