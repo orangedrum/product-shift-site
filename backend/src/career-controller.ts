@@ -104,6 +104,7 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
             roi_metrics: Array.isArray(a.roi_metrics) ? a.roi_metrics : [],
             skills_demonstrated: Array.isArray(a.skills_demonstrated) ? a.skills_demonstrated : (a.story?.results?.metrics || []),
             story: a.type === 'case_study' || a.type === 'talk' || a.type === 'writing_sample' ? a.story : null, // Only store story for specific types
+            is_foundational: !!a.is_foundational, // CTO FIX: Explicitly normalize foundational flag
             // Ensure visuals is always an array if it exists
             ...(a.story && { 
               story: { ...a.story, visuals: Array.isArray(a.story.visuals) ? a.story.visuals : [] } 
@@ -204,15 +205,20 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const { strategicIds, foundationalIds, trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
+    // CTO FIX: Handle potential AI "Laziness" where it might return selectedIds instead of tiered IDs
+    const parsed = JSON.parse(jsonMatch[0]);
+    const sIds = parsed.strategicIds || parsed.selectedIds || [];
+    const fIds = parsed.foundationalIds || [];
+    const { trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = parsed;
     
-    // Filter and merge AI-selected and enhanced data
+    // CTO FIX: Use the DATABASE flag as the primary source of truth for "is_foundational"
+    // This prevents the AI from accidentally moving a 2004 role into the bulleted "Strategic" section.
     const curatedPitch = assets
-      .filter(a => strategicIds.includes(a.id) || foundationalIds.includes(a.id))
+      .filter(a => sIds.includes(a.id) || fIds.includes(a.id))
       .map(a => ({
         ...a,
-        description: strategicIds.includes(a.id) ? (trimmedDescriptions?.[a.id] || a.description) : [],
-        is_foundational: foundationalIds.includes(a.id)
+        is_foundational: !!a.is_foundational, 
+        description: !a.is_foundational ? (trimmedDescriptions?.[a.id] || a.description) : []
       }));
 
     // Generate strings of the actual data to ground the summary and cover letter

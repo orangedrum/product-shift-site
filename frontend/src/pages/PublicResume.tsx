@@ -252,7 +252,7 @@ const PublicResume: React.FC = () => {
         </nav>
 
         {/* Header & Reel - Full width hero */}
-        <header className="relative w-full min-h-[70vh] flex items-center -mt-12 md:-mt-20 overflow-hidden group">
+        <header className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] min-h-[60vh] flex items-center mb-20 -mt-12 md:-mt-20 overflow-hidden group">
           {/* Background Image & Gradient treatment for legibility */}
           <div className="absolute inset-0 z-0">
             <img 
@@ -260,61 +260,61 @@ const PublicResume: React.FC = () => {
               className="w-full h-full object-cover object-center opacity-80 group-hover:scale-105 transition-all duration-[5000ms] ease-out" 
               alt="Jean Kaluza Background" 
             />
-            {/* Adjusted gradient for better focus on center and text legibility */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
+            {/* Adjusted gradient for better focus on text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-transparent"></div>
             <div className="absolute inset-0 bg-marketing-gradient opacity-10 mix-blend-overlay"></div>
           </div>
 
-          <div className="relative z-10 py-20 px-4 md:px-8 max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
-            <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-[7px] font-black text-white uppercase tracking-widest mb-6">
+          <div className="relative z-10 py-20 px-6 md:px-16 max-w-xl lg:ml-20 text-center lg:text-left">
+            <div className="inline-flex items-center px-3 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm text-[8px] font-black text-white uppercase tracking-widest mb-4">
               Bespoke Strategy: {resume.target_role}
             </div>
             
-            <h1 className="text-[2.5rem] md:text-[3.5rem] font-black tracking-tighter mb-3 leading-none text-white drop-shadow-2xl">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2 leading-none text-white drop-shadow-2xl">
               Jean Kaluza
             </h1>
             
-            <p className="text-base md:text-xl font-extrabold text-[#00bfff] tracking-tight italic mb-6 drop-shadow-lg leading-tight">
+            <p className="text-lg md:text-xl font-extrabold text-[#00bfff] tracking-tight italic mb-5 drop-shadow-lg leading-tight">
               {resume.mapped_title}
             </p>
 
-            <div className="space-y-6 mb-10 max-w-2xl bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20">
-              <p className="text-sm md:text-base font-bold leading-snug text-white drop-shadow-md italic">"{resume.professional_summary}"</p>
+            <div className="space-y-6 mb-8 max-w-xl">
+              <p className="text-base md:text-lg font-bold leading-snug text-white drop-shadow-md italic">"{resume.professional_summary}"</p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3">
               <NeoButton 
                 variant="primary" 
                 onClick={() => window.print()} 
-                className="px-6 h-10 text-sm bg-marketing-gradient text-white border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+                className="px-6 h-10 text-xs bg-marketing-gradient text-white border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
               >
-                <Download size={14} className="mr-2" /> Print Resume
+                <Download size={14} className="mr-2" /> Print PDF
               </NeoButton>
               
               <NeoButton 
                 variant="primary" 
                 onClick={() => setIsProcessModalOpen(true)} 
-                className="px-6 h-10 text-sm bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+                className="px-6 h-10 text-xs bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
               >
-                Strategic Process <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                Strategic Process <ArrowRight size={14} className="ml-2" />
               </NeoButton>
 
               <button 
                 onClick={() => setIsVideoOpen(true)}
-                className="flex items-center gap-2 text-[7px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-colors ml-2 sm:ml-0"
+                className="flex items-center gap-2 text-[8px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-colors ml-2 sm:ml-0"
               >
-                <Sparkles size={12} className="text-brand-pink" /> Watch Authority Reel
+                <Sparkles size={12} className="text-brand-pink" /> Authority Reel
               </button>
             </div>
           </div>
 
           {/* Animated Scroll Down Arrow */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-            <ChevronUp size={20} className="text-white rotate-180" />
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+            <ChevronUp size={24} className="text-white/50 rotate-180" />
           </div>
 
           {/* 2px Gradient Bottom Border */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-marketing-gradient z-10"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#39ff14] via-[#00bfff] to-[#ff1493] z-10"></div>
         </header>
 
         <div className="container mx-auto px-4 max-w-6xl py-8 md:py-12">
