@@ -196,14 +196,15 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const { selectedIds, trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
+    const { strategicIds, foundationalIds, trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
     
     // Filter and merge AI-selected and enhanced data
     const curatedPitch = assets
-      .filter(a => selectedIds.includes(a.id))
+      .filter(a => (strategicIds || []).includes(a.id) || (foundationalIds || []).includes(a.id))
       .map(a => ({
         ...a,
-        description: trimmedDescriptions?.[a.id] || a.description
+        description: (strategicIds || []).includes(a.id) ? (trimmedDescriptions?.[a.id] || a.description) : [],
+        is_foundational: (foundationalIds || []).includes(a.id)
       }));
 
     // Generate strings of the actual data to ground the summary and cover letter

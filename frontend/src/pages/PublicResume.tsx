@@ -138,30 +138,31 @@ const PublicResume: React.FC = () => {
           </div>
         </div>
 
-        <section className="mb-8 break-inside-avoid mt-[1em]">
-          <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Key Accomplishments</h2>
-          <ul className="list-disc pl-5 text-[11px] space-y-1">
-            {assets.filter((a: any) => a.type === 'win').map((win: any, i: number) => (
-              <li key={i}>
-                <strong>{win.title}:</strong> {win.roi_metrics?.[0] || (Array.isArray(win.description) ? win.description[0] : win.description)}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="mb-8">
+        <section className="mb-8 break-inside-avoid">
           <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Executive Summary</h2>
-          <p className="text-[11px] leading-relaxed italic font-medium">"{resume.professional_summary}"</p>
+          <p className="text-[12px] leading-relaxed italic font-bold text-gray-900">"{resume.professional_summary}"</p>
+        </section>
+
+        <section className="mb-8 break-inside-avoid">
+          <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Strategic Accomplishments</h2>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4">
+            {assets.filter((a: any) => a.type === 'win').map((win: any, i: number) => (
+              <div key={i} className="text-[11px] leading-tight flex items-start gap-2">
+                <div className="w-1 h-1 bg-black rounded-full mt-1.5 shrink-0" />
+                <span><strong className="uppercase">{win.title}:</strong> {win.roi_metrics?.[0] || win.description?.[0]}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Professional Experience</h2>
+          <h2 className="text-xs font-black uppercase border-b-2 border-black mb-4 pb-1 tracking-widest">Selected Strategic Experience</h2>
           <div className="space-y-6">
-            {assets.filter((a: any) => a.type === 'work_history').map((job: any, i: number) => (
+            {assets.filter((a: any) => a.type === 'work_history' && !a.is_foundational).map((job: any, i: number) => (
               <div key={i} className="break-inside-avoid">
                 <div className="flex justify-between items-baseline mb-2">
                   <h3 className="font-extrabold text-sm uppercase">{job.title}</h3>
-                  <span className="font-black text-[10px] uppercase text-indigo-700">{job.company}</span>
+                  <span className="font-black text-[10px] uppercase text-gray-500">{job.company}</span>
                 </div>
                 <ul className="list-disc pl-5 text-[10px] space-y-1 font-medium text-gray-800">
                   {(Array.isArray(job.description) 
@@ -178,13 +179,33 @@ const PublicResume: React.FC = () => {
           </div>
         </section>
 
+        {/* Print Only: Earlier Highlights */}
+        {assets.some((a: any) => a.type === 'work_history' && a.is_foundational) && (
+          <section className="mb-8 break-inside-avoid">
+            <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Earlier Professional Highlights</h2>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {assets.filter((a: any) => a.type === 'work_history' && a.is_foundational).map((job: any, i: number, arr: any[]) => (
+                <div key={i} className="text-[10px] font-bold text-gray-600">
+                  {job.title} <span className="text-gray-400 font-normal">@</span> {job.company}
+                  {i < arr.length - 1 && <span className="ml-4 text-gray-300">•</span>}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section>
           <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Expertise & Tooling</h2>
           <p className="text-[10px] font-bold leading-relaxed tracking-wider">
             {assets.filter((a: any) => a.type === 'skill' || a.type === 'tooling').map((s: any) => s.title).join(' • ')}
           </p>
         </section>
-      </div>
+
+        <section className="mb-8 break-inside-avoid">
+          <h2 className="text-xs font-black uppercase border-b-2 border-black mb-3 pb-1 tracking-widest">Education</h2>
+          <p className="text-[10px] font-bold leading-relaxed tracking-wider">A.S., Graphics Communication</p>
+        </section>
+      </div> 
 
       {/* --- INTERACTIVE EXPERIENCE LAYER --- */}
       <div className="print:hidden">
@@ -246,10 +267,8 @@ const PublicResume: React.FC = () => {
               {resume.mapped_title}
             </p>
 
-            <div className="space-y-6 mb-10 max-w-2xl">
-              <p className="text-sm md:text-base font-bold leading-snug text-white drop-shadow-md italic">
-                "{resume.professional_summary}"
-              </p>
+            <div className="space-y-6 mb-10 max-w-2xl bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20">
+              <p className="text-sm md:text-base font-bold leading-snug text-white drop-shadow-md italic">"{resume.professional_summary}"</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -300,13 +319,13 @@ const PublicResume: React.FC = () => {
             {/* MAIN COLUMN */}
             <div className="lg:col-span-8 space-y-24">
               
-              {/* Work History */}
+              {/* Strategic Experience (Tier 1) */}
               <section id="experience" className="scroll-mt-24">
                 <h3 className="text-xs font-black uppercase text-gray-400 tracking-[0.4em] mb-12 flex items-center gap-4">
-                  <Briefcase size={20} className="text-black" /> Professional Experience
+                  <Briefcase size={20} className="text-black" /> Selected Strategic Experience
                 </h3>
                 <div className="space-y-16">
-                  {assets.filter((a: any) => a.type === 'work_history').map((job: any, idx: number) => (
+                  {assets.filter((a: any) => a.type === 'work_history' && !a.is_foundational).map((job: any, idx: number) => (
                     <div key={idx} className="group relative">
                       <div className="absolute -left-8 top-0 bottom-0 w-1 bg-gray-100 group-hover:bg-marketing-gradient transition-all duration-500 rounded-full" />
                       <div className="flex justify-between items-baseline mb-4">
@@ -330,6 +349,23 @@ const PublicResume: React.FC = () => {
                   ))}
                 </div>
               </section>
+
+              {/* Foundational Baseline (Tier 2) */}
+              {assets.some((a: any) => a.type === 'work_history' && a.is_foundational) && (
+                <section className="pt-8 border-t border-gray-100">
+                  <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em] mb-6 flex items-center gap-4">
+                    <Globe size={16} className="text-gray-300" /> Earlier Professional Highlights
+                  </h3>
+                  <div className="flex flex-wrap gap-x-12 gap-y-4">
+                    {assets.filter((a: any) => a.type === 'work_history' && a.is_foundational).map((job: any, i: number, arr: any[]) => (
+                      <div key={i} className="text-sm font-bold text-gray-500 flex items-center gap-6">
+                        <span>{job.title} <span className="text-gray-300 mx-1">@</span> {job.company}</span>
+                        {i < arr.length - 1 && <div className="w-1.5 h-1.5 bg-gray-200 rounded-full" />}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* Case Study Adventures */}
               {assets.some((a: any) => a.type === 'case_study') && (
