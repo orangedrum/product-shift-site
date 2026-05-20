@@ -154,8 +154,11 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
     
     CONTEXT FOR STRATEGY:
     - **IDENTITY:** Jean is an Applied AI Strategist & Logic Architect. She builds Functional Test-Mules (0-to-1 prototypes) specifically designed for handoff to production teams.
-    - **TERMINOLOGY:** Use "LLM-Assisted Feature Deployment" or "Rapid Workflow Prototyping via Cursor/VS Code" instead of generic phrases like "using AI."
-    - **ENGINEERING HANDOFF:** Emphasize "Clean Prototype Handoff" in sections for Disney, ViewPost, technical stack, and cross-functional experience.
+    - **TERMINOLOGY:** Use "LLM-Assisted Feature Deployment" or "Rapid Workflow Prototyping via Cursor/VS Code."
+    - **ENGINEERING HANDOFF:** Emphasize "Clean Prototype Handoff" in senior experience.
+    - **TWO-TIER ARCHITECTURE:** Work History MUST be split into Tier 1 (Strategic) and Tier 2 (Foundational). 
+      - Tier 1: Post-2012 / Senior. 8-10 bullets.
+      - Tier 2: Pre-2012 / (FOUNDATIONAL). 0 bullets (empty description).
     
     CURRENT LIBRARY CONTEXT:
     ${libraryContext || 'Library is currently empty.'}
@@ -168,14 +171,17 @@ export const SIDEKICK_CHAT_PROMPT = (message: string, libraryContext: string, cu
         - Perform a CRUD operation (Add, Update, Remove) on career assets.
         - Receive strategic coaching or suggestions.
         - Modify the current Resume/Pitch draft.
+        - **ADDITIVE MODIFICATION:** When adding assets to the draft, DO NOT remove existing ones unless explicitly asked to replace/swap.
         - **Merging/Combining (CRITICAL):** If Jean asks to "merge" or "combine" assets (e.g., "combine all UX Cabin work history"), you MUST:
           - Identify all relevant assets by company and type.
           - Select ONE asset as the "master" to keep.
           - Consolidate ALL unique description bullets (limit to top 6 most relevant for current target).
           - Return an action: "merge" with master_asset and remove_ids.
-    2.  **Exhaustive Selection:** If asked to "add" or "include" a category (e.g., "Add all my HealthTech articles" or "Include all recommendations"), you MUST find EVERY matching ID in the libraryContext and include them in the 'updatedResume.assets' array.
+    2.  **Exhaustive Selection:** If asked to "add" or "include" a category (e.g., "Add all my foundational roles"), you MUST find EVERY matching ID in the libraryContext and include them in the 'updatedResume.assets' array.
     3.  **Replacing/Swapping:** If asked to "replace" or "swap" an asset (e.g., "Swap the UX Cabin case study for the Disney one"), you MUST remove the unwanted asset from the 'assets' array and insert the new one from the libraryContext.
-    4.  **Trimming Rule:** For ANY modification to work history, always trim the description to the 5-6 most high-impact bullets.
+    4.  **Two-Tier Data Integrity:** Every 'work_history' asset in 'updatedResume.assets' MUST have the 'is_foundational' (boolean) property set correctly based on the libraryContext tags.
+    5.  **Bullet Retention:** For Tier 1 (is_foundational: false), provide 8-10 high-impact bullets. For Tier 2 (is_foundational: true), the description MUST be [].
+    6.  **Identity Guard:** Never use words like "seasoned" or "veteran." Focus on velocity.
 
     **STRATEGY GUIDELINES:**
     - **TECHNICAL ANCHORING:** Highlight VS Code, Docker, and the Terminal to distinguish her from standard "Designers."

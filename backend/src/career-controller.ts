@@ -207,18 +207,19 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('AI failed to select assets');
     
-    const parsed = JSON.parse(jsonMatch[0]);
-    const sIds = Array.isArray(parsed.strategicIds) ? parsed.strategicIds : (Array.isArray(parsed.selectedIds) ? parsed.selectedIds : []);
-    const fIds = Array.isArray(parsed.foundationalIds) ? parsed.foundationalIds : [];
-    const { trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = parsed;
+    const { strategicWorkHistoryIds, foundationalWorkHistoryIds, otherSelectedIds, trimmedDescriptions, mappedTitle, strategicReasoning, gapAnalysis } = JSON.parse(jsonMatch[0]);
+    
+    const sIds = strategicWorkHistoryIds || [];
+    const fIds = foundationalWorkHistoryIds || [];
+    const oIds = otherSelectedIds || [];
     
     // Filter and merge AI-selected and enhanced data
     // CTO FIX: Use the DATABASE flag as the primary source of truth for rendering
     const curatedPitch = assets
-      .filter(a => sIds.includes(a.id) || fIds.includes(a.id) || (a.type !== 'work_history' && sIds.includes(a.id)))
+      .filter(a => sIds.includes(a.id) || fIds.includes(a.id) || oIds.includes(a.id))
       .map(a => ({
         ...a,
-        is_foundational: !!a.is_foundational, 
+        is_foundational: !!a.is_foundational,
         description: !a.is_foundational ? (trimmedDescriptions?.[a.id] || a.description) : []
       }));
 
