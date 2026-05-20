@@ -239,6 +239,7 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       - **The Hook:** Explicitly mention her specialty in building "Functional Test-Mules" for rapid engineering handoff.
       - **The Evidence:** Pivot immediately to her most impressive ROI metrics (e.g., the $1M win at ViewPost or Disney-scale deployments).
       - **Handoff Logic:** Close by stating her fluency in VS Code/Cursor and her ability to bridge the gap between user intent and production hardening.
+      - **AGEISM GUARD:** Never use "seasoned" or "veteran." Focus on 15+ years of *execution track record* and modern *velocity*.
       STRICT OUTPUT: Return ONLY the text. Maximum 100 words. No labels, no quotes.`;
     const strategicHook = await generateContentWithFallback(summaryPrompt);
 

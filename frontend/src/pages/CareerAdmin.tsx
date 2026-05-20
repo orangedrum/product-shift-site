@@ -951,7 +951,8 @@ const CareerAdmin: React.FC = () => {
 
                           {/* Grouped Draft Sections */}
                           {[
-                            { type: 'work_history', label: 'Professional Experience' },
+                            { type: 'work_history_strategic', label: 'Selected Strategic Experience (Tier 1)' },
+                            { type: 'work_history_foundational', label: 'Earlier Professional Highlights (Tier 2)' },
                             { type: 'case_study', label: 'Strategic Case Studies' },
                             { type: 'win', label: 'ROI & Major Wins' },
                             { type: 'recommendation', label: 'Validation / Testimonials' },
@@ -960,7 +961,11 @@ const CareerAdmin: React.FC = () => {
                             { type: 'skill', label: 'Expertise Pillars' },
                             { type: 'tooling', label: 'Technical Stack' }
                           ].map(section => {
-                            const sectionAssets = (pitchPreview.assets || []).filter(a => a?.type === section.type);
+                            const sectionAssets = (pitchPreview.assets || []).filter(a => {
+                              if (section.type === 'work_history_strategic') return a?.type === 'work_history' && !a.is_foundational;
+                              if (section.type === 'work_history_foundational') return a?.type === 'work_history' && !!a.is_foundational;
+                              return a?.type === section.type;
+                            });
                             if (sectionAssets.length === 0) return null;
                             
                             return (

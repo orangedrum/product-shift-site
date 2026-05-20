@@ -105,9 +105,9 @@ export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: 
     4. If the Document Hint is 'linkedin_profile', treat this as the GROUND TRUTH for work history.
     5. PROPOSAL RULE: If a company is NOT in the Verified List but context strongly suggests employment, set "is_proposed_new_employer": true.
     6. SOURCE URL MANDATE: Extract the deep link or PDF URL as 'source_url'. This is CRITICAL for Case Study validation.
-    7. HISTORICAL BASELINE (2012): Roles ending in 2012 or earlier (or at companies like Lockheed Martin, Crown Partners, Digitec) MUST be tagged with 'is_foundational': true.
+    7. HISTORICAL BASELINE (2012): Roles ending in 2012 or earlier (or at companies like Lockheed Martin, Crown Partners, Newsome Melton, Timber Creative, DiSTI, Digitec, Fasen Arts, Firevine, Sunny Design, Sign Depot) MUST be tagged with 'is_foundational': true.
     8. DATE EXTRACTION: For 'work_history' assets, extract the 'start_date' and 'end_date' as strings (e.g., 'Jan 2010'). These are for internal logic and MUST NOT appear in the final generated titles or descriptions.
-    9. AGGRESSIVE CONSOLIDATION: You MUST return exactly ONE 'work_history' asset per Company. If Jean had 3 titles at Disney, merge them into a single "Disney" asset, listing the titles in the description and combining all ROI wins into the unified bullets.
+    9. AGGRESSIVE CONSOLIDATION: You MUST return exactly ONE 'work_history' asset per Company. Merge multiple roles at the same company into one. Combine all descriptions and metrics; list the most senior title first.
 
     **SOURCE DATA:**
     "${rawData}"
