@@ -24,7 +24,7 @@ const PublicResume: React.FC = () => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
-  const [expandedStudies, setExpandedStudies] = useState<Record<number, boolean>>({});
+  const [expandedStudies, setExpandedStudies] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -45,8 +45,8 @@ const PublicResume: React.FC = () => {
     fetchResume();
   }, [slug]);
 
-  const toggleStudy = (idx: number) => {
-    setExpandedStudies(prev => ({ ...prev, [idx]: !prev[idx] }));
+  const toggleStudy = (id: string) => {
+    setExpandedStudies(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   // CTO FIX: Defensive Resolver to handle "Terminology Drift" from the AI
@@ -116,7 +116,7 @@ const PublicResume: React.FC = () => {
             <div className="border-b-4 border-black pb-4 mb-10 text-center">
               <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
               <div className="text-[10px] mt-2 font-sans uppercase tracking-widest font-bold">
-                jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza
+                jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza • Digital Resume: {window.location.href}
               </div>
             </div>
             <section className="mb-8">
@@ -134,7 +134,7 @@ const PublicResume: React.FC = () => {
           <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
           <p className="text-xl font-bold text-gray-800">{resume.mapped_title}</p>
           <div className="text-[10px] mt-2 font-sans uppercase tracking-widest font-bold">
-            jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza
+            jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza • Digital Resume: {window.location.href}
           </div>
         </div>
 
@@ -423,19 +423,31 @@ const PublicResume: React.FC = () => {
                  })}
               </div>
 
-              <NeoButton 
-                onClick={() => toggleStudy(idx)}
-                variant="primary"
-                className="h-10 px-6 rounded-full text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg"
-              >
-                 {expandedStudies[idx] ? <><ChevronUp size={16} className="mr-2"/> Hide</> : <><Search size={16} className="mr-2"/> Explore</>}
-              </NeoButton>
+              <div className="flex gap-2">
+                {cs.source_url && cs.source_url !== 'direct_upload' && cs.source_url !== 'N/A' && (
+                  <a href={cs.source_url} target="_blank" rel="noopener noreferrer">
+                    <NeoButton 
+                      variant="secondary"
+                      className="h-10 px-4 rounded-full text-[9px] font-black uppercase bg-white border border-gray-200 text-gray-900 shadow-md hover:bg-gray-50"
+                    >
+                      <ExternalLink size={14} className="mr-1" /> Source
+                    </NeoButton>
+                  </a>
+                )}
+                <NeoButton 
+                  onClick={() => toggleStudy(cs.id)}
+                  variant="primary"
+                  className="h-10 px-6 rounded-full text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg"
+                >
+                   {expandedStudies[cs.id] ? <><ChevronUp size={16} className="mr-2"/> Hide</> : <><Search size={16} className="mr-2"/> Explore</>}
+                </NeoButton>
+              </div>
                             </div>
                           </div>
                         </div>
 
                         {/* Expanded Adventure Content */}
-                        {expandedStudies[idx] && (
+                        {expandedStudies[cs.id] && (
                           <div className="animate-slide-down border-t border-gray-100 bg-white">
                             <div className="p-8 space-y-6">
                               {/* dashboard quick-scan view - Only show if we have actual story metrics */}
@@ -566,7 +578,6 @@ const PublicResume: React.FC = () => {
                   
                   <div className="grid grid-cols-1 gap-12">
                     {assets.filter((a: any) => a.type === 'writing_sample' || a.type === 'talk').map((item: any, idx: number) => {
-                      const extraIdx = 5000 + idx;
                       const hasStory = item.story && Object.keys(item.story).some(k => item.story[k]?.length > 0);
 
                       return (
@@ -609,11 +620,11 @@ const PublicResume: React.FC = () => {
                                 <div className="flex gap-4">
                                   {hasStory && (
                                     <NeoButton 
-                                      onClick={() => toggleStudy(extraIdx)}
-                                      variant={expandedStudies[extraIdx] ? "secondary" : "primary"}
+                                      onClick={() => toggleStudy(item.id)}
+                                      variant={expandedStudies[item.id] ? "secondary" : "primary"}
                                       className="h-12 px-8 rounded-full text-xs"
                                     >
-                                       {expandedStudies[extraIdx] ? <ChevronUp size={18}/> : <><Search size={18} className="mr-2"/> Explore Story</>}
+                                       {expandedStudies[item.id] ? <ChevronUp size={18}/> : <><Search size={18} className="mr-2"/> Explore Story</>}
                                     </NeoButton>
                                   )}
                                   {item.source_url && item.source_url !== 'N/A' && (
@@ -628,7 +639,7 @@ const PublicResume: React.FC = () => {
                             </div>
                           </div>
 
-                          {expandedStudies[extraIdx] && (
+                          {expandedStudies[item.id] && (
                             <div className="animate-slide-down bg-white border-t border-gray-100">
                                <div className="p-10 grid md:grid-cols-2 gap-16">
                                   <div className="space-y-10">
@@ -842,6 +853,13 @@ const PublicResume: React.FC = () => {
           body { background: white !important; color: black !important; font-size: 11pt !important; }
           @page { margin: 0.75in; }
           .break-inside-avoid { page-break-inside: avoid; }
+        }
+        @keyframes slide-down {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out forwards;
         }
         @keyframes marquee {
           0% { transform: translateX(0); }
