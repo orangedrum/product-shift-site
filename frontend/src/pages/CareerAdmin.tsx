@@ -128,8 +128,14 @@ const CareerAdmin: React.FC = () => {
 
     // CTO FIX: Consolidated duplicate declarations to a single instance
     const fetchResumes = async () => {
-      const { data } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
-      if (data) setPublishedResumes(data);
+      console.log('📡 [PUBLISHED FETCH] Querying career_resumes...');
+      const { data, error } = await supabase.from('career_resumes').select('*').order('created_at', { ascending: false });
+      if (error) {
+        console.error('❌ [PUBLISHED FETCH ERROR]', error);
+      } else if (data) {
+        console.log('✅ [PUBLISHED FETCH SUCCESS] Records found:', data.length);
+        setPublishedResumes(data);
+      }
     };
     fetchResumes();
   }, []);

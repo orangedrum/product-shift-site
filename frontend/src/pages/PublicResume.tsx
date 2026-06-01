@@ -116,7 +116,7 @@ const PublicResume: React.FC = () => {
             <div className="border-b-4 border-black pb-4 mb-10 text-center">
               <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
               <div className="text-[10px] mt-2 font-sans uppercase tracking-widest font-bold">
-                jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza • Digital Resume: {window.location.href}
+                jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza • View Interactive Version: {window.location.origin}/resume/{slug}
               </div>
             </div>
             <section className="mb-8">
@@ -134,7 +134,7 @@ const PublicResume: React.FC = () => {
           <h1 className="text-4xl font-bold uppercase tracking-tighter">Jean Kaluza</h1>
           <p className="text-xl font-bold text-gray-800">{resume.mapped_title}</p>
           <div className="text-[10px] mt-2 font-sans uppercase tracking-widest font-bold">
-            jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza • Digital Resume: {window.location.href}
+            jean@theproductshift.com • theproductshift.com • linkedin.com/in/jean-kaluza • View Interactive Version: {window.location.origin}/resume/{slug}
           </div>
         </div>
 

@@ -180,19 +180,20 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
       2. AGGRESSIVE SELECTION: A high-authority resume MUST be dense. You MUST select at least 10 Skills, 5 Recommendations, 5 ROI Wins, and EVERY relevant Case Study.
       3. PROOF OF AUTHORITY: Prioritize assets with hard metrics (percentages, dollar amounts) and recognizable industry brands.
       4. TWO-TIERED ARCHITECTURE (STRICT SEPARATION): 
-         - TIER 1 (STRATEGIC): Select senior roles (post-2012). These MUST go into "strategicIds".
-         - TIER 2 (FOUNDATIONAL): Select ALL roles where "Foundational: true" or from the 2004-2012 era to anchor the baseline. These MUST go into "foundationalIds".
-         - DO NOT overlap IDs between these two arrays.
+         - TIER 1 (STRATEGIC): Select senior 'work_history' roles (post-2012). These MUST go into "strategicWorkHistoryIds".
+         - TIER 2 (FOUNDATIONAL): Select ALL 'work_history' roles marked "Foundational: true". These MUST go into "foundationalWorkHistoryIds".
+         - OTHER ASSETS: All non-work_history assets (skills, wins, etc.) MUST go into "otherSelectedIds".
       5. TOOLING ORIENTATION: Select individual tools (Cursor, Docker, Figma, Make.com) based on whether the JD leans TECHNICAL, DESIGN, or RESEARCH oriented.
       6. NO LIMITS: Include ALL evidence. If there are 30 relevant proofs, include all 30.
       7. STRATEGIC REASONING: Provide a 3-sentence justification of how Jean's specific Logic Architecture (including foundational baseline) solves the core threats of this JD.
       6. GAP ANALYSIS: List JD requirements that Jean has NO library assets to prove.
-      8. BULLET ENHANCEMENT: For TIER 1, provide 8-10 high-impact bullets. For TIER 2, provide an empty array [].
+      8. BULLET ENHANCEMENT: For TIER 1 work_history, provide 8-10 high-impact bullets. For TIER 2, provide an empty array [].
       9. DATE PURGE: Strictly exclude years/dates from all generated text to focus on velocity and seniority.
 
       Return a JSON object with: 
-      "strategicIds": [ARRAY of UUIDs], 
-      "foundationalIds": [ARRAY of UUIDs],
+      "strategicWorkHistoryIds": [ARRAY of UUIDs], 
+      "foundationalWorkHistoryIds": [ARRAY of UUIDs],
+      "otherSelectedIds": [ARRAY of UUIDs],
       "trimmedDescriptions" (OBJECT mapping ID to a trimmed/enhanced ARRAY of relevant description strings),
       "mappedTitle" (STRING), 
       "strategicReasoning" (STRING), 
@@ -214,14 +215,15 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
     const oIds = otherSelectedIds || [];
     
     // Filter and merge AI-selected and enhanced data
-    // CTO FIX: Use the DATABASE flag as the primary source of truth for rendering
     const curatedPitch = assets
       .filter(a => sIds.includes(a.id) || fIds.includes(a.id) || oIds.includes(a.id))
-      .map(a => ({
+      .map(a => {
+        const isFoundational = fIds.includes(a.id);
+        return {
         ...a,
-        is_foundational: !!a.is_foundational,
-        description: !a.is_foundational ? (trimmedDescriptions?.[a.id] || a.description) : []
-      }));
+        is_foundational: isFoundational, // CTO FIX: Force flag based on strategic selection bucket
+        description: !isFoundational ? (trimmedDescriptions?.[a.id] || a.description) : []
+      }});
 
     // Generate strings of the actual data to ground the summary and cover letter
     const curatedAssetContext = curatedPitch
