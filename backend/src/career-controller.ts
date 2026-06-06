@@ -16,8 +16,11 @@ export const careerIngestHandler = async (req: Request, res: Response) => {
   // Admin Auth Check
   const authHeader = req.headers.authorization;
   const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-  
-  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
+
+  // CTO DIAGNOSTIC: Log comparison to find why 401 is happening
+  const providedKey = authHeader?.split(' ')[1];
+  if (!authHeader || providedKey !== adminPin) {
+    console.warn(`[AUTH] 401 Unauthorized. Provided: ${providedKey?.substring(0,2)}... vs Env: ${adminPin?.substring(0,2)}...`);
     return res.status(401).json({ error: 'Unauthorized: Admin access required' });
   }
 
@@ -281,7 +284,10 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 export const sidekickChatHandler = async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
+  
+  const providedKey = authHeader?.split(' ')[1];
+  if (!authHeader || providedKey !== adminPin) {
+    console.warn(`[SIDEKICK AUTH] 401 Unauthorized. Provided: ${providedKey?.substring(0,2)}... vs Env: ${adminPin?.substring(0,2)}...`);
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
