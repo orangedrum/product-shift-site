@@ -13,17 +13,6 @@ interface IngestionItem {
 }
 
 export const careerIngestHandler = async (req: Request, res: Response) => {
-  // Admin Auth Check
-  const authHeader = req.headers.authorization;
-  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-
-  // CTO DIAGNOSTIC: Log comparison to find why 401 is happening
-  const providedKey = authHeader?.split(' ')[1];
-  if (!authHeader || providedKey !== adminPin) {
-    console.warn(`[AUTH] 401 Unauthorized. Provided: ${providedKey?.substring(0,2)}... vs Env: ${adminPin?.substring(0,2)}...`);
-    return res.status(401).json({ error: 'Unauthorized: Admin access required' });
-  }
-
   // Expect an array of ingestion items
   const ingestionItems: IngestionItem[] = req.body.items; 
   if (!ingestionItems || !Array.isArray(ingestionItems) || ingestionItems.length === 0) {
@@ -282,15 +271,6 @@ export const generatePitchHandler = async (req: Request, res: Response) => {
 };
 
 export const sidekickChatHandler = async (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-  
-  const providedKey = authHeader?.split(' ')[1];
-  if (!authHeader || providedKey !== adminPin) {
-    console.warn(`[SIDEKICK AUTH] 401 Unauthorized. Provided: ${providedKey?.substring(0,2)}... vs Env: ${adminPin?.substring(0,2)}...`);
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
   const { message, currentResume } = req.body;
   if (!message) return res.status(400).json({ error: 'Message required' });
 
@@ -409,12 +389,6 @@ export const sidekickChatHandler = async (req: Request, res: Response) => {
 };
 
 export const deleteAssetHandler = async (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
   const { id } = req.params;
   try {
     const { error } = await supabase.from('career_assets').delete().eq('id', id);
@@ -426,12 +400,6 @@ export const deleteAssetHandler = async (req: Request, res: Response) => {
 };
 
 export const publishResumeHandler = async (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
   const { resumeData } = req.body;
   if (!resumeData) return res.status(400).json({ error: 'Resume data required' });
 
@@ -478,13 +446,6 @@ export const publishResumeHandler = async (req: Request, res: Response) => {
 };
 
 export const consolidateWorkHistoryHandler = async (req: Request, res: Response) => {
-  const authHeader = req.headers.authorization;
-  const adminPin = process.env.ADMIN_PIN || process.env.ADMIN_SECRET_KEY;
-  
-  if (!authHeader || authHeader.split(' ')[1] !== adminPin) {
-    return res.status(401).json({ error: 'Unauthorized: Admin access required' });
-  }
-
   try {
     // 1. Fetch all work history assets
     const { data: assets, error: fetchError } = await supabase

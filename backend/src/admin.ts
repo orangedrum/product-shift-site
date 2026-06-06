@@ -9,10 +9,16 @@ const router = express.Router();
 
 // Middleware to check Admin Secret Key for most routes
 const requireAdminKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const authHeader = req.headers.authorization;
-  const secretKey = process.env.ADMIN_SECRET_KEY;
-  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const authHeader = req.headers.authorization || '';
+  const providedKey = authHeader.split(' ')[1] || '';
+  // Support both variable names for maximum compatibility
+  const secretKey = process.env.ADMIN_SECRET_KEY || process.env.ADMIN_PIN || '';
+
+  if (!secretKey || providedKey !== secretKey) {
+    console.warn(`[ADMIN AUTH FAILURE] 401 at ${req.path}. ` +
+      `Provided (masked): ${providedKey ? providedKey.substring(0, 3) + '...' : 'NONE'}, ` +
+      `Vercel Env Status: ${secretKey ? 'PRESENT (' + secretKey.substring(0, 3) + '...)' : 'MISSING'}`);
+    return res.status(401).json({ error: 'Unauthorized', details: 'Admin key mismatch or missing in Vercel configuration.' });
   }
   next();
 };
