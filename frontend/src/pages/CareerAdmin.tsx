@@ -194,7 +194,14 @@ const CareerAdmin: React.FC = () => {
       });
       
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || data.details || 'Server error');
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.error(`❌ [AUTH ERROR] Key Mismatch. Verify server state here: ${window.location.origin}/api/admin/auth-diagnostic`);
+          console.error('Debug Info:', data.debug);
+        }
+        if (res.status === 401) alert(`Auth Failed: ${data.details}\nCheck console for server diagnostic info.`);
+        throw new Error(data.error || data.details || 'Server error');
+      }
 
       setReviewQueue(prev => [...data.assets, ...prev]);
       setChatInput(''); 

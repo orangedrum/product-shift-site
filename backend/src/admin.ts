@@ -11,14 +11,31 @@ const router = express.Router();
 const requireAdminKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const authHeader = req.headers.authorization || '';
   const providedKey = authHeader.split(' ')[1] || '';
-  // Support both variable names for maximum compatibility
-  const secretKey = process.env.ADMIN_SECRET_KEY || process.env.ADMIN_PIN || '';
+
+  // CTO HARDENING: Trim whitespace and strip accidental "Bearer " if pasted into Vercel
+  let secretKey = (process.env.ADMIN_SECRET_KEY || process.env.ADMIN_PIN || '').trim();
+  if (secretKey.startsWith('Bearer ')) {
+    secretKey = secretKey.split(' ')[1];
+  }
 
   if (!secretKey || providedKey !== secretKey) {
     console.warn(`[ADMIN AUTH FAILURE] 401 at ${req.path}. ` +
       `Provided (masked): ${providedKey ? providedKey.substring(0, 3) + '...' : 'NONE'}, ` +
-      `Vercel Env Status: ${secretKey ? 'PRESENT (' + secretKey.substring(0, 3) + '...)' : 'MISSING'}`);
-    return res.status(401).json({ error: 'Unauthorized', details: 'Admin key mismatch or missing in Vercel configuration.' });
+      `Vercel Env Status: ${secretKey ? 'PRESENT (' + secretKey.substring(0, 3) + '...)' : 'MISSING'}, ` +
+      `Env Var Names Found: ${[process.env.ADMIN_SECRET_KEY ? 'ADMIN_SECRET_KEY' : '', process.env.ADMIN_PIN ? 'ADMIN_PIN' : ''].filter(Boolean).join(', ')}`);
+    
+    return res.status(401).json({ 
+      error: 'Unauthorized', 
+      details: 'Admin key mismatch. Use /api/admin/auth-diagnostic to verify server state.',
+      debug: {
+        headerPresent: !!authHeader,
+        headerValidFormat: authHeader.startsWith('Bearer '),
+        providedPrefix: providedKey ? providedKey.substring(0, 3) : 'NONE',
+        serverPrefix: secretKey ? secretKey.substring(0, 3) : 'MISSING',
+        providedLength: providedKey.length,
+        serverLength: secretKey.length
+      }
+    });
   }
   next();
 };
@@ -26,6 +43,23 @@ const requireAdminKey = (req: express.Request, res: express.Response, next: expr
 // --- Career Registry Routes (Moved into Admin Router for Routing Purity) ---
 router.post('/career/ingest', requireAdminKey, careerIngestHandler);
 router.post('/career/generate-pitch', requireAdminKey, generatePitchHandler);
+
+// --- PUBLIC AUTH DIAGNOSTIC (No Auth Required) ---
+// Visit this in your browser to verify Vercel Env Var status
+router.get('/auth-diagnostic', (req, res) => {
+  const key = (process.env.ADMIN_SECRET_KEY || process.env.ADMIN_PIN || '').trim();
+  res.json({
+    success: true,
+    envStatus: key ? 'CONFIGURED' : 'MISSING',
+    keyPrefix: key ? key.substring(0, 3) + '...' : 'N/A',
+    keyLength: key.length,
+    activeEnvVars: {
+      ADMIN_SECRET_KEY: !!process.env.ADMIN_SECRET_KEY,
+      ADMIN_PIN: !!process.env.ADMIN_PIN
+    }
+  });
+});
+
 router.post('/career/sidekick-chat', requireAdminKey, sidekickChatHandler);
 router.post('/career/publish-resume', requireAdminKey, publishResumeHandler);
 router.post('/career/consolidate-work-history', requireAdminKey, consolidateWorkHistoryHandler);
