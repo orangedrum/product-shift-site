@@ -88,6 +88,51 @@ export const AGGREGATED_REPORT_PROMPT = (url: string, cleansedTranscripts: strin
     ${footer}
 `;
 
+export const COMMUNITY_INSIGHT_EXTRACTION_PROMPT = (rawData: string, sourceLabel: string, latestStoredTimestamp?: string) => `
+    You are a Senior Behavioral Scientist and Community Intelligence Analyst.
+    **Mission:** Shred raw community data into atomic insights to build data-backed UserMirror personas.
+
+    **SOURCE DATA:**
+    "${rawData}"
+
+    **METADATA:**
+    - Label: ${sourceLabel}
+    ${latestStoredTimestamp ? `- SMART DELTA GUARD: Only extract new insights occurring AFTER ${latestStoredTimestamp}. Skip anything before or matching this time.` : ''}
+
+    **EXTRACTION CATEGORIES (THE SHREDDER):**
+    1. **Motivations:** What are they trying to achieve? What is their "Why"?
+    2. **Demographics:** Age markers, roles, location hints, tech-savviness.
+    3. **Engagement:** How active are they? Are they a leader or a lurker?
+    4. **Objections/Blockers:** Why are they NOT buying/using the service? (Price, timing, trust, friction).
+    5. **Triggers:** What specific words or events made them take action (join, share, buy)?
+    6. **Feature Requests:** What do they wish existed?
+    7. **Connections:** How are members interacting? Who influences whom?
+
+    **IDENTITY GUARD:**
+    Focus on "Patterns of Truth." Ignore noise/spam. If multiple people say the same thing, extract it as a strong pattern.
+
+    **RETURN JSON FORMAT:**
+    {
+      "insights": [
+        {
+          "content": "The raw text snippet or summary of the specific event/statement",
+          "source_type": "whatsapp" | "transcript" | "meeting_notes" | "observation" | "social_media",
+          "extracted_insights": {
+            "motivation": "string",
+            "demographic_markers": "string",
+            "engagement_level": "low" | "medium" | "high",
+            "objections": ["list"],
+            "triggers": ["list"],
+            "feature_requests": ["list"],
+            "sentiment": "positive" | "neutral" | "negative"
+          },
+          "media_references": ["Look for tags like <attached: filename.jpg> or links"],
+          "timestamp": "ISO timestamp if available in data, else null"
+        }
+      ]
+    }
+`;
+
 export const CAREER_ASSET_EXTRACTION_PROMPT = (rawData: string, libraryContext: string, role?: string, label?: string, documentTypeHint?: string, verifiedEmployers?: string) => `
     You are an elite Executive Recruiter and Narrative Strategist. 
     Jean Kaluza (she/her) is a world-class Product Strategist. Jean built 'User Mirror'.

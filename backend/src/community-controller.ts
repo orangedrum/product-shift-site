@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { scrapeUrl } from './analysis-controller';
-import { CAREER_ASSET_EXTRACTION_PROMPT, SIDEKICK_CHAT_PROMPT } from './prompts';
+import { COMMUNITY_INSIGHT_EXTRACTION_PROMPT, SIDEKICK_CHAT_PROMPT } from './prompts';
 
 // Define a type for the community ingestion item
 interface CommunityIngestionItem {
@@ -17,21 +17,35 @@ interface CommunityIngestionItem {
  * Logic adapted from careerIngestHandler to extract Motivations, Triggers, and Objections.
  */
 export const communityIngestHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user; // Scoped by authenticateRequest middleware
   const ingestionItems: CommunityIngestionItem[] = req.body.items; 
+
   if (!ingestionItems || !Array.isArray(ingestionItems) || ingestionItems.length === 0) {
     return res.status(400).json({ error: 'Array of community ingestion items required' });
   }
 
-  const allExtractedInsights: any[] = [];
+  const savedAssets: any[] = [];
 
   try {
     for (const item of ingestionItems) {
       let { rawData, sourceUrl, label, documentTypeHint } = item;
-
       if (!rawData && !sourceUrl) continue; 
 
       try {
-        console.log(`🚀 [COMMUNITY INGEST] Processing: ${label || sourceUrl || 'raw data'}`);
+        const sourceLabel = label || sourceUrl || 'Manual Intake';
+        console.log(`🚀 [COMMUNITY INGEST] Processing: ${sourceLabel}`);
+
+        // --- STEP 3: SMART DELTA GUARD ---
+        // Find the most recent timestamp for this specific source label to prevent duplicates
+        const { data: latestAsset } = await supabase
+          .from('community_assets')
+          .select('created_at')
+          .eq('label', sourceLabel)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const latestTimestamp = latestAsset?.created_at;
 
         if (sourceUrl && !rawData) {
           const isActualUrl = sourceUrl.trim().startsWith('http') || (sourceUrl.includes('.') && !sourceUrl.includes(' '));
@@ -45,29 +59,39 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
           }
         }
 
-        // TODO: Pivot prompt to extracting Motivations, Triggers, and Objections (Step 3)
-        const prompt = CAREER_ASSET_EXTRACTION_PROMPT(
+        const prompt = COMMUNITY_INSIGHT_EXTRACTION_PROMPT(
           rawData || sourceUrl || 'No content provided', 
-          'Community Context', 
-          'Community Member', 
-          label, 
-          documentTypeHint, 
-          ''
+          sourceLabel,
+          latestTimestamp
         );
 
         const structuredData = await generateContentWithFallback(prompt);
         const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
         if (!jsonMatch) continue;
         
-        const { assets } = JSON.parse(jsonMatch[0]);
-        allExtractedInsights.push(...assets);
+        const { insights } = JSON.parse(jsonMatch[0]);
+
+        // Persist to community_assets
+        const payload = insights.map((ins: any) => ({
+          user_id: user?.id,
+          content: ins.content,
+          source_type: ins.source_type || documentTypeHint || 'observation',
+          source_url: sourceUrl || 'direct_upload',
+          label: sourceLabel,
+          extracted_insights: ins.extracted_insights,
+          media_attachments: ins.media_references || []
+        }));
+
+        const { data: inserted, error: dbError } = await supabase.from('community_assets').insert(payload).select();
+        if (dbError) throw dbError;
+        if (inserted) savedAssets.push(...inserted);
 
       } catch (e: any) {
         console.error('❌ [COMMUNITY INGEST ERROR] item:', item, e);
       }
     }
 
-    res.json({ success: true, insights: allExtractedInsights });
+    res.json({ success: true, count: savedAssets.length, assets: savedAssets });
   } catch (e: any) {
     res.status(500).json({ error: 'Community ingestion failed', details: e.message });
   }
