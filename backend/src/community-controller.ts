@@ -10,6 +10,7 @@ interface CommunityIngestionItem {
   sourceUrl?: string;
   documentTypeHint?: 'whatsapp' | 'transcript' | 'meeting_notes' | 'auto'; // Refactored for Community
   label?: string; 
+  experimentId?: string; // CTO: Support for experiment pinning
 }
 
 /**
@@ -19,6 +20,7 @@ interface CommunityIngestionItem {
 export const communityIngestHandler = async (req: Request, res: Response) => {
   const user = (req as any).user; // Scoped by authenticateRequest middleware
   const ingestionItems: CommunityIngestionItem[] = req.body.items; 
+  const globalExperimentId = req.body.experimentId;
 
   if (!ingestionItems || !Array.isArray(ingestionItems) || ingestionItems.length === 0) {
     return res.status(400).json({ error: 'Array of community ingestion items required' });
@@ -81,6 +83,7 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
           extracted_insights: ins.extracted_insights,
           media_attachments: ins.media_references || []
         }));
+        if (globalExperimentId) payload.forEach((p: any) => p.experiment_id = globalExperimentId);
 
         const { data: inserted, error: dbError } = await supabase.from('community_assets').insert(payload).select();
         if (dbError) throw dbError;

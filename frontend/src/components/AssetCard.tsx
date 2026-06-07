@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
   CheckCircle, History, FileText, Trophy, MessageSquare, 
-  Zap, Trash2, Plus, X, Check, ExternalLink, Sparkles, Layout, PenTool
+  Zap, Trash2, Plus, X, Check, ExternalLink, Sparkles, Layout, PenTool,
+  MessageCircle, Mic, Users, Eye, Globe, Fingerprint, Target, Brain, AlertCircle
 } from 'lucide-react';
 
 interface AssetCardProps {
@@ -22,6 +23,12 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
       writing_sample: { bg: 'bg-blue-50', text: 'text-blue-600', icon: FileText },
       recommendation: { bg: 'bg-orange-50', text: 'text-orange-600', icon: MessageSquare },
       narrative_theme: { bg: 'bg-rose-50', text: 'text-rose-600', icon: Sparkles },
+      // Community Intelligence Types
+      whatsapp: { bg: 'bg-green-50', text: 'text-green-600', icon: MessageCircle },
+      transcript: { bg: 'bg-blue-50', text: 'text-blue-600', icon: Mic },
+      meeting_notes: { bg: 'bg-purple-50', text: 'text-purple-600', icon: Users },
+      observation: { bg: 'bg-amber-50', text: 'text-amber-600', icon: Eye },
+      social_media: { bg: 'bg-sky-50', text: 'text-sky-600', icon: Globe },
     };
     return styles[type] || { bg: 'bg-gray-50', text: 'text-gray-600', icon: FileText };
   };
@@ -36,6 +43,44 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
     : (typeof rawDescription === 'string' 
         ? rawDescription.split('\n').map((s: string) => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean)
         : []);
+
+  // CTO: Community Insight Rendering Helper
+  const renderExtractedInsights = () => {
+    const insights = asset.extracted_insights;
+    if (!insights || Object.keys(insights).length === 0) return null;
+
+    return (
+      <div className="mt-4 space-y-3 pt-3 border-t border-gray-100">
+        {insights.motivation && (
+          <div className="flex items-start gap-2">
+            <Target size={14} className="text-indigo-500 mt-0.5 shrink-0" />
+            <p className="text-xs font-bold text-gray-700 uppercase tracking-tighter">Motivation: <span className="font-medium text-gray-600 normal-case">{insights.motivation}</span></p>
+          </div>
+        )}
+        {(insights.objections && insights.objections.length > 0) && (
+          <div className="flex flex-wrap gap-1.5">
+            {insights.objections.map((obj: string, i: number) => (
+              <span key={i} className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[9px] font-black uppercase border border-red-100 flex items-center gap-1">
+                <AlertCircle size={10}/> {obj}
+              </span>
+            ))}
+          </div>
+        )}
+        {(insights.triggers && insights.triggers.length > 0) && (
+          <div className="flex flex-wrap gap-1.5">
+            {insights.triggers.map((tri: string, i: number) => (
+              <span key={i} className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[9px] font-black uppercase border border-indigo-100 flex items-center gap-1">
+                <Zap size={10}/> {tri}
+              </span>
+            ))}
+          </div>
+        )}
+        {insights.engagement_level && (
+          <p className="text-[9px] font-black uppercase text-gray-400">Engagement: <span className="text-indigo-600">{insights.engagement_level}</span></p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={`p-5 bg-white border border-gray-100 rounded-2xl transition-all hover:shadow-md group relative ${mode === 'draft' ? 'border-indigo-100 shadow-sm' : ''}`}>
@@ -114,6 +159,13 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
         </div>
       )}
 
+      {/* Community Source Label */}
+      {asset.label && (
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+          <Fingerprint size={10} /> {asset.label}
+        </p>
+      )}
+
       <div className="space-y-2 mb-4">
         {(mode === 'draft' || mode === 'review') && onUpdate ? (
           <textarea 
@@ -137,6 +189,9 @@ export const AssetCard: React.FC<AssetCardProps> = ({ asset, onAction, onUpdate,
           </>
         )}
       </div>
+
+      {/* Extracted Intelligence */}
+      {renderExtractedInsights()}
 
       {asset.roi_metrics?.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-50">
