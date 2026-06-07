@@ -601,6 +601,36 @@ const CareerAdmin: React.FC = () => {
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <NeoCard className="max-w-md w-full" title="Admin Access Required">
+          <div className="text-center mb-6">
+            <p className="text-gray-600">Please enter your Admin Secret Key to manage the Career Registry.</p>
+          </div>
+          <form onSubmit={handleAuthSubmit} className="space-y-4">
+            <input
+              type="password"
+              value={secretKey}
+              onChange={(e) => setSecretKey(e.target.value)}
+              className="w-full p-3 border-2 border-black rounded-lg focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] transition-all"
+              placeholder="Enter Admin Secret Key"
+              required
+            />
+            {authError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm font-bold rounded-lg flex items-center gap-2">
+                <AlertCircle size={16} /> {authError}
+              </div>
+            )}
+            <NeoButton type="submit" className="w-full" disabled={loading}>
+              {loading ? <Loader2 className="animate-spin" /> : 'Unlock Admin Tools'}
+            </NeoButton>
+          </form>
+        </NeoCard>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader />

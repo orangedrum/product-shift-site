@@ -43,6 +43,11 @@ const requireAdminKey = (req: express.Request, res: express.Response, next: expr
 router.post('/career/ingest', requireAdminKey, careerIngestHandler);
 router.post('/career/generate-pitch', requireAdminKey, generatePitchHandler);
 
+// --- VERIFY ADMIN KEY ---
+router.get('/verify', requireAdminKey, (req, res) => {
+  res.json({ success: true, message: 'Authenticated' });
+});
+
 // --- PUBLIC AUTH DIAGNOSTIC (No Auth Required) ---
 // Visit this in your browser to verify Vercel Env Var status
 router.get('/auth-diagnostic', (req, res) => {
