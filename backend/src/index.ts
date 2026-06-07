@@ -9,7 +9,7 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUr
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus, generateContentWithFallback } from './ai-service';
 import adminRouter from './admin';
-import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler } from './career-controller';
+import { getPublicExperimentHandler } from './community-controller';
 import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
@@ -215,6 +215,9 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // --- Mount Admin Routes (Must be after express.json) ---
 app.use('/api/admin', adminRouter);
+
+// --- Public Community Routes ---
+app.get('/api/public/experiment/:slug', getPublicExperimentHandler);
 
 // --- Admin: Flywheel Stats Endpoint ---
 app.get('/api/admin/flywheel-stats', async (req, res) => {
@@ -625,7 +628,7 @@ app.post('/api/admin/test-email', async (req, res) => {
 
 // --- Create Checkout Session ---
 app.post('/api/create-checkout-session', async (req, res) => {
-  const { planId, email, segment, applyDiscount, promotekit_referral } = req.body;
+  const { planId, email, segment, applyDiscount, promotekit_referral, experimentId, pledgeAmount } = req.body;
   if (!planId) return res.status(400).json({ error: 'Missing parameters' });
 
   const baseUrl = getPublicUrl(req);
@@ -646,6 +649,21 @@ app.post('/api/create-checkout-session', async (req, res) => {
         credits: '0'
       }
     };
+
+    // --- Experiment Pledge Logic ---
+    if (experimentId) {
+      sessionConfig.line_items.push({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Experiment Pledge', description: `Supporting experiment ID: ${experimentId}` },
+          unit_amount: pledgeAmount || 1000, // Default $10
+        },
+        quantity: 1,
+      });
+      sessionConfig.metadata.experiment_id = experimentId;
+      const session = await stripe.checkout.sessions.create(sessionConfig);
+      return res.json({ url: session.url });
+    }
 
     if (planId === 'pack-3') {
       sessionConfig.line_items.push({

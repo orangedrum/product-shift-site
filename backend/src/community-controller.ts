@@ -124,17 +124,49 @@ export const communitySidekickHandler = async (req: Request, res: Response) => {
  * Refactored from publishResumeHandler for Step 4.
  */
 export const publishExperimentHandler = async (req: Request, res: Response) => {
-  const { experimentData } = req.body;
+  const user = (req as any).user;
+  const { experimentData } = req.body; // Expects full experiment object
   if (!experimentData) return res.status(400).json({ error: 'Experiment data required' });
 
   try {
-    const safeTitle = (experimentData.title || 'new-experiment').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const slug = `${safeTitle}-${Date.now().toString().slice(-4)}`;
+    const slug = experimentData.slug || `${(experimentData.title || 'new-experiment').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
     
-    // TODO: Connect to Step 2 tables
-    res.json({ success: true, url: `/experiment/${slug}`, slug });
+    const payload = {
+      ...experimentData,
+      user_id: user?.id,
+      slug
+    };
+
+    const { data, error } = await supabase
+      .from('experiments')
+      .upsert(payload, { onConflict: 'slug' })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, url: `/experiment/${data.slug}`, data });
   } catch (e: any) {
     res.status(500).json({ error: 'Experiment publishing failed', details: e.message });
+  }
+};
+
+/**
+ * Public Experiment Getter
+ * Fetches experiment details, sessions, and discussions by slug.
+ */
+export const getPublicExperimentHandler = async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  try {
+    const { data: experiment, error } = await supabase.from('experiments').select('*').eq('slug', slug).single();
+    if (error || !experiment) return res.status(404).json({ error: 'Experiment not found' });
+
+    const { data: sessions } = await supabase.from('experiment_sessions').select('*').eq('experiment_id', experiment.id).order('session_date', { ascending: false });
+    const { data: discussions } = await supabase.from('experiment_discussions').select('*').eq('experiment_id', experiment.id).order('created_at', { ascending: false });
+
+    res.json({ success: true, experiment, sessions: sessions || [], discussions: discussions || [] });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Failed to fetch experiment', details: e.message });
   }
 };
 
