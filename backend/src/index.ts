@@ -5,11 +5,11 @@ import { rateLimit } from 'express-rate-limit';
 import Stripe from 'stripe';
 import { randomUUID, createHmac } from 'crypto'; // Native Node.js UUID generation
 import { waitlistSubject, waitlistBody, welcomeSubject, welcomeBody, marketingEmails } from './email-templates';
-import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl, processReferrerReward } from './services';
+import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUrl, processReferrerReward, authenticateRequest } from './services';
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus, generateContentWithFallback } from './ai-service';
 import adminRouter from './admin';
-import { getPublicExperimentHandler, communityIngestHandler, communitySidekickHandler, publishExperimentHandler } from './community-controller';
+import communityRouter, { getProjectBetaAudit } from './community-controller';
 import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
@@ -216,13 +216,8 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // --- Mount Admin Routes (Must be after express.json) ---
 app.use('/api/admin', adminRouter);
 
-// --- Community Product Routes ---
-app.post('/api/community/ingest', authenticateRequest, communityIngestHandler);
-app.post('/api/community/sidekick', authenticateRequest, communitySidekickHandler);
-app.post('/api/community/publish-experiment', authenticateRequest, publishExperimentHandler);
-
-// --- Public Community Routes ---
-app.get('/api/public/experiment/:slug', getPublicExperimentHandler);
+// --- Mount Community Product & Public Routes ---
+app.use('/api/community', communityRouter);
 
 // --- Admin: Flywheel Stats Endpoint ---
 app.get('/api/admin/flywheel-stats', async (req, res) => {
@@ -383,62 +378,6 @@ app.get('/api/public-report/:id', async (req, res) => {
     res.status(500).send(`Error generating report: ${e.message}`);
   }
 });
-
-// --- AUTH MIDDLEWARE ---
-const authenticateRequest = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  let token = null;
-
-  // 1. Check Authorization Header (Preferred for API calls)
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
-  }
-
-  // 2. Fallback to Cookies (For browser navigation/legacy)
-  if (!token) {
-    let cookies = (req as any).cookies || {};
-    
-    if (Object.keys(cookies).length === 0 && req.headers.cookie) {
-      try {
-        cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
-          const parts = cookie.trim().split('=');
-          const key = parts.shift();
-          const val = parts.join('=');
-          if (key) acc[key] = decodeURIComponent(val || '');
-          return acc;
-        }, {});
-      } catch (e) { cookies = {}; }
-    }
-    
-    const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-    const cookie = authCookieKey ? cookies[authCookieKey] : null;
-    if (cookie) {
-      try {
-        token = JSON.parse(cookie)[0].access_token;
-      } catch (e) {}
-    }
-  }
-
-  if (!token) {
-    (req as any).user = null;
-    (req as any).authDebug = 'No auth token found';
-    return next();
-  }
-
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    (req as any).user = error || !user ? null : user;
-    if (error) {
-      (req as any).authDebug = `Supabase Error: ${error.message}`;
-      // If token is invalid/expired, explicitly nullify user to force re-login logic
-      (req as any).user = null;
-    }
-  } catch (e) {
-    (req as any).user = null;
-    (req as any).authDebug = 'Failed to parse auth cookie';
-  }
-  next();
-};
 
 // --- Notification Routes (Secure) ---
 app.post('/api/user/notifications/mark-read', authenticateRequest, markNotificationsRead);
@@ -1211,18 +1150,7 @@ app.get('/api/health', async (req, res) => {
     console.error('Health check route inspection failed:', e);
   }
 
-  // CTO VERIFICATION: Check connectivity to new Project Beta tables
-  const tableChecks = await Promise.all([
-    supabase.from('community_assets').select('id').limit(1),
-    supabase.from('experiments').select('id').limit(1),
-    supabase.from('community_personas').select('id').limit(1)
-  ]);
-
-  const dbAudit = {
-    community_assets: tableChecks[0].error ? `ERROR: ${tableChecks[0].error.message}` : 'CONNECTED',
-    experiments: tableChecks[1].error ? `ERROR: ${tableChecks[1].error.message}` : 'CONNECTED',
-    community_personas: tableChecks[2].error ? `ERROR: ${tableChecks[2].error.message}` : 'CONNECTED'
-  };
+  const dbAudit = await getProjectBetaAudit();
 
   res.json({
     status: 'ok',

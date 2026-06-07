@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { supabase } from './services';
+import express, { Request, Response } from 'express';
+import { supabase, authenticateRequest } from './services';
 import { generateContentWithFallback } from './ai-service';
 import { scrapeUrl } from './analysis-controller';
 import { COMMUNITY_INSIGHT_EXTRACTION_PROMPT, SIDEKICK_CHAT_PROMPT } from './prompts';
@@ -171,3 +171,43 @@ export const getPublicExperimentHandler = async (req: Request, res: Response) =>
 };
 
 export const deleteCommunityAssetHandler = async (req: Request, res: Response) => { res.json({ success: true }); };
+
+/**
+ * CTO Audit Helper
+ * Logic extracted from index.ts to keep the main entry point lean.
+ */
+export const getProjectBetaAudit = async () => {
+  try {
+    const tableChecks = await Promise.all([
+      supabase.from('community_assets').select('id').limit(1),
+      supabase.from('experiments').select('id').limit(1),
+      supabase.from('community_personas').select('id').limit(1)
+    ]);
+
+    return {
+      community_assets: tableChecks[0]?.error ? `ERROR: ${tableChecks[0].error.message}` : (tableChecks[0] ? 'CONNECTED' : 'UNREACHABLE'),
+      experiments: tableChecks[1]?.error ? `ERROR: ${tableChecks[1].error.message}` : (tableChecks[1] ? 'CONNECTED' : 'UNREACHABLE'),
+      community_personas: tableChecks[2]?.error ? `ERROR: ${tableChecks[2].error.message}` : (tableChecks[2] ? 'CONNECTED' : 'UNREACHABLE')
+    };
+  } catch (dbErr: any) {
+    console.error('🚨 [COMMUNITY AUDIT] DB Audit failed:', dbErr.message);
+    return {
+      community_assets: `CRASH: ${dbErr.message}`,
+      experiments: `CRASH: ${dbErr.message}`,
+      community_personas: `CRASH: ${dbErr.message}`
+    };
+  }
+};
+
+// --- Modular Community Router ---
+const router = express.Router();
+
+// Public Community Routes
+router.get('/public/experiment/:slug', getPublicExperimentHandler);
+
+// Protected Product Routes
+router.post('/ingest', authenticateRequest, communityIngestHandler);
+router.post('/sidekick', authenticateRequest, communitySidekickHandler);
+router.post('/publish-experiment', authenticateRequest, publishExperimentHandler);
+
+export default router;

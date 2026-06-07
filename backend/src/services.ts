@@ -1,3 +1,4 @@
+import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
@@ -159,4 +160,60 @@ export const processReferrerReward = async (refereeEmail: string) => {
       type: 'success'
     });
   }
+};
+
+// --- AUTH MIDDLEWARE (Shared) ---
+export const authenticateRequest = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  let token = null;
+
+  // 1. Check Authorization Header (Preferred for API calls)
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  }
+
+  // 2. Fallback to Cookies (For browser navigation/legacy)
+  if (!token) {
+    let cookies = (req as any).cookies || {};
+    
+    if (Object.keys(cookies).length === 0 && req.headers.cookie) {
+      try {
+        cookies = req.headers.cookie.split(';').reduce((acc: any, cookie: string) => {
+          const parts = cookie.trim().split('=');
+          const key = parts.shift();
+          const val = parts.join('=');
+          if (key) acc[key] = decodeURIComponent(val || '');
+          return acc;
+        }, {});
+      } catch (e) { cookies = {}; }
+    }
+    
+    const authCookieKey = Object.keys(cookies).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+    const cookie = authCookieKey ? cookies[authCookieKey] : null;
+    if (cookie) {
+      try {
+        token = JSON.parse(cookie)[0].access_token;
+      } catch (e) {}
+    }
+  }
+
+  if (!token) {
+    (req as any).user = null;
+    (req as any).authDebug = 'No auth token found';
+    return next();
+  }
+
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    (req as any).user = error || !user ? null : user;
+    if (error) {
+      (req as any).authDebug = `Supabase Error: ${error.message}`;
+      // If token is invalid/expired, explicitly nullify user to force re-login logic
+      (req as any).user = null;
+    }
+  } catch (e) {
+    (req as any).user = null;
+    (req as any).authDebug = 'Failed to parse auth cookie';
+  }
+  next();
 };

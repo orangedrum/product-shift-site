@@ -21,7 +21,7 @@ const PublicExperiment: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!slug) return;
-      const res = await fetch(`/api/public/experiment/${slug}`);
+      const res = await fetch(`/api/community/public/experiment/${slug}`);
       const data = await res.json();
       if (data.success) {
         setExperiment(data.experiment);
