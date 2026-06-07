@@ -24,7 +24,7 @@ const CommunityVault: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       // Fetch Experiments for the selector
-      const { data: exp } = await supabase.from('experiments').select('id, title').order('created_at', { ascending: false });
+      const { data: exp, error: expError } = await supabase.from('experiments').select('id, title').order('created_at', { ascending: false });
       if (exp) setExperiments(exp);
 
       // Fetch Library Assets
@@ -45,9 +45,10 @@ const CommunityVault: React.FC = () => {
 
     // 1. Process files (WhatsApp, Transcripts)
     for (const file of selectedFiles) {
-      const text = await new Promise<string>((resolve) => {
+      const text = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = (ev) => resolve(e.target?.result as string);
+        reader.onload = (ev) => resolve(ev.target?.result as string); // CTO FIX: Corrected 'e' to 'ev'
+        reader.onerror = (err) => reject(err);
         reader.readAsText(file);
       });
       ingestionItems.push({ rawData: text, label: file.name, documentTypeHint: file.name.endsWith('.txt') ? 'whatsapp' : 'transcript' });
@@ -129,14 +130,23 @@ const CommunityVault: React.FC = () => {
                 {/* Link to Experiment */}
                 <div>
                   <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Link to Experiment (Optional)</label>
-                  <select 
-                    value={selectedExperimentId}
-                    onChange={(e) => setSelectedExperimentId(e.target.value)}
-                    className="w-full p-3 border-2 border-black rounded-xl bg-white font-bold text-sm focus:shadow-[2px_2px_0px_0px_#000] outline-none transition-all"
-                  >
-                    <option value="">General Community Dump</option>
-                    {experiments.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
-                  </select>
+                  {experiments.length > 0 ? (
+                    <select 
+                      value={selectedExperimentId}
+                      onChange={(e) => setSelectedExperimentId(e.target.value)}
+                      className="w-full p-3 border-2 border-black rounded-xl bg-white font-bold text-sm focus:shadow-[2px_2px_0px_0px_#000] outline-none transition-all"
+                    >
+                      <option value="">-- No Experiment Selected (General Vault) --</option>
+                      {experiments.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                    </select>
+                  ) : (
+                    <div className="w-full p-3 border-2 border-black border-dashed rounded-xl bg-gray-50 text-gray-400 font-bold text-sm italic">
+                      General Community Vault (Default)
+                    </div>
+                  )}
+                  {experiments.length === 0 && (
+                    <p className="text-[9px] text-gray-400 mt-2 font-medium uppercase tracking-tighter italic">Create experiments to pin data here.</p>
+                  )}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">

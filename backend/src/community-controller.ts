@@ -20,7 +20,11 @@ interface CommunityIngestionItem {
 export const communityIngestHandler = async (req: Request, res: Response) => {
   const user = (req as any).user; // Scoped by authenticateRequest middleware
   const ingestionItems: CommunityIngestionItem[] = req.body.items; 
-  const globalExperimentId = req.body.experimentId;
+  
+  // CTO FIX: Default to General Vault (unassigned) if no valid UUID is provided
+  const globalExperimentId = req.body.experimentId && req.body.experimentId !== '' 
+    ? req.body.experimentId 
+    : null;
 
   if (!ingestionItems || !Array.isArray(ingestionItems) || ingestionItems.length === 0) {
     return res.status(400).json({ error: 'Array of community ingestion items required' });
