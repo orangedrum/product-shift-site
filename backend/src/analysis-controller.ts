@@ -170,6 +170,13 @@ export const runTestHandler = async (req: Request, res: Response) => {
     }
 
     const url = normalizeUrl(rawUrl);
+    
+    // CTO FIX: Global Localhost Guard. Browserless cannot see your local machine.
+    if (url.includes('localhost') || url.includes('127.0.0.1')) {
+      console.warn(`[runTestHandler] Blocked localhost request: ${url}`);
+      return res.status(400).json({ error: 'Inaccessible URL', details: 'The AI Scraper is a remote service and cannot access "localhost". Please use a public URL.' });
+    }
+
     console.log(`[runTestHandler] Normalized URL: ${url}`);
 
     // Fix: Use x-forwarded-for to get real IP behind Vercel/proxies
@@ -226,7 +233,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
     // We process this immediately to ensure the referrer is rewarded even if the AI times out later or if using Test Mode.
     if (email) {
       // Use userIdentifier (safeEmail) to ensure case-insensitive matching
-      const { data: cust } = await supabase.from('customers').select('referred_by, referrer_rewarded').eq('email', userIdentifier).single();
+      const { data: cust } = await supabase.from('customers').select('referred_by, referrer_rewarded').eq('email', userIdentifier).maybeSingle();
       
       if (cust && cust.referred_by && !cust.referrer_rewarded) {
          const referrerEmail = cust.referred_by;
@@ -320,10 +327,6 @@ export const runTestHandler = async (req: Request, res: Response) => {
       // CTO FIX: Use maybeSingle() to prevent 406 error when no usage exists for today
       const { data: usage } = await supabase.from('daily_usage').select('count').eq('user_identifier', userIdentifier).eq('usage_date', today).maybeSingle();
       
-      if (url.includes('localhost') || url.includes('127.0.0.1')) {
-        return res.status(400).json({ error: 'Inaccessible URL', details: 'The AI Scraper is a remote service and cannot access "localhost". Please use a public URL.' });
-      }
-
       if (usage && usage.count >= 3) {
         console.log(`[Limit Reached] User: ${userIdentifier}, Count: ${usage.count}`);
         return res.status(402).json({ error: 'Insufficient Credits', details: 'You have reached your daily free limit. Please upgrade or buy a credit pack.' });

@@ -548,19 +548,34 @@ const CareerAdmin: React.FC = () => {
     setSidekickMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
     setLoading(true);
 
+    // CTO DIAGNOSTIC: Log key status before sending
+    const storedKey = localStorage.getItem('productShiftAdminKey');
+    console.log('📡 [SIDEKICK SEND] Key Length:', storedKey?.length || 0);
+
     try {
       const res = await fetch('/api/admin/career/sidekick-chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+          'Authorization': `Bearer ${storedKey}` 
         },
         body: JSON.stringify({ 
           message: userMsg,
           currentResume: pitchPreview
         })
       });
+      
       const data = await res.json();
+
+      if (!res.ok) {
+        console.error(`❌ [SIDEKICK ERROR] ${res.status}:`, data);
+        const errorMsg = res.status === 401 
+          ? `Authentication Failed. Your key length is ${storedKey?.length}, but the server expects ${data.debug?.serverLength}. Check console.`
+          : (data.error || 'Server error');
+        setSidekickMessages(prev => [...prev, { sender: 'bot', text: `⚠️ ${errorMsg}` }]);
+        return;
+      }
+
       if (data.success) {
         // CTO FIX: Defensive structure check to prevent state corruption and work loss
         if (data.updatedResume && !Array.isArray(data.updatedResume.assets)) {
