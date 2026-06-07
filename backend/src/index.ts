@@ -1197,7 +1197,7 @@ app.get('/api/ai-health', async (req, res) => {
 });
 
 // --- Health Check ---
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
   const routes: string[] = [];
   try {
     if (app._router && app._router.stack) {
@@ -1211,14 +1211,29 @@ app.get('/api/health', (req, res) => {
     console.error('Health check route inspection failed:', e);
   }
 
+  // CTO VERIFICATION: Check connectivity to new Project Beta tables
+  const tableChecks = await Promise.all([
+    supabase.from('community_assets').select('id').limit(1),
+    supabase.from('experiments').select('id').limit(1),
+    supabase.from('community_personas').select('id').limit(1)
+  ]);
+
+  const dbAudit = {
+    community_assets: tableChecks[0].error ? `ERROR: ${tableChecks[0].error.message}` : 'CONNECTED',
+    experiments: tableChecks[1].error ? `ERROR: ${tableChecks[1].error.message}` : 'CONNECTED',
+    community_personas: tableChecks[2].error ? `ERROR: ${tableChecks[2].error.message}` : 'CONNECTED'
+  };
+
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     activeRoutes: routes,
     env: {
       supabaseUrl: !!supabaseUrl ? 'OK' : 'MISSING',
-      geminiKey: !!process.env.GEMINI_API_KEY ? 'OK' : 'MISSING'
-    }
+      geminiKey: !!process.env.GEMINI_API_KEY ? 'OK' : 'MISSING',
+      stripeKey: !!process.env.STRIPE_SECRET_KEY ? 'OK' : 'MISSING'
+    },
+    project_beta_audit: dbAudit
   });
 });
 
