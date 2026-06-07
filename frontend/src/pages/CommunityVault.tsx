@@ -47,7 +47,8 @@ const CommunityVault: React.FC = () => {
     for (const file of selectedFiles) {
       const text = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target?.result as string); // CTO FIX: Corrected 'e' to 'ev'
+        // LEAD ENGINEER FIX: Use reader.result directly for maximum reliability across browsers
+        reader.onload = () => resolve(reader.result as string); 
         reader.onerror = (err) => reject(err);
         reader.readAsText(file);
       });
@@ -71,6 +72,13 @@ const CommunityVault: React.FC = () => {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        alert("Your session has expired. Please sign in again to use the Vault.");
+        navigate('/login');
+        return;
+      }
+
       const res = await fetch('/api/community/ingest', {
         method: 'POST',
         headers: { 
@@ -84,14 +92,22 @@ const CommunityVault: React.FC = () => {
       });
 
       const data = await res.json();
-      if (data.success) {
+
+      if (!res.ok) {
+        throw new Error(data.error || data.details || 'Shredding failed');
+      }
+
+      if (data.success && data.assets && data.assets.length > 0) {
         setReviewQueue(prev => [...data.assets, ...prev]);
         setPastedNotes('');
         setMediaUrl('');
         setSelectedFiles([]);
+      } else {
+        alert("The AI shredded the data but found 0 atomic insights. Try providing a larger sample or check the format.");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Shredding failed', e);
+      alert(`Error: ${e.message}`);
     } finally {
       setLoading(false);
     }
