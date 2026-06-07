@@ -81,8 +81,6 @@ const App: React.FC = () => {
     '/seo-firm-proposal',
     '/seo-onboarding',
     '/admin-career',
-    '/admin-personas',
-    '/admin-community',
     '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/') || location.pathname.startsWith('/experiment/');
@@ -187,8 +185,8 @@ const App: React.FC = () => {
           <Route path="/seo-onboarding" element={<SeoOnboarding />} />
           <Route path="/admin-career" element={<CareerAdmin />} />
           <Route path="/resume/:slug" element={<PublicResume />} />
-          <Route path="/admin-personas" element={<PersonaAdmin />} />
-          <Route path="/admin-community" element={<CommunityVault />} />
+          <Route path="/personas" element={<PersonaAdmin />} />
+          <Route path="/community-vault" element={<CommunityVault />} />
           <Route path="/experiment/:slug" element={<PublicExperiment />} />
           
           {/* Fallback for unknown routes */}

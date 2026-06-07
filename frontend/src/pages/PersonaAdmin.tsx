@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Users, Sparkles, Plus, LayoutGrid } from 'lucide-react';
-import AdminHeader from '../components/AdminHeader';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 
@@ -13,7 +12,6 @@ const PersonaAdmin: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminHeader />
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="flex justify-between items-center mb-12">
           <div className="flex items-center gap-4">

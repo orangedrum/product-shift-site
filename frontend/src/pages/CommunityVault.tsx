@@ -1,6 +1,5 @@
 import React from 'react';
 import { Database, Upload, MessageCircle, FileText } from 'lucide-react';
-import AdminHeader from '../components/AdminHeader';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoButton } from '../components/NeoButton';
 
@@ -11,7 +10,6 @@ import { NeoButton } from '../components/NeoButton';
 const CommunityVault: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminHeader />
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="flex items-center gap-4 mb-12">
           <div className="p-3 bg-black rounded-xl shadow-lg">

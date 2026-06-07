@@ -9,7 +9,7 @@ import { supabase, stripe, sendEmail, getEmailTemplate, isTestEmail, getPublicUr
 import { runTestHandler, generateStructuredData } from './analysis-controller';
 import { getAiServiceStatus, generateContentWithFallback } from './ai-service';
 import adminRouter from './admin';
-import { getPublicExperimentHandler } from './community-controller';
+import { getPublicExperimentHandler, communityIngestHandler, communitySidekickHandler, publishExperimentHandler } from './community-controller';
 import { runDeepAuditHandler } from './performance-controller';
 import { markNotificationsRead, deleteNotification, deleteAllNotifications } from './notification-controller';
 console.log('🚀 [SERVER BOOT] Initializing User Mirror Backend...');
@@ -215,6 +215,11 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // --- Mount Admin Routes (Must be after express.json) ---
 app.use('/api/admin', adminRouter);
+
+// --- Community Product Routes ---
+app.post('/api/community/ingest', authenticateRequest, communityIngestHandler);
+app.post('/api/community/sidekick', authenticateRequest, communitySidekickHandler);
+app.post('/api/community/publish-experiment', authenticateRequest, publishExperimentHandler);
 
 // --- Public Community Routes ---
 app.get('/api/public/experiment/:slug', getPublicExperimentHandler);
