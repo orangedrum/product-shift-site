@@ -4,6 +4,7 @@ import { generateStructuredData } from './analysis-controller';
 import { generateEnhancedContent, generateContentWithFallback } from './ai-service';
 import { marketingEmails } from './email-templates';
 import { careerIngestHandler, generatePitchHandler, sidekickChatHandler, publishResumeHandler, deleteAssetHandler, consolidateWorkHistoryHandler } from './career-controller';
+import { communityIngestHandler, communitySidekickHandler, publishExperimentHandler } from './community-controller';
 
 const router = express.Router();
 
@@ -42,6 +43,11 @@ const requireAdminKey = (req: express.Request, res: express.Response, next: expr
 // --- Career Registry Routes (Moved into Admin Router for Routing Purity) ---
 router.post('/career/ingest', requireAdminKey, careerIngestHandler);
 router.post('/career/generate-pitch', requireAdminKey, generatePitchHandler);
+
+// --- Community Intelligence Routes (Step 1 Chassis) ---
+router.post('/community/ingest', requireAdminKey, communityIngestHandler);
+router.post('/community/sidekick', requireAdminKey, communitySidekickHandler);
+router.post('/community/publish-experiment', requireAdminKey, publishExperimentHandler);
 
 // --- VERIFY ADMIN KEY ---
 router.get('/verify', requireAdminKey, (req, res) => {
