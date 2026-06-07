@@ -43,6 +43,9 @@ import SeoFirmProposal from './pages/SeoFirmProposal';
 import SeoOnboarding from './pages/SeoOnboarding';
 import CareerAdmin from './pages/CareerAdmin'; // Ensure case-perfect resolution
 import PublicResume from './pages/PublicResume';
+import PersonaAdmin from './pages/PersonaAdmin';
+import CommunityVault from './pages/CommunityVault';
+import PublicExperiment from './pages/PublicExperiment';
 
 
 const App: React.FC = () => {
@@ -78,9 +81,11 @@ const App: React.FC = () => {
     '/seo-firm-proposal',
     '/seo-onboarding',
     '/admin-career',
+    '/admin-personas',
+    '/admin-community',
     '/blog-login',
     '/styleguide'
-  ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/');
+  ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/') || location.pathname.startsWith('/experiment/');
 
   // Debugging: Log current path to ensure router is working
   React.useEffect(() => {
@@ -182,6 +187,9 @@ const App: React.FC = () => {
           <Route path="/seo-onboarding" element={<SeoOnboarding />} />
           <Route path="/admin-career" element={<CareerAdmin />} />
           <Route path="/resume/:slug" element={<PublicResume />} />
+          <Route path="/admin-personas" element={<PersonaAdmin />} />
+          <Route path="/admin-community" element={<CommunityVault />} />
+          <Route path="/experiment/:slug" element={<PublicExperiment />} />
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
