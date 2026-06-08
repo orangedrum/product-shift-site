@@ -24,6 +24,7 @@ const CommunityVault: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    console.log('🏗️ [CommunityVault] Mounted. Ready for ingestion.');
     const fetchData = async () => {
       // Fetch Experiments for the selector
       const { data: exp, error: expError } = await supabase.from('experiments').select('id, title').order('created_at', { ascending: false });
@@ -42,19 +43,31 @@ const CommunityVault: React.FC = () => {
   };
 
   const handleShred = async () => {
+    console.group('🚀 [SHREDDER TRIGGERED]');
+    console.log('Initial State:', { files: selectedFiles.length, notes: pastedNotes.length, url: mediaUrl.length });
+    
     setLoading(true);
     const ingestionItems: any[] = [];
 
     // 1. Process files (WhatsApp, Transcripts)
-    for (const file of selectedFiles) {
-      const text = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        // LEAD ENGINEER FIX: Use reader.result directly for maximum reliability across browsers
-        reader.onload = () => resolve(reader.result as string); 
-        reader.onerror = (err) => reject(err);
-        reader.readAsText(file);
-      });
-      ingestionItems.push({ rawData: text, label: file.name, documentTypeHint: file.name.endsWith('.txt') ? 'whatsapp' : 'transcript' });
+    try {
+      for (const file of selectedFiles) {
+        console.log(`📄 Reading file: ${file.name}...`);
+        const text = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string); 
+          reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+          reader.readAsText(file);
+        });
+        console.log(`✅ Read success: ${file.name} (${text.length} chars)`);
+        ingestionItems.push({ rawData: text, label: file.name, documentTypeHint: file.name.endsWith('.txt') ? 'whatsapp' : 'transcript' });
+      }
+    } catch (readErr: any) {
+      console.error('❌ File Reading Error:', readErr);
+      alert(readErr.message);
+      setLoading(false);
+      console.groupEnd();
+      return;
     }
 
     // 2. Process manual observations
@@ -68,12 +81,12 @@ const CommunityVault: React.FC = () => {
     }
 
     if (ingestionItems.length === 0) {
+      console.warn('⚠️ No items to ingest.');
       setLoading(false);
+      console.groupEnd();
       return;
     }
-
-    console.group('🚀 [SHREDDER START]');
-    console.log('Items in queue:', ingestionItems.length);
+    
     try {
       const { data: { session } } = await supabase.auth.getSession();
       

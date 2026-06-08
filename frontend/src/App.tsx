@@ -87,7 +87,7 @@ const App: React.FC = () => {
 
   // Debugging: Log current path to ensure router is working
   React.useEffect(() => {
-    console.log('App v2.2 - Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
+    console.log('App v2.3 - Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
   }, [location, normalizedPath, isLandingPage]);
 
   // Global Redirect Handler (e.g. for Magic Links)
