@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Trophy, TrendingUp, Users, Target, MessageSquare, Zap, Info, Loader2, Calendar, Layout, ArrowRight, CheckCircle } from 'lucide-react';
+import { Trophy, TrendingUp, Users, Target, MessageSquare, Zap, Info, Loader2, Calendar, Layout, ArrowRight, CheckCircle, User, HelpCircle, FileText } from 'lucide-react';
 import { NeoButton } from '../components/NeoButton';
 import { SEOMetadata } from '../components/SEOMetadata';
 import { supabase } from '../lib/supabase';
@@ -16,6 +16,7 @@ const PublicExperiment: React.FC = () => {
   const [experiment, setExperiment] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [discussions, setDiscussions] = useState<any[]>([]);
+  const [highlights, setHighlights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const PublicExperiment: React.FC = () => {
       if (data.success) {
         setExperiment(data.experiment);
         setSessions(data.sessions);
+        setHighlights(data.highlights);
         setDiscussions(data.discussions);
       }
       setLoading(false);
@@ -54,6 +56,12 @@ const PublicExperiment: React.FC = () => {
   const progress = Math.min(100, (experiment.amount_pledged / experiment.funding_goal) * 100);
   const COLORS = ['#4f46e5', '#ff1493', '#00bfff', '#39ff14', '#ff8c00'];
 
+  // Combine sessions and shredded assets for a unified findings feed
+  const combinedFindings = [
+    ...sessions.map(s => ({ ...s, type: 'session', date: s.session_date })),
+    ...highlights.map(h => ({ ...h, type: 'insight', date: h.created_at }))
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900">
       <SEOMetadata title={`${experiment.title} - Pilot Progress`} description={experiment.objective} />
@@ -66,11 +74,33 @@ const PublicExperiment: React.FC = () => {
               {experiment.status === 'active' ? 'Live Pilot Experiment' : 'Experiment Completed'}
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none">{experiment.title}</h1>
+            
+            <div className="flex flex-wrap gap-6 items-center py-2 text-gray-400">
+              <div className="flex items-center gap-2">
+                <User size={16} className="text-indigo-400"/>
+                <span className="text-xs font-bold uppercase tracking-widest">Lead: {experiment.lead_researcher || 'Jean Kaluza'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users size={16} className="text-indigo-400"/>
+                <span className="text-xs font-bold uppercase tracking-widest">{experiment.participant_count} Backers</span>
+              </div>
+            </div>
+
             <p className="text-xl text-gray-400 font-bold italic">"{experiment.hypothesis}"</p>
             
             {/* Progress Bar */}
             <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden border-2 border-white/10">
               <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${progress}%` }} />
+            </div>
+
+            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-tighter text-gray-500">
+               <span>{experiment.status === 'active' ? 'Still Raising' : 'Successfully Funded'}</span>
+               <div className="group relative flex items-center gap-1 cursor-help">
+                 <HelpCircle size={12} /> How does this work?
+                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-gray-900 text-white text-[9px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-xl border border-white/10">
+                   Pledges fund the physical logistics of the pilot. Results are shredded into our AI engine to prove product-market fit.
+                 </div>
+               </div>
             </div>
             
             <div className="grid grid-cols-3 gap-8 py-8 border-y border-white/10">
@@ -122,9 +152,16 @@ const PublicExperiment: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="grid lg:grid-cols-12 gap-16">
             <div className="lg:col-span-7 space-y-12">
-               <h2 className="text-4xl font-black tracking-tighter">About This Project</h2>
-               <p className="text-xl text-gray-600 leading-relaxed font-medium">{experiment.objective}</p>
-               
+               <section>
+                 <h2 className="text-4xl font-black tracking-tighter mb-4">About This Project</h2>
+                 <p className="text-xl text-gray-600 leading-relaxed font-medium">{experiment.objective}</p>
+               </section>
+
+               <section>
+                 <h2 className="text-2xl font-black tracking-tighter mb-4">Strategic Goals</h2>
+                 <p className="text-lg text-gray-500 leading-relaxed italic">"{experiment.hypothesis}"</p>
+               </section>
+
                <div className="p-8 bg-gray-50 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_#000]">
                  <h3 className="text-xl font-black mb-4 flex items-center gap-2"><Target className="text-indigo-600"/> Demographics Focus</h3>
                  <p className="font-bold text-gray-700">{typeof experiment.demographics === 'string' ? experiment.demographics : JSON.stringify(experiment.demographics)}</p>
@@ -149,21 +186,34 @@ const PublicExperiment: React.FC = () => {
 
         {activeTab === 'findings' && (
           <div className="max-w-3xl space-y-12">
-            {sessions.map((session, idx) => (
-              <div key={session.id} className="relative pl-12 border-l-4 border-gray-100">
+            {combinedFindings.map((finding, idx) => (
+              <div key={finding.id} className="relative pl-12 border-l-4 border-gray-100">
                 <div className="absolute -left-4 top-0 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center font-black text-xs">
-                  {sessions.length - idx}
+                  {combinedFindings.length - idx}
                 </div>
                 <div className="bg-white p-8 border-2 border-black rounded-2xl shadow-[4px_4px_0px_0px_#000]">
                   <div className="flex items-center gap-2 text-[10px] font-black uppercase text-indigo-600 mb-4">
-                    <Calendar size={12}/> {new Date(session.session_date).toLocaleDateString()}
+                    <Calendar size={12}/> {new Date(finding.date).toLocaleDateString()} 
+                    <span className="mx-2 opacity-20">|</span> 
+                    {finding.type === 'session' ? 'Workshop Log' : `Shredded: ${finding.label}`}
                   </div>
-                  <h3 className="text-2xl font-black mb-4">Lab Findings</h3>
-                  <p className="text-gray-600 leading-relaxed font-medium mb-6">{session.qualitative_findings}</p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-red-50 rounded-xl border border-red-100"><p className="text-[8px] font-black uppercase text-red-400">Pre-Sentiment</p><p className="font-bold">{session.pre_sentiment}</p></div>
-                    <div className="p-4 bg-green-50 rounded-xl border border-green-100"><p className="text-[8px] font-black uppercase text-green-400">Post-Sentiment</p><p className="font-bold">{session.post_sentiment}</p></div>
-                  </div>
+                  <h3 className="text-2xl font-black mb-4">{finding.type === 'session' ? 'Lab Findings' : finding.title || 'Shredded Insight'}</h3>
+                  <p className="text-gray-600 leading-relaxed font-medium mb-6">
+                    {finding.type === 'session' ? finding.qualitative_findings : finding.content}
+                  </p>
+                  
+                  {finding.type === 'session' ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-red-50 rounded-xl border border-red-100"><p className="text-[8px] font-black uppercase text-red-400">Pre-Sentiment</p><p className="font-bold">{finding.pre_sentiment}</p></div>
+                      <div className="p-4 bg-green-50 rounded-xl border border-green-100"><p className="text-[8px] font-black uppercase text-green-400">Post-Sentiment</p><p className="font-bold">{finding.post_sentiment}</p></div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                       <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase border border-indigo-100 flex items-center gap-1">
+                         <FileText size={10}/> Verified Insight
+                       </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

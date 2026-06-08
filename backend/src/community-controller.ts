@@ -174,8 +174,9 @@ export const getPublicExperimentHandler = async (req: Request, res: Response) =>
 
     const { data: sessions } = await supabase.from('experiment_sessions').select('*').eq('experiment_id', experiment.id).order('session_date', { ascending: false });
     const { data: discussions } = await supabase.from('experiment_discussions').select('*').eq('experiment_id', experiment.id).order('created_at', { ascending: false });
+    const { data: highlights } = await supabase.from('community_assets').select('*').eq('experiment_id', experiment.id).order('created_at', { ascending: false });
 
-    res.json({ success: true, experiment, sessions: sessions || [], discussions: discussions || [] });
+    res.json({ success: true, experiment, sessions: sessions || [], discussions: discussions || [], highlights: highlights || [] });
   } catch (e: any) {
     res.status(500).json({ error: 'Failed to fetch experiment', details: e.message });
   }
