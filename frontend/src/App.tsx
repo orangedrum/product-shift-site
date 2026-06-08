@@ -85,9 +85,17 @@ const App: React.FC = () => {
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/') || location.pathname.startsWith('/experiment/');
 
+  // PAGES THAT USE THE MINIMAL PRODUCT FOOTER (Standardized with AI UX Agent)
+  const isProductPage = [
+    '/ai-powered-ux',
+    '/personas',
+    '/community-vault',
+    '/account'
+  ].includes(normalizedPath);
+
   // Debugging: Log current path to ensure router is working
   React.useEffect(() => {
-    console.log('App v2.3 - Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
+    console.log('App v2.4 - Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage, 'isProductPage:', isProductPage);
   }, [location, normalizedPath, isLandingPage]);
 
   // Global Redirect Handler (e.g. for Magic Links)
@@ -195,8 +203,8 @@ const App: React.FC = () => {
         </ErrorBoundary>
       </main>
       
-      {isLandingPage ? (
-        <footer className="py-6 text-center bg-gray-50 border-t border-gray-200 no-print">
+      {(isLandingPage || isProductPage) ? (
+        <footer className="py-8 text-center bg-white border-t-4 border-black no-print">
           <div className="flex justify-center items-center gap-6">
             <a href="https://www.theproductshift.com" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
               <img src="/Favicon_1Favicon.png" alt="" className="h-5 w-5" />

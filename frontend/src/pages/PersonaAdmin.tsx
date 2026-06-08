@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Sparkles, Plus, LayoutGrid } from 'lucide-react';
 import { NeoCard } from '../components/NeoCard';
@@ -23,9 +23,44 @@ const EXISTING_PERSONAS = [
 const PersonaAdmin: React.FC = () => {
   const navigate = useNavigate();
   const [activePersona, setActivePersona] = useState<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Randomize background on mount (Standardized Product Style)
+  useEffect(() => {
+    const container = containerRef.current;
+    const updateGradient = () => {
+      if (container) {
+        const r = () => Math.floor(Math.random() * 100);
+        container.style.setProperty('--pos-x-1', `${r()}%`);
+        container.style.setProperty('--pos-y-1', `${r()}%`);
+        container.style.setProperty('--pos-x-2', `${r()}%`);
+        container.style.setProperty('--pos-y-2', `${r()}%`);
+        container.style.setProperty('--pos-x-3', `${r()}%`);
+        container.style.setProperty('--pos-y-3', `${r()}%`);
+      }
+    };
+
+    updateGradient();
+    const interval = setInterval(updateGradient, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      ref={containerRef}
+      className="min-h-screen"
+      style={{
+        background: `
+          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+          radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
+          #ffffff
+        `,
+        backgroundSize: '100% 100%',
+        transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
+      }}
+    >
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="flex justify-between items-center mb-12">
           <div className="flex items-center gap-4">

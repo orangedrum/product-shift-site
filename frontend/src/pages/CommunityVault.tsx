@@ -22,6 +22,27 @@ const CommunityVault: React.FC = () => {
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const [library, setLibrary] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Standardized Product Style Background
+  useEffect(() => {
+    const container = containerRef.current;
+    const updateGradient = () => {
+      if (container) {
+        const r = () => Math.floor(Math.random() * 100);
+        container.style.setProperty('--pos-x-1', `${r()}%`);
+        container.style.setProperty('--pos-y-1', `${r()}%`);
+        container.style.setProperty('--pos-x-2', `${r()}%`);
+        container.style.setProperty('--pos-y-2', `${r()}%`);
+        container.style.setProperty('--pos-x-3', `${r()}%`);
+        container.style.setProperty('--pos-y-3', `${r()}%`);
+      }
+    };
+
+    updateGradient();
+    const interval = setInterval(updateGradient, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     console.log('🏗️ [CommunityVault] Mounted. Ready for ingestion.');
@@ -145,7 +166,21 @@ const CommunityVault: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      ref={containerRef}
+      className="min-h-screen"
+      style={{
+        background: `
+          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+          radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
+          #ffffff
+        `,
+        backgroundSize: '100% 100%',
+        transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
+      }}
+    >
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="flex items-center gap-4 mb-12">
           <div className="p-3 bg-black rounded-xl shadow-lg">
