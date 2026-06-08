@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Database, Upload, MessageCircle, FileText, Loader2, Sparkles, Plus, AlertCircle, Link as LinkIcon, Trash2, Check, X, FileSearch } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoButton } from '../components/NeoButton';
@@ -11,6 +12,7 @@ import { supabase } from '../lib/supabase';
  * Step 3 of the Community Analyzer Roadmap.
  */
 const CommunityVault: React.FC = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [pastedNotes, setPastedNotes] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
@@ -70,6 +72,8 @@ const CommunityVault: React.FC = () => {
       return;
     }
 
+    console.group('🚀 [SHREDDER START]');
+    console.log('Items in queue:', ingestionItems.length);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -100,6 +104,7 @@ const CommunityVault: React.FC = () => {
       if (data.success && data.assets && data.assets.length > 0) {
         setReviewQueue(prev => [...data.assets, ...prev]);
         setPastedNotes('');
+        console.log('✅ Shredding complete. Assets found:', data.assets.length);
         setMediaUrl('');
         setSelectedFiles([]);
       } else {
@@ -109,6 +114,7 @@ const CommunityVault: React.FC = () => {
       console.error('Shredding failed', e);
       alert(`Error: ${e.message}`);
     } finally {
+      console.groupEnd();
       setLoading(false);
     }
   };

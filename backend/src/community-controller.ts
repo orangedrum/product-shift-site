@@ -52,13 +52,14 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
           .maybeSingle();
 
         const latestTimestamp = latestAsset?.created_at;
+        console.log(`⏱️ [SMART DELTA] Latest timestamp for "${sourceLabel}": ${latestTimestamp || 'NONE'}`);
 
         if (sourceUrl && !rawData) {
           const isActualUrl = sourceUrl.trim().startsWith('http') || (sourceUrl.includes('.') && !sourceUrl.includes(' '));
           if (isActualUrl) {
             try {
                const scraped = await scrapeUrl(sourceUrl);
-               rawData = `TITLE: ${scraped.title}\nBODY CONTENT: ${scraped.bodyText}`;
+               rawData = `TITLE: ${scraped.title}\nBODY CONTENT: ${scraped.bodyText}\nVISUALS: ${JSON.stringify(scraped.images)}`;
             } catch (scrapeErr) {
                console.warn('Scraping failed for community asset', scrapeErr);
             }
@@ -72,10 +73,13 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
         );
 
         const structuredData = await generateContentWithFallback(prompt);
+        console.log(`🤖 [GEMINI RAW RESPONSE] Preview: ${structuredData.substring(0, 150)}...`);
+
         const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
         if (!jsonMatch) continue;
         
         const { insights } = JSON.parse(jsonMatch[0]);
+        console.log(`✨ [SHREDDER SUCCESS] Extracted ${insights?.length || 0} insights from item.`);
 
         // Persist to community_assets
         const payload = insights.map((ins: any) => ({
