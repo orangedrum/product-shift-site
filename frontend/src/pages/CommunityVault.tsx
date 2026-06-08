@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Database, Upload, MessageCircle, FileText, Loader2, Sparkles, Plus, AlertCircle, Link as LinkIcon, Trash2, Check, X, FileSearch } from 'lucide-react';
+import { Database, Upload, MessageCircle, FileText, Loader2, Sparkles, Plus, AlertCircle, Link as LinkIcon, Trash2, Check, X, FileSearch, Target, Zap as ZapIcon, Coins } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
@@ -23,6 +23,15 @@ const CommunityVault: React.FC = () => {
   const [library, setLibrary] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Experiment Creator State
+  const [showCreator, setShowCreator] = useState(false);
+  const [newExp, setNewExp] = useState({
+    title: '',
+    hypothesis: '',
+    objective: '',
+    funding_goal: 1000
+  });
 
   // Standardized Product Style Background
   useEffect(() => {
@@ -165,6 +174,38 @@ const CommunityVault: React.FC = () => {
     if (!error) setLibrary(prev => prev.filter(a => a.id !== id));
   };
 
+  const handleCreateExperiment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/community/publish-experiment', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ experimentData: {
+          ...newExp,
+          status: 'active',
+          budget_breakdown: [{ category: 'Operations', amount: newExp.funding_goal }]
+        }})
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setExperiments(prev => [data.data, ...prev]);
+        setSelectedExperimentId(data.data.id);
+        setShowCreator(false);
+        setNewExp({ title: '', hypothesis: '', objective: '', funding_goal: 1000 });
+      }
+    } catch (err) {
+      console.error('Failed to create experiment', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div 
       ref={containerRef}
@@ -194,12 +235,50 @@ const CommunityVault: React.FC = () => {
 
         <div className="grid lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8 space-y-8">
+            {/* Experiment Quick-Creator (Modular Addition) */}
+            {showCreator ? (
+              <NeoCard title="Launch New Experiment">
+                <form onSubmit={handleCreateExperiment} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-black uppercase text-gray-400 mb-1">Experiment Title</label>
+                      <input required type="text" className="w-full p-3 border-2 border-black rounded-xl" placeholder="e.g. Tango Workshop Series" value={newExp.title} onChange={e => setNewExp({...newExp, title: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black uppercase text-gray-400 mb-1">Funding Goal ($)</label>
+                      <input required type="number" className="w-full p-3 border-2 border-black rounded-xl" value={newExp.funding_goal} onChange={e => setNewExp({...newExp, funding_goal: parseInt(e.target.value)})} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-gray-400 mb-1">Hypothesis</label>
+                    <textarea required className="w-full p-3 border-2 border-black rounded-xl h-20" placeholder="What are you trying to prove?" value={newExp.hypothesis} onChange={e => setNewExp({...newExp, hypothesis: e.target.value})} />
+                  </div>
+                  <div className="flex gap-3">
+                    <NeoButton type="submit" variant="tertiary" disabled={loading} className="flex-1">
+                      {loading ? <Loader2 className="animate-spin" /> : 'Launch Project'}
+                    </NeoButton>
+                    <NeoButton type="button" variant="secondary" onClick={() => setShowCreator(false)}>Cancel</NeoButton>
+                  </div>
+                </form>
+              </NeoCard>
+            ) : null}
+
             {/* Multi-Source Shredder Form */}
             <NeoCard title="Shredder Console">
               <div className="space-y-6">
                 {/* Link to Experiment */}
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Link to Experiment (Optional)</label>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Link to Experiment (Optional)</label>
+                    {!showCreator && (
+                      <button 
+                        onClick={() => setShowCreator(true)}
+                        className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase flex items-center gap-1"
+                      >
+                        <Plus size={12}/> New Experiment
+                      </button>
+                    )}
+                  </div>
                   {experiments.length > 0 ? (
                     <select 
                       value={selectedExperimentId}
