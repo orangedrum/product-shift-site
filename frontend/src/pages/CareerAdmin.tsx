@@ -167,9 +167,7 @@ const CareerAdmin: React.FC = () => {
       if (data && data.length > 0) {
         console.log('Sample Asset Data:', { id: data[0].id, title: data[0].title });
       }
-      
       setResults(data || []);
-      }
     };
     fetchLibrary();
 
