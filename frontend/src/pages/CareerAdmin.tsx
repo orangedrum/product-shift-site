@@ -160,7 +160,12 @@ const CareerAdmin: React.FC = () => {
         .order('created_at', { ascending: false });
       
       if (!error && data) {
-        console.log('📚 [LIBRARY DATA]', data.map(a => ({ title: a.title, descType: typeof a.description, isArray: Array.isArray(a.description) })));
+        console.log('📚 [LIBRARY DATA] Raw fetched assets:', data.map(a => ({ 
+          id: a.id, 
+          title: a.title, 
+          description: a.description, 
+          roi_metrics: a.roi_metrics 
+        })));
         setResults(data);
       }
     };
