@@ -1,25 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-<<<<<<< Updated upstream
-import { Database, Upload, MessageCircle, FileText, Loader2, Sparkles, Plus, AlertCircle, Link as LinkIcon, Trash2, Check, X, FileSearch, Target, Zap as ZapIcon, Coins } from 'lucide-react';
-import { MarketingCard } from '../components/MarketingCard';
-import { NeoButton } from '../components/NeoButton';
-import { NeoCard } from '../components/NeoCard';
-import { AssetCard } from '../components/AssetCard';
-import { supabase } from '../lib/supabase';
-
-/**
- * The Community Vault (Ingestion Hub)
- * Step 3 of the Community Analyzer Roadmap.
- */
-=======
-import { Database, Upload, Sparkles, Plus, Loader2, Link as LinkIcon, Trash2, Check, X, Target, Zap } from 'lucide-react';
+import { Database, Upload, MessageCircle, FileText, Loader2, Sparkles, Plus, AlertCircle, Link as LinkIcon, Trash2, Check, X, FileSearch, Target, Zap as ZapIcon, Coins, Edit } from 'lucide-react';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { AssetCard } from '../components/AssetCard';
 import { supabase } from '../lib/supabase';
 
->>>>>>> Stashed changes
 const CommunityVault: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -30,10 +16,10 @@ const CommunityVault: React.FC = () => {
   const [selectedExperimentId, setSelectedExperimentId] = useState<string>('');
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const [library, setLibrary] = useState<any[]>([]);
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-<<<<<<< Updated upstream
   // Experiment Creator State
   const [showCreator, setShowCreator] = useState(false);
   const [newExp, setNewExp] = useState({
@@ -42,7 +28,6 @@ const CommunityVault: React.FC = () => {
     objective: '',
     funding_goal: 1000
   });
-
   // Standardized Product Style Background
   useEffect(() => {
     const container = containerRef.current;
@@ -66,114 +51,10 @@ const CommunityVault: React.FC = () => {
   useEffect(() => {
     console.log('🏗️ [CommunityVault] Mounted. Ready for ingestion.');
     const fetchData = async () => {
-      // Fetch Experiments for the selector
-      const { data: exp, error: expError } = await supabase.from('experiments').select('id, title').order('created_at', { ascending: false });
-      if (exp) setExperiments(exp);
-
-      // Fetch Library Assets
-      const { data: assets } = await supabase.from('community_assets').select('*').order('created_at', { ascending: false });
-      if (assets) setLibrary(assets);
-    };
-    fetchData();
-  }, []);
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    setSelectedFiles(files);
-  };
-
-  const handleShred = async () => {
-    console.group('🚀 [SHREDDER TRIGGERED]');
-    console.log('Initial State:', { files: selectedFiles.length, notes: pastedNotes.length, url: mediaUrl.length });
-    
-    setLoading(true);
-    const ingestionItems: any[] = [];
-
-    // 1. Process files (WhatsApp, Transcripts)
-    try {
-      for (const file of selectedFiles) {
-        console.log(`📄 Reading file: ${file.name}...`);
-        const text = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string); 
-          reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
-          reader.readAsText(file);
-        });
-        console.log(`✅ Read success: ${file.name} (${text.length} chars)`);
-        ingestionItems.push({ rawData: text, label: file.name, documentTypeHint: file.name.endsWith('.txt') ? 'whatsapp' : 'transcript' });
-      }
-    } catch (readErr: any) {
-      console.error('❌ File Reading Error:', readErr);
-      alert(readErr.message);
-      setLoading(false);
-      console.groupEnd();
-      return;
-    }
-
-    // 2. Process manual observations
-    if (pastedNotes.trim()) {
-      ingestionItems.push({ rawData: pastedNotes, label: 'Manual Observation', documentTypeHint: 'observation' });
-    }
-
-    // 3. Process URL
-    if (mediaUrl.trim()) {
-      ingestionItems.push({ sourceUrl: mediaUrl, label: 'Social Import', documentTypeHint: 'social_media' });
-    }
-
-    if (ingestionItems.length === 0) {
-      console.warn('⚠️ No items to ingest.');
-      setLoading(false);
-      console.groupEnd();
-      return;
-    }
-    
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        alert("Your session has expired. Please sign in again to use the Vault.");
-        navigate('/login');
-        return;
-      }
-
-      const res = await fetch('/api/community/ingest', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({ 
-          items: ingestionItems, 
-          experimentId: selectedExperimentId 
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || data.details || 'Shredding failed');
-      }
-
-      if (data.success && data.assets && data.assets.length > 0) {
-        setReviewQueue(prev => [...data.assets, ...prev]);
-        setPastedNotes('');
-        console.log('✅ Shredding complete. Assets found:', data.assets.length);
-        setMediaUrl('');
-        setSelectedFiles([]);
-      } else {
-        alert("The AI shredded the data but found 0 atomic insights. Try providing a larger sample or check the format.");
-      }
-    } catch (e: any) {
-      console.error('Shredding failed', e);
-      alert(`Error: ${e.message}`);
-    } finally {
-      console.groupEnd();
-=======
-  useEffect(() => {
-    const fetchData = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return navigate('/login');
 
+      // Fetch Experiments for the selector
       const [expRes, assetRes] = await Promise.all([
         supabase.from('experiments').select('id, title').order('created_at', { ascending: false }),
         supabase.from('community_assets').select('*').order('created_at', { ascending: false })
@@ -185,7 +66,13 @@ const CommunityVault: React.FC = () => {
     fetchData();
   }, [navigate]);
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    setSelectedFiles(files);
+  };
+
   const handleShred = async () => {
+    console.group('🚀 [SHREDDER TRIGGERED]');
     setLoading(true);
     const ingestionItems: any[] = [];
     
@@ -331,10 +218,53 @@ const CommunityVault: React.FC = () => {
     } catch (e) { console.error('Delete failed', e); }
   };
 
+  const handleCreateExperiment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/community/publish-experiment', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ experimentData: {
+          ...newExp,
+          status: 'active',
+          budget_breakdown: [{ category: 'Operations', amount: newExp.funding_goal }]
+        }})
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setExperiments(prev => [data.data, ...prev]);
+        setSelectedExperimentId(data.data.id);
+        setShowCreator(false);
+        setNewExp({ title: '', hypothesis: '', objective: '', funding_goal: 1000 });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white" ref={containerRef}>
+    <div 
+      ref={containerRef}
+      className="min-h-screen"
+      style={{
+        background: `
+          radial-gradient(1750px circle at 100% 0%, #ff1493 0%, #ff1493 40%, #ff0000 60%, transparent 80%),
+          radial-gradient(at var(--pos-x-1, 50%) var(--pos-y-1, 50%), #ff8c00 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-2, 20%) var(--pos-y-2, 80%), #ff1493 0%, transparent 50%),
+          radial-gradient(at var(--pos-x-3, 80%) var(--pos-y-3, 20%), #ff0000 0%, transparent 50%),
+          #ffffff
+        `,
+        backgroundSize: '100% 100%',
+        transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
+      }}
+    >
       <div className="container mx-auto px-4 py-12 max-w-6xl">
->>>>>>> Stashed changes
         <div className="flex items-center gap-4 mb-12">
           <div className="p-3 bg-black rounded-xl shadow-lg">
             <Database className="text-white" size={32} />
@@ -406,23 +336,6 @@ const CommunityVault: React.FC = () => {
                       General Community Vault (Default)
                     </div>
                   )}
-                  {experiments.length === 0 && (
-                    <p className="text-[9px] text-gray-400 mt-2 font-medium uppercase tracking-tighter italic">Create experiments to pin data here.</p>
-                  )}
-=======
-            <NeoCard title="Shredder Console">
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">Link to Experiment (Optional)</label>
-                  <select 
-                    value={selectedExperimentId}
-                    onChange={(e) => setSelectedExperimentId(e.target.value)}
-                    className="w-full p-3 border-2 border-black rounded-xl bg-white font-bold text-sm focus:shadow-[2px_2px_0px_0px_#000] outline-none transition-all"
-                  >
-                    <option value="">General Community Vault (Default)</option>
-                    {experiments.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
-                  </select>
->>>>>>> Stashed changes
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -488,18 +401,9 @@ const CommunityVault: React.FC = () => {
               </div>
             </NeoCard>
 
-<<<<<<< Updated upstream
-            {/* New Insights Review Queue */}
             {reviewQueue.length > 0 && (
               <div className="space-y-6 animate-fade-in">
                 <h3 className="text-xl font-black flex items-center gap-2 tracking-tighter uppercase"><Sparkles className="text-indigo-600"/> Fresh Shredded Intelligence ({reviewQueue.length})</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {reviewQueue.map((asset, idx) => (
-                    <AssetCard key={idx} asset={asset} mode="review" onAction={() => approveInsight(idx)} />
-=======
-            {reviewQueue.length > 0 && (
-              <div className="space-y-6 animate-fade-in">
-                <h3 className="text-xl font-black flex items-center gap-2 tracking-tighter uppercase"><Sparkles className="text-indigo-600"/> Fresh Shredded Intelligence</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   {reviewQueue.map((asset, idx) => (
                     <AssetCard key={idx} asset={asset} mode="review" onAction={(action) => action === 'approve' && approveInsight(idx)} onUpdate={(id, field, value) => {
@@ -507,7 +411,6 @@ const CommunityVault: React.FC = () => {
                       q[idx][field] = value;
                       setReviewQueue(q);
                     }} />
->>>>>>> Stashed changes
                   ))}
                 </div>
               </div>
@@ -518,11 +421,7 @@ const CommunityVault: React.FC = () => {
             <h3 className="text-xl font-black flex items-center gap-2 tracking-tighter uppercase"><Database/> Vault Library</h3>
             <div className="space-y-4 max-h-[1000px] overflow-y-auto pr-2 custom-scrollbar">
               {library.map((asset) => (
-<<<<<<< Updated upstream
-                <AssetCard key={asset.id} asset={asset} mode="library" onAction={() => deleteLibraryAsset(asset.id)} />
-=======
                 <AssetCard key={asset.id} asset={asset} mode="library" onAction={(_, id) => id && deleteLibraryAsset(id)} onUpdate={updateLibraryAsset} />
->>>>>>> Stashed changes
               ))}
             </div>
           </div>
