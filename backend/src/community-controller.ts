@@ -4,6 +4,7 @@ import { generateContentWithFallback } from './ai-service';
 import { scrapeUrl } from './analysis-controller';
 import { COMMUNITY_INSIGHT_EXTRACTION_PROMPT, SIDEKICK_CHAT_PROMPT } from './prompts';
 
+<<<<<<< Updated upstream
 // Define a type for the community ingestion item
 interface CommunityIngestionItem {
   rawData?: string;
@@ -13,11 +14,14 @@ interface CommunityIngestionItem {
   experimentId?: string; // CTO: Support for experiment pinning
 }
 
+=======
+>>>>>>> Stashed changes
 /**
  * The Multi-Source Shredder (Backend)
  * Logic adapted from careerIngestHandler to extract Motivations, Triggers, and Objections.
  */
 export const communityIngestHandler = async (req: Request, res: Response) => {
+<<<<<<< Updated upstream
   const user = (req as any).user; // Scoped by authenticateRequest middleware
   const ingestionItems: CommunityIngestionItem[] = req.body.items; 
   
@@ -31,6 +35,18 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
   }
 
   const savedAssets: any[] = [];
+=======
+  const user = (req as any).user;
+  const ingestionItems = req.body.items; 
+  const globalExperimentId = req.body.experimentId;
+
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  if (!ingestionItems || !Array.isArray(ingestionItems)) {
+    return res.status(400).json({ error: 'Array of ingestion items required' });
+  }
+
+  const extractedInsights: any[] = [];
+>>>>>>> Stashed changes
 
   try {
     for (const item of ingestionItems) {
@@ -39,18 +55,28 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
 
       try {
         const sourceLabel = label || sourceUrl || 'Manual Intake';
+<<<<<<< Updated upstream
         console.log(`🚀 [COMMUNITY INGEST] Processing: ${sourceLabel}`);
 
         // --- STEP 3: SMART DELTA GUARD ---
         // Find the most recent timestamp for this specific source label to prevent duplicates
+=======
+
+        // SMART DELTA GUARD: Check for existing data from this source
+>>>>>>> Stashed changes
         const { data: latestAsset } = await supabase
           .from('community_assets')
           .select('created_at')
           .eq('label', sourceLabel)
+<<<<<<< Updated upstream
+=======
+          .eq('user_id', user.id)
+>>>>>>> Stashed changes
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
 
+<<<<<<< Updated upstream
         const latestTimestamp = latestAsset?.created_at;
         console.log(`⏱️ [SMART DELTA] Latest timestamp for "${sourceLabel}": ${latestTimestamp || 'NONE'}`);
 
@@ -84,11 +110,29 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
         // Persist to community_assets
         const payload = insights.map((ins: any) => ({
           user_id: user?.id,
+=======
+        const prompt = COMMUNITY_INSIGHT_EXTRACTION_PROMPT(
+          rawData || sourceUrl || 'No content provided', 
+          sourceLabel,
+          latestAsset?.created_at
+        );
+
+        const structuredData = await generateContentWithFallback(prompt);
+        const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) continue;
+        
+        const { insights } = JSON.parse(jsonMatch[0]) || { insights: [] };
+
+        // Normalize for frontend Review Queue (Not saved to DB yet)
+        const processed = (insights || []).map((ins: any) => ({
+          user_id: user.id,
+>>>>>>> Stashed changes
           content: ins.content,
           source_type: ins.source_type || documentTypeHint || 'observation',
           source_url: sourceUrl || 'direct_upload',
           label: sourceLabel,
           extracted_insights: ins.extracted_insights,
+<<<<<<< Updated upstream
           media_attachments: ins.media_references || []
         }));
         if (globalExperimentId) payload.forEach((p: any) => p.experiment_id = globalExperimentId);
@@ -105,10 +149,26 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
     res.json({ success: true, count: savedAssets.length, assets: savedAssets });
   } catch (e: any) {
     res.status(500).json({ error: 'Community ingestion failed', details: e.message });
+=======
+          media_attachments: ins.media_references || [],
+          experiment_id: globalExperimentId || null
+        }));
+
+        extractedInsights.push(...processed);
+      } catch (e) {
+        console.error('❌ [COMMUNITY INGEST ERROR]', e);
+      }
+    }
+
+    res.json({ success: true, assets: extractedInsights });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Ingestion failed', details: e.message });
+>>>>>>> Stashed changes
   }
 };
 
 /**
+<<<<<<< Updated upstream
  * The Mirror User Sidekick
  * Refactored for persona recalibration and community analysis.
  */
@@ -159,17 +219,76 @@ export const publishExperimentHandler = async (req: Request, res: Response) => {
     res.json({ success: true, url: `/experiment/${data.slug}`, data });
   } catch (e: any) {
     res.status(500).json({ error: 'Experiment publishing failed', details: e.message });
+=======
+ * CRUD: Save Approved Insight
+ */
+export const saveCommunityAssetHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const { data, error } = await supabase.from('community_assets').insert([{ ...req.body, user_id: user.id }]).select().single();
+    if (error) throw error;
+    res.json({ success: true, asset: data });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Failed to save insight', details: e.message });
   }
 };
 
 /**
+ * CRUD: Update Insight
+ */
+export const updateCommunityAssetHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { id } = req.params;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const { data, error } = await supabase
+      .from('community_assets')
+      .update(req.body)
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, asset: data });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Update failed', details: e.message });
+>>>>>>> Stashed changes
+  }
+};
+
+/**
+<<<<<<< Updated upstream
  * Public Experiment Getter
  * Fetches experiment details, sessions, and discussions by slug.
+=======
+ * CRUD: Delete Insight
+ */
+export const deleteCommunityAssetHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { id } = req.params;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const { error } = await supabase.from('community_assets').delete().eq('id', id).eq('user_id', user.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Delete failed', details: e.message });
+  }
+};
+
+/**
+ * Experiment Public Access
+>>>>>>> Stashed changes
  */
 export const getPublicExperimentHandler = async (req: Request, res: Response) => {
   const { slug } = req.params;
   try {
     const { data: experiment, error } = await supabase.from('experiments').select('*').eq('slug', slug).single();
+<<<<<<< Updated upstream
     if (error || !experiment) return res.status(404).json({ error: 'Experiment not found' });
 
     const { data: sessions } = await supabase.from('experiment_sessions').select('*').eq('experiment_id', experiment.id).order('session_date', { ascending: false });
@@ -221,5 +340,55 @@ router.get('/public/experiment/:slug', getPublicExperimentHandler);
 router.post('/ingest', authenticateRequest, communityIngestHandler);
 router.post('/sidekick', authenticateRequest, communitySidekickHandler);
 router.post('/publish-experiment', authenticateRequest, publishExperimentHandler);
+=======
+    if (error || !experiment) return res.status(404).json({ error: 'Not found' });
+    
+    const { data: highlights } = await supabase.from('community_assets').select('*').eq('experiment_id', experiment.id);
+    res.json({ success: true, experiment, highlights: highlights || [] });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Fetch failed', details: e.message });
+  }
+};
+
+/**
+ * Experiment Publishing (Save/Update)
+ */
+export const publishExperimentHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  
+  try {
+    const { data, error } = await supabase.from('experiments').upsert({ ...req.body.experimentData, user_id: user.id }).select().single();
+    if (error) throw error;
+    res.json({ success: true, data });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Publish failed', details: e.message });
+  }
+};
+
+export const getProjectBetaAudit = async () => {
+  try {
+    const checks = await Promise.all([
+      supabase.from('community_assets').select('id').limit(1),
+      supabase.from('experiments').select('id').limit(1)
+    ]);
+    return {
+      community_assets: checks[0].error ? 'ERROR' : 'CONNECTED',
+      experiments: checks[1].error ? 'ERROR' : 'CONNECTED'
+    };
+  } catch (e) { return { status: 'CRASHED' }; }
+};
+
+export const communitySidekickHandler = async (req: Request, res: Response) => { res.json({ success: true }); };
+
+const router = express.Router();
+router.get('/public/experiment/:slug', getPublicExperimentHandler);
+router.post('/ingest', authenticateRequest, communityIngestHandler);
+router.post('/assets', authenticateRequest, saveCommunityAssetHandler);
+router.put('/assets/:id', authenticateRequest, updateCommunityAssetHandler);
+router.delete('/assets/:id', authenticateRequest, deleteCommunityAssetHandler);
+router.post('/publish-experiment', authenticateRequest, publishExperimentHandler);
+router.post('/sidekick', authenticateRequest, communitySidekickHandler);
+>>>>>>> Stashed changes
 
 export default router;
