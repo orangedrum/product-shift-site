@@ -81,6 +81,8 @@ const App: React.FC = () => {
     '/seo-firm-proposal',
     '/seo-onboarding',
     '/admin-career',
+    '/admin-personas', // CTO FIX: These are now product pages, not landing pages
+    '/admin-community', // CTO FIX: These are now product pages, not landing pages
     '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/') || location.pathname.startsWith('/experiment/');
@@ -92,10 +94,10 @@ const App: React.FC = () => {
     '/community-vault',
     '/account'
   ].includes(normalizedPath);
-
+  
   // Debugging: Log current path to ensure router is working
   React.useEffect(() => {
-    console.log('App v2.4 - Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage, 'isProductPage:', isProductPage);
+    console.log('App v2.5 - [DEPLOYMENT VERIFIED] Path:', location.pathname, 'isLandingPage:', isLandingPage, 'isProductPage:', isProductPage);
   }, [location, normalizedPath, isLandingPage]);
 
   // Global Redirect Handler (e.g. for Magic Links)
@@ -203,7 +205,11 @@ const App: React.FC = () => {
         </ErrorBoundary>
       </main>
       
+      {/* CTO FIX: Conditional Footer Rendering */}
+      {/* If it's a landing page, use the marketing footer. If it's a product page, use the simplified product footer. */}
+      {/* Otherwise, if it's a public resume/experiment, use the default Footer component */}
       {(isLandingPage || isProductPage) ? (
+        // This is the simplified product footer (Neo-Brutalist)
         <footer className="py-8 text-center bg-white border-t-4 border-black no-print">
           <div className="flex justify-center items-center gap-6">
             <a href="https://www.theproductshift.com" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
