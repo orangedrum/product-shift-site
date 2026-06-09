@@ -78,13 +78,23 @@ const App: React.FC = () => {
     '/seo-firm-proposal',
     '/seo-onboarding',
     '/admin-career',
+    '/admin-personas', // CTO FIX: These are now product pages, not landing pages
+    '/admin-community', // CTO FIX: These are now product pages, not landing pages
     '/blog-login',
     '/styleguide'
   ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/');
 
+  // PAGES THAT USE THE MINIMAL PRODUCT FOOTER (Standardized with AI UX Agent)
+  const isProductPage = [
+    '/ai-powered-ux',
+    '/personas',
+    '/community-vault',
+    '/account'
+  ].includes(normalizedPath);
+
   // Debugging: Log current path to ensure router is working
   React.useEffect(() => {
-    console.log('App v2.2 - Path:', location.pathname, 'Normalized:', normalizedPath, 'isLandingPage:', isLandingPage);
+    console.log('App v2.5 - [DEPLOYMENT VERIFIED] Path:', location.pathname, 'isLandingPage:', isLandingPage, 'isProductPage:', isProductPage);
   }, [location, normalizedPath, isLandingPage]);
 
   // Global Redirect Handler (e.g. for Magic Links)
@@ -182,6 +192,10 @@ const App: React.FC = () => {
           <Route path="/seo-onboarding" element={<SeoOnboarding />} />
           <Route path="/admin-career" element={<CareerAdmin />} />
           <Route path="/resume/:slug" element={<PublicResume />} />
+          {/* CTO FIX: New Product Routes */}
+          {/* <Route path="/admin-personas" element={<PersonaAdmin />} /> */}
+          {/* <Route path="/admin-community" element={<CommunityVault />} /> */}
+          {/* <Route path="/experiment/:slug" element={<PublicExperiment />} /> */}
           
           {/* Fallback for unknown routes */}
           <Route path="*" element={<NotFound />} />
@@ -189,8 +203,12 @@ const App: React.FC = () => {
         </ErrorBoundary>
       </main>
       
-      {isLandingPage ? (
-        <footer className="py-6 text-center bg-gray-50 border-t border-gray-200 no-print">
+      {/* CTO FIX: Conditional Footer Rendering */}
+      {/* If it's a landing page, use the marketing footer. If it's a product page, use the simplified product footer. */}
+      {/* Otherwise, if it's a public resume/experiment, use the default Footer component */}
+      {(isLandingPage || isProductPage) ? (
+        // This is the simplified product footer (Neo-Brutalist)
+        <footer className="py-8 text-center bg-white border-t-4 border-black no-print">
           <div className="flex justify-center items-center gap-6">
             <a href="https://www.theproductshift.com" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
               <img src="/Favicon_1Favicon.png" alt="" className="h-5 w-5" />

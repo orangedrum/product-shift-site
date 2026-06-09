@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle, ListChecks, RefreshCcw, X, Edit, ShieldCheck } from 'lucide-react';
+import { Database, Link as LinkIcon, FileText, Send, Loader2, Trophy, MessageSquare, Sparkles, Trash2, Upload, ExternalLink, Check, Eye, Layout, Wand2, FileSearch, Zap, Globe, Copy, PenTool, AlertCircle, ListChecks, RefreshCcw, X, Edit } from 'lucide-react';
 import { MarketingCard } from '../components/MarketingCard';
 import AdminHeader from '../components/AdminHeader';
 import { NeoButton } from '../components/NeoButton';
-import { NeoCard } from '../components/NeoCard';
 import { AssetCard } from '../components/AssetCard';
 import { supabase } from '../lib/supabase';
 
@@ -61,31 +60,6 @@ const CareerAdmin: React.FC = () => {
     }
   }, [activeTab, results.length, pitchPreview]);
 
-  // CTO GATEKEEPER: Verify the key against the backend
-  const verifyAdminKey = async (key: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin/verify', {
-        headers: { 'Authorization': `Bearer ${key}` }
-      });
-      
-      if (res.ok) {
-        setIsAuthenticated(true);
-        localStorage.setItem('productShiftAdminKey', key);
-        setAuthError(null);
-      } else {
-        const data = await res.json();
-        throw new Error(data.details || 'Invalid Admin Key');
-      }
-    } catch (e: any) {
-      setIsAuthenticated(false);
-      setAuthError(e.message || 'Verification failed');
-      localStorage.removeItem('productShiftAdminKey');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Filtering logic for the Content Vault
   const filteredResults = (results || []).filter(asset => {
     if (!asset) return false;
@@ -125,6 +99,31 @@ const CareerAdmin: React.FC = () => {
     setReviewQueue(updatedQueue);
   };
 
+  // CTO GATEKEEPER: Verify the key against the backend
+  const verifyAdminKey = async (key: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/verify', {
+        headers: { 'Authorization': `Bearer ${key}` }
+      });
+      
+      if (res.ok) {
+        setIsAuthenticated(true);
+        localStorage.setItem('productShiftAdminKey', key);
+        setAuthError(null);
+      } else {
+        const data = await res.json();
+        throw new Error(data.details || 'Invalid Admin Key');
+      }
+    } catch (e: any) {
+      setIsAuthenticated(false);
+      setAuthError(e.message || 'Verification failed');
+      localStorage.removeItem('productShiftAdminKey');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // CTO Helper: Enable live editing of assets within the pitch preview
   const updatePitchAsset = (id: string, field: string, value: any) => {
     if (!pitchPreview) return;
@@ -159,14 +158,17 @@ const CareerAdmin: React.FC = () => {
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (!error && data) {
-        console.log('📚 [LIBRARY DATA] Raw fetched assets:', data.map(a => ({ 
-          id: a.id, 
-          title: a.title, 
-          description: a.description, 
-          roi_metrics: a.roi_metrics 
-        })));
-        setResults(data);
+      if (error) {
+        console.error('❌ [SUPABASE ERROR] Vault fetch failed:', error.message, error.details);
+        return;
+      }
+
+      console.log(`📚 [LIBRARY DATA] Successfully fetched ${data?.length || 0} assets.`);
+      if (data && data.length > 0) {
+        console.log('Sample Asset Data:', { id: data[0].id, title: data[0].title });
+      }
+      
+      setResults(data || []);
       }
     };
     fetchLibrary();
@@ -183,7 +185,7 @@ const CareerAdmin: React.FC = () => {
       }
     };
     fetchResumes();
-  }, []);
+  }, [isAuthenticated]);
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,7 +240,7 @@ const CareerAdmin: React.FC = () => {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('productShiftAdminKey')}` 
+          'Authorization': `Bearer ${storedKey}` 
         },
         body: JSON.stringify({ items: ingestionItems }) // Send array of items
       });
@@ -246,10 +248,10 @@ const CareerAdmin: React.FC = () => {
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 401) {
-          console.error(`❌ [AUTH ERROR] Key Mismatch. Verify server state here: ${window.location.origin}/api/admin/auth-diagnostic`);
-          console.error('Debug Info:', data.debug);
+          setIsAuthenticated(false);
+          setAuthError('Session expired or invalid key. Please re-authenticate.');
+          localStorage.removeItem('productShiftAdminKey');
         }
-        if (res.status === 401) alert(`Auth Failed: ${data.details}\nCheck console for server diagnostic info.`);
         throw new Error(data.error || data.details || 'Server error');
       }
 
@@ -598,9 +600,8 @@ const CareerAdmin: React.FC = () => {
     setSidekickMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
     setLoading(true);
 
-    // CTO DIAGNOSTIC: Log key status before sending
     const storedKey = localStorage.getItem('productShiftAdminKey');
-    console.log('📡 [SIDEKICK SEND] Key Length:', storedKey?.length || 0);
+    if (!storedKey) return setIsAuthenticated(false);
 
     try {
       const res = await fetch('/api/admin/career/sidekick-chat', {
@@ -650,36 +651,6 @@ const CareerAdmin: React.FC = () => {
       setLoading(false);
     }
   };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <NeoCard className="max-w-md w-full" title="Admin Access Required">
-          <div className="text-center mb-6">
-            <p className="text-gray-600">Please enter your Admin Secret Key to manage the Career Registry.</p>
-          </div>
-          <form onSubmit={handleAuthSubmit} className="space-y-4">
-            <input
-              type="password"
-              value={secretKey}
-              onChange={(e) => setSecretKey(e.target.value)}
-              className="w-full p-3 border-2 border-black rounded-lg focus:outline-none focus:shadow-[2px_2px_0px_0px_#000] transition-all"
-              placeholder="Enter Admin Secret Key"
-              required
-            />
-            {authError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm font-bold rounded-lg flex items-center gap-2">
-                <AlertCircle size={16} /> {authError}
-              </div>
-            )}
-            <NeoButton type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="animate-spin" /> : 'Unlock Admin Tools'}
-            </NeoButton>
-          </form>
-        </NeoCard>
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return (
