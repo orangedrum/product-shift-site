@@ -30,7 +30,7 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Array of community ingestion items required' });
   }
 
-  const savedAssets: any[] = [];
+  const reviewItems: any[] = [];
 
   try {
     for (const item of ingestionItems) {
@@ -78,31 +78,29 @@ export const communityIngestHandler = async (req: Request, res: Response) => {
         const jsonMatch = structuredData.match(/\{[\s\S]*\}/);
         if (!jsonMatch) continue;
         
-        const { insights } = JSON.parse(jsonMatch[0]);
+        const { insights } = JSON.parse(jsonMatch[0]) || { insights: [] };
         console.log(`✨ [SHREDDER SUCCESS] Extracted ${insights?.length || 0} insights from item.`);
 
-        // Persist to community_assets
-        const payload = insights.map((ins: any) => ({
+        // Normalize for the frontend Review Queue (NOT saved to DB until the user approves)
+        const processed = (insights || []).map((ins: any) => ({
           user_id: user?.id,
           content: ins.content,
           source_type: ins.source_type || documentTypeHint || 'observation',
           source_url: sourceUrl || 'direct_upload',
           label: sourceLabel,
           extracted_insights: ins.extracted_insights,
-          media_attachments: ins.media_references || []
+          media_attachments: ins.media_references || [],
+          experiment_id: globalExperimentId || null
         }));
-        if (globalExperimentId) payload.forEach((p: any) => p.experiment_id = globalExperimentId);
 
-        const { data: inserted, error: dbError } = await supabase.from('community_assets').insert(payload).select();
-        if (dbError) throw dbError;
-        if (inserted) savedAssets.push(...inserted);
+        reviewItems.push(...processed);
 
       } catch (e: any) {
         console.error('❌ [COMMUNITY INGEST ERROR] item:', item, e);
       }
     }
 
-    res.json({ success: true, count: savedAssets.length, assets: savedAssets });
+    res.json({ success: true, count: reviewItems.length, assets: reviewItems });
   } catch (e: any) {
     res.status(500).json({ error: 'Community ingestion failed', details: e.message });
   }
@@ -182,7 +180,92 @@ export const getPublicExperimentHandler = async (req: Request, res: Response) =>
   }
 };
 
-export const deleteCommunityAssetHandler = async (req: Request, res: Response) => { res.json({ success: true }); };
+// Columns that actually exist on the community_assets table. Any other fields
+// coming from the shared AssetCard editor are dropped so a save never 500s.
+const COMMUNITY_ASSET_COLUMNS = [
+  'content',
+  'source_type',
+  'source_url',
+  'label',
+  'extracted_insights',
+  'media_attachments',
+  'experiment_id'
+];
+
+const pickAssetFields = (body: any): Record<string, any> => {
+  const out: Record<string, any> = {};
+  for (const key of COMMUNITY_ASSET_COLUMNS) {
+    if (body && key in body) out[key] = body[key];
+  }
+  return out;
+};
+
+/**
+ * CRUD: Save Approved Insight
+ * Persists an approved/edited insight to the user's community library.
+ */
+export const saveCommunityAssetHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const { data, error } = await supabase
+      .from('community_assets')
+      .insert([{ ...pickAssetFields(req.body), user_id: user.id }])
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, asset: data });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Failed to save insight', details: e.message });
+  }
+};
+
+/**
+ * CRUD: Update Insight
+ * Updates an existing library asset owned by the requesting user.
+ */
+export const updateCommunityAssetHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { id } = req.params;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const { data, error } = await supabase
+      .from('community_assets')
+      .update(pickAssetFields(req.body))
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, asset: data });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Update failed', details: e.message });
+  }
+};
+
+/**
+ * CRUD: Delete Insight
+ * Removes a library asset owned by the requesting user.
+ */
+export const deleteCommunityAssetHandler = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { id } = req.params;
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const { error } = await supabase
+      .from('community_assets')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (e: any) {
+    res.status(500).json({ error: 'Delete failed', details: e.message });
+  }
+};
 
 /**
  * CTO Audit Helper
@@ -221,5 +304,10 @@ router.get('/public/experiment/:slug', getPublicExperimentHandler);
 router.post('/ingest', authenticateRequest, communityIngestHandler);
 router.post('/sidekick', authenticateRequest, communitySidekickHandler);
 router.post('/publish-experiment', authenticateRequest, publishExperimentHandler);
+
+// CRUD: Community library assets (persist approve / edit / delete)
+router.post('/assets', authenticateRequest, saveCommunityAssetHandler);
+router.put('/assets/:id', authenticateRequest, updateCommunityAssetHandler);
+router.delete('/assets/:id', authenticateRequest, deleteCommunityAssetHandler);
 
 export default router;
