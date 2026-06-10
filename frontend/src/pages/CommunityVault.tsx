@@ -5,6 +5,7 @@ import { MarketingCard } from '../components/MarketingCard';
 import { NeoButton } from '../components/NeoButton';
 import { NeoCard } from '../components/NeoCard';
 import { AssetCard } from '../components/AssetCard';
+import { Header } from '../components/Header';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -21,6 +22,7 @@ const CommunityVault: React.FC = () => {
   const [selectedExperimentId, setSelectedExperimentId] = useState<string>('');
   const [reviewQueue, setReviewQueue] = useState<any[]>([]);
   const [library, setLibrary] = useState<any[]>([]);
+  const [session, setSession] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -56,6 +58,10 @@ const CommunityVault: React.FC = () => {
   useEffect(() => {
     console.log('🏗️ [CommunityVault] Mounted. Ready for ingestion.');
     const fetchData = async () => {
+      // Capture the auth session so this product page renders the logged-in (UserMirror) Header
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+
       // Fetch Experiments for the selector
       const { data: exp, error: expError } = await supabase.from('experiments').select('id, title').order('created_at', { ascending: false });
       if (exp) setExperiments(exp);
@@ -162,16 +168,75 @@ const CommunityVault: React.FC = () => {
     }
   };
 
+  // Inline-edit a freshly shredded insight before it is approved into the Library.
+  // The card edits `description`; community insights persist that text in `content`.
+  const updateReviewItem = (index: number, field: string, value: any) => {
+    setReviewQueue(prev => prev.map((a, i) => {
+      if (i !== index) return a;
+      if (field === 'description') {
+        return { ...a, content: Array.isArray(value) ? value.join('\n') : value };
+      }
+      return { ...a, [field]: value };
+    }));
+  };
+
+  // Approve: persist the (optionally edited) insight to the user's Vault Library.
   const approveInsight = async (index: number) => {
     const asset = reviewQueue[index];
-    setLibrary(prev => [asset, ...prev]);
-    setReviewQueue(prev => prev.filter((_, i) => i !== index));
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/community/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify(asset)
+      });
+      const data = await res.json();
+      if (data.success && data.asset) {
+        setLibrary(prev => [data.asset, ...prev]);
+        setReviewQueue(prev => prev.filter((_, i) => i !== index));
+      } else {
+        alert(data.error || 'Failed to save insight');
+      }
+    } catch (e: any) {
+      console.error('Approve failed', e);
+      alert(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Edit a library insight in place and persist the change.
+  const updateLibraryAsset = async (id: string, field: string, value: any) => {
+    const payload = field === 'description'
+      ? { content: Array.isArray(value) ? value.join('\n') : value }
+      : { [field]: value };
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`/api/community/assets/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success && data.asset) setLibrary(prev => prev.map(a => a.id === id ? data.asset : a));
+    } catch (e) {
+      console.error('Update failed', e);
+    }
   };
 
   const deleteLibraryAsset = async (id: string) => {
     if (!window.confirm("Permanently remove this insight?")) return;
-    const { error } = await supabase.from('community_assets').delete().eq('id', id);
-    if (!error) setLibrary(prev => prev.filter(a => a.id !== id));
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`/api/community/assets/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${session?.access_token}` }
+      });
+      if (res.ok) setLibrary(prev => prev.filter(a => a.id !== id));
+    } catch (e) {
+      console.error('Delete failed', e);
+    }
   };
 
   const handleCreateExperiment = async (e: React.FormEvent) => {
@@ -222,6 +287,9 @@ const CommunityVault: React.FC = () => {
         transition: '--pos-x-1 3s ease, --pos-y-1 3s ease, --pos-x-2 3s ease, --pos-y-2 3s ease, --pos-x-3 3s ease, --pos-y-3 3s ease'
       }}
     >
+      {/* Logged-in (UserMirror / neo-brutalist) Header for this product page */}
+      <Header session={session || { user: { email: '' } }} />
+
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="flex items-center gap-4 mb-12">
           <div className="p-3 bg-black rounded-xl shadow-lg">
@@ -350,7 +418,16 @@ const CommunityVault: React.FC = () => {
                 <h3 className="text-xl font-black flex items-center gap-2 tracking-tighter uppercase"><Sparkles className="text-indigo-600"/> Fresh Shredded Intelligence ({reviewQueue.length})</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   {reviewQueue.map((asset, idx) => (
-                    <AssetCard key={idx} asset={asset} mode="review" onAction={() => approveInsight(idx)} />
+                    <AssetCard
+                      key={idx}
+                      asset={{ ...asset, description: asset.content }}
+                      mode="review"
+                      onAction={(action) => {
+                        if (action === 'approve') approveInsight(idx);
+                        else if (action === 'discard') setReviewQueue(prev => prev.filter((_, i) => i !== idx));
+                      }}
+                      onUpdate={(_id, field, value) => updateReviewItem(idx, field, value)}
+                    />
                   ))}
                 </div>
               </div>
@@ -361,7 +438,13 @@ const CommunityVault: React.FC = () => {
             <h3 className="text-xl font-black flex items-center gap-2 tracking-tighter uppercase"><Database/> Vault Library</h3>
             <div className="space-y-4 max-h-[1000px] overflow-y-auto pr-2 custom-scrollbar">
               {library.map((asset) => (
-                <AssetCard key={asset.id} asset={asset} mode="library" onAction={() => deleteLibraryAsset(asset.id)} />
+                <AssetCard
+                  key={asset.id}
+                  asset={{ ...asset, description: asset.content }}
+                  mode="library"
+                  onAction={(_action, id) => id && deleteLibraryAsset(id)}
+                  onUpdate={updateLibraryAsset}
+                />
               ))}
             </div>
           </div>
