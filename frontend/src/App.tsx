@@ -84,7 +84,8 @@ const App: React.FC = () => {
     '/admin-personas', // CTO FIX: These are now product pages, not landing pages
     '/admin-community', // CTO FIX: These are now product pages, not landing pages
     '/blog-login',
-    '/styleguide'
+    '/styleguide',
+    '/community-vault' // Renders its own logged-in (UserMirror) Header internally
   ].includes(normalizedPath) || location.pathname.startsWith('/login') || location.pathname.startsWith('/resume/') || location.pathname.startsWith('/experiment/');
 
   // PAGES THAT USE THE MINIMAL PRODUCT FOOTER (Standardized with AI UX Agent)
