@@ -2,8 +2,8 @@ import { delay } from './services';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-const TEXT_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
-const VISION_MODEL = 'meta-llama/llama-3.2-11b-vision-instruct:free';
+const TEXT_MODEL = 'google/gemma-4-31b-it:free';
+const VISION_MODEL = 'google/gemma-4-31b-it:free';
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
