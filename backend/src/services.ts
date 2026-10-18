@@ -12,9 +12,7 @@ export const supabase = createClient(
 );
 
 // --- Stripe Initialization ---
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-12-15.clover',
-});
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 // --- Email Config ---
 export const emailFrom = (process.env.EMAIL_FROM || '"Product Shift" <onboarding@theproductshift.com>')
