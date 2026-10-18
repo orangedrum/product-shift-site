@@ -423,10 +423,8 @@ export const runTestHandler = async (req: Request, res: Response) => {
       return { message: 'Analysis Complete.', reportId: runId, title: result.title, url: url, screenshot: result.screenshot, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })), expertReport: rawExpertReport, scores, seoSchema };
     })();
 
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 55000));
-    
-    console.log(`[runTestHandler] DEBUG - Awaiting Promise.race`);
-    const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
+    console.log(`[runTestHandler] DEBUG - Awaiting analysis (no timeout)`);
+    const finalResponse = await analysisPromise;
 
     console.log(`[runTestHandler] SUCCESS - Analysis complete. Sending response.`);
     res.json(finalResponse);
