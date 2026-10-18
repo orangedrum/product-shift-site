@@ -1125,6 +1125,23 @@ app.post('/api/user/feedback', authenticateRequest, async (req, res) => {
   res.json({ success: true });
 });
 
+// --- User: Transaction History ---
+app.get('/api/user/transactions', async (req, res) => {
+  const email = req.query.email;
+  if (!email || typeof email !== 'string') return res.status(400).json({ error: 'Email required' });
+  try {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('email', email.trim().toLowerCase())
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data || []);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // --- AI Service Health Check ---
 app.get('/api/ai-health', async (req, res) => {
   try {

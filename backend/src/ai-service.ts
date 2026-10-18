@@ -43,10 +43,11 @@ const getAvailableModels = async (apiKey: string): Promise<{ models: ModelParams
     
     // Robust Fallback: A mix of legacy and new model names to maximize hit rate
     const fallbackModels = [
-        { name: 'models/gemini-1.5-flash-latest' },
-        { name: 'models/gemini-pro' },
-        { name: 'models/gemini-pro-vision' },
-        { name: 'models/gemini-1.0-pro' }
+        { name: 'models/gemini-2.5-flash' },
+        { name: 'models/gemini-2.0-flash' },
+        { name: 'models/gemini-1.5-flash' },
+        { name: 'models/gemini-1.5-pro' },
+        { name: 'models/gemini-pro' }
     ] as any;
 
     cachedModels = fallbackModels;
@@ -74,16 +75,17 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
     .filter(name => {
       // CTO FIX: The models list in 2026 is returning massive amounts of noise (nano, preview, robotics, etc.)
       // that are often restricted or unstable. We must aggressively filter for standard, high-reliability models.
-      const isNoise = name.includes('preview') || 
-                      name.includes('tts') || 
+      const isNoise = name.includes('tts') || 
                       name.includes('image') || 
+                      name.includes('audio') || 
                       name.includes('robotics') || 
                       name.includes('nano') || 
                       name.includes('banana') || 
                       name.includes('gemma') || 
                       name.includes('lyria') || 
                       name.includes('deep-research') ||
-                      name.includes('banana');
+                      name.includes('embedding') ||
+                      name.includes('aqa');
       
       if (isNoise) return false;
 
@@ -102,12 +104,14 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
         // CTO FIX: Update priority list for 2026 model naming conventions.
         // We prefer Flash for speed, falling back to Pro for reasoning depth.
         const priority = [
-            'gemini-1.5-flash', 
-            'gemini-1.5-pro',
-            'gemini-flash-latest', 
-            'gemini-1.5-flash-latest', 
+            'gemini-2.5-flash',
+            'gemini-2.5-pro',
             'gemini-2.0-flash',
-            'gemini-pro-latest', 
+            'gemini-2.0-flash-lite',
+            'gemini-flash-latest',
+            'gemini-1.5-flash',
+            'gemini-1.5-pro',
+            'gemini-pro-latest',
             'gemini-pro'
         ];
         
