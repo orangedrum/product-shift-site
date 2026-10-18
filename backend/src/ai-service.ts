@@ -1,181 +1,97 @@
-import { GoogleGenerativeAI, ModelParams } from '@google/generative-ai';
 import { delay } from './services';
 
-let cachedModels: ModelParams[] | null = null;
-let cacheTimestamp: number | null = null;
-const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-/**
- * Fetches and caches the list of available models from the Gemini API.
- * This makes the application resilient to external model name changes.
- */
-const getAvailableModels = async (apiKey: string): Promise<{ models: ModelParams[], source: 'cache' | 'live' | 'fallback' }> => {
-  const now = Date.now();
-  if (cachedModels && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
-    return { models: cachedModels, source: 'cache' };
+const TEXT_MODEL = 'mistralai/mistral-7b-instruct:free';
+const VISION_MODEL = 'meta-llama/llama-3.2-11b-vision-instruct:free';
+
+interface OpenRouterMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
+}
+
+const openrouterChat = async (messages: OpenRouterMessage[], model: string): Promise<string> => {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('OPENROUTER_API_KEY is missing in environment variables');
+
+  const res = await fetch(OPENROUTER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://www.theproductshift.com',
+      'X-Title': 'User Mirror by Product Shift',
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: 0.7,
+      max_tokens: 4096,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Groq API Error ${res.status}: ${body}`);
   }
 
-  console.log('[AI Service] Smart Scavenger: Querying Google REST API for available models...');
-  try {
-    // Direct REST call to bypass SDK versioning issues and get the ground truth for this API Key
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    
-    if (!response.ok) {
-      throw new Error(`Google API Error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    // Filter for models that support content generation and map to the SDK's expected format
-    // CTO FIX: The previous mapping was incorrect, causing `null` models. The API returns objects with a `name` property. We should return these directly.
-    const availableModels = (data.models || [])
-      .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
-
-    if (availableModels.length === 0) throw new Error('No models found with generateContent support');
-
-    cachedModels = availableModels;
-    cacheTimestamp = now;
-    
-    console.log('[AI Service] Scavenger Success. Found models:', availableModels.map((m: any) => m.name));
-    return { models: availableModels, source: 'live' };
-  } catch (error) {
-    console.error('[AI Service] Scavenger failed. Falling back to hardcoded list.', error);
-    
-    // Robust Fallback: A mix of legacy and new model names to maximize hit rate
-    const fallbackModels = [
-        { name: 'models/gemini-2.5-flash' },
-        { name: 'models/gemini-2.0-flash' },
-        { name: 'models/gemini-1.5-flash' },
-        { name: 'models/gemini-1.5-pro' },
-        { name: 'models/gemini-pro' }
-    ] as any;
-
-    cachedModels = fallbackModels;
-    cacheTimestamp = now;
-
-    return { models: fallbackModels, source: 'fallback' };
-  }
+  const data: any = await res.json();
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) throw new Error('Groq returned no content');
+  return content;
 };
 
 export const generateContentWithFallback = async (prompt: string, screenshot?: string): Promise<string> => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY is missing in environment variables");
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('OPENROUTER_API_KEY is missing in environment variables');
 
-  // CTO DIAGNOSTIC: Masked Key Log to verify ground truth in Vercel
   const maskedKey = `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`;
-  console.log(`[AI Service] Starting generation. Key: ${maskedKey}`);
-  
-  const genAI = new GoogleGenerativeAI(apiKey);
-  let errorLog: string[] = [];
-  
-  const { models: allModels } = await getAvailableModels(apiKey);
-  
-  const modelsToTry = allModels
-    .map((m: any) => m.name?.replace('models/', '') || '')
-    .filter(name => {
-      // CTO FIX: The models list in 2026 is returning massive amounts of noise (nano, preview, robotics, etc.)
-      // that are often restricted or unstable. We must aggressively filter for standard, high-reliability models.
-      const isNoise = name.includes('tts') || 
-                      name.includes('image') || 
-                      name.includes('audio') || 
-                      name.includes('robotics') || 
-                      name.includes('nano') || 
-                      name.includes('banana') || 
-                      name.includes('gemma') || 
-                      name.includes('lyria') || 
-                      name.includes('deep-research') ||
-                      name.includes('embedding') ||
-                      name.includes('aqa');
-      
-      if (isNoise) return false;
+  console.log(`[AI Service] Starting generation via OpenRouter. Key: ${maskedKey}`);
 
-      const isMultimodal = name.includes('flash') || name.includes('1.5') || name.includes('2.0') || name.includes('2.5');
-      const isVisionSupported = name.includes('vision') || isMultimodal;
+  const model = screenshot ? VISION_MODEL : TEXT_MODEL;
 
-      if (screenshot) {
-        return isVisionSupported;
-      } else {
-        // For text-only, avoid legacy 'vision' specific models
-        const isLegacyVision = name.includes('vision') && !isMultimodal;
-        return !isLegacyVision;
-      }
-    })
-    .sort((a, b) => {
-        // CTO FIX: Update priority list for 2026 model naming conventions.
-        // We prefer Flash for speed, falling back to Pro for reasoning depth.
-        const priority = [
-            'gemini-2.5-flash',
-            'gemini-2.5-pro',
-            'gemini-2.0-flash',
-            'gemini-2.0-flash-lite',
-            'gemini-flash-latest',
-            'gemini-1.5-flash',
-            'gemini-1.5-pro',
-            'gemini-pro-latest',
-            'gemini-pro'
-        ];
-        
-        // Find the best match index (Exact match or very close alias)
-        const scoreA = priority.findIndex(p => a === p || a === `models/${p}`);
-        const scoreB = priority.findIndex(p => b === p || b === `models/${p}`);
-        
-        const finalA = scoreA === -1 ? 999 : scoreA;
-        const finalB = scoreB === -1 ? 999 : scoreB;
+  const messages: OpenRouterMessage[] = screenshot
+    ? [{
+        role: 'user',
+        content: [
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${screenshot}` } },
+        ],
+      }]
+    : [{ role: 'user', content: prompt }];
 
-        return finalA - finalB;
-    });
-
-  if (modelsToTry.length === 0) {
-      throw new Error('No suitable AI models found for this request type (text vs. vision).');
-  }
-
-  // Prepare image part if available
-  const imagePart = screenshot ? {
-    inlineData: {
-      data: screenshot,
-      mimeType: "image/jpeg",
-    },
-  } : null;
-
-  const parts: any[] = [prompt];
-  if (imagePart) parts.push(imagePart);
-
-  let attempt = 0;
-  for (const modelName of modelsToTry) {
+  // Simple retry with backoff for rate limits / transient errors
+  let lastError: any = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      attempt++;
-      console.log(`[AI Service] Attempting generation with model: ${modelName}`);
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(parts);
-      const response = result.response;
-      console.log(`✅ Model '${modelName}' succeeded.`);
-      return response.text();
+      const result = await openrouterChat(messages, model);
+      console.log(`✅ Groq model '${model}' succeeded.`);
+      return result;
     } catch (error: any) {
-      // CTO DIAGNOSTIC: Specific 403 handling
-      if (error.message.includes('403') || error.message.includes('Forbidden')) {
-        const permMsg = `🚨 [PERMISSIONS ERROR] Project denied access to ${modelName}. ACTION REQUIRED: 1. Go to https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com and click ENABLE. 2. Check https://console.cloud.google.com/apis/credentials to ensure the key is not restricted.`;
-        console.error(permMsg);
-        // CTO FIX: Stop retrying on configuration errors. This prevents 58s timeouts.
-        throw new Error(permMsg);
-      }
-
-      if (error.message.includes('503') || error.message.includes('429')) {
-        const waitTime = 1000 * Math.pow(2, attempt); // 2s, 4s...
-        console.log(`[AI Service] Model busy. Waiting ${waitTime}ms before next attempt.`);
+      lastError = error;
+      console.log(`Model '${model}' failed: ${error.message}`);
+      if (error.message.includes('429') || error.message.includes('503')) {
+        const waitTime = 1000 * Math.pow(2, attempt);
+        console.log(`[AI Service] Rate limited/busy. Waiting ${waitTime}ms before retry.`);
         await delay(waitTime);
+        continue;
       }
-      console.log(`Model '${modelName}' failed: ${error.message}`);
-      if (error.message.includes('404') && error.message.includes('not found')) {
-        errorLog.push(`${modelName}: 404 (Check API Key/Enabled Services)`);
-      } else if (error.message.includes('429')) {
-        errorLog.push(`${modelName}: 429 Rate Limit Exceeded`);
-      } else {
-        errorLog.push(`${modelName}: ${error.message}`);
-      }
+      // Non-retryable error: break
+      break;
     }
   }
 
-  throw new Error(`All fallback models failed. Errors: ${errorLog.join(' | ')}`);
+  // If vision model failed, fall back to text model without screenshot
+  if (screenshot) {
+    try {
+      console.log('[AI Service] Vision model failed; falling back to text-only model.');
+      return await openrouterChat([{ role: 'user', content: prompt }], TEXT_MODEL);
+    } catch (e: any) {
+      lastError = e;
+    }
+  }
+
+  throw new Error(`All AI models failed. Last error: ${lastError?.message || 'unknown'}`);
 };
 
 export const generateEnhancedContent = async (expertReport: string, userSessions: any[], title: string): Promise<{ blogContent: string, excerpt: string }> => {
@@ -204,50 +120,38 @@ export const generateEnhancedContent = async (expertReport: string, userSessions
 };
 
 export const getAiServiceStatus = async () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     return {
       status: 'error',
-      message: 'GEMINI_API_KEY is missing.',
+      message: 'OPENROUTER_API_KEY is missing.',
       source: 'not_configured',
       models: [],
       cacheTimestamp: null,
     };
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  
   try {
-    // Use the smart scavenger to check health. If it returns models, we are good.
-    const { models, source } = await getAvailableModels(apiKey);
-    let message = '';
-    switch(source) {
-        case 'live':
-            message = 'Successfully connected to Google AI and fetched live model list.';
-            break;
-        case 'cache':
-            message = 'Using cached model list.';
-            break;
-        case 'fallback':
-            message = 'Failed to connect to Google AI model list, using hardcoded fallback.';
-            break;
-    }
+    const res = await fetch('https://openrouter.ai/api/v1/models', {
+      headers: { 'Authorization': `Bearer ${apiKey}` },
+    });
+    if (!res.ok) throw new Error(`Groq models endpoint: ${res.status}`);
+    const data: any = await res.json();
+    const models = (data?.data || []).map((m: any) => m.id);
     return {
-      status: source === 'fallback' ? 'degraded' : 'ok',
-      message,
-      source,
-      models: models.map((m: any) => m.name),
-      cacheTimestamp: cacheTimestamp ? new Date(cacheTimestamp).toISOString() : null,
+      status: 'ok',
+      message: 'OpenRouter AI service reachable.',
+      source: 'live',
+      models,
+      cacheTimestamp: new Date().toISOString(),
     };
-
-  } catch (error: any) {
-    let errorMessage = `A generic error occurred: ${error.message}`;
-    if (error.message.includes('API key not valid')) {
-      errorMessage = 'CRITICAL: The GEMINI_API_KEY is invalid or has been revoked.';
-    } else if (error.message.includes('permission to access') || error.message.includes('Access Not Configured')) {
-      errorMessage = 'ACTION REQUIRED: The "Generative Language API" is not enabled for your Google Cloud project, or your project is suspended due to a billing issue. Please check your Google Cloud Console.';
-    }
-    
-    return { status: 'error', message: errorMessage, source: 'diagnostic_failure', models: [], cacheTimestamp: null };
+  } catch (e: any) {
+    return {
+      status: 'degraded',
+      message: `Failed to reach OpenRouter: ${e.message}`,
+      source: 'fallback',
+      models: [TEXT_MODEL, VISION_MODEL],
+      cacheTimestamp: new Date().toISOString(),
+    };
   }
 };
