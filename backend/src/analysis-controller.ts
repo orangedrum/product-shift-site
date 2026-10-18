@@ -49,20 +49,20 @@ export const scrapeUrl = async (url: string) => {
       code: `export default async function({ page, context }) {
         const url = context.url;
         // Optimize: Use domcontentloaded + short sleep instead of networkidle2 to prevent timeouts on heavy sites
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
-        await new Promise(r => setTimeout(r, 5000)); // CTO UPDATE: Increased to 5s to ensure full hydration/rendering for accuracy
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+        await new Promise(r => setTimeout(r, 2000)); // CTO UPDATE: Increased to 5s to ensure full hydration/rendering for accuracy
         const title = await page.title();
-        const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 8000));
+        const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 4000));
         const images = await page.evaluate(() => {
           return Array.from(document.querySelectorAll('img'))
             .filter(img => img.src && img.src.startsWith('http'))
             .map(img => ({ 
               src: img.src, 
               alt: img.alt || img.title || 'Visual asset' 
-            })).slice(0, 15);
+            })).slice(0, 8);
         });
         const headings = await page.evaluate(() => Array.from(document.querySelectorAll('h1, h2, h3')).map((h) => ({ tag: h.tagName, text: h.innerText })));
-        const screenshot = await page.screenshot({ type: 'jpeg', quality: 60, fullPage: false, encoding: 'base64' });
+        const screenshot = await page.screenshot({ type: 'jpeg', quality: 50, fullPage: false, encoding: 'base64' });
         return { data: { title, bodyText, headings, images, screenshot }, type: 'application/json' };
       };`,
       context: { url }
@@ -153,7 +153,7 @@ export const generateAggregatedReport = async (data: ScrapedData, sessions: { pe
   }
   const sessionText = sessions.map(s => cleanseTranscript(s.persona.name, s.output)).join('\n\n---\n\n');
   const prompt = AGGREGATED_REPORT_PROMPT(url, sessionText, footerContent);
-  return generateContentWithFallback(prompt, data.screenshot);
+  return generateContentWithFallback(prompt);
 };
 
 // --- Main Handler ---
@@ -389,7 +389,6 @@ export const runTestHandler = async (req: Request, res: Response) => {
 
       const userSessions = (await Promise.all(sessionPromises)).filter(s => s !== null);
 
-      await delay(1000);
       let rawExpertReport = await generateAggregatedReport(result, userSessions.map(s => ({ persona: s.personaObj, output: s.analysis })), goal, url, false);
       let scores = { usability: 0, desirability: 0, clarity: 0 };
       if (rawExpertReport.includes('|||SCORES_JSON|||')) {
@@ -424,7 +423,7 @@ export const runTestHandler = async (req: Request, res: Response) => {
       return { message: 'Analysis Complete.', reportId: runId, title: result.title, url: url, screenshot: result.screenshot, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })), expertReport: rawExpertReport, scores, seoSchema };
     })();
 
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 58000));
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 55000));
     
     console.log(`[runTestHandler] DEBUG - Awaiting Promise.race`);
     const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
