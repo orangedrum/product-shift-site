@@ -8,6 +8,7 @@ const FREE_MODELS = [
   'google/gemma-4-26b-a4b-it:free',
   'google/gemma-4-31b-it:free',
   'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'openrouter/free',
 ];
 
 interface OpenRouterMessage {
@@ -66,6 +67,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
   const textOnlyMessages: OpenRouterMessage[] = [{ role: 'user', content: prompt }];
 
   let lastError: any = null;
+  const errorLog: string[] = [];
   for (const model of FREE_MODELS) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
@@ -74,6 +76,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
         return result;
       } catch (error: any) {
         lastError = error;
+        errorLog.push(`${model}: ${error.message}`);
         console.log(`Model '${model}' failed: ${error.message}`);
         if (error.message.includes('429') || error.message.includes('503')) {
           const waitTime = 1000 * Math.pow(2, attempt);
@@ -92,10 +95,11 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       return await openrouterChat(textOnlyMessages, FREE_MODELS[0]);
     } catch (e: any) {
       lastError = e;
+      errorLog.push(`vision-fallback: ${e.message}`);
     }
   }
 
-  throw new Error(`All AI models failed. Last error: ${lastError?.message || 'unknown'}`);
+  throw new Error(`All AI models failed. Errors: ${errorLog.join(' | ')}`);
 };
 
 export const generateEnhancedContent = async (expertReport: string, userSessions: any[], title: string): Promise<{ blogContent: string, excerpt: string }> => {
