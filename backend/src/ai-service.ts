@@ -2,8 +2,13 @@ import { delay } from './services';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-const TEXT_MODEL = 'google/gemma-4-31b-it:free';
-const VISION_MODEL = 'google/gemma-4-31b-it:free';
+// Free, open-weights models on OpenRouter, ordered by preference.
+// All are multimodal (vision-capable) where noted.
+const FREE_MODELS = [
+  'google/gemma-4-26b-a4b-it:free',
+  'google/gemma-4-31b-it:free',
+  'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+];
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
@@ -37,7 +42,7 @@ const openrouterChat = async (messages: OpenRouterMessage[], model: string): Pro
 
   const data: any = await res.json();
   const content = data?.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Groq returned no content');
+  if (!content) throw new Error('OpenRouter returned no content');
   return content;
 };
 
@@ -47,8 +52,6 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
 
   const maskedKey = `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`;
   console.log(`[AI Service] Starting generation via OpenRouter. Key: ${maskedKey}`);
-
-  const model = screenshot ? VISION_MODEL : TEXT_MODEL;
 
   const messages: OpenRouterMessage[] = screenshot
     ? [{
@@ -60,32 +63,33 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
       }]
     : [{ role: 'user', content: prompt }];
 
-  // Simple retry with backoff for rate limits / transient errors
+  const textOnlyMessages: OpenRouterMessage[] = [{ role: 'user', content: prompt }];
+
   let lastError: any = null;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const result = await openrouterChat(messages, model);
-      console.log(`✅ Groq model '${model}' succeeded.`);
-      return result;
-    } catch (error: any) {
-      lastError = error;
-      console.log(`Model '${model}' failed: ${error.message}`);
-      if (error.message.includes('429') || error.message.includes('503')) {
-        const waitTime = 1000 * Math.pow(2, attempt);
-        console.log(`[AI Service] Rate limited/busy. Waiting ${waitTime}ms before retry.`);
-        await delay(waitTime);
-        continue;
+  for (const model of FREE_MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const result = await openrouterChat(messages, model);
+        console.log(`✅ OpenRouter model '${model}' succeeded.`);
+        return result;
+      } catch (error: any) {
+        lastError = error;
+        console.log(`Model '${model}' failed: ${error.message}`);
+        if (error.message.includes('429') || error.message.includes('503')) {
+          const waitTime = 1000 * Math.pow(2, attempt);
+          console.log(`[AI Service] Rate limited/busy. Waiting ${waitTime}ms before retry.`);
+          await delay(waitTime);
+          continue;
+        }
+        break;
       }
-      // Non-retryable error: break
-      break;
     }
   }
 
-  // If vision model failed, fall back to text model without screenshot
   if (screenshot) {
     try {
-      console.log('[AI Service] Vision model failed; falling back to text-only model.');
-      return await openrouterChat([{ role: 'user', content: prompt }], TEXT_MODEL);
+      console.log('[AI Service] Vision failed; falling back to text-only.');
+      return await openrouterChat(textOnlyMessages, FREE_MODELS[0]);
     } catch (e: any) {
       lastError = e;
     }
@@ -135,7 +139,7 @@ export const getAiServiceStatus = async () => {
     const res = await fetch('https://openrouter.ai/api/v1/models', {
       headers: { 'Authorization': `Bearer ${apiKey}` },
     });
-    if (!res.ok) throw new Error(`Groq models endpoint: ${res.status}`);
+    if (!res.ok) throw new Error(`OpenRouter models endpoint: ${res.status}`);
     const data: any = await res.json();
     const models = (data?.data || []).map((m: any) => m.id);
     return {
@@ -150,7 +154,7 @@ export const getAiServiceStatus = async () => {
       status: 'degraded',
       message: `Failed to reach OpenRouter: ${e.message}`,
       source: 'fallback',
-      models: [TEXT_MODEL, VISION_MODEL],
+      models: FREE_MODELS,
       cacheTimestamp: new Date().toISOString(),
     };
   }
