@@ -204,7 +204,7 @@ app.get('/api/ai-test', async (req, res) => {
     const result = await generateContentWithFallback("Reply with the word 'READY' if you are active.");
     res.json({ success: true, aiResponse: result });
   } catch (e: any) {
-    res.status(500).json({ success: false, error: e.message, hint: "Check if 'Generative Language API' is enabled in Google Cloud Console." });
+    res.status(500).json({ success: false, error: e.message, hint: "Check if OPENROUTER_API_KEY is set and valid in Vercel env vars." });
   }
 });
 

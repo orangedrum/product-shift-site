@@ -2,7 +2,7 @@ import { delay } from './services';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-const TEXT_MODEL = 'mistralai/mistral-7b-instruct:free';
+const TEXT_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
 const VISION_MODEL = 'meta-llama/llama-3.2-11b-vision-instruct:free';
 
 interface OpenRouterMessage {
@@ -32,7 +32,7 @@ const openrouterChat = async (messages: OpenRouterMessage[], model: string): Pro
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Groq API Error ${res.status}: ${body}`);
+    throw new Error(`OpenRouter API Error ${res.status}: ${body}`);
   }
 
   const data: any = await res.json();
