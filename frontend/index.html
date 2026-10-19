@@ -6,10 +6,92 @@
     <meta name="google-site-verification" content="iXkCwcGhltCJyB4q8jBuQlse1-UZegeIt4x-TSERoUQ" />
     <link rel="icon" type="image/png" href="/Favicon_1Favicon.png" />
     <script src="https://cdn.promotekit.com/promotekit.js" data-promotekit="b2bfaf6c-6812-40e8-9a6e-d64bd4a11870"></script>
-    <title>Product Shift</title>
+
+    <!-- SEO: static content for crawlers (React hydrates and replaces #root) -->
+    <title>ProductShift — AI Experience (AX) Design & UX Audits</title>
+    <meta name="description" content="ProductShift is the go-to agency for AI Experience (AX) design. We audit, design, and optimize the human experience of AI products — from conversational UX to agent trust and hallucination recovery. Get an AI UX audit today." />
+    <meta name="keywords" content="AI experience design, AX design, AI UX audit, AI website audit, conversational AI UX, AI agent trust design, prompt UX, AI hallucination UX" />
+    <link rel="canonical" href="https://www.theproductshift.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ProductShift — AI Experience (AX) Design & UX Audits" />
+    <meta property="og:description" content="The go-to agency for AI Experience (AX) design. We audit, design, and optimize the human experience of AI products." />
+    <meta property="og:url" content="https://www.theproductshift.com/" />
+    <meta property="og:site_name" content="ProductShift" />
+    <meta property="og:image" content="https://www.theproductshift.com/social-share.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ProductShift — AI Experience (AX) Design & UX Audits" />
+    <meta name="twitter:description" content="The go-to agency for AI Experience (AX) design. We audit, design, and optimize the human experience of AI products." />
+    <meta name="twitter:image" content="https://www.theproductshift.com/social-share.png" />
+
+    <!-- JSON-LD: Organization + Person (AEO/SEO authority signals) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ProductShift",
+      "url": "https://www.theproductshift.com",
+      "logo": "https://www.theproductshift.com/logo.png",
+      "description": "ProductShift is the go-to agency for AI Experience (AX) design. We audit, design, and optimize the human experience of AI products.",
+      "founder": {
+        "@type": "Person",
+        "name": "Jean Kaluza",
+        "jobTitle": "AI Experience (AX) Designer & Founder",
+        "url": "https://www.theproductshift.com"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/company/productshift",
+        "https://medium.com/@productshift"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ProductShift",
+      "url": "https://www.theproductshift.com",
+      "description": "AI Experience (AX) design agency. We audit, design, and optimize the human experience of AI products.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.theproductshift.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Static fallback content for crawlers (React replaces #root on hydration) -->
+    <div id="root">
+      <h1>ProductShift — AI Experience (AX) Design & UX Audits</h1>
+      <p>ProductShift is the go-to agency for AI Experience (AX) design. We audit, design, and optimize the human experience of AI products — from conversational UX and agent trust design to hallucination recovery and AI onboarding. Get an AI UX audit and see how your AI product really performs for real users.</p>
+
+      <h2>Our Services</h2>
+      <ul>
+        <li><a href="/ai-powered-ux">AI-Powered UX Audits</a> — Automated AI agent testing for any website.</li>
+        <li><a href="/agency-user-testing">Agency User Testing</a> — Human + AI hybrid UX research.</li>
+        <li><a href="/landingpg-aiuxagent">AI UX Agent</a> — Our flagship AI testing tool.</li>
+      </ul>
+
+      <h2>AI Experience (AX) Resources</h2>
+      <ul>
+        <li><a href="/blog">Blog — AI Experience Insights</a></li>
+        <li><a href="/blog/why-small-businesses-need-website-audit">Why Small Businesses Need Website Audits</a></li>
+      </ul>
+
+      <nav>
+        <a href="/">Home</a> |
+        <a href="/ai-powered-ux">AI-Powered UX</a> |
+        <a href="/agency-user-testing">Agency User Testing</a> |
+        <a href="/landingpg-aiuxagent">Landing Page</a> |
+        <a href="/blog">Blog</a>
+      </nav>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+EOF
+echo "written"
