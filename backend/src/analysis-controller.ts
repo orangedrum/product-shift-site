@@ -60,7 +60,7 @@ export const scrapeUrl = async (url: string) => {
           for (const el of buttons) {
             const txt = (el.textContent || '').trim().toLowerCase();
             if (rejectTexts.some(t => txt === t || txt.startsWith(t + ' ') || txt.endsWith(' ' + t) || txt.includes(t))) {
-              try { (el as any).click(); clickedReject = true; } catch (e) {}
+              try { el.click(); clickedReject = true; } catch (e) {}
             }
           }
           // If no reject option exists, we do NOT accept. Instead we remove the banner from the DOM
