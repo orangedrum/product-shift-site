@@ -50,7 +50,32 @@ export const scrapeUrl = async (url: string) => {
         const url = context.url;
         // Optimize: Use domcontentloaded + short sleep instead of networkidle2 to prevent timeouts on heavy sites
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
-        await new Promise(r => setTimeout(r, 2000)); // CTO UPDATE: Increased to 5s to ensure full hydration/rendering for accuracy
+        await new Promise(r => setTimeout(r, 2000));
+        // Dismiss cookie/consent banners so the report reflects real content, not the banner.
+        await page.evaluate(() => {
+          // Prefer REJECTING non-essential cookies (legal/ethical: do not consent on the user's behalf).
+          const rejectTexts = ['reject all', 'reject cookies', 'reject all cookies', 'decline all', 'decline', 'deny all', 'deny', 'essential only', 'required only', 'necessary only', 'use essential only', 'only necessary', 'only required', 'no, thanks', 'no thanks'];
+          const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+          let clickedReject = false;
+          for (const el of buttons) {
+            const txt = (el.textContent || '').trim().toLowerCase();
+            if (rejectTexts.some(t => txt === t || txt.startsWith(t + ' ') || txt.endsWith(' ' + t) || txt.includes(t))) {
+              try { (el as any).click(); clickedReject = true; } catch (e) {}
+            }
+          }
+          // If no reject option exists, we do NOT accept. Instead we remove the banner from the DOM
+          // so the report reflects the underlying page content without consenting on anyone's behalf.
+          // Remove common cookie/consent containers from the DOM
+          const selectors = [
+            '[id*="cookie" i]', '[class*="cookie" i]', '[id*="consent" i]', '[class*="consent" i]',
+            '[id*="gdpr" i]', '[class*="gdpr" i]', '[id*="banner" i]', '[class*="cookie-banner" i]',
+            '[aria-label*="cookie" i]', '[aria-label*="consent" i]'
+          ];
+          for (const sel of selectors) {
+            try { document.querySelectorAll(sel).forEach(n => n.remove()); } catch (e) {}
+          }
+        });
+        await new Promise(r => setTimeout(r, 500));
         const title = await page.title();
         const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 4000));
         const images = await page.evaluate(() => {
@@ -423,8 +448,9 @@ export const runTestHandler = async (req: Request, res: Response) => {
       return { message: 'Analysis Complete.', reportId: runId, title: result.title, url: url, screenshot: result.screenshot, userSessions: userSessions.map(s => ({ persona: s.persona, avatar: s.avatar, analysis: s.analysis, description: s.personaObj.description })), expertReport: rawExpertReport, scores, seoSchema };
     })();
 
-    console.log(`[runTestHandler] DEBUG - Awaiting analysis (no timeout)`);
-    const finalResponse = await analysisPromise;
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('GRACEFUL_TIMEOUT')), 58000));
+    console.log(`[runTestHandler] DEBUG - Awaiting Promise.race`);
+    const finalResponse = await Promise.race([analysisPromise, timeoutPromise]);
 
     console.log(`[runTestHandler] SUCCESS - Analysis complete. Sending response.`);
     res.json(finalResponse);

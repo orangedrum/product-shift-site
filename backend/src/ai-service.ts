@@ -79,7 +79,7 @@ export const generateContentWithFallback = async (prompt: string, screenshot?: s
         errorLog.push(`${model}: ${error.message}`);
         console.log(`Model '${model}' failed: ${error.message}`);
         if (error.message.includes('429') || error.message.includes('503')) {
-          const waitTime = 1000 * Math.pow(2, attempt);
+          const waitTime = 500 * Math.pow(2, attempt);
           console.log(`[AI Service] Rate limited/busy. Waiting ${waitTime}ms before retry.`);
           await delay(waitTime);
           continue;
